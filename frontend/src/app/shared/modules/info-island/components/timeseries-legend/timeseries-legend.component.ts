@@ -156,6 +156,14 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
                                 }
                             });
                             this._legendTableObserve.disabled = false;
+                            // request new overlayOrginRef
+                            this.interCom.responsePut({
+                                id: message.id,
+                                action: 'tsLegendRequestUpdatedOverlayOrigin',
+                                payload: {
+                                    multigraph: this.multigraph
+                                }
+                            });
                         }
 
                         // focus change
@@ -179,7 +187,7 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
             }
         }));
 
-        this.subscription.add(this.showAmount.valueChanges.subscribe(val =>{
+        this.subscription.add(this.showAmount.valueChanges.subscribe(val => {
             this.setTableData();
         }));
 
@@ -193,18 +201,20 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.tableDataSource.sort = this.sort;
-        this.tableDataSource.sortingDataAccessor = (item: any, property: any) => {
-            if (property === 'value') {
-                return item.data.yval;
-            } else {
-                return item[property];
-            }
-        };
+        this.tableDataSource.sortingDataAccessor = this.sortingDataAccessor;
+        this.tableDataSource.sortData = this.sortData;
     }
 
     get visibleDataCount() {
         const visible = this.currentWidgetOptions.visibility.filter(item => item === true);
         return visible.length;
+    }
+
+    get sortActiveText() {
+        if (this.sort) {
+            return this.sort.active;
+        }
+        return 'value';
     }
 
     /** Toolbar controls */
@@ -291,12 +301,9 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
                 }
             }
 
-            // slice for quick array clone
             // go ahead and sort by value so showLimit will show correctly
-            const isAsc = (this.sort) ? this.sort.direction === 'asc' : false;
-            const newDataArray: any[] = this.data.series.slice().sort((a, b) => {
-                return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
-            });
+            const newDataArray: any[] = this.sortData(this.data.series, (this.sort) ? this.sort : <MatSort>{active: 'value', direction: 'asc'});
+
             const showLimit = this.showAmount.value;
 
             switch (this.dataLimitType) {
@@ -310,22 +317,94 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
                     this.tableDataSource.data = newDataArray;
                     break;
             }
+
+            // double check the sort if it is a tag (if not value or metric, it is a tag)
+            if (this.sort && this.sort.active !== 'value' && this.sort.active !== 'metric') {
+                // check if by changing data (and possibly changing graph)
+                // if the sort.active exists on the data
+                // if not, go back to default of 'value'
+                if (!(this.tableDataSource.data[0] as any).series.tags[this.sort.active]) {
+                    this.sort.active = 'value';
+                }
+            }
         }
+        //console.log('DATA', this.tableDataSource.data);
         this.updateMasterCheckboxStates();
         if (this._legendTable) {
             this._legendTable.renderRows();
         }
     }
 
+    /* TABLE SORTING */
+
     // because our data columns sometimes use nested data to display,
     // we have to use a sort accessor depending on column to
     // return correct data to sort against
-    sortAccessor(item, property) {
+    private sortingDataAccessor(item: any, property: any) {
+        let value: any;
         if (property === 'value') {
-            return item.formattedValue;
+            // formatted value
+            value = item.data.yval;
+        } else if (property === 'metric') {
+            // metric name
+            value = item.series.metric;
+        } else if (item.series.tags.hasOwnProperty(property)) {
+            // must be a tag
+            value = item.series.tags[property];
         } else {
-            return item[property];
+            // everything else
+            value = item[property];
         }
+        //console.log('SORT ACCESSOR', {item, property, value});
+        return value;
+    }
+
+    // custom sort to be able to place NaN values properly if sorting by 'value'
+    private sortData(data: any[], sort: MatSort): any[] {
+        const active = sort.active;
+        const direction = sort.direction;
+
+        let dataValues: any[] = [];
+        let nanValues: any[] = [];
+        let sortedValues: any[];
+
+        // if sorting by value (which should be an integer/float)
+        if (active === 'value') {
+            // need to remove NaN temporarily
+            nanValues = data.slice().filter((item: any) => isNaN(item.data.yval));
+            // real integer/float values
+            dataValues = data.slice().filter((item: any) => !isNaN(item.data.yval));
+        } else {
+            // sorting by something else, most likely a string
+            dataValues = data.slice();
+        }
+
+        // sort it
+        sortedValues = dataValues.sort((a: any, b: any) => {
+            const valueA = this.sortingDataAccessor(a, active);
+            const valueB = this.sortingDataAccessor(b, active);
+            if (active === 'value') {
+                // for sorting integer/float
+                return (direction === 'asc') ? valueA - valueB : valueB - valueA;
+            } else {
+                // string type sort
+                return (valueA < valueB ? -1 : 1) * (direction === 'asc' ? 1 : -1);
+            }
+        });
+
+        let finalValues: any[];
+
+        // add NaN values back in their proper place depending on sort
+        if (direction === 'asc') {
+            // ascending sort has NaN items first
+            finalValues = nanValues.concat(sortedValues);
+        } else {
+            // descending has NaN values last
+            finalValues = sortedValues.concat(nanValues);
+        }
+
+        // return sorted data
+        return finalValues;
     }
 
     /* table checkbox controls */

@@ -99,6 +99,8 @@ export class InfoIslandService {
         const optionsToPass = JSON.parse(JSON.stringify(this.DEFAULT_OPTIONS));
         Object.assign(optionsToPass, options);
 
+        //console.log('OPTIONS TO PASS', optionsToPass);
+
         this.originId = options.originId;
 
         // create overlay reference
@@ -132,7 +134,7 @@ export class InfoIslandService {
     }
 
     closeIsland() {
-        if (this.overlayRef.hasAttached()) {
+        if (this.overlayRef && this.overlayRef.hasAttached()) {
             this.overlayRef.detach();
             this.interCom.responsePut({
                 id: this.originId ,
@@ -143,13 +145,7 @@ export class InfoIslandService {
 
     private createOverlayRef(elRef: ElementRef, options: any) {
 
-        let positionStrategy;
-        if (options.positionStrategy && options.positionStrategy === 'global') {
-            positionStrategy = this.getGlobalPositionStrategy();
-        // } else if (options.positionStrategy && options.positionStrategy === 'connected') {
-        } else {
-            positionStrategy = this.getFlexiblePositionStrategy(elRef);
-        }
+        const positionStrategy = this.getPositionStrategy(elRef, options.positionStrategy || 'flexible');
 
         this.overlayRef = this.overlay.create({
             hasBackdrop: false,
@@ -160,34 +156,17 @@ export class InfoIslandService {
 
     }
 
-    updatePositionStrategy(elRef: ElementRef) {
+    updatePositionStrategy(elRef: ElementRef, strategyType: string = 'flexible') {
+        if (!this.overlayRef) {
+            return;
+        }
         // WIP to update position strategy
+        const positionStrategy = this.getPositionStrategy(elRef, strategyType);
+        this.overlayRef.updatePositionStrategy(positionStrategy);
+        this.overlayRef.updatePosition();
     }
 
-    private getGlobalPositionStrategy() {
-        const globalPositionStrategy = this.overlay.position()
-            .global()
-            .centerHorizontally()
-            .centerVertically();
-        return globalPositionStrategy;
-    }
-
-    // WIP for connected position strategy 
-    /*private getConnectedPositionStrategy(elRef: ElementRef) {
-        const positionStrategy = this.overlay.position()
-        .flexibleConnectedTo(elRef)
-        .withPush(true)
-        .withPositions([
-            { originX: 'center', originY: 'top', overlayX: 'center', overlayY: 'bottom' },
-            { originX: 'center', originY: 'bottom', overlayX: 'center', overlayY: 'top' },
-            { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top' },
-            { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom' },
-            { originX: 'end', originY: 'bottom', overlayX: 'endt', overlayY: 'top' },
-            { originX: 'end', originY: 'top', overlayX: 'end', overlayY: 'bottom' }
-        ]);
-    }*/
-
-    private getFlexiblePositionStrategy(elRef: ElementRef) {
+    private getPositionStrategy(elRef: ElementRef, strategyType: string = 'flexible') {
 
         const origin = {
             topLeft: { originX: 'start', originY: 'top' } as OriginConnectionPosition,
@@ -208,15 +187,39 @@ export class InfoIslandService {
             center: { overlayX: 'center', overlayY: 'center' } as OverlayConnectionPosition
         };
 
-        const positionStrategy = this.overlay.position()
-            .flexibleConnectedTo(elRef)
-            .withFlexibleDimensions(true)
-            .withPush(true)
-            .withPositions([
-                new ConnectionPositionPair(origin.bottomLeft, overlay.topLeft),
-                //  new ConnectionPositionPair(origin.topLeft, overlay.topLeft),
-                new ConnectionPositionPair(origin.center, overlay.center)
-            ]);
+        let positionStrategy: any;
+
+        if (strategyType === 'global') {
+            positionStrategy = this.overlay.position()
+                .global()
+                .centerHorizontally()
+                .centerVertically();
+        } else if (strategyType === 'connected') {
+            positionStrategy = this.overlay.position()
+                .flexibleConnectedTo(elRef)
+                .withFlexibleDimensions(false)
+                .withPush(true)
+                .withPositions([
+                    // new ConnectionPositionPair(origin.topCenter, overlay.bottomCenter),
+                    // new ConnectionPositionPair(origin.bottomCenter, overlay.topCenter),
+                    new ConnectionPositionPair(origin.bottomLeft, overlay.topLeft),
+                    new ConnectionPositionPair(origin.topLeft, overlay.bottomLeft),
+                    new ConnectionPositionPair(origin.bottomRight, overlay.topRight),
+                    new ConnectionPositionPair(origin.topRight, overlay.bottomRight)
+                ]);
+        } else {
+            // ELSE, it's Flexible
+            positionStrategy = this.overlay.position()
+                .flexibleConnectedTo(elRef)
+                .withFlexibleDimensions(false)
+                .withPush(true)
+                .withPositions([
+                    new ConnectionPositionPair(origin.bottomLeft, overlay.topLeft),
+                    //  new ConnectionPositionPair(origin.topLeft, overlay.topLeft),
+                    new ConnectionPositionPair(origin.center, overlay.center)
+                ]);
+        }
+
         return positionStrategy;
     }
 

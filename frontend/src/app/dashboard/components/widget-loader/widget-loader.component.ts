@@ -51,40 +51,57 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
         this.loadComponent();
 
         this.subscription.add(this.interCom.requestListen().subscribe((message: IMessage) => {
-            switch (message.action) {
-                case 'InfoIslandOpen':
-                    const dataToInject = {
-                        widget: this.widget,
-                        originId: message.id,
-                        data: message.payload.data
-                    };
-                    const portalDef = message.payload.portalDef;
-                    let componentOrTemplateRef;
+            if (message.action && this.widget.id === message.id) {
+                // console.log('===>>> WIDGET LOADER INTERCOM <<<===', message);
+                switch (message.action) {
+                    case 'InfoIslandOpen':
+                        const dataToInject = {
+                            widget: this.widget,
+                            originId: message.id,
+                            data: message.payload.data
+                        };
+                        const portalDef = message.payload.portalDef;
+                        let componentOrTemplateRef;
 
-                    let options: any = { };
-                    if (message.payload.options) {
-                        Object.assign(options, message.payload.options);
-                    }
-                    options.originId = message.id;
+                        let options: any = { };
+                        if (message.payload.options) {
+                            Object.assign(options, message.payload.options);
+                        }
+                        options.originId = message.id;
 
-                    if (portalDef.type === 'component') {
-                        // component based
-                        // tslint:disable-next-line: max-line-length
-                        const compRef = (portalDef.name) ? this.infoIslandService.getComponentToLoad(portalDef.name) : portalDef.reference;
-                        componentOrTemplateRef = new ComponentPortal(compRef, null, this.infoIslandService.createInjector(dataToInject));
-                    } else {
-                        // template based
-                        const tplRef = (portalDef.templateName) ? this[portalDef.name] : portalDef.reference;
-                        componentOrTemplateRef = new TemplatePortal(tplRef, null, dataToInject);
-                    }
-                    this.infoIslandService.openIsland(
-                        this.hostElRef.nativeElement.closest('.app-dboard-content'),
-                        componentOrTemplateRef,
-                        options
-                    );
-                    break;
-                default:
-                    break;
+                        let overlayOriginRef;
+                        if (options.overlayRefEl) {
+                            // CUSTOM ORIGIN REF
+                            overlayOriginRef = options.overlayRefEl;
+                        } else if (options.positionStrategy && options.positionStrategy === 'global') {
+                            // GLOBAL USES DASHBOARD CONTENT WRAPPER
+                            overlayOriginRef = this.hostElRef.nativeElement.closest('.app-dboard-content');
+                        } else {
+                            // OTHERWISE USE THE WIDGET HOST
+                            overlayOriginRef = this.hostElRef.nativeElement;
+                        }
+
+                        //console.log('OVERLAY ORIGIN REF', overlayOriginRef);
+
+                        if (portalDef.type === 'component') {
+                            // component based
+                            // tslint:disable-next-line: max-line-length
+                            const compRef = (portalDef.name) ? this.infoIslandService.getComponentToLoad(portalDef.name) : portalDef.reference;
+                            componentOrTemplateRef = new ComponentPortal(compRef, null, this.infoIslandService.createInjector(dataToInject));
+                        } else {
+                            // template based
+                            const tplRef = (portalDef.templateName) ? this[portalDef.name] : portalDef.reference;
+                            componentOrTemplateRef = new TemplatePortal(tplRef, null, dataToInject);
+                        }
+                        this.infoIslandService.openIsland(
+                            overlayOriginRef,
+                            componentOrTemplateRef,
+                            options
+                        );
+                        break;
+                    default:
+                        break;
+                }
             }
         }));
     }
