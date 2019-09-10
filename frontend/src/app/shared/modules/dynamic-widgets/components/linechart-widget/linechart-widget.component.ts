@@ -317,7 +317,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             this.resetChart(); // need to reset this data
 
                             // render multigraph or not is here
-                            let graphs = {};
+                            let limitGraphs = {};
                             const multiConf = this.multiService.buildMultiConf(this.widget.settings.multigraph);
                             this.multigraphEnabled = (multiConf.x || multiConf.y) ? true : false;
 
@@ -331,66 +331,65 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                     legend.display = false;
                                     this.updateConfig({action: 'SetLegend', payload: {data: legend}});
                                 }
-
                                 this.multigraphMode = this.widget.settings.multigraph.layout;
-
                                 // result graphRowLabelMarginLeft since we have new data
                                 this.graphRowLabelMarginLeft = 0;
                                 // fill out tag values from rawdata
                                 const results = this.multiService.fillMultiTagValues(this.widget, multiConf, rawdata);
-                                graphs = this.utilService.deepClone(results);
+                                const maxGraphs = 60;
+                                const rowKeys = this.getGraphDataObjectKeys(results);
+                                const colKeys = rowKeys.length ? this.getGraphDataObjectKeys(results[rowKeys[0]]) : [];
+                                const maxCols = colKeys.length <= maxGraphs ? colKeys.length : maxGraphs;
+                                let numOfRows = 1;
+                                if (rowKeys.length * colKeys.length > maxGraphs) {
+                                    if (rowKeys.length < maxGraphs) {
+                                        numOfRows = Math.ceil(maxGraphs / colKeys.length);
+                                    } else {
+                                        numOfRows = maxGraphs;
+                                    }
+                                    // let get maxGraphs
+                                    for (let i = 0; i < numOfRows; i++) {
+                                        for (let j = 0; j < maxCols; j++) {
+                                            if (!limitGraphs[rowKeys[i]]) {
+                                                limitGraphs[rowKeys[i]] = {};
+                                            }
+                                            limitGraphs[rowKeys[i]][colKeys[j]] = results[rowKeys[i]][colKeys[j]];
+                                        }
+                                    }
+                                    // this.multiLimitMessage = 'Display first ' + numOfRows * maxCols + ' of ' + rowKeys.length * colKeys.length;
+                                    // emit message to display on widget header
+                                    // this.widgetOut.emit({
+                                    //    message: this.multiLimitMessage
+                                    // });
+                                } else {
+                                    limitGraphs = results;
+                                }
+                                // graphs = this.utilService.deepClone(results);
                                 // we need to convert to dygraph for these multigraph
-                                for (const ykey in results) {
-                                    if (results.hasOwnProperty(ykey)) {
-                                        for (const xkey in results[ykey]) {
-                                            if (results[ykey].hasOwnProperty(xkey)) {
-                                                graphs[ykey][xkey].ts = [[0]];
+                                for (const ykey in limitGraphs) {
+                                    if (limitGraphs.hasOwnProperty(ykey)) {
+                                        for (const xkey in limitGraphs[ykey]) {
+                                            if (limitGraphs[ykey].hasOwnProperty(xkey)) {
+                                                limitGraphs[ykey][xkey].ts = [[0]];
                                                 const options = this.utilService.deepClone(this.options);
 
-                                                graphs[ykey][xkey].ts = this.dataTransformer.yamasToDygraph(
-                                                     this.widget, options, graphs[ykey][xkey].ts, results[ykey][xkey]
+                                                limitGraphs[ykey][xkey].ts = this.dataTransformer.yamasToDygraph(
+                                                     this.widget, options, limitGraphs[ykey][xkey].ts, limitGraphs[ykey][xkey]
                                                 );
-                                                graphs[ykey][xkey].options = options;
+                                                limitGraphs[ykey][xkey].options = options;
                                             }
                                         }
                                     }
                                 }
                             } else {
+                                let graphs = {};
                                 this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
                                 this.data = { ...this.data };
                                 graphs['y'] = {};
                                 graphs['y']['x'] = this.data;
-                            }
-                            // limit the total graph to around 100
-                            const maxGraphs = 50;
-                            const rowKeys = this.getGraphDataObjectKeys(graphs);
-                            const colKeys = rowKeys.length ? this.getGraphDataObjectKeys(graphs[rowKeys[0]]) : [];
-                            const maxCols = colKeys.length <= maxGraphs ? colKeys.length : maxGraphs;
-                            let numOfRows = 1;
-                            let limitGraphs = {};
-                            if (rowKeys.length * colKeys.length > maxGraphs) {
-                                if (rowKeys.length < maxGraphs) {
-                                    numOfRows = Math.ceil(maxGraphs / colKeys.length);
-                                } else {
-                                    numOfRows = maxGraphs;
-                                }
-                                // let get maxGraphs
-                                for (let i = 0; i < numOfRows; i++) {
-                                    for (let j = 0; j < maxCols; j++) {
-                                        if (!limitGraphs[rowKeys[i]]) {
-                                            limitGraphs[rowKeys[i]] = {};
-                                        }
-                                        limitGraphs[rowKeys[i]][colKeys[j]] = graphs[rowKeys[i]][colKeys[j]];
-                                    }
-                                }
-                                this.multiLimitMessage = 'Display first ' + numOfRows * maxCols + ' of ' + rowKeys.length * colKeys.length;
-                                // emit message to display on widget header
-                                this.widgetOut.emit({
-                                    message: this.multiLimitMessage
-                                });
-                            } else {
                                 limitGraphs = graphs;
                             }
+
                             this.setMultigraphColumns(limitGraphs);
                             this.graphData = {...limitGraphs};
                             if (environment.debugLevel.toUpperCase() === 'TRACE' ||
