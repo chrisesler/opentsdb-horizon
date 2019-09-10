@@ -488,6 +488,7 @@ export class DbfsResourcesState {
         folders[userFolder.fullPath] = userFolder;
         panelRoot.personal.push(userFolder.fullPath);
 
+        // TODO: NAG backend to get favorites implemented
         const favFolder = <DbfsFolderModel>{
             id: 0,
             name: 'My Favorites',
@@ -505,6 +506,8 @@ export class DbfsResourcesState {
         panelRoot.personal.push(favFolder.fullPath);
 
         // frequently visited
+        // TODO: NAG backend to get frequently & recently visited working
+        /* REMOVING TILL BACKEND IS WORKING
         const freqFolder = <DbfsFolderModel>{
             id: 0,
             name: 'Frequently Visited',
@@ -536,7 +539,7 @@ export class DbfsResourcesState {
             user: activeUser
         };
         folders[recvFolder.fullPath] = recvFolder;
-        panelRoot.personal.push(recvFolder.fullPath);
+        panelRoot.personal.push(recvFolder.fullPath);*/
 
         // USER Trash - add to root panel
         // tslint:disable-next-line: max-line-length
