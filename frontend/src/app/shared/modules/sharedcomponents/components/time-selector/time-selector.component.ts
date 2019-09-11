@@ -22,6 +22,7 @@ export class TimeSelectorComponent implements OnInit {
   @Input() set timeInSeconds(time: string) {
     this.timeInSecondsAsNumber =  parseInt(time, 10);
   }
+  @Input() isViewMode: boolean;
 
   @Output() newTimeInSeconds = new EventEmitter();
 

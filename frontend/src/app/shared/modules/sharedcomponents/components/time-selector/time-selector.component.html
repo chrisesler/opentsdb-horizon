@@ -1,4 +1,8 @@
-<button mat-button class="time-button" (click)="menuOpened()" [matMenuTriggerFor]="menu">{{secondsToLabel(timeInSecondsAsNumber)}} 
+<div *ngIf="isViewMode">
+    <strong>{{secondsToLabel(timeInSecondsAsNumber)}}</strong>
+</div>
+
+<button *ngIf="!isViewMode" mat-button class="time-button" (click)="menuOpened()" [matMenuTriggerFor]="menu">{{secondsToLabel(timeInSecondsAsNumber)}} 
   <div class="mat-select-arrow-wrapper">
     <div class="mat-select-arrow"></div>
   </div>

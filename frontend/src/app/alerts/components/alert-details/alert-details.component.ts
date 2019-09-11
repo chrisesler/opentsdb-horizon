@@ -294,7 +294,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         });
     }
 
-    newTimeWindowSelected(timeInSeconds: string) {
+    newSingleMetricTimeWindowSelected(timeInSeconds: string) {
         this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['slidingWindow'].value = timeInSeconds;
     }
 
@@ -524,6 +524,10 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                             .setValue(transitions.filter(d => !d.toLowerCase().includes('unknown') ));
                     }
                 }));
+    }
+
+    newEventTimeWindowSelected(timeInSeconds: string) {
+        this.alertForm.controls['threshold']['controls']['eventAlert']['controls']['slidingWindow'].value = timeInSeconds;
     }
 
     setupEventForm(data = null) {
