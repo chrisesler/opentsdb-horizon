@@ -144,7 +144,7 @@
                                         <span>during the last</span>
                                     </div>
                                     <div class="sentence-item">
-                                        <time-selector></time-selector>
+                                        <time-selector [timeInSeconds]="alertForm.value.threshold.singleMetric.slidingWindow" (newTimeInSeconds)="newTimeWindowSelected($event)"></time-selector>
                                     </div>
                                 </div>
                             </div>

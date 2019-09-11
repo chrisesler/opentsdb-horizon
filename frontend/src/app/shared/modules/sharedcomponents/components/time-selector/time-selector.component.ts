@@ -9,7 +9,6 @@ import { MatMenuTrigger } from '@angular/material';
   styleUrls: []
 })
 
-
 export class TimeSelectorComponent implements OnInit {
 
   constructor() { }
@@ -18,31 +17,36 @@ export class TimeSelectorComponent implements OnInit {
   @ViewChild('customTime') customTimeInput: ElementRef;
   @ViewChild(MatMenuTrigger) private menuTrigger: MatMenuTrigger;
 
-  @Input() timeInSeconds: number;
+  timeInSecondsAsNumber: number;
+
+  @Input() set timeInSeconds(time: string) {
+    this.timeInSecondsAsNumber =  parseInt(time, 10);
+  }
+
   @Output() newTimeInSeconds = new EventEmitter();
 
-  presetIntervalSizes = [60, 300, 600, 900, 1800, 3600, 3600 * 2, 3600 * 6, 3600 * 12, 3600 * 24];
-  regexValidator = /^\d+\s*(sec|min|h|d)$/i;
+  presetIntervalSizes = [60, 300, 600, 900, 1800, 3600, 3600 * 2, 3600 * 4, 3600 * 6, 3600 * 12, 3600 * 24, 3600 * 48];
+  regexValidator = /^\d+\s*(min|h|d)$/i;
   inputVal: FormControl;
 
   ngOnInit() {
-    if (this.timeInSeconds === undefined) {
-      this.timeInSeconds = 300;
+    if (this.timeInSecondsAsNumber === undefined || this.timeInSecondsAsNumber < 0 || !Number.isInteger(this.timeInSecondsAsNumber)) {
+      this.timeInSecondsAsNumber = 300;
     }
     this.inputVal = new FormControl();
   }
 
   menuOpened() {
-    if (!this.presetIntervalSizes.includes(this.timeInSeconds)) {
-      this.inputVal = new FormControl(this.secondsToLabel(this.timeInSeconds));
+    if (!this.presetIntervalSizes.includes(this.timeInSecondsAsNumber)) {
+      this.inputVal = new FormControl(this.secondsToLabel(this.timeInSecondsAsNumber));
     } else {
       this.inputVal = new FormControl();
     }
   }
 
   selectedPreset(num: number) {
-    this.timeInSeconds = num;
-    this.newTimeInSeconds.emit(this.timeInSeconds);
+    this.timeInSecondsAsNumber = num;
+    this.newTimeInSeconds.emit(this.timeInSecondsAsNumber.toString());
   }
 
   validateTimeWindow(input) {
@@ -54,8 +58,8 @@ export class TimeSelectorComponent implements OnInit {
     this.updateValidators();
 
     if (!this.inputVal.errors) {
-      this.timeInSeconds = this.labelToSeconds(value);
-      this.newTimeInSeconds.emit(this.timeInSeconds);
+      this.timeInSecondsAsNumber = this.labelToSeconds(value);
+      this.newTimeInSeconds.emit(this.timeInSecondsAsNumber.toString());
     }
   }
 

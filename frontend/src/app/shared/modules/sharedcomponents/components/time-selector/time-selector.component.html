@@ -1,13 +1,20 @@
-<button mat-button (click)="menuOpened()" [matMenuTriggerFor]="menu">{{secondsToLabel(timeInSeconds)}}</button>
-<mat-menu #menu="matMenu">
+<button mat-button class="time-button" (click)="menuOpened()" [matMenuTriggerFor]="menu">{{secondsToLabel(timeInSecondsAsNumber)}} 
+  <div class="mat-select-arrow-wrapper">
+    <div class="mat-select-arrow"></div>
+  </div>
+</button>
+
+<mat-menu #menu="matMenu" class="cdk-time-menu">
   <button *ngFor="let preset of presetIntervalSizes" mat-menu-item (click)="selectedPreset(preset)">{{secondsToLabel(preset)}}</button>
-  <div mat-menu-item class="custom-unit-menu-item" (click)="$event.stopPropagation();">
-    <mat-form-field class="has-right-items" (click)="$event.stopPropagation();">
-        <mat-label>Custom Time</mat-label>
-        <input matInput [formControl]="inputVal" #customTime class="custom-time-input" id="custom-time"
-          (keyup)="keyedOnUnitInputBox(customTime.value)"
-          (keyup.enter)="customTimeEntered()">
-        <mat-hint *ngIf="inputVal.errors">Try 1min, 2h, 3d, etc.</mat-hint>
+  <div mat-menu-item class="cdk-custom-time" (click)="$event.stopPropagation();">
+    <mat-form-field class="has-right-items">
+      <mat-label>Custom Time</mat-label>
+      <input matInput [formControl]="inputVal" #customTime class="custom-time-input" id="custom-time"
+        (keyup)="keyedOnUnitInputBox(customTime.value)"
+        (keyup.enter)="customTimeEntered()"
+        (blur)="customTime.focus()"
+        (click)="$event.stopPropagation();">
+      <mat-hint *ngIf="inputVal.errors">Try 6min, 5h, 4d, etc.</mat-hint>
     </mat-form-field>
-</div>
+  </div>
 </mat-menu>

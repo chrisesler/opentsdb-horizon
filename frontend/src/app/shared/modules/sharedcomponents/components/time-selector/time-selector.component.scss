@@ -1,6 +1,32 @@
 @mixin time-selector-component-base() {
     .time-selector-component {
+        width: 200px;
+       
 
+        .time-button {
+            width: 100%;
+
+            .mat-button-wrapper {
+                display: flex;
+                justify-content: space-between;
+
+                .mat-select-arrow-wrapper {
+                    align-self: center;
+                }
+            }
+        }
+    }
+
+    .cdk-time-menu {
+        .mat-menu-item {
+            height: 36px;
+            line-height: 36px;
+        }
+
+        .cdk-custom-time {
+            height: 60px;
+            line-height: 48px;
+        }
     }
 }
 
@@ -34,6 +60,10 @@
     $lighter-divider: rgba(0,0,0,0.04);
 
     .time-selector-component {
+
+        .time-button {
+            background-color: rgba(map-get($primary, default), 0.08)
+        }
     
     }
 }
