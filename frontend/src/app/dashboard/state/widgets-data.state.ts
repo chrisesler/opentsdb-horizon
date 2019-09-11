@@ -1,6 +1,7 @@
 import { State, Action, StateContext, Selector, createSelector } from '@ngxs/store';
 import { HttpService } from '../../core/http/http.service';
 import { UtilsService } from '../../core/services/utils.service';
+import { DatatranformerService } from '../../core/services/datatranformer.service';
 import { Observable, BehaviorSubject, Subscription } from 'rxjs';
 import {  takeUntil } from 'rxjs/operators';
 import { Actions, ofActionDispatched } from '@ngxs/store';
@@ -55,7 +56,10 @@ export class WidgetsRawdataState {
     queryObserver: Observable<any>;
     subs: any = {};
 
-    constructor(private httpService: HttpService, private actions$: Actions, private utils: UtilsService) {}
+    constructor(private httpService: HttpService,
+                private actions$: Actions,
+                private utils: UtilsService,
+                private dataTransformer: DatatranformerService ) {}
 
     static getWidgetRawdataByID(id: string) {
         return createSelector([WidgetsRawdataState], (state: RawDataModel) => {
@@ -69,7 +73,6 @@ export class WidgetsRawdataState {
 
     @Action(GetQueryDataByGroup)
     getQueryDataByGroup(ctx: StateContext<RawDataModel>, { payload }: GetQueryDataByGroup) {
-
         const qid = payload.wid;
         // cancels the previous call
         if (  this.subs[qid] ) {
@@ -79,6 +82,7 @@ export class WidgetsRawdataState {
 
         this.subs[qid] = this.queryObserver.subscribe(
             data => {
+                data = this.dataTransformer.removeEmptySeries(data);
                 payload.data = data;
                 ctx.dispatch(new SetQueryDataByGroup(payload));
             },
