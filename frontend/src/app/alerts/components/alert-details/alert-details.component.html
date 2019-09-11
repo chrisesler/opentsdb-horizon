@@ -797,6 +797,8 @@
                                                 <time-selector [timeInSeconds]="data.threshold.singleMetric.slidingWindow" [isViewMode]="true"></time-selector>
                                             </div>
                                     </div>
+                                </div>
+                            </div>
                             <div class="form-group bad-threshold-setting" *ngIf="data.threshold.singleMetric.badThreshold!== null">
                                 <div class="form-label"><span class="indicator-square is-bad"></span> <strong>Bad state</strong> when metric is {{alertStateDirection}}</div>
                                 <div class="form-control-wrap auto-width">
