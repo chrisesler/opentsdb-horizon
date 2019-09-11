@@ -13,6 +13,45 @@ export class DatatranformerService {
   // tslint:disable:max-line-length
   constructor(private util: UtilsService ) {  }
 
+  removeEmptySeries(result ) {
+    if ( result !== undefined && result.results ) {
+        const removeSource = {};
+        for ( let i = 0;  i < result.results.length; i++ ) {
+            const [ source, mid ] = result.results[i].source.split(':');
+            if (source === 'summarizer') {
+                const n = result.results[i].data.length;
+                for (let j = 0; j < n; j++) {
+                    const tags = result.results[i].data[j].tags;
+                    const hash = this.getHashFromMetricAndTags(result.results[i].data[j].metric, tags);
+                    const aggs = result.results[i].data[j].NumericSummaryType.aggregations;
+                    const countIndex = aggs.indexOf('count');
+                    const key = Object.keys(result.results[i].data[j].NumericSummaryType.data[0])[0];
+                    const count = result.results[i].data[j].NumericSummaryType.data[0][key][countIndex];
+                    if ( count === 0 ) {
+                        if ( !removeSource[mid] ) {
+                            removeSource[mid] = {};
+                        }
+                        removeSource[mid][hash] = true;
+                    }
+                }
+            }
+        }
+        if ( Object.keys(removeSource).length  ) {
+            for ( let i = result.results.length - 1 ;  i >= 0; i-- ) {
+                const [ source, mid ] = result.results[i].source.split(':');
+                if ( removeSource[mid] ) {
+                    const n = result.results[i].data.length;
+                    result.results[i].data = result.results[i].data.filter(d => {
+                        const hash = this.getHashFromMetricAndTags(d.metric, d.tags);
+                        return !removeSource[mid][hash];
+                    });
+                }
+            }
+        }
+    }
+    return result;
+  }
+
   // options will also be update of its labels array
   yamasToDygraph(widget, options: IDygraphOptions, normalizedData: any[], result: any): any {
     const startTime = new Date().getTime();
