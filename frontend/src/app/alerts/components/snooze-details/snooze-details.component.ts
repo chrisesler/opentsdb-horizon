@@ -148,9 +148,9 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
 
         this.snoozeForm = this.fb.group({
             // tslint:disable-next-line:max-line-length
-            startTime: data.startTime ? moment(data.startTime).format('MM/DD/YYYY hh:mm a') : moment().format('MM/DD/YYYY hh:mm a'),
+            startTime: data.startTime ? moment(data.startTime).format('MM/DD/YYYY h:mm a') : moment().format('MM/DD/YYYY h:mm a'),
             // tslint:disable-next-line:max-line-length
-            endTime: data.endTime ? moment(data.endTime).format('MM/DD/YYYY hh:mm a') : moment().add(1, 'hours').format('MM/DD/YYYY hh:mm a'),
+            endTime: data.endTime ? moment(data.endTime).format('MM/DD/YYYY h:mm a') : moment().add(1, 'hours').format('MM/DD/YYYY h:mm a'),
             reason: data.reason || ''
         });
         // add alerts to selection list
