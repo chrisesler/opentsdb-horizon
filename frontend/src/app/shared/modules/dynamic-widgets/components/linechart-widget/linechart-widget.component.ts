@@ -250,6 +250,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             }
 
             if (message && (message.id === this.widget.id)) {
+                // this.logger.intercom('[linechartWidgetComponent] responseGet', message);
                 switch (message.action) {
                     case 'InfoIslandClosed':
                         this.updatedShowEventStream(false);
@@ -1063,6 +1064,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 payload: { options: this.options}
             });
         }
+        // console.log("options", this.options.visibility)
     }
 
     // timeSeriesLegend series toggle
@@ -1373,7 +1375,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
     // event listener for dygraph to get latest tick data
     timeseriesTickListener(yIndex: number, xIndex: number, yKey: any, xKey: any, event: any) {
-        //this.logger.state('TIMESERIES TICK LISTENER', {yKey, xKey, multigraph: this.multigraphEnabled, event});
+        // this.logger.event('TIMESERIES TICK LISTENER', {yKey, xKey, multigraph: this.multigraphEnabled, widget: this.widget, event});
 
         if (this.editMode === true) {
             return;
@@ -1400,10 +1402,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                     name: 'TimeseriesLegendComponent'
                 },
                 data: {
-                    tsTickData: event.tickData,
+                    multigraph: multigraph,
                     options: widgetOptions,
+                    queries: this.widget.queries,
                     settings: this.widget.settings,
-                    multigraph: multigraph
+                    tsTickData: event.tickData
                 },
                 options: {
                     title: 'Timeseries Legend',
@@ -1426,10 +1429,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             // update tickData from mouseover
             // this goes to TimeseriesLegend
             const payload: any = {
-                tickData: event.tickData,
                 multigraph: multigraph,
+                options: widgetOptions,
+                queries: this.widget.queries,
                 settings: this.widget.settings,
-                options: widgetOptions
+                tickData: event.tickData
             };
             if (event.trackMouse) {
                 payload.trackMouse = event.trackMouse;
