@@ -109,9 +109,20 @@ export class TimeSelectorComponent implements OnInit {
   forbiddenNameValidator(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
         let forbidden = false;
+
+        // check valid regex
         if (!this.regexValidator.test(control.value)) {
           forbidden = true;
         }
+
+        // check if < min || > week
+        if (!forbidden) {
+          const numOfSeconds = this.labelToSeconds(control.value);
+          if (numOfSeconds < 60 || numOfSeconds > 60 * 60 * 24 * 7) {
+            forbidden = true;
+          }
+        }
+
         return forbidden ? { 'forbiddenName': { value: control.value } } : null;
     };
   }
