@@ -77,7 +77,6 @@ export class DatatranformerService {
     const min = { y1: null, y2: null };
     const mTimeConfigs = {};
     let totalSeries = 0;
-    let isEmptyData = true;
     for ( let i = 0;  i < result.results.length; i++ ) {
         queryResults.push(result.results[i]);
         const [ source, mid ] = result.results[i].source.split(':');
@@ -112,9 +111,6 @@ export class DatatranformerService {
                         y2Max = y2Max < aggData['max'] ? aggData['max'] : y2Max;
                         min['y2'] = min['y2'] === null || min['y2'] > aggData['min'] ? aggData['min'] : min['y2'];
                     }
-                    if ( !isNaN(aggData['sum']) ) {
-                        isEmptyData = false;
-                    }
                 }
             } else {
                 dict[mid]['values'] = {}; // queryResults.data;
@@ -138,10 +134,6 @@ export class DatatranformerService {
                 }
             }
         }
-    }
-    // if data is empty, treat as no data
-    if ( isEmptyData ) {
-        return [];
     }
 
     const tsObj = this.util.getTimestampsFromTimeSpecification(Object.values(mTimeConfigs));
