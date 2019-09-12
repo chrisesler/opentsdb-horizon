@@ -239,10 +239,10 @@ export class DatatranformerService {
         intermediateTime = new Date().getTime();
         dseries.sort((a: any, b: any) => {
             if ( !widget.settings.visual || !widget.settings.visual.stackOrder || widget.settings.visual.stackOrder === 'metric') {
-                return this.util.sortAlphaNum(a.hash, b.hash);
+                return  (b.config.group < a.config.group ? -1 : b.config.group > a.config.group ? 1 : 0)  || this.util.sortAlphaNum(a.hash, b.hash);
             } else {
                 const orderBy = widget.settings.visual.stackOrder;
-                return a.config.aggregations[orderBy] - b.config.aggregations[orderBy];
+                return (b.config.group < a.config.group ? -1 : b.config.group > a.config.group ? 1 : 0)  || a.config.aggregations[orderBy] - b.config.aggregations[orderBy];
             }
         }).reverse();
         console.debug(widget.id, "time taken for sorting data series(ms) ", new Date().getTime() - intermediateTime );
