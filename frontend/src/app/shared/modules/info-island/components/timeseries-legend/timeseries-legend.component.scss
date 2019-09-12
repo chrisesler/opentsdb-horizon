@@ -48,6 +48,8 @@
                 .mat-cell {
                     &:first-child {
                         flex: initial;
+                        max-width: 35px;
+                        width: 35px;
                     }
                 }
 
