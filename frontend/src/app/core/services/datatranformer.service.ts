@@ -77,7 +77,6 @@ export class DatatranformerService {
     const min = { y1: null, y2: null };
     const mTimeConfigs = {};
     let totalSeries = 0;
-    let isEmptyData = true;
     for ( let i = 0;  i < result.results.length; i++ ) {
         queryResults.push(result.results[i]);
         const [ source, mid ] = result.results[i].source.split(':');
@@ -112,9 +111,6 @@ export class DatatranformerService {
                         y2Max = y2Max < aggData['max'] ? aggData['max'] : y2Max;
                         min['y2'] = min['y2'] === null || min['y2'] > aggData['min'] ? aggData['min'] : min['y2'];
                     }
-                    if ( !isNaN(aggData['sum']) ) {
-                        isEmptyData = false;
-                    }
                 }
             } else {
                 dict[mid]['values'] = {}; // queryResults.data;
@@ -138,10 +134,6 @@ export class DatatranformerService {
                 }
             }
         }
-    }
-    // if data is empty, treat as no data
-    if ( isEmptyData ) {
-        return [];
     }
 
     const tsObj = this.util.getTimestampsFromTimeSpecification(Object.values(mTimeConfigs));
@@ -239,10 +231,10 @@ export class DatatranformerService {
         intermediateTime = new Date().getTime();
         dseries.sort((a: any, b: any) => {
             if ( !widget.settings.visual || !widget.settings.visual.stackOrder || widget.settings.visual.stackOrder === 'metric') {
-                return this.util.sortAlphaNum(a.hash, b.hash);
+                return  (b.config.group < a.config.group ? -1 : b.config.group > a.config.group ? 1 : 0)  || this.util.sortAlphaNum(a.hash, b.hash);
             } else {
                 const orderBy = widget.settings.visual.stackOrder;
-                return a.config.aggregations[orderBy] - b.config.aggregations[orderBy];
+                return (b.config.group < a.config.group ? -1 : b.config.group > a.config.group ? 1 : 0)  || a.config.aggregations[orderBy] - b.config.aggregations[orderBy];
             }
         }).reverse();
         console.debug(widget.id, "time taken for sorting data series(ms) ", new Date().getTime() - intermediateTime );
