@@ -144,19 +144,7 @@
                                         <span>during the last</span>
                                     </div>
                                     <div class="sentence-item">
-                                        <mat-form-field appearance="fill" floatLabel="never">
-                                            <mat-select placeholder="Select" formControlName="slidingWindow" disableOptionCentering>
-                                                <mat-option value=60>1 min</mat-option>
-                                                <mat-option value=300>5 min</mat-option>
-                                                <mat-option value=600>10 min</mat-option>
-                                                <mat-option value=900>15 min</mat-option>
-                                                <mat-option value=1800>30 min</mat-option>
-                                                <mat-option value=3600>1 hr</mat-option>
-                                                <mat-option value=21600>6 hr</mat-option>
-                                                <mat-option value=43200>12 hr</mat-option>
-                                                <mat-option value=86400>24 hr</mat-option>
-                                            </mat-select>
-                                        </mat-form-field>
+                                        <time-selector [timeInSeconds]="alertForm.value.threshold.singleMetric.slidingWindow" (newTimeInSeconds)="newSingleMetricTimeWindowSelected($event)"></time-selector>
                                     </div>
                                 </div>
                             </div>
@@ -569,20 +557,7 @@
                                     <span>during the last</span>
                                 </div>
                                 <div class="sentence-item">
-                                    <mat-form-field appearance="fill" floatLabel="never">
-                                        <mat-select placeholder="Select" formControlName="slidingWindow" disableOptionCentering>
-                                            <mat-option value=60>1 min</mat-option>
-                                            <mat-option value=300>5 min</mat-option>
-                                            <mat-option value=600>10 min</mat-option>
-                                            <mat-option value=900>15 min</mat-option>
-                                            <mat-option value=1800>30 min</mat-option>
-                                            <mat-option value=3600>1 hr</mat-option>
-                                            <mat-option value=21600>6 hr</mat-option>
-                                            <mat-option value=43200>12 hr</mat-option>
-                                            <mat-option value=86400>24 hr</mat-option>
-                                            <mat-option value=172800>48 hr</mat-option>
-                                        </mat-select>
-                                    </mat-form-field>
+                                    <time-selector [timeInSeconds]="alertForm.value.threshold.eventAlert.slidingWindow" (newTimeInSeconds)="newEventTimeWindowSelected($event)"></time-selector>
                                 </div>
                                 <div class="sentence-item">
                                     <span>per</span>
@@ -693,7 +668,6 @@
             </div>
         </div>
         
-        <!-- Event Alert -->
         <!-- 
         [****    READ ONLY MODE    ****]
         -->
@@ -820,17 +794,7 @@
                                                 <span>during the last</span>
                                             </div>
                                             <div class="sentence-item">
-                                                <strong>
-                                                    {{data.threshold.singleMetric.slidingWindow === '60' ? '1 min' : ''}}
-                                                    {{data.threshold.singleMetric.slidingWindow === '300' ? '5 min' : ''}}
-                                                    {{data.threshold.singleMetric.slidingWindow === '600' ? '10 min' : ''}}
-                                                    {{data.threshold.singleMetric.slidingWindow === '900' ? '15 min' : ''}}
-                                                    {{data.threshold.singleMetric.slidingWindow === '1800' ? '30 min' : ''}}
-                                                    {{data.threshold.singleMetric.slidingWindow === '3600' ? '1 hr' : ''}}
-                                                    {{data.threshold.singleMetric.slidingWindow === '21600' ? '6 hr' : ''}}
-                                                    {{data.threshold.singleMetric.slidingWindow === '43200' ? '12 hr' : ''}}
-                                                    {{data.threshold.singleMetric.slidingWindow === '86400' ? '24 hr' : ''}}
-                                                </strong>
+                                                <time-selector [timeInSeconds]="data.threshold.singleMetric.slidingWindow" [isViewMode]="true"></time-selector>
                                             </div>
                                     </div>
                                 </div>
@@ -1016,18 +980,7 @@
                                         <span>during the last</span>
                                     </div>
                                     <div class="sentence-item">
-                                        <strong>
-                                            {{data.threshold.eventAlert.slidingWindow === '60' ? '1 min' : ''}}
-                                            {{data.threshold.eventAlert.slidingWindow === '300' ? '5 min' : ''}}
-                                            {{data.threshold.eventAlert.slidingWindow === '600' ? '10 min' : ''}}
-                                            {{data.threshold.eventAlert.slidingWindow === '900' ? '15 min' : ''}}
-                                            {{data.threshold.eventAlert.slidingWindow === '1800' ? '30 min' : ''}}
-                                            {{data.threshold.eventAlert.slidingWindow === '3600' ? '1 hr' : ''}}
-                                            {{data.threshold.eventAlert.slidingWindow === '21600' ? '6 hr' : ''}}
-                                            {{data.threshold.eventAlert.slidingWindow === '43200' ? '12 hr' : ''}}
-                                            {{data.threshold.eventAlert.slidingWindow === '86400' ? '24 hr' : ''}}
-                                            {{data.threshold.eventAlert.slidingWindow === '172800' ? '48 hr' : ''}}
-                                        </strong>
+                                        <time-selector [timeInSeconds]="data.threshold.eventAlert.slidingWindow" [isViewMode]="true"></time-selector>
                                     </div>
                                     <div class="sentence-item" *ngIf="data.queries.eventdb[0].groupBy.length">
                                             <span>per <strong>{{ data.queries.eventdb[0].groupBy.join(', ')}}</strong></span>

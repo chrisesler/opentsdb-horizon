@@ -7,7 +7,7 @@ const moment = momentNs;
 const maxUnixTimestamp: number = 1000000000000; // 11/16/5138
 const minUnixTimestamp: number = 1000000000;    // 09/08/2001
 const minYear: number = 1970;                   // for relative time
-const defaultFormat: string = 'MM/DD/YYYY hh:mm A';
+const defaultFormat: string = 'MM/DD/YYYY h:mm A';
 
 enum validDateWithoutTimeFormat {
   'M/D/YY',

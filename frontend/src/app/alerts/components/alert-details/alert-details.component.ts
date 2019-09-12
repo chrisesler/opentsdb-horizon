@@ -155,6 +155,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
 
     defaultOpsGeniePriority = 'P5';
     defaultOCSeverity = '5';
+    defaultSlidingWindowSize = '300';
+    defaultEventSlidingWindowSize = '600';
 
     alertOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     recoverOptions: any[] = [
@@ -292,6 +294,10 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         });
     }
 
+    newSingleMetricTimeWindowSelected(timeInSeconds: string) {
+        this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['slidingWindow'].setValue(timeInSeconds);
+    }
+
     setupForm(data = null) {
         const def = {
                 threshold : { singleMetric: {} },
@@ -330,7 +336,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                     recoveryThreshold: recover,
                     recoveryType: data.threshold.singleMetric.recoveryType || 'minimum',
                     // tslint:disable-next-line:max-line-length
-                    slidingWindow : data.threshold.singleMetric.slidingWindow ? data.threshold.singleMetric.slidingWindow.toString() : '300',
+                    slidingWindow : data.threshold.singleMetric.slidingWindow ? data.threshold.singleMetric.slidingWindow.toString() : this.defaultSlidingWindowSize,
                     comparisonOperator : data.threshold.singleMetric.comparisonOperator || 'above',
                     timeSampler : data.threshold.singleMetric.timeSampler || 'at_least_once'
                 })
@@ -520,6 +526,10 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 }));
     }
 
+    newEventTimeWindowSelected(timeInSeconds: string) {
+        this.alertForm.controls['threshold']['controls']['eventAlert']['controls']['slidingWindow'].setValue(timeInSeconds);
+    }
+
     setupEventForm(data = null) {
         const def = {
                 queries: { eventdb: [{}] },
@@ -548,7 +558,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                     queryType: 'eventdb',
                     queryIndex: 0,
                     threshold: data.threshold.eventAlert.threshold || 1,
-                    slidingWindow: data.threshold.eventAlert.slidingWindow || '600'
+                    slidingWindow: data.threshold.eventAlert.slidingWindow || this.defaultEventSlidingWindowSize
                 })
             }),
             notification: this.fb.group({
@@ -1209,7 +1219,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     saveAlert() {
         const data: any = this.utils.deepClone(this.alertForm.getRawValue());
         data.id = this.data.id;
-        switch( data.type ) {
+        switch (data.type) {
             case 'simple':
                 data.queries = { raw: this.queries, tsdb: this.getTsdbQuery()};
                 const [qindex, mindex] = data.threshold.singleMetric.metricId.split(':');
