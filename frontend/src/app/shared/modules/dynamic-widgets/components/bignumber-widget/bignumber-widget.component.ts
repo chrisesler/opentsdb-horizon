@@ -1,6 +1,6 @@
 import { Component, OnInit, HostBinding, Input, ViewChild, ElementRef, OnDestroy,  AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
-import { UnitNormalizerService, IBigNum } from '../../services/unit-normalizer.service';
+import { UnitConverterService } from '../../../../../core/services/unit-converter.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
 import { Subscription, BehaviorSubject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
@@ -34,7 +34,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     data: any; // cache all the metrics that we get from tsdb
     selectedMetric: any; // used for macros
     tags: any; // to display tags of currently selected metric
-    bigNumber: number;
+    bigNumber: any = {};
     changeValue: number;
     changePct: number;
     readonly changeThreshold: number = 0.01; // hard coding this for now, needs to be configurable
@@ -92,7 +92,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         private interCom: IntercomService,
         public dialog: MatDialog,
         public util: UtilsService,
-        public UN: UnitNormalizerService,
+        public UN: UnitConverterService,
         private cdRef: ChangeDetectorRef
         ) { }
 
@@ -233,6 +233,8 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
             const responseAggregatorValues = metricData.NumericSummaryType.data[0][key];
             let summarizer = this.util.getSummarizerForMetric(metricId, this.widget.queries);
             this.aggregatorValues = [responseAggregatorValues[responseAggregators.indexOf(summarizer)]];
+            // tslint:disable:max-line-length
+            this.bigNumber = this.UN.getNoramilizedValue(this.aggregatorValues[0], {unit: this.widget.settings.visual.unit, precision: this.widget.settings.visual.precision});
 
             // SET LOCAL VARIABLES
             // lastValue = responseAggregatorValues[responseAggregators.indexOf('first')];
@@ -253,7 +255,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         } else {
             this.selectedMetric = {};
             this.selectedMetric.metric = '';
-            this.bigNumber = 0;
+            this.bigNumber = {};
             this.changeValue = 0;
             this.changePct = 0;
             this.aggregators = [];
@@ -296,21 +298,20 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
 
         let bigNumberWithOtherLabelsWidth: number = 0;
         let captionLabelWidth: number = 0;
-        let i: number = 0;
-
         // tslint:disable:max-line-length
         let prefixWidth = this.getWidthOfText(this.shortenString(this.widget.settings.visual.prefix, this.maxLabelLength), this.widget.settings.visual.prefixSize);
-        let unitWidth = this.getWidthOfText(this.shortenString(this.UN.getBigNumber(this.aggregatorValues[i], this.widget.settings.visual.unit, this.widget.settings.visual.precision).unit, this.maxLabelLength), this.widget.settings.visual.unitSize);
+        let unitWidth = this.getWidthOfText(this.shortenString(this.bigNumber.unit, this.maxLabelLength), this.widget.settings.visual.unitSize);
 
         let bigNumberWidth;
 
-        if (this.util.isNumber(this.UN.getBigNumber(this.aggregatorValues[i], this.widget.settings.visual.unit, this.widget.settings.visual.precision).num)) {
-            bigNumberWidth = this.getWidthOfText(' ' + this.UN.getBigNumber(this.aggregatorValues[i], this.widget.settings.visual.unit, this.widget.settings.visual.precision).num + ' ', 'l', this.defaultBigNumberFontWeight);
+        if (this.util.isNumber(this.bigNumber.num)) {
+            bigNumberWidth = this.getWidthOfText(' ' + this.bigNumber.num + this.bigNumber.postfix + ' ', 'l', this.defaultBigNumberFontWeight);
         } else {
             bigNumberWidth = this.getWidthOfText(' ' + this.noDataText + ' ', 'l', this.defaultBigNumberFontWeight);
         }
 
         let changeIndicatorWidth = 0;
+        /*
         if (this.widget.settings.visual.changedIndicatorEnabled) {
             if (this.changePct >= this.changeThreshold) {
                 changeIndicatorWidth = this.getWidthOfText( '↑ ' + this.bigNumToChangeIndicatorValue(this.UN.getBigNumber(this.changeValue, this.widget.settings.visual.unit, this.widget.settings.visual.precision)));
@@ -320,6 +321,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                 changeIndicatorWidth = this.getWidthOfText('↔');
             }
         }
+        */
 
         let tmpBigNumberWithOtherLabelsWidth: number = prefixWidth + unitWidth + bigNumberWidth + changeIndicatorWidth;
         let tmpCaptionWidth = this.getWidthOfText(this.shortenString(this.widget.settings.visual.caption, this.maxCaptionLength), 'c', this.defaultCaptionFontWeight);
@@ -415,7 +417,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         });
     }
 
-    bigNumToChangeIndicatorValue(bigNum: IBigNum): string {
+    bigNumToChangeIndicatorValue(bigNum: any): string {
         if (bigNum.changeIndicatorHasUnit) {
             return bigNum.num + bigNum.unit;
         } else {
