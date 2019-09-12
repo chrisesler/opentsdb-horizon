@@ -295,7 +295,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     }
 
     newSingleMetricTimeWindowSelected(timeInSeconds: string) {
-        this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['slidingWindow'].value = timeInSeconds;
+        this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['slidingWindow'].setValue(timeInSeconds);
     }
 
     setupForm(data = null) {
@@ -527,7 +527,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     }
 
     newEventTimeWindowSelected(timeInSeconds: string) {
-        this.alertForm.controls['threshold']['controls']['eventAlert']['controls']['slidingWindow'].value = timeInSeconds;
+        this.alertForm.controls['threshold']['controls']['eventAlert']['controls']['slidingWindow'].setValue(timeInSeconds);
     }
 
     setupEventForm(data = null) {
