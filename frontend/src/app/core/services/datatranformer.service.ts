@@ -13,6 +13,45 @@ export class DatatranformerService {
   // tslint:disable:max-line-length
   constructor(private util: UtilsService ) {  }
 
+  removeEmptySeries(result ) {
+    if ( result !== undefined && result.results ) {
+        const removeSource = {};
+        for ( let i = 0;  i < result.results.length; i++ ) {
+            const [ source, mid ] = result.results[i].source.split(':');
+            if (source === 'summarizer') {
+                const n = result.results[i].data.length;
+                for (let j = 0; j < n; j++) {
+                    const tags = result.results[i].data[j].tags;
+                    const hash = this.getHashFromMetricAndTags(result.results[i].data[j].metric, tags);
+                    const aggs = result.results[i].data[j].NumericSummaryType.aggregations;
+                    const countIndex = aggs.indexOf('count');
+                    const key = Object.keys(result.results[i].data[j].NumericSummaryType.data[0])[0];
+                    const count = result.results[i].data[j].NumericSummaryType.data[0][key][countIndex];
+                    if ( count === 0 ) {
+                        if ( !removeSource[mid] ) {
+                            removeSource[mid] = {};
+                        }
+                        removeSource[mid][hash] = true;
+                    }
+                }
+            }
+        }
+        if ( Object.keys(removeSource).length  ) {
+            for ( let i = result.results.length - 1 ;  i >= 0; i-- ) {
+                const [ source, mid ] = result.results[i].source.split(':');
+                if ( removeSource[mid] ) {
+                    const n = result.results[i].data.length;
+                    result.results[i].data = result.results[i].data.filter(d => {
+                        const hash = this.getHashFromMetricAndTags(d.metric, d.tags);
+                        return !removeSource[mid][hash];
+                    });
+                }
+            }
+        }
+    }
+    return result;
+  }
+
   // options will also be update of its labels array
   yamasToDygraph(widget, options: IDygraphOptions, normalizedData: any[], result: any): any {
     const startTime = new Date().getTime();
@@ -96,6 +135,7 @@ export class DatatranformerService {
             }
         }
     }
+
     const tsObj = this.util.getTimestampsFromTimeSpecification(Object.values(mTimeConfigs));
     const ts = Object.keys(tsObj);
     const tsn = Object.keys(tsObj).length;
@@ -190,11 +230,11 @@ export class DatatranformerService {
         // sort the data
         intermediateTime = new Date().getTime();
         dseries.sort((a: any, b: any) => {
-            if ( !widget.settings.visual.stackOrder || widget.settings.visual.stackOrder === 'metric') {
-                return this.util.sortAlphaNum(a.hash, b.hash);
+            if ( !widget.settings.visual || !widget.settings.visual.stackOrder || widget.settings.visual.stackOrder === 'metric') {
+                return  (b.config.group < a.config.group ? -1 : b.config.group > a.config.group ? 1 : 0)  || this.util.sortAlphaNum(a.hash, b.hash);
             } else {
                 const orderBy = widget.settings.visual.stackOrder;
-                return a.config.aggregations[orderBy] - b.config.aggregations[orderBy];
+                return (b.config.group < a.config.group ? -1 : b.config.group > a.config.group ? 1 : 0)  || a.config.aggregations[orderBy] - b.config.aggregations[orderBy];
             }
         }).reverse();
         console.debug(widget.id, "time taken for sorting data series(ms) ", new Date().getTime() - intermediateTime );
@@ -250,7 +290,7 @@ export class DatatranformerService {
                 }
 
                 if ( isNaN(parseFloat( axisConfig.max)) ) {
-                    options.axes[axis].valueRange[1] = Math.ceil(axisMax + axisMax * 0.05);
+                    options.axes[axis].valueRange[1] = axisMax + axisMax * 0.05;
                 }
 
                 if ( isNaN(parseFloat( axisConfig.min)) ) {

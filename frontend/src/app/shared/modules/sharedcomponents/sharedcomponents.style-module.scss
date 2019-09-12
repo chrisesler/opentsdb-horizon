@@ -46,6 +46,7 @@
 @import 'components/namespace-autocomplete/namespace-autocomplete.component';
 @import 'components/event-timeline/event-timeline.component';
 @import 'components/event-list/event-list.component';
+@import 'components/time-selector/time-selector.component';
 
 
 // widget common FIRST
@@ -94,10 +95,9 @@
     @include metric-function-component-base();
     @include tag-aggregator-component-base();
     @include namespace-autocomplete-component-base();
-    
     @include event-timeline-component-base();
     @include event-list-component-base();
-
+    @include time-selector-component-base();
 
     // WIDGET CONFIG ITEMS
     @include widget-config-common-base();
@@ -145,9 +145,9 @@
     @include metric-function-component-theme($theme-config);
     @include tag-aggregator-component-theme($theme-config);
     @include namespace-autocomplete-component-theme($theme-config);
-    
     @include event-timeline-component-theme($theme-config);
     @include event-list-component-theme($theme-config);
+    @include time-selector-component-theme($theme-config);
 
     // WIDGET CONFIG ITEMS
     @include widget-config-common-theme($theme-config);
