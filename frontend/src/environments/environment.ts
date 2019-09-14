@@ -7,6 +7,7 @@ export const environment = {
   production: false,
   queryParams: null,
   debugLevel: 'ERROR',
+  tsdbCacheMode: null,
   tsdb_host: 'https://tsdbr-1-bf2.yamas.ouroath.com:4443',
   tsdb_hosts: [
     'https://metrics-a.yamas.ouroath.com:443',
