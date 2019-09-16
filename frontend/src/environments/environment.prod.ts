@@ -4,6 +4,7 @@ export const environment = {
   queryParams: null,
   debugLevel: 'ERROR',
   tsdbCacheMode: null,
+  tsdbSource: null,
   tsdb_host: 'https://metrics.yamas.ouroath.com:443',
   tsdb_hosts: [
     'https://metrics-a.yamas.ouroath.com:443',
