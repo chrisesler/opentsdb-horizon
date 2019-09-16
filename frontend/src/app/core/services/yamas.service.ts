@@ -136,6 +136,7 @@ export class YamasService {
             filter: summaryOnly ? ['summarizer'] : outputIds.concat(['summarizer']) // outputIds : outputIds.concat(['summarizer'])
         }];
         this.transformedQuery.logLevel = environment.debugLevel.toUpperCase();
+        this.transformedQuery.cacheMode = environment.tsdbCacheMode.toUpperCase();
         console.log('tsdb query', JSON.stringify(this.transformedQuery));
         return this.transformedQuery;
     }
@@ -654,7 +655,8 @@ export class YamasService {
             warnEnabled: false,
             timezone: null,
             serdesConfigs: [],
-            logLevel: 'ERROR'
+            logLevel: 'ERROR',
+            cacheMode: null
         };
         this.queries = queries;  // todo? necessary?
 
