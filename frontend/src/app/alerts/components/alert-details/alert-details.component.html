@@ -478,7 +478,10 @@
                                         <mat-radio-group formControlName="ocSeverity">
                                             <mat-radio-button *ngFor="let option of ocSeverityOptions" value="{{option.value}}">{{option.label}}</mat-radio-button>
                                         </mat-radio-group>
-                                    </div>                                
+                                    </div>
+                                    <div class="severity-info">
+                                        <mat-icon fontSet="denali" fontIcon="d-information-circle"></mat-icon> A measure of the criticality of the alert: 1 is low, 5 is high. 2 and above seen by the OC.
+                                    </div>
                                 </div>
                             </div>
                             <div class="ops-genie-specific-fields" *ngIf="notificationRecipientsValue && notificationRecipientsValue.opsgenie">
