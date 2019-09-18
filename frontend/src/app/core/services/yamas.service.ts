@@ -7,6 +7,7 @@ interface IQuery {
     type: string;
     metric: any;
     fetchLast: boolean;
+    source: any;
     timeShiftInterval?: string;
 }
 
@@ -136,6 +137,8 @@ export class YamasService {
             filter: summaryOnly ? ['summarizer'] : outputIds.concat(['summarizer']) // outputIds : outputIds.concat(['summarizer'])
         }];
         this.transformedQuery.logLevel = environment.debugLevel.toUpperCase();
+        this.transformedQuery.cacheMode = environment.tsdbCacheMode ? 
+            environment.tsdbCacheMode.toUpperCase() : null;
         console.log('tsdb query', JSON.stringify(this.transformedQuery));
         return this.transformedQuery;
     }
@@ -149,6 +152,7 @@ export class YamasService {
                 type: 'MetricLiteral',
                 metric:  this.queries[qindex].namespace + '.' + this.queries[qindex].metrics[mindex].name
             },
+            source: environment.tsdbSource ? environment.tsdbSource : null,
             fetchLast: false,
         };
 
@@ -654,7 +658,8 @@ export class YamasService {
             warnEnabled: false,
             timezone: null,
             serdesConfigs: [],
-            logLevel: 'ERROR'
+            logLevel: 'ERROR',
+            cacheMode: null
         };
         this.queries = queries;  // todo? necessary?
 
