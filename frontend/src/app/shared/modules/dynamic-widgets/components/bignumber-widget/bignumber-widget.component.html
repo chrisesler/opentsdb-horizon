@@ -33,7 +33,7 @@
                                 }">{{ shortenString(widget.settings.visual.prefix, maxLabelLength) | uppercase }}</div>
                         </div>
                         
-                        <div *ngIf="UN.getBigNumber(aggregatorValues[0], widget.settings.visual.unit, widget.settings.visual.precision).unitPos === 0" 
+                        <div *ngIf="bigNumber.unitPos === 0" 
                                 class='left-unit unit' [ngClass]="{
                                 'top':     widget.settings.visual.unitAlignment=='top',
                                 'middle':  widget.settings.visual.unitAlignment=='middle',
@@ -43,13 +43,13 @@
                                 'small':   widget.settings.visual.unitSize=='s',
                                 'medium':  widget.settings.visual.unitSize=='m',
                                 'large':   widget.settings.visual.unitSize=='l'
-                                }">{{ shortenString(UN.getBigNumber(aggregatorValues[0], widget.settings.visual.unit, widget.settings.visual.precision).unit, maxLabelLength) }}</div>
+                                }">{{ shortenString(bigNumber.unit, maxLabelLength) }}</div>
                         </div>
     
-                        <div class="big-number" *ngIf="UN.getBigNumber(aggregatorValues[0], widget.settings.visual.unit, widget.settings.visual.precision).num !== ''">{{UN.getBigNumber(aggregatorValues[0], widget.settings.visual.unit, widget.settings.visual.precision).num}}</div>
-                        <div class="big-number" *ngIf="UN.getBigNumber(aggregatorValues[0], widget.settings.visual.unit, widget.settings.visual.precision).num === ''">{{noDataText}}</div>
+                        <div class="big-number" *ngIf="bigNumber.num !== undefined">{{ bigNumber.num + bigNumber.postfix }}</div>
+                        <div class="big-number" *ngIf="bigNumber.num === undefined">{{noDataText}}</div>
     
-                        <div *ngIf="UN.getBigNumber(aggregatorValues[0], widget.settings.visual.unit, widget.settings.visual.precision).unitPos === 1" 
+                        <div *ngIf="bigNumber.unitPos === 1" 
                                 class='right-unit unit' [ngClass]="{
                                 'top':     widget.settings.visual.unitAlignment=='top',
                                 'middle':  widget.settings.visual.unitAlignment=='middle',
@@ -59,12 +59,12 @@
                                 'small':   widget.settings.visual.unitSize=='s',
                                 'medium':  widget.settings.visual.unitSize=='m',
                                 'large':   widget.settings.visual.unitSize=='l'
-                            }">{{ shortenString(UN.getBigNumber(aggregatorValues[0], widget.settings.visual.unit, widget.settings.visual.precision).unit, maxLabelLength) }}</div>
+                            }">{{ shortenString(bigNumber.unit, maxLabelLength) }}</div>
                         </div>
                         <!--
                         <span *ngIf="widget.settings.visual.changedIndicatorEnabled" class="change-indicator">
-                            <span *ngIf="changePct >= changeThreshold">↑ {{ bigNumToChangeIndicatorValue(UN.getBigNumber(changeValue, widget.settings.visual.unit, widget.settings.visual.precision)) }} </span>
-                            <span *ngIf="changePct <= -1*changeThreshold">↓ {{ bigNumToChangeIndicatorValue(UN.getBigNumber(changeValue, widget.settings.visual.unit, widget.settings.visual.precision)) }} </span>
+                            <span *ngIf="changePct >= changeThreshold">↑ {{ bigNumToChangeIndicatorValue(UN.getBigNumber(changeValue, {unit: widget.settings.visual.unit, precision: widget.settings.visual.precision})) }} </span>
+                            <span *ngIf="changePct <= -1*changeThreshold">↓ {{ bigNumToChangeIndicatorValue(UN.getBigNumber(changeValue, {unit: widget.settings.visual.unit, precision: widget.settings.visual.precision})) }} </span>
                             <span *ngIf="changePct > -1*changeThreshold && changePct < changeThreshold">↔ </span>
                         </span>
                         -->

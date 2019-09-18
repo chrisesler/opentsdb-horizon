@@ -63,7 +63,9 @@ export class UnitConverterService {
             { 'key': 'minutes', index:4, 'type': 'time', 'unit': 'min' },
             { 'key': 'hours', index:5, 'type': 'time', 'unit': 'hr' },
             { 'key': 'days', index:6, 'type': 'time', 'unit': 'day'},
-            { 'key': 'years', index:7, 'type': 'time', 'unit': 'year'}
+            { 'key': 'years', index:7, 'type': 'time', 'unit': 'year'},
+            // 'raw'
+            { 'key': 'raw', b: 1 ,  power: 0, 'unit': '', type: 'raw'},
     ];
     constructor() { }
 
@@ -97,7 +99,7 @@ export class UnitConverterService {
 
     getNormalizedUnit(value, options) {
         let sUnit = this.getDetails(options.unit);
-        sUnit = !sUnit || options.unit === 'usd' ? this.getDefaultUnit(value): sUnit;
+        sUnit = !sUnit || options.unit === 'usd' ? this.getDefaultUnit(value) : sUnit;
 
         if (value < 0) {
             value = -1 * value;
@@ -147,7 +149,7 @@ export class UnitConverterService {
         return destUnit;
     }
 
-    convert(value, srcUnitKey, destUnitKey, options) {
+    convert(value, srcUnitKey, destUnitKey, options): any {
         let sUnit = this.getDetails(srcUnitKey);
         sUnit = !sUnit || options.unit === 'usd' ? this.getDefaultUnit(value): sUnit;
 
@@ -156,9 +158,9 @@ export class UnitConverterService {
             sign = -1;
             value = -1 * value;
         }
-        
+
         let dUnit = this.getDetails(destUnitKey);
-        dUnit = !dUnit ? sUnit: dUnit;
+        dUnit = !dUnit ? sUnit : dUnit;
 
         let precision = options.precision ? options.precision : ( options.precision === 'auto' || options.precision === '' ? 2 : 0);
         const prefix = options.unit === 'usd' ? '$' : '';
@@ -201,7 +203,19 @@ export class UnitConverterService {
 
         precision = Number.isInteger(result) && !options.precisionStrict ? 0 : precision;
         result = sign * result;
-        return prefix + parseFloat(result.toFixed(precision)) + ' ' + ( dUnit ? dUnit.unit: '') +  postfix;
+        if ( options.detail ) {
+            const oUnit = this.getDetails(options.unit);
+            // usd and custom units, the value will be postfixed with SI units
+            const postfix = this.isCustomUnit(options.unit) || options.unit === 'usd' ? dUnit.unit : '';
+            return {
+                    num: parseFloat(result.toFixed(precision)),
+                    postfix: postfix,
+                    unit: this.isCustomUnit(options.unit) ? options.unit : ( options.unit === 'usd' ? oUnit.unit : dUnit.unit),
+                    unitPos: options.unit === 'usd' ? 0 : 1
+                };
+        } else {
+            return prefix + parseFloat(result.toFixed(precision)) + ' ' + ( dUnit ? dUnit.unit : '') +  postfix;
+        }
     }
 
     getDefaultUnit(value, bigUnit=false) {
@@ -232,5 +246,11 @@ export class UnitConverterService {
 
     isCustomUnit(unit) {
         return unit !== 'auto' && !this.getDetails(unit);
+    }
+
+    getNoramilizedValue(value, options) {
+        const destUnit = this.getNormalizedUnit(value, options);
+        const res = this.convert(value, options.unit, destUnit, {...options, detail: true});
+        return res;
     }
 }
