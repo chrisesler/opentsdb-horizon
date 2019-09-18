@@ -159,28 +159,24 @@
                                         Unique OC name required. Min length is 2. Max length is 36.
                                     </mat-error>
                                 </mat-form-field>
-                            </div>
-                            <div class="form-group">
-                                <div class="form-label vertical-center">Display Count </div>
-                                <mat-form-field floatLabel="never" appearance="fill">
-                                    <input [formControl]="ocDisplayCount" matInput placeholder="Enter Display Count*" required
-                                        [value]="recipientsFormData[_recipientType.oc].displaycount"
-                                        (input)="updateRecipient(recipientsFormData[_recipientType.oc], 'displaycount', $event.target.value)" type="number">
-                                    <mat-error *ngIf="ocDisplayCount.errors && (ocDisplayCount.dirty || ocDisplayCount.touched)">
-                                        Display Count number required.
-                                    </mat-error>
-                                </mat-form-field>
+                                <div class="info">
+                                    <mat-icon fontSet="denali" fontIcon="d-information-circle"></mat-icon> Yamas recipient name.
+                                </div>
                             </div>
                             <div class="form-group">
                                 <div class="form-label vertical-center">Context </div>
-                                <mat-form-field floatLabel="never" appearance="fill">
-                                    <input matInput [formControl]="ocContext" placeholder="Enter Context*" required
+                                
+                                    <mat-radio-group class="context-toggle" aria-label="Select the Context" 
                                         [value]="recipientsFormData[_recipientType.oc].context"
-                                        (input)="updateRecipient(recipientsFormData[_recipientType.oc], 'context', $event.target.value)">
-                                    <mat-error *ngIf="ocContext.errors && (ocContext.dirty || ocContext.touched)">
-                                        Context required.
-                                    </mat-error>
-                                </mat-form-field>
+                                        (change)="updateRecipient(recipientsFormData[_recipientType.oc], 'context', $event.value)"
+                                        >
+                                        <mat-radio-button value="analysis">Analysis</mat-radio-button>
+                                        <mat-radio-button value="live">Live</mat-radio-button>
+                                    </mat-radio-group>
+                                <div class="info">
+                                    <mat-icon fontSet="denali" fontIcon="d-information-circle"></mat-icon> Live alerts processed by the OC; Analysis for onboarding.
+                                </div>
+                               
                             </div>
                             <div class="form-group">
                                 <div class="form-label vertical-center">OpsDB Property </div>
@@ -192,12 +188,16 @@
                                         OpsDB Property required.
                                     </mat-error>
                                 </mat-form-field>
+                                <div class="info">
+                                    <mat-icon fontSet="denali" fontIcon="d-information-circle"></mat-icon> The property owner of the alerts - must exactly match OpsDB.
+                                </div>
+                                
                             </div>
                             <div class="form-group">
-                                <div class="form-label"></div>
-                                <span>
-                                    Refer to <a href="https://git.ouroath.com/pages/monitoring/horizon_userguide/alerts/recipients/#operations-center-oc" target="_blank">the user-guide</a>
-                                </span>
+                                <div>
+                                    <a href="https://vzbuilders.service-now.com/nav_to.do?uri=%2Fcom.glideapp.servicecatalog_cat_item_view.do%3Fv%3D1%26sysparm_id%3Dd0f777c64ffc1b40eee3b47f0210c7b8" target="_blank">Onboard</a> to use the OC.
+                                    For more information, refer to the <a href="https://git.ouroath.com/pages/monitoring/horizon_userguide/alerts/recipients/#operations-center-oc" target="_blank"> user-guide</a>
+                                </div>
                             </div>
                         </div>
                         <!-- HTTP Form -->
