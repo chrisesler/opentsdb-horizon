@@ -110,6 +110,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         },
         series: {},
         visibility: [],
+        visibilityHash: {},
         gridLineColor: '#ccc'
     };
     data: any = { ts: [[0]] };
@@ -373,6 +374,15 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                             if (limitGraphs[ykey].hasOwnProperty(xkey)) {
                                                 limitGraphs[ykey][xkey].ts = [[0]];
                                                 const options = this.utilService.deepClone(this.options);
+                                                // preserve previous series and visibility so we can remap in data transformer
+                                                if (this.graphData.hasOwnProperty(ykey)) {
+                                                    if (this.graphData[ykey].hasOwnProperty(xkey)) {
+                                                        const prevOptions = this.utilService.deepClone(this.graphData[ykey][xkey].options);
+                                                        // console.log('PREVIOUS OPTIONS', prevOptions);
+                                                        options.series = prevOptions.series;
+                                                        options.visibility = prevOptions.visibility;
+                                                    }
+                                                }
 
                                                 limitGraphs[ykey][xkey].ts = this.dataTransformer.yamasToDygraph(
                                                      this.widget, options, limitGraphs[ykey][xkey].ts, limitGraphs[ykey][xkey]
@@ -383,7 +393,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                     }
                                 }
                             } else {
-                                let graphs = {};
+                                let graphs: any = {};
                                 this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
                                 this.data = { ...this.data };
                                 graphs['y'] = {};
@@ -1029,7 +1039,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
             this.clickTimer = setTimeout(() => {
                 if (!this.preventSingleClick) {
-                    this.options.visibility[index] = !this.options.visibility[index];
+                    // this.options.visibility[index] = !this.options.visibility[index];
+                    // this.options.visibilityHash[this.options.series[index + 1].hash] = this.options.visibility[index];
+                    this.setSeriesVisibilityConfig(index, !this.options.visibility[index]);
                 }
                 this.options = {...this.options};
                 this.cdRef.markForCheck();
@@ -1053,9 +1065,13 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             // else the intention is to hide all except the selected one
             const newVisibility = allHidden === true ? true : false;
             for (let i = 0; i < this.options.visibility.length; i += 1) {
-                this.options.visibility[i] = newVisibility;
+                // this.options.visibility[i] = newVisibility;
+                // this.options.visibilityHash[this.options.series[i + 1].hash] = this.options.visibility[i];
+                this.setSeriesVisibilityConfig(i, newVisibility);
             }
-            this.options.visibility[index] = true;
+            // this.options.visibility[index] = true;
+            // this.options.visibilityHash[this.options.series[index + 1].hash] = this.options.visibility[index];
+            this.setSeriesVisibilityConfig(index, true);
             this.options = { ...this.options };
             this.interCom.requestSend({
                 action: 'tsLegendWidgetOptionsUpdate',
@@ -1077,7 +1093,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         // update visibility on batch items
         for (let i = 0; i < batch.length; i += 1) {
             const srcIndex = batch[i];
-            options.visibility[srcIndex] = visible;
+            // options.visibility[srcIndex] = visible;
+            // this.options.visibilityHash[this.options.series[srcIndex + 1].hash] = this.options.visibility[srcIndex];
+            this.setSeriesVisibilityConfig(srcIndex, visible, multigraph);
         }
 
         // update main data options depending on whether multigraph
@@ -1094,6 +1112,12 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             id: this.widget.id,
             payload: { options: (multigraph) ? this.graphData[multigraph.y][multigraph.x].options : this.options}
         });
+    }
+
+    setSeriesVisibilityConfig(index: number, visibility: boolean, multigraph: any = false) {
+        const options = (multigraph) ? this.graphData[multigraph.y][multigraph.x].options : this.options;
+        options.visibility[index] = visibility;
+        options.visibilityHash[this.options.series[index + 1].hash] = options.visibility[index];
     }
 
     handleZoom(zConfig) {
