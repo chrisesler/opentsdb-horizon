@@ -358,17 +358,19 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
             value = item.data.yval;
         } else if (property === 'metric') {
             // regex to test if expression
-            const regex = /^q(?<queryIndex>[1-9][0-9]*?)\:e(?<metricIndex>[1-9][0-9]*?)$/gmi;
+            // group indentifiers don't work in some versions of node, even if valid
+            // const regex = /^q(?<queryIndex>[1-9][0-9]*?)\:e(?<metricIndex>[1-9][0-9]*?)$/gmi;
+            const regex = /^q([1-9][0-9]*)\:e([1-9][0-9]*)$/gmi;
             // if it IS expression
             if (regex.test(item.series.tags.metric)) {
                 if (item.series.label === item.series.tags.metric) {
                     // need to lookup from widget
                     // get query and metric index from regex
-                    const regMatch = regex.exec(item.series.tags.metric).groups;
+                    const regMatch = regex.exec(item.series.tags.metric);
                     // regMatch.groups.queryIndex === query index
-                    const qIndex = regMatch.queryIndex;
+                    const qIndex = regMatch[1];
                     // regMatch.groups.metricIndex === metric index
-                    const mIndex = regMatch.metricIndex;
+                    const mIndex = regMatch[2];
                     // TODO: need to get expression from widget queries
                     if (this.currentWidgetQueries[qIndex] && this.currentWidgetQueries[qIndex].metrics[mIndex] && this.currentWidgetQueries[qIndex].metrics[mIndex].expression) {
                         value = this.currentWidgetQueries[qIndex].metrics[mIndex].originalExpression;
