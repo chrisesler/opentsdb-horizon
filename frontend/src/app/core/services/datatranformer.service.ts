@@ -138,6 +138,11 @@ export class DatatranformerService {
         }
     }
 
+    // if no series return right away
+    if ( totalSeries === 0 ) {
+        return [];
+    }
+
     const tsObj = this.util.getTimestampsFromTimeSpecification(Object.values(mTimeConfigs));
     const ts = Object.keys(tsObj);
     const tsn = Object.keys(tsObj).length;
