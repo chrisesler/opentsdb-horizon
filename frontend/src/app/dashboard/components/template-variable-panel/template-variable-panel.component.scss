@@ -1,7 +1,7 @@
 @mixin template-variable-panel-component-base() {
 
     $vtb-height: 44px;
-    
+
 
     .isDisabled {
         color: currentColor;
@@ -9,7 +9,7 @@
         opacity: 0.5;
         text-decoration: none;
     }
-    
+
     .template-variable-panel-component {
         display: flex;
         width: 100%;
@@ -20,7 +20,7 @@
             width: auto;
             margin: 0 5px;
         }
-    
+
         td {
             padding: 0 4px;
 
@@ -28,7 +28,7 @@
                 padding-left: 0;
             }
         }
-    
+
         th {
             padding-left: 8px;
             text-transform: uppercase;
@@ -51,14 +51,14 @@
         tbody tr:first-child td {
             padding-top: 4px;
         }
-    
+
         /*span.actionslist {
             span {
                 display: inline;
                 margin-right: 10px;
             }
         }*/
-        
+
         ul.varlist {
             li {
                  display: inline;
@@ -79,6 +79,8 @@
         }
 
         .variable-edit-wrapper {
+            display: flex;
+            flex-direction: column;
             padding: 0 6px 4px 6px;
             flex: 1;
             box-shadow: inset 0 50px 0 rgba(0,0,0,0.05);
@@ -128,18 +130,18 @@
                 margin-bottom: 0;
                 //padding: 0 10px;
                 transition: background-color 500ms ease-in-out;
-    
+
                 &.actions-control {
                     .mat-label {
                         text-transform: uppercase;
                     }
-    
+
                     .mat-button {
                         min-width: 36px;
                         padding: 0;
                         margin-right: 8px;
                     }
-    
+
                     .mat-icon-button {
                         .mat-icon {
                             @include sizeDenaliIcon(14px);
@@ -228,7 +230,7 @@
     $navbar-text: map-get($foreground, foreground);
 
     $border-color: map-get($background, background);
-    
+
     .template-variable-panel-component {
         background-color: map-get($background, card);
         color: $navbar-text;
