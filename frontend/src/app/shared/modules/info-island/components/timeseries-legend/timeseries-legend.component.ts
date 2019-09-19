@@ -9,6 +9,7 @@ import { FormControl } from '@angular/forms';
 import { LoggerService } from '../../../../../core/services/logger.service';
 import { CdkObserveContent } from '@angular/cdk/observers';
 import { InfoIslandComponent } from '../../containers/info-island.component';
+import { UtilsService } from '../../../../../core/services/utils.service';
 
 @Component({
     // tslint:disable-next-line: component-selector
@@ -33,6 +34,7 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
     /** Local Variables */
     currentWidgetId: string = '';
     currentWidgetOptions: any = {};
+    currentWidgetQueries: any = {};
     currentWidgetType: string = '';
 
     options: any = {
@@ -67,14 +69,17 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
         private logger: LoggerService,
         private interCom: IntercomService,
         private renderer: Renderer2,
+        private utilsService: UtilsService,
         @Inject(ISLAND_DATA) private _islandData: any
     ) {
+        // this.logger.ng('[TSL] Constructor', {ISLAND_DATA: _islandData});
         // Set initial incoming data (data from first click that opens island)
         this.currentWidgetId = _islandData.originId;
         this.currentWidgetType = _islandData.widget.settings.component_type;
-        this.currentWidgetOptions = _islandData.data.options;
+        this.currentWidgetOptions = utilsService.deepClone(_islandData.data.options);
+        this.currentWidgetQueries = utilsService.deepClone(_islandData.data.queries);
         this.multigraph = _islandData.data.multigraph;
-        this.data = _islandData.data.tsTickData;
+        this.data = utilsService.deepClone(_islandData.data.tsTickData);
         this.setTableColumns();
         this.setTableData();
         this.options.open = true;
@@ -99,13 +104,14 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
 
         // set subscriptions
         this.subscription.add(this.interCom.requestListen().subscribe(message => {
+            // this.logger.intercom('[TSL] RequestListen', {message});
             switch (message.action) {
                 case 'tsLegendWidgetOptionsUpdate':
-                    this.currentWidgetOptions = message.payload.options;
+                    this.currentWidgetOptions = this.utilsService.deepClone(message.payload.options);
                     this.updateMasterCheckboxStates();
                     break;
                 case 'tsLegendWidgetSettingsResponse':
-                    this.currentWidgetOptions = message.payload.options;
+                    this.currentWidgetOptions = this.utilsService.deepClone(message.payload.options);
                     const settings = message.payload.settings;
                     this.currentWidgetType = settings.component_type;
                     const axes = settings.axes;
@@ -140,7 +146,8 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
                         }
                         this.currentWidgetId = message.id;
                         this.multigraph = message.payload.multigraph;
-                        this.data = message.payload.tickData;
+                        this.currentWidgetQueries = this.utilsService.deepClone(message.payload.queries);
+                        this.data = this.utilsService.deepClone(message.payload.tickData);
                         this.setTableColumns();
                         this.setTableData();
 
@@ -255,6 +262,10 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
         this.setTableData();
     }
 
+    formattedMetricLabel(data: any): string {
+        return this.sortingDataAccessor(data, 'metric');
+    }
+
     /** Table controls & functions */
 
     tableContentChanged(event: any) {
@@ -346,8 +357,34 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
             // formatted value
             value = item.data.yval;
         } else if (property === 'metric') {
-            // metric name
-            value = item.series.metric;
+            // regex to test if expression
+            // group indentifiers don't work in some versions of node, even if valid
+            // const regex = /^q(?<queryIndex>[1-9][0-9]*?)\:e(?<metricIndex>[1-9][0-9]*?)$/gmi;
+            const regex = /^q([1-9][0-9]*)\:e([1-9][0-9]*)$/gmi;
+            // if it IS expression
+            if (regex.test(item.series.tags.metric)) {
+                if (item.series.label === item.series.tags.metric) {
+                    // need to lookup from widget
+                    // get query and metric index from regex
+                    const regMatch = regex.exec(item.series.tags.metric);
+                    // regMatch.groups.queryIndex === query index
+                    const qIndex = regMatch[1];
+                    // regMatch.groups.metricIndex === metric index
+                    const mIndex = regMatch[2];
+                    // TODO: need to get expression from widget queries
+                    if (this.currentWidgetQueries[qIndex] && this.currentWidgetQueries[qIndex].metrics[mIndex] && this.currentWidgetQueries[qIndex].metrics[mIndex].expression) {
+                        value = this.currentWidgetQueries[qIndex].metrics[mIndex].originalExpression;
+                    } else {
+                        // fallback to label
+                        value = item.series.label;
+                    }
+                } else {
+                    value = item.series.label;
+                }
+            } else {
+                // Its not an expression
+                value = item.series.label;
+            }
         } else if (item.series.tags.hasOwnProperty(property)) {
             // must be a tag
             value = item.series.tags[property];
