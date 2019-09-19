@@ -1017,6 +1017,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 const newTitle = 'Clone of ' + this.meta.title;
                 this.setTitle(newTitle);
                 this.location.replaceState('/d/' + this.dbid);
+                this.dbOwner = this.user;
                 break;
             case 'delete':
                 this.openDashboardDeleteDialog();
