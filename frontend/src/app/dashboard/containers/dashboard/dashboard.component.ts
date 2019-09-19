@@ -66,7 +66,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(AuthState.getAuth) auth$: Observable<string>;
     @Select(DBSettingsState.getDashboardSettings) dbSettings$: Observable<any>;
     @Select(UserSettingsState.GetUserNamespaces) userNamespaces$: Observable<string>;
-    @Select(UserSettingsState.GetPersonalFolders) userPersonalFolders$: Observable<string>;
+    @Select(UserSettingsState.GetPersonalFolders) userPersonalFolders$: Observable<any>;
     @Select(UserSettingsState.GetNamespaceFolders) userNamespaceFolders$: Observable<string>;
     @Select(DBState.getDashboardFriendlyPath) dbPath$: Observable<string>;
     @Select(DBState.getLoadedDB) loadedRawDB$: Observable<any>;
@@ -196,6 +196,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     oldMeta = {};
     oldWidgets = [];
 
+    // used to determine db write access (and display popup for unsaved changes)
+    dbOwner: string = ''; // /namespace/yamas
+    user: string = '';    // /user/zb
+    writeSpaces: string[] = [];
+
     constructor(
         private store: Store,
         private activatedRoute: ActivatedRoute,
@@ -218,6 +223,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ) { }
 
     ngOnInit() {
+        // load the namespaces user has access to
+        this.store.dispatch(new LoadUserNamespaces());
+
         // handle route for dashboardModule
         this.subscription.add(this.activatedRoute.url.subscribe(url => {
             this.widgets = [];
@@ -457,6 +465,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }));
 
         this.subscription.add(this.loadedRawDB$.subscribe(db => {
+
+            if (db && db.fullPath) {
+                this.dbOwner = this.getOwnerFromPath(db.fullPath);
+            }
+
             const dbstate = this.store.selectSnapshot(DBState);
             if (dbstate.loaded) {
                 // this.widgetTagLoaded = false;
@@ -606,6 +619,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.subscription.add(this.userNamespaces$.subscribe(result => {
             this.userNamespaces = result;
+            this.setWriteSpaces();
             this.interCom.responsePut({
                 action: 'UserNamespaces',
                 payload: result
@@ -613,6 +627,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }));
 
         this.subscription.add(this.userPersonalFolders$.subscribe(folders => {
+
+            if (folders && folders[0] && folders[0].fullPath) {
+                this.user = this.getOwnerFromPath(folders[0].fullPath);
+                this.setWriteSpaces();
+            }
+
             this.interCom.responsePut({
                 action: 'UserPersonalFolders',
                 payload: folders
@@ -1004,10 +1024,40 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
     }
 
+    getOwnerFromPath(fullPath: string) {
+        // ex path: /user/zb || /namespace/yamas/save-test2
+        if (fullPath && fullPath.length) {
+            const split = fullPath.split('/');
+            if (split.length >= 3 && split[0] === '') {
+                return '/' + split[1].toLowerCase() + '/' + split[2].toLowerCase();
+                // return /user/zb || /namespace/yamas
+            }
+        }
+        return '';
+    }
+
+    setWriteSpaces() {
+        const writeSpaces = [];
+        for (const ns of this.userNamespaces) {
+            writeSpaces.push('/namespace/' + ns.name.toLowerCase());
+        }
+        writeSpaces.push(this.user);
+        this.writeSpaces = writeSpaces;
+    }
+
+    doesUserHaveWriteAccess() {
+        if (this.dbOwner && this.dbOwner.length) {
+            return this.writeSpaces.includes(this.dbOwner);
+        } else {
+            return true;
+        }
+    }
+
     isDashboardDirty() {
         const widgetChange = !deepEqual(this.widgets, this.oldWidgets);
         const metaChange = !deepEqual(this.meta, this.oldMeta);
-        return widgetChange || metaChange;
+        const writeAccess = this.doesUserHaveWriteAccess();
+        return (writeAccess && (widgetChange || metaChange));
     }
 
     @HostListener('window:beforeunload', ['$event'])
