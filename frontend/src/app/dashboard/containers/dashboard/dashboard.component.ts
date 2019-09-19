@@ -351,7 +351,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     }
                     // case that widget is updated we need to get new set of dashboard tags
                     this.getDashboardTagKeys(false);
-                    this.handleQueryPayload({ id: message.id, payload: this.widgets[mIndex] });
+                    // this.handleQueryPayload({ id: message.id, payload: this.widgets[mIndex] });
                     break;
                 case 'dashboardSaveRequest':
                     // DashboardSaveRequest comes from the save button
