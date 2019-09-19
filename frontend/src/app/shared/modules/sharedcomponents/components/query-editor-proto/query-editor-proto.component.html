@@ -104,7 +104,7 @@
                                 *ngIf="editMetricId === data.metric.id"
                                 [namespace]="query.namespace"
                                 [metrics]="[data.metric.name]"
-                                [filters]="query.filters" 
+                                [filters]="tagFilters" 
                                 (metricOutput)="updateMetric($event, data.metric.id);"
                                 (blur)="editMetricId = -1"></metric-autocomplete>
                         </div>
@@ -223,7 +223,7 @@
                                 [focus]="isAddMetricProgress"
                                 [multiple]="true"
                                 [namespace]="query.namespace"
-                                [filters]="query.filters"
+                                [filters]="tagFilters"
                                 (metricOutput)="updateMetric($event, null);"
                                 (blur)="isAddMetricProgress = false"></metric-autocomplete>
                         </div>
