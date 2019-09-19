@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostBinding, ViewChild, TemplateRef, ChangeDetectorRef, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostBinding, ViewChild, TemplateRef, ChangeDetectorRef, ElementRef, HostListener } from '@angular/core';
 import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TemplatePortal } from '@angular/cdk/portal';
@@ -52,6 +52,7 @@ import { ICommand, CmdManager } from '../../../core/services/CmdManager';
 import { DbfsUtilsService } from '../../../app-shell/services/dbfs-utils.service';
 import { EventsState, GetEvents } from '../../../dashboard/state/events.state';
 import { URLOverrideService } from '../../services/urlOverride.service';
+import * as deepEqual from 'fast-deep-equal';
 
 @Component({
     selector: 'app-dashboard',
@@ -162,7 +163,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // other variables
     dbSettings: any;
     dbTime: any;
-    meta: any;
+    meta: any = {};
     // variables: any;
     dbTags: any;
     dbid: string; // passing dashboard id
@@ -190,6 +191,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     isDbTagsLoaded = false;
     eWidgets: any = {}; // to whole eligible widgets with custom dashboard tags
     showDBTagFilters = false;
+
+    // used for unsaved changes warning message
+    oldMeta = {};
+    oldWidgets = [];
+
     constructor(
         private store: Store,
         private activatedRoute: ActivatedRoute,
@@ -210,10 +216,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
         private dbfsUtils: DbfsUtilsService,
         private urlOverrideService: URLOverrideService
     ) { }
+
     ngOnInit() {
         // handle route for dashboardModule
         this.subscription.add(this.activatedRoute.url.subscribe(url => {
             this.widgets = [];
+            this.meta = {};
+            this.oldWidgets = [];
+            this.oldMeta = {};
             this.isDbTagsLoaded = false;
             this.variablePanelMode = { view: true };
             this.store.dispatch(new ClearWidgetsData());
@@ -374,6 +384,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         payload.id = this.dbid;
                     }
                     this.store.dispatch(new SaveDashboard(this.dbid, payload));
+
                     break;
                 case 'updateTemplateVariables':
                     this.store.dispatch(new UpdateVariables(message.payload.variables));
@@ -501,6 +512,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         duration: 5000,
                         panelClass: 'info'
                     });
+                    // reset state for save pop-up
+                    this.oldMeta = {...this.meta};
+                    this.oldWidgets = [... this.widgets];
                     break;
                 case 'delete-success':
                     this.router.navigate(['/home'], { queryParams: { 'db-delete': true } });
@@ -519,6 +533,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
             const dbstate = this.store.selectSnapshot(DBState);
             if (dbstate.loaded) {
                 this.widgets = this.utilService.deepClone(widgets);
+
+                // set oldWidgets when widgets is not empty and oldWidgets is empty
+                if (this.widgets.length && this.oldWidgets.length === 0) {
+                    this.oldWidgets = [...this.widgets];
+                }
+
                 // only get dashboard tag key when they already set it up.
                 if (this.tplVariables.editTplVariables.length > 0 && !this.isDbTagsLoaded) {
                     this.getDashboardTagKeys();
@@ -558,6 +578,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }));
         this.subscription.add(this.meta$.subscribe(t => {
             this.meta = this.utilService.deepClone(t);
+            if (Object.keys(this.meta).length && this.meta.title && Object.keys(this.oldMeta).length === 0) {
+                this.oldMeta = {... this.meta};
+            }
         }));
         this.subscription.add(this.tplVariables$.subscribe(tvars => {
             // whenever tplVariables$ trigger, we save to view too.
@@ -978,6 +1001,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
             case 'delete':
                 this.openDashboardDeleteDialog();
                 break;
+        }
+    }
+
+    isDashboardDirty() {
+        const widgetChange = !deepEqual(this.widgets, this.oldWidgets);
+        const metaChange = !deepEqual(this.meta, this.oldMeta);
+        return widgetChange || metaChange;
+    }
+
+    @HostListener('window:beforeunload', ['$event'])
+    unloadNotification($event: any) {
+        if (this.isDashboardDirty()) {
+            $event.returnValue = true;
         }
     }
 
