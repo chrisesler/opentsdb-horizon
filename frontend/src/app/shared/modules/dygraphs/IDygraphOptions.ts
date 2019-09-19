@@ -55,6 +55,7 @@ export interface IDygraphOptions {
     plugins?: any;
     thresholds?: any[];
     series?: any;
+    visibilityHash?: any;
     labelsDiv?: any;
     legendFormatter?: any;
     highlightCallback?: any;

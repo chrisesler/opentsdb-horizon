@@ -54,6 +54,7 @@ export class DatatranformerService {
 
   // options will also be update of its labels array
   yamasToDygraph(widget, options: IDygraphOptions, normalizedData: any[], result: any): any {
+    // console.log('### [Y2D] ###', JSON.parse(JSON.stringify({widget, options, normalizedData, result})));
     const startTime = new Date().getTime();
     let intermediateTime = startTime;
     result = { ...result };
@@ -64,6 +65,7 @@ export class DatatranformerService {
     if ( result === undefined || !result.results || !result.results.length ) {
         return normalizedData;
     }
+
     const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 86400 };
     const dict = {};
     const queryResults = [];
@@ -244,13 +246,22 @@ export class DatatranformerService {
         }).reverse();
         console.debug(widget.id, "time taken for sorting data series(ms) ", new Date().getTime() - intermediateTime );
         intermediateTime = new Date().getTime();
-
+        // reset visibility, instead of constantly pushing (which causes it to grow in size if refresh/autorefresh is called)
+        options.visibility = [];
         for ( let i = 0; i < dseries.length; i++ ) {
+            // console.log('==> DSERIES', dseries);
             const label = options.labels.length.toString();
             options.labels.push(label);
-            options.visibility.push(true);
+            // check visibility hash for existing data
+            if ( options.visibilityHash[dseries[i].hash] !== undefined ) {
+                options.visibility.push(options.visibilityHash[dseries[i].hash]);
+            } else {
+                options.visibility.push(true);
+            }
+            options.visibilityHash[dseries[i].hash] = options.visibility[i];
             options.series[label] = dseries[i].config;
             options.series[label].color = colors[dseries[i].mid].pop();
+            options.series[label].hash = dseries[i].hash;
             const seriesIndex = options.labels.indexOf(label);
             const axis = dseries[i].config.axis;
             const unit = dseries[i].timeSpecification.interval.replace(/[0-9]/g, '');
@@ -740,7 +751,7 @@ export class DatatranformerService {
         },
         filters: []
       };
-      
+
       for (let k in m) {
         if (k !== 'metric') {
           let filter = {

@@ -364,6 +364,17 @@
                         }
                     }
                 }
+
+                .severity-info {
+                    margin-left: 10px;
+                    font-size: 12px;
+                    line-height: 26px;
+                    .mat-icon {
+                        font-size: 12px;
+                        width: 12px;
+                    }
+                }
+
             }
 
             &.read-only-mode {

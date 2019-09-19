@@ -121,6 +121,12 @@ export class URLOverrideService {
                 case '__debug_level':
                     environment.debugLevel = v;
                     break;
+                    case '__tsdb_source':
+                    environment.tsdbSource = v;
+                    break;
+                case '__tsdb_cache':
+                    environment.tsdbCacheMode = v;
+                    break;
                 default:
                     otherParams[k] = v;
             }

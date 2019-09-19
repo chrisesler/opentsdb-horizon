@@ -21,6 +21,7 @@ import { IslandTestComponent } from '../components/island-test/island-test.compo
 import { EventStreamComponent } from '../components/event-stream/event-stream.component';
 import { IntercomService } from '../../../../core/services/intercom.service';
 import { TimeseriesLegendComponent } from '../components/timeseries-legend/timeseries-legend.component';
+import { Subscription } from 'rxjs';
 
 @Injectable()
 export class InfoIslandService {
@@ -37,6 +38,9 @@ export class InfoIslandService {
         width: 600,
         height: 450
     };
+
+    private portalOutlet: ComponentPortal<any>;
+    private compSub: Subscription;
 
     constructor(
         private injector: Injector,
@@ -106,8 +110,8 @@ export class InfoIslandService {
         // create overlay reference
         this.createOverlayRef(widgetContainerRef, optionsToPass);
 
-        const portalOutlet = new ComponentPortal(InfoIslandComponent);
-        const componentRef = this.overlayRef.attach(portalOutlet);
+        this.portalOutlet = new ComponentPortal(InfoIslandComponent);
+        const componentRef = this.overlayRef.attach(this.portalOutlet);
 
         this.islandComp = componentRef.instance;
         // console.log('ISLAND REF', this.islandComp);
@@ -124,7 +128,7 @@ export class InfoIslandService {
         // console.log('PORTAL REF', portalRef);
 
         this.islandComp.open(<Portal<any>>portalRef, optionsToPass);
-        this.islandComp.onCloseIsland$.subscribe(() => {
+        this.compSub = this.islandComp.onCloseIsland$.subscribe(() => {
             this.overlayRef.detach();
             this.interCom.responsePut({
                 id: options.originId,
@@ -136,6 +140,7 @@ export class InfoIslandService {
     closeIsland() {
         if (this.overlayRef && this.overlayRef.hasAttached()) {
             this.overlayRef.detach();
+            this.compSub.unsubscribe();
             this.interCom.responsePut({
                 id: this.originId ,
                 action: 'InfoIslandClosed'
@@ -164,6 +169,11 @@ export class InfoIslandService {
         const positionStrategy = this.getPositionStrategy(elRef, strategyType);
         this.overlayRef.updatePositionStrategy(positionStrategy);
         this.overlayRef.updatePosition();
+
+        // this.logger.ng('[iiService] updatePositionStrategy', this.islandComp._dragContainer);
+
+        // reset the drag container (resets the active transform, in case they had dragged before changing charts)
+        this.islandComp._dragContainer.reset();
     }
 
     private getPositionStrategy(elRef: ElementRef, strategyType: string = 'flexible') {

@@ -35,6 +35,10 @@ export class LoggerService {
                 case 'intercom':
                     color = '#006064'; // dark teal
                     break;
+                case 'event':
+                    color = '#6A5ACD'; // slate blue
+                    colorInverse = '#ADFF2F'; // green yellow
+                    break;
                 default:
                     color = '#ffa500'; // orange
                     colorInverse = 'black';
@@ -92,6 +96,10 @@ export class LoggerService {
 
     intercom(label: string, params?: any) {
         this.consoleOutput('intercom', label, params);
+    }
+
+    event(label: string, params?: any) {
+        this.consoleOutput('event', label, params);
     }
 
     error(label: string, errorMsg: any) {
