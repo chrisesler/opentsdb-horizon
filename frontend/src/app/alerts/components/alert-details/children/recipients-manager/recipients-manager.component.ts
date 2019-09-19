@@ -111,6 +111,12 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
 
     get types(): Array<string> {
         const types = Object.keys(RecipientType);
+        // todo: enable http
+        for (let i = 0; i < types.length; i++) {
+            if (types[i] === 'http') {
+              types.splice(i, 1);
+            }
+         }
         return types;
     }
 
@@ -135,6 +141,9 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
                     for (let _recipient of recipients) {
                         _recipient.type = type.toLowerCase();
                         this.namespaceRecipients.push(_recipient);
+                        if (_recipient.type === 'oc' && _recipient.context && _recipient.context !== 'live') {
+                            _recipient.context = 'analysis';
+                        }
                     }
                 }
             }
@@ -443,8 +452,8 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
         emptyOpsGenieRecipient.apikey = '';
         emptySlackRecipient.webhook = '';
         emptyHTTPRecipient.endpoint = '';
-        emptyOCRecipient.displaycount = '';
-        emptyOCRecipient.context = '';
+        emptyOCRecipient.displaycount = '1';
+        emptyOCRecipient.context = 'analysis';
         emptyOCRecipient.opsdbproperty = '';
         emptyEmailRecipient.name = '';
 

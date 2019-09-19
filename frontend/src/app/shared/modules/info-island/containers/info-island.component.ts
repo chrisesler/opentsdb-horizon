@@ -44,7 +44,7 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit  {
 
     @ViewChild('islandContainer', { read: ElementRef }) private _islandContainer: ElementRef;
 
-    @ViewChild('islandContainer', {read: CdkDrag }) private _dragContainer: CdkDrag;
+    @ViewChild('islandContainer', {read: CdkDrag }) _dragContainer: CdkDrag;
 
     @ViewChild('islandToolbar', {read: ViewContainerRef}) private _islandToolbar: ViewContainerRef;
     get islandToolbar(): ViewContainerRef {
