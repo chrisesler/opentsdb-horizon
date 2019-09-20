@@ -126,6 +126,10 @@
         /* Edit Controls - this list of edit controls */
         .variable-edit-controls {
 
+            td:last-child {
+                width: 100%;
+            }
+
             .settings-control {
                 margin-bottom: 0;
                 //padding: 0 10px;
