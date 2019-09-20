@@ -351,6 +351,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
         if (!changes) {
             return;
         } else {
+            let needsResize = changes.size ? true : false;
             // if new data
             if (( changes.data && changes.data.currentValue || changes.options && changes.options.currentValue) ) {
                 this.options.plugins = [ThresholdsPlugin];
@@ -386,7 +387,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
 
                     if (this.timeseriesLegend) {
                         this.options.clickCallback = clickCallback;
-;                    }
+                    }
                 } else if (this.chartType === 'heatmap') {
                     this.options.interactionModel = {
                         'mousemove': function (event, g, context) {
@@ -456,19 +457,19 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                 }
                 if ( this._g ) {
                     this._g.destroy();
+                } else {
+                    needsResize = false;
                 }
-                // this.options.width = this.size.width;
-                // this.options.height = this.size.height;
+                this.options.width = this.size.width;
+                this.options.height = this.size.height;
                 this._g = new Dygraph(this.element.nativeElement, this.data.ts, this.options);
-            } 
-            if (this._g && (changes.size || changes.eventBuckets || changes.showEvents) ) {
-                if ( changes.eventBuckets || changes.showEvents ) {
-                    this._g.updateOptions(this.options);
-                }
-                if ( changes.size ) {
-                    const nsize = changes.size.currentValue;
-                    this._g.resize(nsize.width, nsize.height);
-                }
+            } else if (this._g && ( changes.eventBuckets || changes.showEvents ) ) {
+                this._g.updateOptions(this.options);
+            }
+
+            if ( this._g && needsResize ) {
+                const nsize = this.size;
+                this._g.resize(nsize.width, nsize.height);
             }
         }
     }

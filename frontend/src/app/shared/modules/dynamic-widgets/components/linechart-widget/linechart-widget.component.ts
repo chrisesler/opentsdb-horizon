@@ -409,16 +409,15 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 environment.debugLevel.toUpperCase() === 'INFO') {
                                     this.debugData = rawdata.log; // debug log
                             }
-                            // we call cdRef detection after
-                            this.setSize(false);
-                            // we should not call setLegendDiv here as it's taken care in getUpdatedWidgetConfig
-                            this.setLegendDiv();
-
-                            if (!this.multigraphEnabled) {
-                                this.refreshLegendSource();
-                            }
-                            this.cdRef.detectChanges();
-
+                            // delay required. sometimes, edit to viewmode the chartcontainer width is not available
+                            setTimeout(() => {
+                                this.setSize(true);
+                                // we should not call setLegendDiv here as it's taken care in getUpdatedWidgetConfig
+                                this.setLegendDiv();
+                                if (!this.multigraphEnabled) {
+                                    this.refreshLegendSource();
+                                }
+                            });
                         }
                         break;
                     case 'getUpdatedWidgetConfig':
