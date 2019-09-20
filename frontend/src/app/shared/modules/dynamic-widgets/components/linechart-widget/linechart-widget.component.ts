@@ -421,6 +421,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         }
                         break;
                     case 'getUpdatedWidgetConfig':
+                        // console.log("getUpdatedWidgetConfig", message);
                         this.widget = message.payload.widget;
                         this.setOptions();
                         this.refreshData(message.payload.needRefresh);
@@ -625,7 +626,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                     this.needRequery = true;
                 } else {
                     this.refreshData(false);
-                    this.needRequery = false;
                 }
                 break;
         }
