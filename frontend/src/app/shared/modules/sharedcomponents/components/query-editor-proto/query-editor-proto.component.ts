@@ -97,6 +97,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     expressionControls: FormGroup;
     idRegex = /(q[0-9]+\.)*(m|e)[0-9]+/gi;
     handleBarsRegex = /\{\{(.+?)\}\}/;
+    tagFilters = [];
 
     timeAggregatorOptions: Array<any> = [
         {
@@ -394,6 +395,8 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
                     this.triggerQueryChanges();
                 }
             });
+        // call this in case of not modify filter list yet
+        this.buildTagFilters(this.query.filters);
     }
 
     ngOnDestroy() {
@@ -514,8 +517,37 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     }
 
     updateFilters(filters) {
+        // when the filters list is updated, it might have adding the custom dashboard tag filter
+        // we need to resolve it to diffrent obj to handle it to metric auto-complete
         this.query.filters = filters;
-        this.queryChanges$.next(true);
+        this.queryChanges$.next(true);        
+        this.buildTagFilters(filters);
+    }
+    // helper function to create clean tag filters for metric auto-complete
+    buildTagFilters (filters : any[]) {
+        // clone it so we do not alert original object
+        const mfilters = this.utils.deepClone(filters);
+        this.tagFilters = []; // reset
+        for (let i = 0; i < mfilters.length; i++) {
+            if (mfilters[i].customFilter.length > 0) {
+                // they do have one or more customFilter for same tag key, add value of it
+                for (let j = 0; j < mfilters[i].customFilter.length; j++) {
+                    const cusFilter = mfilters[i].customFilter[j];
+                    for (let k = 0; k < this.tplVariables.length; k++) {
+                        if ('[' + this.tplVariables[k].alias + ']' === cusFilter && this.tplVariables[k].filter !== '') {
+                            mfilters[i].filter.push(this.tplVariables[k].filter);
+                        }
+                    }
+                }
+                if (mfilters[i].filter.length > 0) {
+                    this.tagFilters.push(mfilters[i]);
+                }
+            } else {
+                if (mfilters[i].filter.length > 0) {
+                    this.tagFilters.push(mfilters[i]);
+                }
+            }
+        }
     }
 
     functionUpdate(event: any) {
