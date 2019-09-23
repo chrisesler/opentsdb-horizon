@@ -594,6 +594,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
             if (Object.keys(this.meta).length && this.meta.title && Object.keys(this.oldMeta).length === 0) {
                 this.oldMeta = {... this.meta};
             }
+            if (this.meta.title) {
+                this.utilService.setTabTitle(this.meta.title);
+            }
         }));
         this.subscription.add(this.tplVariables$.subscribe(tvars => {
             // whenever tplVariables$ trigger, we save to view too.
@@ -1086,5 +1089,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.subscription.unsubscribe();
+        this.utilService.setTabTitle();
     }
 }
