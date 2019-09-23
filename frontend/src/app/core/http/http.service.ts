@@ -102,7 +102,7 @@ export class HttpService {
         }
         const apiUrl = environment.metaApi + '/search/timeseries';
         const query = this.metaService.getQuery('meta', 'TAG_KEYS', Object.values(newQueryParams));
-        console.log('tag query for query', query);
+        // console.log('tag query for query', query);
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
             .pipe(
                 map((res: any) => {
@@ -282,7 +282,7 @@ export class HttpService {
             withCredentials: true,
             observe: 'response' as 'response'
         };
-        console.log('[API] getUserFolderData', apiUrl, httpOptions);
+        // console.log('[API] getUserFolderData', apiUrl, httpOptions);
         return this.http.get(apiUrl, httpOptions);
     }
 
