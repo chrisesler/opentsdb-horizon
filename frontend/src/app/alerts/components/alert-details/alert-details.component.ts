@@ -116,6 +116,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         },
         series: {},
         visibility: [],
+        visibilityHash: {},
         gridLineColor: '#ccc',
     };
     queryData: any = {};
