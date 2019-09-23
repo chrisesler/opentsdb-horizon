@@ -1,7 +1,6 @@
 'use strict';
 var utils = require('../lib/utils');
 var cookie = require('cookie');
-var yby = require('yby');
 
 var authUtil = {
     validateOktaCredentials:function(okta) {
@@ -28,31 +27,6 @@ var authUtil = {
         		});
     	    }
         }
-    },
-
-    validateBouncerCredentials:function() {
-        return function (req, res, next) {
-            /*
-            let auth         = new Auth();
-            auth.init({
-                authMode: 'bouncer',
-                authCookie: req.headers.cookie
-            });
-            req.headers.auth = auth;
-            */
-            var cookies      = cookie.parse(req.headers.cookie);
-            var remoteAddress = req.headers['y-ra'] || req.headers.yahooremoteip || req.connection.remoteAddress;
-            var YBY = cookies.yby || cookies.YBY;
-            var SYBY = cookies.syby || cookies.SYBY;
-            var ybyInst = yby.createInstance();
-            try {
-                req.ybyCookie = ybyInst.parseAndValidate(YBY, remoteAddress, SYBY);
-            } catch(e) {
-                req.ybyCookie = null;
-            }
-            req.headers.auth = { cookie: req.headers.cookie };
-            next();
-        };
     }
 };
 
