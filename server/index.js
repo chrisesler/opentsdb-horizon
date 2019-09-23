@@ -18,8 +18,9 @@ app.use(logger('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-
-if (utils.getProperty('auth_mode') === 'okta') {
+if (utils.getEnv() === 'dev') {
+    // implement okta validation
+} else if (utils.getProperty('auth_mode') === 'okta') {
   var oktaSecret = require('ysecure.node').getKey(utils.getProperty('okta_secret_key_name'));
   const okta     = new expressOkta.Okta({
       callbackPath: utils.getProperty('okta_callback_path') || '/oauth2/callback',
