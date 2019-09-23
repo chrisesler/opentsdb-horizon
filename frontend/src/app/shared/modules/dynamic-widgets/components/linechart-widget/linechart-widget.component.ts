@@ -381,6 +381,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                                         // console.log('PREVIOUS OPTIONS', prevOptions);
                                                         options.series = prevOptions.series;
                                                         options.visibility = prevOptions.visibility;
+                                                        options.visibilityHash[prevOptions.hash] = prevOptions.visbilityHash;
                                                     }
                                                 }
 
@@ -408,19 +409,19 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 environment.debugLevel.toUpperCase() === 'INFO') {
                                     this.debugData = rawdata.log; // debug log
                             }
-                            // we call cdRef detection after
-                            this.setSize(false);
-                            // we should not call setLegendDiv here as it's taken care in getUpdatedWidgetConfig
-                            this.setLegendDiv();
-
-                            if (!this.multigraphEnabled) {
-                                this.refreshLegendSource();
-                            }
-                            this.cdRef.detectChanges();
-
+                            // delay required. sometimes, edit to viewmode the chartcontainer width is not available
+                            setTimeout(() => {
+                                this.setSize(true);
+                                // we should not call setLegendDiv here as it's taken care in getUpdatedWidgetConfig
+                                this.setLegendDiv();
+                                if (!this.multigraphEnabled) {
+                                    this.refreshLegendSource();
+                                }
+                            });
                         }
                         break;
                     case 'getUpdatedWidgetConfig':
+                        // console.log("getUpdatedWidgetConfig", message);
                         this.widget = message.payload.widget;
                         this.setOptions();
                         this.refreshData(message.payload.needRefresh);
@@ -625,7 +626,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                     this.needRequery = true;
                 } else {
                     this.refreshData(false);
-                    this.needRequery = false;
                 }
                 break;
         }
@@ -1117,7 +1117,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     setSeriesVisibilityConfig(index: number, visibility: boolean, multigraph: any = false) {
         const options = (multigraph) ? this.graphData[multigraph.y][multigraph.x].options : this.options;
         options.visibility[index] = visibility;
-        options.visibilityHash[this.options.series[index + 1].hash] = options.visibility[index];
+        options.visibilityHash[options.series[index + 1].hash] = options.visibility[index];
     }
 
     handleZoom(zConfig) {
