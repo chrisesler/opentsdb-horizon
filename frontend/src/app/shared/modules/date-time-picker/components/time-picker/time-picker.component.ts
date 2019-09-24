@@ -45,6 +45,7 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
     @Input()
     set startTime(value: string) {
         this._startTime = value;
+        this.updateToolTips();
     }
     get startTime(): string {
         return this._startTime;
@@ -53,6 +54,7 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
     @Input()
     set endTime(value: string) {
         this._endTime = value;
+        this.updateToolTips();
     }
     get endTime(): string {
         return this._endTime;
@@ -61,7 +63,7 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
     @Input()
     set timezone(value: string) {
         this._timezone = value;
-        this.updateToolTipsAndDisplayTimes();
+        this.updateToolTips();
     }
     get timezone(): string {
         return this._timezone;
@@ -194,7 +196,7 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
 
     ngAfterViewChecked() {
         if (!this.startTimeToolTip && !this.endTimeToolTip) {
-          this.updateToolTipsAndDisplayTimes();
+            this.updateToolTips();
         }
         this.cdRef.detectChanges();
     }
@@ -202,8 +204,6 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
     timeReceived(selectedTime: ISelectedTime) {
         this.startTime = selectedTime.startTimeDisplay;
         this.endTime = selectedTime.endTimeDisplay;
-        this.startTimeToolTip = this.timeRangePicker.startTimeReference.getAbsoluteTimeFromMoment(this.timeRangePicker.startTimeSelected);
-        this.endTimeToolTip = this.timeRangePicker.endTimeReference.getAbsoluteTimeFromMoment(this.timeRangePicker.endTimeSelected);
         this.newChange.emit( { action: 'SetDateRange', payload: { newTime: selectedTime} } );
 
         // close mat-menu
@@ -253,18 +253,15 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
         }
     }
 
-    updateToolTipsAndDisplayTimes() {
-        if (this.isInitialized) {
-            // tslint:disable:max-line-length
-            this.startTimeToolTip = this.utilsService.timestampToTime(this.timeRangePicker.startTimeReference.unixTimestamp.toString(), this.timezone);
-            this.endTimeToolTip = this.utilsService.timestampToTime(this.timeRangePicker.endTimeReference.unixTimestamp.toString(), this.timezone);
-
-            if (!this.utilsService.relativeTimeToMoment(this.startTime) && this.startTime.toLowerCase() !== 'now') {
-                this.startTime = this.utilsService.timestampToTime(this.timeRangePicker.startTimeReference.unixTimestamp.toString(), this.timezone);
+    updateToolTips() {
+        if (this.timezone) {
+            if (this.startTime) {
+                const sTime = this.utilsService.timeToMoment(this.startTime, this.timezone).unix().toString();
+                this.startTimeToolTip = this.utilsService.timestampToTime(sTime, this.timezone);
             }
-
-            if (!this.utilsService.relativeTimeToMoment(this.endTime) && this.endTime.toLowerCase() !== 'now') {
-                this.endTime = this.utilsService.timestampToTime(this.timeRangePicker.endTimeReference.unixTimestamp.toString(), this.timezone);
+            if (this.endTime) {
+                const eTime = this.utilsService.timeToMoment(this.endTime, this.timezone).unix().toString();
+                this.endTimeToolTip = this.utilsService.timestampToTime(eTime, this.timezone);
             }
         }
     }
