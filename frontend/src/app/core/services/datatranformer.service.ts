@@ -310,7 +310,7 @@ export class DatatranformerService {
                 }
 
                 if ( isNaN(parseFloat( axisConfig.min)) ) {
-                    options.axes[axis].valueRange[0] = axisMin < 0  ? Math.ceil(axisMin + axisMin * 0.05) : 0;
+                    options.axes[axis].valueRange[0] = axisMin < 0  ? Math.ceil(axisMin + axisMin * 0.05) : axisConfig.scale === 'logscale' ? null : 0;
                 }
             }
         }
