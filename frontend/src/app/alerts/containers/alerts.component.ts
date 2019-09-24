@@ -213,7 +213,7 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
     namespaceDropMenuOpen: boolean = false;
     configLoaded$  = new Subject();
 
-    error: any ;
+    error: any = false;
 
     // portal templates
     @ViewChild('alertspageNavbarTmpl') alertspageNavbarTmpl: TemplateRef<any>;
@@ -436,7 +436,12 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
         }));
 
         this.subscription.add(this.error$.subscribe(error => {
+          // console.log('ERROR', error);
+          if (Object.keys(error).length > 0) {
             this.error = error;
+          } else {
+            this.error = false;
+          }
             // maybe intercom error for messaging bar?
         }));
 
@@ -665,6 +670,18 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.isAllSelected() ?
             this.selection.clear() :
             this.alertsDataSource.data.forEach(row => this.selection.select(row));
+    }
+
+    /** bulk actions */
+
+    // NOTE: adding stubs for now. Noticed the UI has buttons for this, but there were no functions assigned
+
+    bulkDisableAlerts() {
+      // TODO: get list of selected items, then disable (see this.toggleAlert)
+    }
+
+    bulkDeleteAlerts() {
+      // TODO: get list of selected items, then do delete confirmation, then delete (see this.deleteItem)
     }
 
     /** actions */
