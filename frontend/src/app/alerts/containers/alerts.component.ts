@@ -7,7 +7,8 @@ import {
     ViewChild,
     TemplateRef,
     Input,
-    ChangeDetectorRef
+    ChangeDetectorRef,
+    AfterViewChecked
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SelectionModel } from '@angular/cdk/collections';
@@ -68,7 +69,7 @@ const moment = _moment;
     templateUrl: './alerts.component.html',
     styleUrls: []
 })
-export class AlertsComponent implements OnInit, OnDestroy {
+export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     @HostBinding('class.alerts-container-component') private _hostClass = true;
 
@@ -851,8 +852,15 @@ export class AlertsComponent implements OnInit, OnDestroy {
         // console.log('contactMenuEsc', $event);
     }
 
+    ngAfterViewChecked() {
+        if (this.location.path() === '/a' || this.location.path() === '/a/' + this.selectedNamespace) {
+            this.utils.setTabTitle(this.selectedNamespace + ' Alerts');
+        }
+    }
+
     ngOnDestroy() {
         this.subscription.unsubscribe();
+        this.utils.setTabTitle();
     }
 
 }

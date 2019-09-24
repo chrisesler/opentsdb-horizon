@@ -116,6 +116,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         },
         series: {},
         visibility: [],
+        visibilityHash: {},
         gridLineColor: '#ccc',
     };
     queryData: any = {};
@@ -275,11 +276,16 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 this.setupEventForm(this.data);
                 break;
         }
+
+        if (this.data.name) {
+            this.utils.setTabTitle(this.data.name);
+        }
         this.setAlertEvaluationLink();
     }
 
     ngOnDestroy() {
         this.subscription.unsubscribe();
+        this.utils.setTabTitle();
     }
 
     ngAfterContentInit() {
@@ -1152,6 +1158,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
 
     setAlertName(name) {
         this.alertForm.get('name').setValue(name);
+        this.utils.setTabTitle(name);
     }
 
     validate() {
@@ -1237,6 +1244,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 break;
         }
         data.version = this.alertConverter.getAlertCurrentVersion();
+        this.utils.setTabTitle(this.data.name);
         // emit to save the alert
         this.configChange.emit({ action: 'SaveAlert', namespace: this.data.namespace, payload: { data: this.utils.deepClone([data]) }} );
     }

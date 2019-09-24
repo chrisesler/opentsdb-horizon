@@ -240,7 +240,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         if (this.hasCustomFilter) {
             // set useDBFilter to true anyway
             this.applyTplControl.setValue('apply');
-            this.widgetChange.emit({ action: 'ToggleDBFilterUsage', payload: { apply: true, reQuery: false }});
+            this.widgetChange.emit({ action: 'ToggleDBFilterUsage', payload: { apply: true, reQuery: true }});
         }
     }
 
