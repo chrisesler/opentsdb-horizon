@@ -6,7 +6,7 @@
 <ng-template [ngIf]="!detailsView && (list === 'alerts' || list === 'snooze')">
     <div class="alerts-main-controls" fxFlex="1 1 60px" fxFlex.xs="1 1 190px" fxLayoutAlign="stretch stretch" fxLayout="row" fxLayout.xs="column">
         <div class="control-item namespace-selector">
-            <button mat-button 
+            <button mat-button
                 [matMenuTriggerFor]="namespaceDropMenu"
                 [ngClass]="{'menu-open': namespaceDropMenuOpen}"
                 (menuOpened)="setNamespaceMenuOpened(true)"
@@ -24,208 +24,212 @@
                 <mat-icon matSuffix fontSet="denali" fontIcon="d-search"></mat-icon>
             </mat-form-field>
         </div>
-        
+
         <div class="control-item create-alert-control" *ngIf="hasNamespaceWriteAccess">
             <button mat-flat-button color="primary" *ngIf="list === 'alerts'" [matMenuTriggerFor]="createAlertMenu">Create alert</button>
             <button mat-flat-button color="primary" *ngIf="list === 'snooze'" (click)="createSnooze()">Create snooze</button>
         </div>
         <span class="flex-spacer"></span>
     </div>
-    <div *ngIf="error" class="error"> 
+    <div *ngIf="error" class="error">
         {{ error.message }}
     </div>
     <div *ngIf="list === 'alerts'" class="alert-results" fxFlex="1 1 100%" fxLayout="column">
         <div class="alert-results-wrapper">
-            <div class="alert-results-body">
-                <table class="alerts-result-table" mat-table [dataSource]="alertsDataSource" matSort>
-                    <ng-container matColumnDef="select">
-                        <th mat-header-cell *matHeaderCellDef>
-                            <mat-checkbox (change)="$event ? masterToggle() : null"
-                                [checked]="selection.hasValue() && isAllSelected()"
-                                [indeterminate]="selection.hasValue() && !isAllSelected()"
-                                color="primary">
-                            </mat-checkbox>
-                        </th>
-                        <td mat-cell *matCellDef="let element">
-                            <mat-checkbox (click)="$event.stopPropagation()"
-                                (change)="$event ? selection.toggle(element) : null"
-                                [checked]="selection.isSelected(element)"
-                                color="primary">
-                            </mat-checkbox>
-                        </td>
-                    </ng-container>
+            <div class="alert-results-body has-scroller">
+                <div class="is-scroller">
+                    <table class="alerts-result-table" mat-table [dataSource]="alertsDataSource" matSort>
+                        <ng-container matColumnDef="select">
+                            <th mat-header-cell *matHeaderCellDef>
+                                <mat-checkbox (change)="$event ? masterToggle() : null"
+                                    [checked]="selection.hasValue() && isAllSelected()"
+                                    [indeterminate]="selection.hasValue() && !isAllSelected()"
+                                    color="primary">
+                                </mat-checkbox>
+                            </th>
+                            <td mat-cell *matCellDef="let element">
+                                <mat-checkbox (click)="$event.stopPropagation()"
+                                    (change)="$event ? selection.toggle(element) : null"
+                                    [checked]="selection.isSelected(element)"
+                                    color="primary">
+                                </mat-checkbox>
+                            </td>
+                        </ng-container>
 
-                    <ng-container matColumnDef="name">
-                        <th mat-header-cell *matHeaderCellDef>
-                            <span *ngIf="!selection.hasValue()" mat-sort-header="name">Alert Name</span>
-                            <div class="bulk-actions-wrapper" *ngIf="selection.hasValue()">
-                                <button mat-button color="primary" (click)="bulkDisableAlerts()">
-                                    <mat-icon fontSet="denali" fontIcon="d-notification-disable"></mat-icon>
-                                    <span>Disable</span>
-                                </button>
-                                <button mat-button color="primary" (click)="bulkDeleteAlerts()">
-                                    <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
-                                    <span>Delete</span>
-                                </button>
-                            </div>
-                        </th>
-                        <td mat-cell *matCellDef="let element">
-                            <span class="alert-name">{{element.name}}</span>
-                            <div class="edit-actions-wrapper" *ngIf="hasNamespaceWriteAccess">
-                                <button mat-button color="primary" (click)="editAlert(element)">
-                                    <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
-                                    <span>edit</span>
-                                </button>
-                                <!--<button mat-button color="primary" (click)="cloneAlert(element)">
-                                    <mat-icon fontSet="denali" fontIcon="d-duplicate"></mat-icon>
-                                    <span>Clone</span>
-                                </button>-->
-                                <button mat-button color="primary" (click)="toggleAlert(element)">
-                                    <mat-icon fontSet="denali" [fontIcon]="element.enabled ? 'd-notification-disable' : 'd-notification'"></mat-icon>
-                                    <span>{{element.enabled ? 'Disable' : 'Enable'}}</span>
-                                </button>
-                                <button mat-button color="primary" (click)="cloneAlert(element)">
-                                    <mat-icon fontSet="denali" fontIcon="d-duplicate"></mat-icon>
-                                    <span>Clone</span>
-                                </button>
-                                <button mat-button color="primary" (click)="deleteItem(element)">
-                                    <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
-                                    <span>Delete</span>
-                                </button>
-                            </div>
-                            <div class="edit-actions-wrapper" *ngIf="!hasNamespaceWriteAccess">
-                                <button mat-button color="primary" (click)="viewAlert(element)">
-                                    <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
-                                    <span>view alert details</span>
-                                </button>
-                            </div>
-                        </td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="type">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                            <span>Type</span>
-                        </th>
-                        <td mat-cell *matCellDef="let element"> {{alertTypeToDisplayName(element.type)}} </td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="alertGroupingRules">
-                        <th mat-header-cell *matHeaderCellDef>
-                            <span>Labels</span>
-                        </th>
-                        <td mat-cell *matCellDef="let element">
-                            <mat-chip-list>
-                                <mat-basic-chip class="group-label-chip" *ngFor="let label of element.labels;">{{label}}</mat-basic-chip>
-                            </mat-chip-list>
-                        </td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="contacts">
-                        <th mat-header-cell *matHeaderCellDef>
-                            <span>Recipients</span>
-                        </th>
-                        <td mat-cell *matCellDef="let element">
-                            <!--<button mat-button color="primary" class="contacts-menu-trigger" [matMenuTriggerFor]="contactsMenu" [matMenuTriggerData]="{contacts: element.recipients}">
-                                <mat-icon fontSet="denali" fontIcon="d-user-group"></mat-icon>
-                                <span>{{element.contacts.length}}</span>
-                            </button>-->
-                            <!--<recipients-manager  [selectedAlertRecipients]="element.recipients"></recipients-manager>-->
-                            <ng-container *ngIf="getRecipientKeys(element).length > 0">
-                                <div class="contact-icon-strip" [matMenuTriggerFor]="contactsMenu" [matMenuTriggerData]="{element: element}">
-                                    <mat-icon *ngFor="let contactType of getRecipientKeys(element)" [svgIcon]="contactType + '_contact'"></mat-icon>
+                        <ng-container matColumnDef="name">
+                            <th mat-header-cell *matHeaderCellDef>
+                                <span *ngIf="!selection.hasValue()" mat-sort-header="name">Alert Name</span>
+                                <div class="bulk-actions-wrapper" *ngIf="selection.hasValue()">
+                                    <button mat-button color="primary" (click)="bulkDisableAlerts()">
+                                        <mat-icon fontSet="denali" fontIcon="d-notification-disable"></mat-icon>
+                                        <span>Disable</span>
+                                    </button>
+                                    <button mat-button color="primary" (click)="bulkDeleteAlerts()">
+                                        <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
+                                        <span>Delete</span>
+                                    </button>
                                 </div>
-                            </ng-container>
-                        </td>
-                    </ng-container>
+                            </th>
+                            <td mat-cell *matCellDef="let element">
+                                <span class="alert-name">{{element.name}}</span>
+                                <div class="edit-actions-wrapper" *ngIf="hasNamespaceWriteAccess">
+                                    <button mat-button color="primary" (click)="editAlert(element)">
+                                        <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
+                                        <span>edit</span>
+                                    </button>
+                                    <!--<button mat-button color="primary" (click)="cloneAlert(element)">
+                                        <mat-icon fontSet="denali" fontIcon="d-duplicate"></mat-icon>
+                                        <span>Clone</span>
+                                    </button>-->
+                                    <button mat-button color="primary" (click)="toggleAlert(element)">
+                                        <mat-icon fontSet="denali" [fontIcon]="element.enabled ? 'd-notification-disable' : 'd-notification'"></mat-icon>
+                                        <span>{{element.enabled ? 'Disable' : 'Enable'}}</span>
+                                    </button>
+                                    <button mat-button color="primary" (click)="cloneAlert(element)">
+                                        <mat-icon fontSet="denali" fontIcon="d-duplicate"></mat-icon>
+                                        <span>Clone</span>
+                                    </button>
+                                    <button mat-button color="primary" (click)="deleteItem(element)">
+                                        <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
+                                        <span>Delete</span>
+                                    </button>
+                                </div>
+                                <div class="edit-actions-wrapper" *ngIf="!hasNamespaceWriteAccess">
+                                    <button mat-button color="primary" (click)="viewAlert(element)">
+                                        <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
+                                        <span>view alert details</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </ng-container>
 
-                    <ng-container matColumnDef="modified">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                            <span>Last Modified</span>
-                        </th>
-                        <td mat-cell *matCellDef="let element"> {{formatAlertTimeModified(element)}} </td>
-                    </ng-container>
+                        <ng-container matColumnDef="type">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                                <span>Type</span>
+                            </th>
+                            <td mat-cell *matCellDef="let element"> {{alertTypeToDisplayName(element.type)}} </td>
+                        </ng-container>
 
-                    <ng-container matColumnDef="counts.bad">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                            <span class="header-chip is-error">Bad</span>
-                        </th>
-                        <td mat-cell *matCellDef="let element">
-                            <span class="count-amount"><!--{{element.counts.bad > 0 ? element.counts.bad : '-'}}-->-</span>
-                        </td>
-                    </ng-container>
-                
-                    <ng-container matColumnDef="counts.warn">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                            <span class="header-chip is-warning">Warn</span>
-                        </th>
-                        <td mat-cell *matCellDef="let element">
-                            <span class="count-amount"><!--{{element.counts.warn > 0 ? element.counts.warn : '-'}} -->-</span>
-                        </td>
-                    </ng-container>
-                
-                    <ng-container matColumnDef="counts.good">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                            <span class="header-chip is-good">Good</span>
-                        </th>
-                        <td mat-cell *matCellDef="let element">
-                            <span class="count-amount"><!--{{element.counts.good > 0 ? element.counts.good : '-'}} -->-</span>
-                        </td>
-                    </ng-container>
-                
-                    <ng-container matColumnDef="counts.snoozed">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                            <span class="header-chip is-snoozed">Snoozed</span>
-                        </th>
-                        <td mat-cell *matCellDef="let element">
-                            <span class="count-amount"><!--{{element.counts.snoozed > 0 ? element.counts.snoozed : '-'}}-->-</span>
-                        </td>
-                    </ng-container>
+                        <ng-container matColumnDef="alertGroupingRules">
+                            <th mat-header-cell *matHeaderCellDef>
+                                <span>Labels</span>
+                            </th>
+                            <td mat-cell *matCellDef="let element">
+                                <mat-chip-list>
+                                    <mat-basic-chip class="group-label-chip" *ngFor="let label of element.labels;">{{label}}</mat-basic-chip>
+                                </mat-chip-list>
+                            </td>
+                        </ng-container>
 
-                    <ng-container matColumnDef="sparkline">
-                        <th mat-header-cell [ngClass]="{'menu-open': sparklineMenuOpen}" *matHeaderCellDef>
-                            <span>
-                                <span>Past</span>
-                                <button mat-button 
-                                    class="sparkline-display-menu-trigger"
-                                    color="primary"
-                                    [matMenuTriggerFor]="sparklineDisplayMenu"
-                                    (menuOpened)="setSparklineMenuOpened(true)"
-                                    (menuClosed)="setSparklineMenuOpened(false)"
-                                    #sparklineDisplayDropMenuTrigger>
-                                    <span>{{sparklineDisplay.label}}</span>
+                        <ng-container matColumnDef="contacts">
+                            <th mat-header-cell *matHeaderCellDef>
+                                <span>Recipients</span>
+                            </th>
+                            <td mat-cell *matCellDef="let element">
+                                <!--<button mat-button color="primary" class="contacts-menu-trigger" [matMenuTriggerFor]="contactsMenu" [matMenuTriggerData]="{contacts: element.recipients}">
+                                    <mat-icon fontSet="denali" fontIcon="d-user-group"></mat-icon>
+                                    <span>{{element.contacts.length}}</span>
+                                </button>-->
+                                <!--<recipients-manager  [selectedAlertRecipients]="element.recipients"></recipients-manager>-->
+                                <ng-container *ngIf="getRecipientKeys(element).length > 0">
+                                    <div class="contact-icon-strip" [matMenuTriggerFor]="contactsMenu" [matMenuTriggerData]="{element: element}">
+                                        <mat-icon *ngFor="let contactType of getRecipientKeys(element)" [svgIcon]="contactType + '_contact'"></mat-icon>
+                                    </div>
+                                </ng-container>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="modified">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                                <span>Last Modified</span>
+                            </th>
+                            <td mat-cell *matCellDef="let element"> {{formatAlertTimeModified(element)}} </td>
+                        </ng-container>
+
+                        <!-- QUESTION: Do we need this status counts code any more? -->
+                        <ng-container matColumnDef="counts.bad">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                                <span class="header-chip is-error">Bad</span>
+                            </th>
+                            <td mat-cell *matCellDef="let element">
+                                <span class="count-amount"><!--{{element.counts.bad > 0 ? element.counts.bad : '-'}}-->-</span>
+                            </td>
+                        </ng-container>
+
+                        <!-- QUESTION: Do we need this status counts code any more? -->
+                        <ng-container matColumnDef="counts.warn">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                                <span class="header-chip is-warning">Warn</span>
+                            </th>
+                            <td mat-cell *matCellDef="let element">
+                                <span class="count-amount"><!--{{element.counts.warn > 0 ? element.counts.warn : '-'}} -->-</span>
+                            </td>
+                        </ng-container>
+
+                        <!-- QUESTION: Do we need this status counts code any more? -->
+                        <ng-container matColumnDef="counts.good">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                                <span class="header-chip is-good">Good</span>
+                            </th>
+                            <td mat-cell *matCellDef="let element">
+                                <span class="count-amount"><!--{{element.counts.good > 0 ? element.counts.good : '-'}} -->-</span>
+                            </td>
+                        </ng-container>
+
+                        <!-- QUESTION: Do we need this status counts code any more? -->
+                        <ng-container matColumnDef="counts.snoozed">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                                <span class="header-chip is-snoozed">Snoozed</span>
+                            </th>
+                            <td mat-cell *matCellDef="let element">
+                                <span class="count-amount"><!--{{element.counts.snoozed > 0 ? element.counts.snoozed : '-'}}-->-</span>
+                            </td>
+                        </ng-container>
+
+                        <!-- QUESTION: Do we need this sparkline code any more? -->
+                        <ng-container matColumnDef="sparkline">
+                            <th mat-header-cell [ngClass]="{'menu-open': sparklineMenuOpen}" *matHeaderCellDef>
+                                <span>
+                                    <span>Past</span>
+                                    <button mat-button
+                                        class="sparkline-display-menu-trigger"
+                                        color="primary"
+                                        [matMenuTriggerFor]="sparklineDisplayMenu"
+                                        (menuOpened)="setSparklineMenuOpened(true)"
+                                        (menuClosed)="setSparklineMenuOpened(false)"
+                                        #sparklineDisplayDropMenuTrigger>
+                                        <span>{{sparklineDisplay.label}}</span>
+                                    </button>
+                                </span>
+                            </th>
+                            <td mat-cell *matCellDef="let element">
+                                <span class="sparkline-wrapper">[sparkline]</span>
+                            </td>
+                        </ng-container>
+
+                        <!-- QUESTION: Do we need these actions code any more? -->
+                        <ng-container matColumnDef="actions">
+                            <th mat-header-cell *matHeaderCellDef>
+                                <span>Actions</span>
+                            </th>
+                            <td mat-cell *matCellDef="let element">
+                                <button mat-icon-button color="primary">
+                                    <mat-icon fontSet="denali" fontIcon="d-pencil" (click)="editAlert(element)"></mat-icon>
                                 </button>
-                            </span>
-                        </th>
-                        <td mat-cell *matCellDef="let element"> 
-                            <span class="sparkline-wrapper">[sparkline]</span>
-                        </td>
-                    </ng-container>
+                                <button mat-icon-button color="primary" (click)="toggleAlert(element)">
+                                    <mat-icon fontSet="denali" [fontIcon]="element.enabled ? 'd-notification-disable' : 'd-notification'"></mat-icon>
+                                </button>
+                                <button mat-icon-button color="primary" (click)="deleteAlert(element)">
+                                    <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
+                                </button>
+                            </td>
+                        </ng-container>
 
-
-                    <ng-container matColumnDef="actions">
-                        <th mat-header-cell *matHeaderCellDef>
-                            <span>Actions</span>
-                        </th>
-                        <td mat-cell *matCellDef="let element">
-                            <button mat-icon-button color="primary">
-                                <mat-icon fontSet="denali" fontIcon="d-pencil" (click)="editAlert(element)"></mat-icon>
-                            </button>
-                            <button mat-icon-button color="primary" (click)="toggleAlert(element)">
-                                <mat-icon fontSet="denali" [fontIcon]="element.enabled ? 'd-notification-disable' : 'd-notification'"></mat-icon>
-                            </button>
-                            <!--<button mat-icon-button color="primary" (click)="openSnoozeAlertDialog(element)">
-                                <mat-icon>snooze</mat-icon>
-                            </button>-->
-                            <button mat-icon-button color="primary" (click)="deleteAlert(element)">
-                                <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
-                            </button>
-                        </td>
-                    </ng-container>
-                
-                    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" [ngClass]="{'is-batch-editing': selection.hasValue()}"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumns;" [ngClass]="{'is-disabled': !row.enabled}"></tr>
-                </table>
-                <div class="message" *ngIf="stateLoaded.alerts && alerts.length === 0">No alerts found</div>
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" [ngClass]="{'is-batch-editing': selection.hasValue()}"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;" [ngClass]="{'is-disabled': !row.enabled}"></tr>
+                    </table>
+                    <div class="message" *ngIf="stateLoaded.alerts && alerts.length === 0">No alerts found</div>
+                </div>
             </div>
             <mat-paginator [pageSizeOptions]="[25, 50, 100]" [showFirstLastButtons]="alerts.length > 25"></mat-paginator>
         </div>
@@ -267,7 +271,7 @@
                                 </button>
                             </div>
                         </th>
-                        <td mat-cell *matCellDef="let element"> 
+                        <td mat-cell *matCellDef="let element">
                             <span class="alert-name">{{formatTime(element.endTime)}} </span>
                             <div class="edit-actions-wrapper" *ngIf="hasNamespaceWriteAccess">
                                     <button mat-button color="primary" (click)="editSnooze(element)">
@@ -318,7 +322,7 @@
                             <span class="alert-name">{{element.reason}}</span>
                         </td>
                     </ng-container>
-                
+
                     <tr mat-header-row *matHeaderRowDef="snoozeDisplayedColumns; sticky: true" [ngClass]="{'is-batch-editing': selection.hasValue()}"></tr>
                     <tr mat-row *matRowDef="let row; columns: snoozeDisplayedColumns;"></tr>
                 </table>
