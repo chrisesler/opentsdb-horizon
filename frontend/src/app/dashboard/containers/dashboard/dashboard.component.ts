@@ -484,6 +484,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }));
 
         this.subscription.add(this.dbPath$.subscribe(path => {
+
+            if (path && path.startsWith('/_new_')) {
+                this.dbOwner = this.user;
+            }
+
             // we only need to check of path returned from configdb is not _new_,
             // the router url will point to previous path of clone dashboard
             // this.logger.log('dbPathSub', { currentLocation: this.location.path(), newPath: '/d' + path, rawPath: path});
