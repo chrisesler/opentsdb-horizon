@@ -5,7 +5,6 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var utils = require('./lib/utils');
 var authUtil = require('./middlewares/auth-utils');
-var yby = require('yby');
 var expressOkta = require('express-okta-oath');
 
 var search = require('./routes/search');
@@ -19,9 +18,8 @@ app.use(logger('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-
-if (utils.getProperty('auth_mode') === 'bouncer' || utils.getEnv() === 'dev') {
-    app.use(authUtil.validateBouncerCredentials());
+if (utils.getEnv() === 'dev') {
+    // implement okta validation
 } else if (utils.getProperty('auth_mode') === 'okta') {
   var oktaSecret = require('ysecure.node').getKey(utils.getProperty('okta_secret_key_name'));
   const okta     = new expressOkta.Okta({
@@ -38,7 +36,7 @@ if (utils.getProperty('auth_mode') === 'bouncer' || utils.getEnv() === 'dev') {
   app.use(authUtil.validateOktaCredentials(okta));
 }
 else if (utils.getProperty('auth_mode') === 'athenz') {
-    app.use(authUtil.validateAthenzCredentials());
+    // app.use(authUtil.validateAthenzCredentials());
 }
 
 app.use(function (req, res, next) {

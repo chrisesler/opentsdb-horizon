@@ -30,7 +30,6 @@ Horizon Yamas UI
 ```  
   cd horizon
   npm -g install ynpm --registry=https://ynpm-registry.corp.yahoo.com/ --cache $HOME/.ynpm
-  ynpm i yby
   ynpm i express-okta-oath
 ```
 
