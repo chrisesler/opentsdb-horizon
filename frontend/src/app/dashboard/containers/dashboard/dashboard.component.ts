@@ -303,6 +303,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     // update the state with new widgets
                     // const copyWidgets = this.utilService.deepClone(this.widgets);
                     this.store.dispatch(new UpdateWidgets(this.widgets));
+                    this.getDashboardTagKeys(false);
                     this.rerender = { 'reload': true };
                     const gridsterContainerEl = this.elRef.nativeElement.querySelector('.is-scroller');
                     const cloneWidgetEndPos = (cloneWidget.gridPos.y + cloneWidget.gridPos.h) * this.gridsterUnitSize.height;
@@ -483,6 +484,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }));
 
         this.subscription.add(this.dbPath$.subscribe(path => {
+
+            if (path && path.startsWith('/_new_')) {
+                this.dbOwner = this.user;
+            }
+
             // we only need to check of path returned from configdb is not _new_,
             // the router url will point to previous path of clone dashboard
             // this.logger.log('dbPathSub', { currentLocation: this.location.path(), newPath: '/d' + path, rawPath: path});

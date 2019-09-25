@@ -1,5 +1,4 @@
 var utils = require('../lib/utils');
-var yby = require('yby');
 var expressOkta = require('express-okta-oath');
 var express = require('express');
 var router = express.Router();
@@ -15,7 +14,7 @@ router.get("/login", function (req, res) {
 
 router.get("/heartbeat", function (req, res) {
   var valid = false;
-  if ( (utils.getProperty('auth_mode') === 'bouncer' && req.ybyCookie!=null && req.ybyCookie.getStatus()== yby.STATUS_OK) || (utils.getProperty('auth_mode') === 'okta' && req.okta && req.okta.status == "VALID") ) {
+  if ( utils.getProperty('auth_mode') === 'okta' && req.okta && req.okta.status == "VALID" ) {
       valid = true;
   }
 
