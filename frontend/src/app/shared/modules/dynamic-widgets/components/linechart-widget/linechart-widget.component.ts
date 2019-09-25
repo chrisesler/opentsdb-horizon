@@ -417,6 +417,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             // delay required. sometimes, edit to viewmode the chartcontainer width is not available
                             setTimeout(() => {
                                 this.setSize(true);
+                                this.legendDataSource.sort = this.sort;
                             });
                         }
                         break;
@@ -473,7 +474,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
     refreshLegendSource() {
         this.legendDataSource = new MatTableDataSource(this.buildLegendData());
-        this.legendDataSource.sort = this.sort;
     }
 
     buildLegendData() {
@@ -554,6 +554,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 this.setLegend(message.payload.data);
                 this.cdRef.detectChanges();
                 this.refreshLegendSource();
+                this.legendDataSource.sort = this.sort;
                 this.setSize();
                 break;
             case 'UpdateQuery':

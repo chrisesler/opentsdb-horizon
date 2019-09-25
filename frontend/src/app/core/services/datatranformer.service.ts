@@ -288,12 +288,12 @@ export class DatatranformerService {
         console.debug(widget.id, "time taken for finding min, max(ms)", new Date().getTime() - intermediateTime );
 
         if (isStacked) {
-
             for ( let i = 0; i < stackedYAxes.length; i++ ) {
                 const axis = stackedYAxes[i] === 'y1' ? 'y' : 'y2';
                 let axisMax = d3.max([...xAggs['max']['area'][axis], ...xAggs['max']['bar'][axis]]);
                 let axisMin = d3.min([...xAggs['min']['area'][axis], ...xAggs['min']['bar'][axis]]);
                 const axisConfig = widget.settings.axes[stackedYAxes[i]];
+
                 if ( stackedYAxes[i] === 'y1' ) {
                     axisMax = yMax > axisMax ? yMax : axisMax;
                     axisMin = min['y1'] < axisMin ? min['y1'] : axisMin;
@@ -310,7 +310,7 @@ export class DatatranformerService {
                 }
 
                 if ( isNaN(parseFloat( axisConfig.min)) ) {
-                    options.axes[axis].valueRange[0] = axisMin < 0 && ( Object.keys(stackedGroups).length > 1 || Object.keys(groups).includes('line')) ? Math.ceil(axisMin + axisMin * 0.05) : 0;
+                    options.axes[axis].valueRange[0] = axisMin < 0  ? Math.ceil(axisMin + axisMin * 0.05) : axisConfig.scale === 'logscale' ? null : 0;
                 }
             }
         }

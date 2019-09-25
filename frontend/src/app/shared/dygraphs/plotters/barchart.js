@@ -44,7 +44,7 @@ var barChartPlotter = function(e) {
             var point = points[i];
             var xval = point.xval;
             if (cumulativeYval[xval] === undefined) {
-                cumulativeYval[xval] = 0;
+                cumulativeYval[xval] = { positive: 0, negative: 0 };
             }
 
             var actualYval = point.yval;
@@ -70,11 +70,12 @@ var barChartPlotter = function(e) {
                 prevPoint = point;
             }
 
-            var stackedYval = cumulativeYval[xval];
+            const direction = actualYval >= 0 ? 'positive' : 'negative';
+            var stackedYval = cumulativeYval[xval][direction];
             if (lastXval != xval) {
                 // If an x-value is repeated, we ignore the duplicates.
                 stackedYval += actualYval;
-                cumulativeYval[xval] = stackedYval;
+                cumulativeYval[xval][direction] = stackedYval;
             }
             lastXval = xval;
 
