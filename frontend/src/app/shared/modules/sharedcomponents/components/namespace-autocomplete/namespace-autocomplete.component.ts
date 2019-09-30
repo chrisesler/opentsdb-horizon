@@ -84,6 +84,11 @@ export class NamespaceAutocompleteComponent implements OnInit, OnDestroy {
 
 
     namespaceKeydown(event: any) {
+        // this fixes issue related to LastPass plugin throwing error
+        // see: https://github.com/lastpass/lastpass-cli/issues/428
+        //      https://github.com/KillerCodeMonkey/ngx-quill/issues/351#issuecomment-475175743
+        event.preventDefault();
+        event.stopPropagation();
 
         const textVal = this.namespaceControl.value;
 

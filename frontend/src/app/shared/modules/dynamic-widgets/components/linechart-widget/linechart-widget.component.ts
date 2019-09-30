@@ -409,14 +409,15 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 environment.debugLevel.toUpperCase() === 'INFO') {
                                     this.debugData = rawdata.log; // debug log
                             }
+                            // we should not call setLegendDiv here as it's taken care in getUpdatedWidgetConfig
+                            this.setLegendDiv();
+                            if (!this.multigraphEnabled) {
+                                this.refreshLegendSource();
+                            }
                             // delay required. sometimes, edit to viewmode the chartcontainer width is not available
                             setTimeout(() => {
                                 this.setSize(true);
-                                // we should not call setLegendDiv here as it's taken care in getUpdatedWidgetConfig
-                                this.setLegendDiv();
-                                if (!this.multigraphEnabled) {
-                                    this.refreshLegendSource();
-                                }
+                                this.legendDataSource.sort = this.sort;
                             });
                         }
                         break;
@@ -473,7 +474,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
     refreshLegendSource() {
         this.legendDataSource = new MatTableDataSource(this.buildLegendData());
-        this.legendDataSource.sort = this.sort;
     }
 
     buildLegendData() {
@@ -554,6 +554,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 this.setLegend(message.payload.data);
                 this.cdRef.detectChanges();
                 this.refreshLegendSource();
+                this.legendDataSource.sort = this.sort;
                 this.setSize();
                 break;
             case 'UpdateQuery':
@@ -586,7 +587,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             case 'ToggleQueryMetricVisibility':
                 this.toggleQueryMetricVisibility(message.id, message.payload.mid);
                 this.refreshData(false);
-                this.widget.queries = this.utilService.deepClone(this.widget.queries);
                 break;
             case 'CloneQuery':
                 this.cloneQuery(message.id);
@@ -1208,7 +1208,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
     getSeriesAggregate( index, aggregate, normalizeUnit = true ) {
         const config = this.options.series[index];
-
         const value = config.aggregations[aggregate];
         if (!normalizeUnit) {
             return value;
