@@ -46,7 +46,7 @@ import {
 } from '../../state/dbfs-resources.state';
 import { LoggerService } from '../../../core/services/logger.service';
 import { MatMenuTrigger } from '@angular/material';
-import { DBState } from '../../../dashboard/state';
+import { DBState, LoadDashboard } from '../../../dashboard/state';
 
 import {
     MatTableDataSource
@@ -548,7 +548,14 @@ export class DbfsComponent implements OnInit, OnDestroy {
     // FILE (Dashboard) BEHAVIORS
 
     createDashboard() {
-        //this.logger.log('CREATE DASHBOARD');
+        // this.logger.log('CREATE DASHBOARD');
+
+        // check if the current dashboard is a newly saved dashboard (there will be mismatched id between loadedDB and the dashboard id)
+        const dbId = this.store.selectSnapshot(DBState.getDashboardId);
+        const dbLoaded = this.store.selectSnapshot(DBState.getLoadedDB);
+        if (dbId !== '_new_' && dbLoaded.id === '_new_') {
+          this.store.dispatch(new LoadDashboard('_new_'));
+        }
         this.router.navigate(['d', '_new_']);
         this.closeDrawer();
     }
@@ -557,7 +564,7 @@ export class DbfsComponent implements OnInit, OnDestroy {
         //this.logger.log('NAVIGATE TO DASHBOARD', { path });
     }
 
-    
+
 
     // MORE MENU BEHAVIORS
 
