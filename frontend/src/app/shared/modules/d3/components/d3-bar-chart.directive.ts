@@ -94,8 +94,8 @@ export class D3BarChartDirective implements OnInit, OnChanges {
         .append('svg');
     }
 
-    svg
-      .style('width', (this.size.width - margin.left - margin.right) + 'px')
+     svg
+      // .style('width', (this.size.width - margin.left - margin.right) + 'px')
       .style('height', chartHeight + 'px');
 
 
