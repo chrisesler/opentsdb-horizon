@@ -79,7 +79,7 @@ export class SetSideNavOpen {
 @State<NavigatorStateModel>({
     name: 'Navigator',
     defaults: {
-        currentApp: 'dashboards',
+        currentApp: 'dashboard',
         sideNav: {
             opened: false
         },
