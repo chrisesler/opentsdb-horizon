@@ -7,7 +7,8 @@ import {
     ViewChild,
     TemplateRef,
     Input,
-    ChangeDetectorRef
+    ChangeDetectorRef,
+    AfterViewChecked
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SelectionModel } from '@angular/cdk/collections';
@@ -68,7 +69,7 @@ const moment = _moment;
     templateUrl: './alerts.component.html',
     styleUrls: []
 })
-export class AlertsComponent implements OnInit, OnDestroy {
+export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     @HostBinding('class.alerts-container-component') private _hostClass = true;
 
@@ -212,7 +213,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
     namespaceDropMenuOpen: boolean = false;
     configLoaded$  = new Subject();
 
-    error: any ;
+    error: any = false;
 
     // portal templates
     @ViewChild('alertspageNavbarTmpl') alertspageNavbarTmpl: TemplateRef<any>;
@@ -435,7 +436,12 @@ export class AlertsComponent implements OnInit, OnDestroy {
         }));
 
         this.subscription.add(this.error$.subscribe(error => {
+          // console.log('ERROR', error);
+          if (Object.keys(error).length > 0) {
             this.error = error;
+          } else {
+            this.error = false;
+          }
             // maybe intercom error for messaging bar?
         }));
 
@@ -666,6 +672,18 @@ export class AlertsComponent implements OnInit, OnDestroy {
             this.alertsDataSource.data.forEach(row => this.selection.select(row));
     }
 
+    /** bulk actions */
+
+    // NOTE: adding stubs for now. Noticed the UI has buttons for this, but there were no functions assigned
+
+    bulkDisableAlerts() {
+      // TODO: get list of selected items, then disable (see this.toggleAlert)
+    }
+
+    bulkDeleteAlerts() {
+      // TODO: get list of selected items, then do delete confirmation, then delete (see this.deleteItem)
+    }
+
     /** actions */
 
     toggleAlert(alertObj: any) {
@@ -851,8 +869,15 @@ export class AlertsComponent implements OnInit, OnDestroy {
         // console.log('contactMenuEsc', $event);
     }
 
+    ngAfterViewChecked() {
+        if (this.location.path() === '/a' || this.location.path() === '/a/' + this.selectedNamespace) {
+            this.utils.setTabTitle(this.selectedNamespace + ' Alerts');
+        }
+    }
+
     ngOnDestroy() {
         this.subscription.unsubscribe();
+        this.utils.setTabTitle();
     }
 
 }

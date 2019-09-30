@@ -422,6 +422,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         }
                         break;
                     case 'getUpdatedWidgetConfig':
+                        // console.log("getUpdatedWidgetConfig", message);
                         this.widget = message.payload.widget;
                         this.setOptions();
                         this.refreshData(message.payload.needRefresh);
@@ -586,7 +587,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             case 'ToggleQueryMetricVisibility':
                 this.toggleQueryMetricVisibility(message.id, message.payload.mid);
                 this.refreshData(false);
-                this.widget.queries = this.utilService.deepClone(this.widget.queries);
                 break;
             case 'CloneQuery':
                 this.cloneQuery(message.id);
@@ -626,7 +626,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                     this.needRequery = true;
                 } else {
                     this.refreshData(false);
-                    this.needRequery = false;
                 }
                 break;
         }
@@ -1209,7 +1208,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
     getSeriesAggregate( index, aggregate, normalizeUnit = true ) {
         const config = this.options.series[index];
-
         const value = config.aggregations[aggregate];
         if (!normalizeUnit) {
             return value;

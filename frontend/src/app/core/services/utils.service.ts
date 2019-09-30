@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import * as _moment from 'moment';
 const moment = _moment;
 
@@ -7,7 +8,7 @@ const moment = _moment;
 })
 export class UtilsService {
 
-    constructor() { }
+    constructor(private titleService: Title) { }
 
     // random generate 6 random chars
     generateId(len: number = 6, excludes = []) {
@@ -726,6 +727,14 @@ export class UtilsService {
             .replace(/&quot/g, "\"")
             .replace(/&apos;/g,"\'");
 
+  }
+
+  setTabTitle(newTitle?: string) {
+      if (newTitle) {
+        this.titleService.setTitle(newTitle);
+      } else {
+        this.titleService.setTitle('Horizon');
+      }
   }
 
 }
