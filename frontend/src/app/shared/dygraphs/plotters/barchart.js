@@ -111,11 +111,10 @@ var barChartPlotter = function(e) {
             }
         }
     }
-
+    
     if (e.seriesIndex !== firstSeriesIndex) {
         return;
     }
-
     // Find the minimum separation between x-values.
     // This determines the bar width.
     var points = sets[0];
@@ -154,6 +153,7 @@ var barChartPlotter = function(e) {
         seriesName = setNames[j];
         connectSeparated = g.getOption('connectSeparatedPoints', seriesName);
         logscale = g.attributes_.getForSeries("logscale", seriesName);
+        var color = g.getOption("color", seriesName);
 
         if (logscale) {
             y_bottom = e.dygraph.toDomYCoord(1);
@@ -174,8 +174,8 @@ var barChartPlotter = function(e) {
             point.canvasx = g.plotter_.area.w * point.x + g.plotter_.area.x;
             point.canvasy = g.plotter_.area.h * point.y + g.plotter_.area.y;
             var center_x = point.canvasx;
-            ctx.fillStyle = fillColors[j];
-            ctx.strokeStyle = fillColors[j];
+            ctx.fillStyle = color;
+            ctx.strokeStyle = color;
 
             ctx.fillRect(center_x - bar_width / 2, point.canvasy,
                 bar_width, y_bottom - point.canvasy);
