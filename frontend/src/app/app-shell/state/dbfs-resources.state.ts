@@ -333,6 +333,16 @@ export class DbfsResourcesState {
         });
     }
 
+    public static getFileById(id: string) {
+      return createSelector([DbfsResourcesState], (state: DbfsResourcesModel) => {
+          const keys = Object.keys(state.files);
+          const idx = keys.findIndex( item => state.files[item].id === id);
+          const path = keys[idx];
+          const data = {...state.files[path]};
+          return data;
+      });
+  }
+
     public static getUser(userid?: string) {
         return createSelector([DbfsResourcesState], (state: DbfsResourcesModel) => {
             // tslint:disable-next-line: prefer-const
