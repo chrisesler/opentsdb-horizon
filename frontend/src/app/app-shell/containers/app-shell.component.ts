@@ -21,7 +21,8 @@ import {
     AppShellState,
     NavigatorState,
     SetSideNavOpen,
-    SSGetUserProfile
+    SSGetUserProfile,
+    DbfsLoadResources
 } from '../state';
 import {
     UpdateNavigatorSideNav,
@@ -79,7 +80,10 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
         private interCom: IntercomService,
         private store: Store,
         private router: Router
-    ) {}
+    ) {
+      // prefetch the navigator first data
+      this.store.dispatch(new DbfsLoadResources());
+    }
 
     ngOnInit() {
         this.subscription.add(this.mediaQuery$.subscribe( currentMediaQuery => {
