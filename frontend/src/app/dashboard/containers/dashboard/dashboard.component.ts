@@ -162,7 +162,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ];
     // other variables
     dbSettings: any;
-    dbTime: any;
+    dbTime: any = {};
     meta: any = {};
     // variables: any;
     dbTags: any;
@@ -572,12 +572,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }));
 
         this.subscription.add(this.dbTime$.subscribe(t => {
+            const timeZoneChanged = (this.dbTime && this.dbTime.zone !== t.zone);
             this.dbTime = this.utilService.deepClone(t);
             // do not intercom if widgets are still loading
             if (!this.widgets.length) {
                 return;
             }
-            if (this.dbTime && this.dbTime.zone !== t.zone) {
+            if (timeZoneChanged) {
                 this.interCom.responsePut({
                     action: 'TimezoneChanged',
                     payload: t

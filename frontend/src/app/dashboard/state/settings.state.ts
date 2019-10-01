@@ -1,6 +1,7 @@
 import { State, Action, StateContext, Selector } from '@ngxs/store';
 import { HttpService } from '../../core/http/http.service';
 import { DashboardService } from '../services/dashboard.service';
+import { DateUtilsService } from '../../core/services/dateutils.service';
 
 export interface DBSettingsModel {
     mode: string;
@@ -84,7 +85,7 @@ export class UpdateMeta {
 })
 
 export class DBSettingsState {
-    constructor( private httpService: HttpService, private dbService: DashboardService ) {}
+    constructor( private httpService: HttpService, private dbService: DashboardService, private dateUtilsService: DateUtilsService ) {}
 
     @Selector() static getDashboardSettings(state: DBSettingsModel ) {
         return state;
@@ -127,7 +128,17 @@ export class DBSettingsState {
     updateDashboardTimeZone(ctx: StateContext<DBSettingsModel>, { zone }: UpdateDashboardTimeZone) {
         const state = ctx.getState();
         const time = {...state.time};
+        const startUnix = this.dateUtilsService.timeToMoment(time.start, time.zone).unix();
+        const endUnix = this.dateUtilsService.timeToMoment(time.end, time.zone).unix();
         time.zone = zone;
+
+        // if not relative time, use timestamps to generate full time
+        if (!this.dateUtilsService.relativeTimeToMoment(time.start) && time.start.toLowerCase() !== 'now') {
+            time.start = this.dateUtilsService.timestampToTime(startUnix.toString(), time.zone);
+        }
+        if (!this.dateUtilsService.relativeTimeToMoment(time.end) && time.end.toLowerCase() !== 'now') {
+            time.end = this.dateUtilsService.timestampToTime(endUnix.toString(), time.zone);
+        }
         ctx.patchState({...state, time: time });
     }
 
