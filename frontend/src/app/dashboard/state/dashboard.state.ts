@@ -1,4 +1,4 @@
-import { State , Action, Selector, StateContext, createSelector } from '@ngxs/store';
+import { State , Action, Selector, StateContext, createSelector, Store } from '@ngxs/store';
 import { UserSettingsState } from './user.settings.state';
 import { DBSettingsState } from './settings.state';
 import { WidgetsState } from './widgets.state';
@@ -59,6 +59,11 @@ export class SaveDashboardFail {
     constructor(public readonly error: any) { }
 }
 
+export class SetDashboardStatus {
+  static readonly type = '[Dashboard] Set Dashboard Status';
+  constructor(public status: string, public resetError: boolean = false) {}
+}
+
 export class DeleteDashboard {
     static readonly type = '[Dashboard] Delete Dashboard';
     constructor(public id: string) {}
@@ -98,7 +103,8 @@ export class DBState {
         private dbService: DashboardService,
         private urlOverrideService: URLOverrideService,
         private dbConverterService: DashboardConverterService,
-        private logger: LoggerService
+        private logger: LoggerService,
+        private store: Store
     ) {}
 
     @Selector() static getDashboardId(state: DBStateModel) {
@@ -115,6 +121,10 @@ export class DBState {
 
     @Selector() static getDashboardError(state: DBStateModel) {
         return state.error;
+    }
+
+    @Selector() static getDashboardFullPath(state: DBStateModel) {
+      return state.fullPath;
     }
 
     @Selector()
@@ -229,7 +239,7 @@ export class DBState {
     }
 
     @Action(DeleteDashboard)
-    deleteDashboard(ctx: StateContext<DBStateModel>, { id: id }: SaveDashboard) {
+    deleteDashboard(ctx: StateContext<DBStateModel>, { id: id }: DeleteDashboard) {
             ctx.patchState({ status: 'delete-progress', error: {} });
             return this.httpService.deleteDashboard(id).pipe(
                 map( (dashboard: any) => {
@@ -237,18 +247,32 @@ export class DBState {
                 }),
                 catchError( error => ctx.dispatch(new DeleteDashboardFail(error)))
             );
+
     }
 
     @Action(DeleteDashboardSuccess)
-    deleteDashboardSuccess(ctx: StateContext<DBStateModel>, { payload }: SaveDashboardSuccess) {
+    deleteDashboardSuccess(ctx: StateContext<DBStateModel>, { payload }: DeleteDashboardSuccess) {
         const state = ctx.getState();
-        // console.log('delete dashboard success', payload);
-        ctx.patchState({...state, status: 'delete-success'  });
+        console.log('delete dashboard success', payload);
+        ctx.patchState({...state,
+          path: '/' + payload.id + payload.fullPath,
+          fullPath: payload.fullPath,
+          status: 'delete-success'
+        });
     }
 
     @Action(DeleteDashboardFail)
-    deleteDashboardFail(ctx: StateContext<DBStateModel>, { error }: LoadDashboardFail) {
+    deleteDashboardFail(ctx: StateContext<DBStateModel>, { error }: DeleteDashboardFail) {
         const state = ctx.getState();
         ctx.patchState({...state, status: 'delete-failed', error: error });
+    }
+
+    @Action(SetDashboardStatus)
+    setDashboardStatus(ctx: StateContext<DBStateModel>, { status, resetError }: SetDashboardStatus) {
+        const patchData: any = { status };
+        if (resetError) {
+          patchData.error = {};
+        }
+        ctx.patchState(patchData);
     }
 }
