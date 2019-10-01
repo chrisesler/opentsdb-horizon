@@ -126,50 +126,6 @@ export class AppShellState {
      * UTILS
      **************************/
 
-    stateLog(title: string, params?: any) {
-        if (environment.production) { return; }
-        if (params) {
-           /* console.group(
-                '%cAppShellState%c' + title,
-                'color: white; background-color: DarkTurquoise ; padding: 4px 8px; font-weight: bold;',
-                'color: DarkTurquoise ; padding: 4px 8px; border: 1px solid DarkTurquoise ;'
-            );
-            console.log('%cParams', 'font-weight: bold;', params);
-            console.groupEnd(); */
-        } else {
-            /* console.log(
-                '%cAppShellState%c' + title,
-                'color: white; background-color: DarkTurquoise ; padding: 4px 8px; font-weight: bold;',
-                'color: DarkTurquoise ; padding: 4px 8px; border: 1px solid DarkTurquoise ;'
-            ); */
-        }
-    }
-
-    stateError(title: string, error: any) {
-        if (environment.production) { return; }
-        /* console.group(
-            '%cAppShellState [ERROR]%c' + title,
-            'color: white; background-color: red; padding: 4px 8px; font-weight: bold;',
-            'color: red; padding: 4px 8px; border: 1px solid red;'
-        );
-        console.log('%cErrorMsg', 'font-weight: bold;', error);
-        console.groupEnd();
-        */
-    }
-
-    stateSuccess(title: string, response: any) {
-        if (environment.production) { return; }
-        /* console.group(
-            '%cAppShellState [SUCCESS]%c' + title,
-            'color: white; background-color: green; padding: 4px 8px; font-weight: bold;',
-            'color: green; padding: 4px 8px; border: 1px solid green;',
-            response
-        );
-        console.log('%cResponse', 'font-weight: bold;', response);
-        console.groupEnd();
-        */
-    }
-
     /** Actions */
     @Action(SetTheme)
     setTheme(ctx: StateContext<AppShellStateModel>, { theme }: SetTheme) {
