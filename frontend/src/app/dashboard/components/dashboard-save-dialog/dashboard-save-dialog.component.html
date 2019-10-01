@@ -6,12 +6,13 @@
     <p class="save-control mat-caption">New dashboards need to provide some information before saving.</p>
     <div class="save-control">
         <div class="mat-label">Dashboard Name *</div>
-        <mat-form-field appearance="fill" color="primary" floatLabel="never">
+        <mat-form-field appearance="fill" color="primary" floatLabel="never" class="dashboard-title">
             <input matInput placeholder="Please enter dashboard name" formControlName="title" required>
             <mat-error *ngIf="title.errors && title.errors.required">Dashboard name is required</mat-error>
             <mat-error *ngIf="title.errors && title.errors.minlength">Dashboard name should be at least 3 characters</mat-error>
             <mat-error *ngIf="title.errors && title.errors.maxlength">Dashboard name should be shorter than 50 characters</mat-error>
         </mat-form-field>
+        <mat-error *ngIf="saveForm.hasError('duplicateDashboard')">A dashboard with that name already exists in {{(namespace.enabled) ? 'the selected namespace' : 'your personal folder'}}</mat-error>
     </div>
     <div class="form-field-group save-control">
         <label>Save to:</label>
@@ -21,8 +22,10 @@
                     <span class="mat-label">Namespace</span>
                     <mat-form-field appearance="fill" color="primary" floatLabel="never">
                         <input matInput placeholder="Enter a namespace" formControlName="namespace"
-                            (keydown.enter)="namespaceKeydown($event)" [matAutocomplete]="namespaceAuto">
-    
+                            (keydown)="namespaceKeydown($event)"
+                            (keydown.enter)="namespaceKeydown($event)"
+                            (blur)="namespaceKeydown($event)"
+                            [matAutocomplete]="namespaceAuto">
                         <!-- auto complete-->
                     </mat-form-field>
                     <mat-error *ngIf="namespace.errors && namespace.errors.required">Namespace is required, if not for
@@ -35,14 +38,15 @@
                     </mat-autocomplete>
                 </div>
             </mat-radio-button>
-    
+
             <mat-radio-button value="isPersonal">
                 <span class="save-control">My personal folder</span>
             </mat-radio-button>
         </mat-radio-group>
+
     </div>
 </mat-dialog-content>
 <mat-dialog-actions>
-  <button mat-flat-button color="primary" (click)="saveDashboardAction()">Save</button>
+  <button mat-flat-button color="primary" (click)="saveDashboardAction()" [disabled]="saveForm.invalid">Save</button>
   <button mat-stroked-button mat-dialog-close>Cancel</button>
 </mat-dialog-actions>
