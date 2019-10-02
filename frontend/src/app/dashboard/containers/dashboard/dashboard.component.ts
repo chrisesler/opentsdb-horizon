@@ -258,7 +258,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         // ready to handle request from children of DashboardModule
         // let widgets;
         this.subscription.add(this.interCom.requestListen().subscribe((message: IMessage) => {
-            console.log('** new message', message);
             switch (message.action) {
                 case 'getWidgetCachedData':
                     const widgetCachedData = this.store.selectSnapshot(WidgetsRawdataState.getWidgetRawdataByID(message.id));
@@ -435,7 +434,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.store.dispatch(new LoadUserFolderData());
                     break;
                 case 'SetZoomDateRange':
-                    console.log('****', message);
                     if ( message.payload.isZoomed ) {
                         // tslint:disable-next-line:max-line-length
                         message.payload.start = message.payload.start !== -1 ? message.payload.start : this.dateUtil.timeToMoment(this.dbTime.start, this.dbTime.zone).unix();
@@ -443,13 +441,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         message.payload.end = message.payload.end !== -1 ? message.payload.end : this.dateUtil.timeToMoment(this.dbTime.end, this.dbTime.zone).unix();
                         this.dbTime.start = this.dateUtil.timestampToTime(message.payload.start, this.dbTime.zone);
                         this.dbTime.end = this.dateUtil.timestampToTime(message.payload.end, this.dbTime.zone);
-                        console.log('**', this.dbTime);
                         message.payload = this.dbTime;
                         this.store.dispatch(new UpdateDashboardTimeOnZoom({start: this.dbTime.start, end: this.dbTime.end}));
                     } else {
                         this.store.dispatch(new UpdateDashboardTime(this.oldTime));
                         const dbSettings = this.store.selectSnapshot(DBSettingsState);
-                        console.log('**', dbSettings, this.oldTime);
                         this.dbTime = { ...dbSettings.time };
                         message.payload = this.dbTime;
                     }
@@ -596,10 +592,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
             const timeZoneChanged = (this.dbTime && this.dbTime.zone !== t.zone);
             this.dbTime = {...t};
+
             // do not intercom if widgets are still loading
             if (!this.widgets.length) {
                 return;
             }
+
             if (timeZoneChanged) {
                 this.interCom.responsePut({
                     action: 'TimezoneChanged',
@@ -617,7 +615,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.subscription.add(this.dbSettings$.subscribe(settings => {
             // title in settings is used in various places. Need to keep this
             this.dbSettings = this.utilService.deepClone(settings);
-            console.log('** Setting the dbSettings', this.dbSettings, this);
         }));
         this.subscription.add(this.meta$.subscribe(t => {
             this.meta = this.utilService.deepClone(t);

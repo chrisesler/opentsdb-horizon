@@ -135,14 +135,6 @@ export class TimeRangePickerComponent implements OnInit {
           this.endTimeReference.date = this.utilsService.strippedRelativeTime(this.endTimeReference.date);
         }
 
-        // sets the relative times and 'this' to latest values
-        this.startTimeReference.shouldUpdateTimestamp = true;
-        this.endTimeReference.shouldUpdateTimestamp = true;
-        this.startTimeReference.onDateChange(this.startTimeReference.date);
-        this.endTimeReference.onDateChange(this.endTimeReference.date);
-
-        console.log(this.getTimeSelected());
-
         this.timeSelected.emit(this.getTimeSelected());
       }
     }

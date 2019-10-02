@@ -144,7 +144,7 @@ export class DBSettingsState {
         } else {
             ctx.patchState({time: time});
         }
-        console.log('** SETTING DASHBOARD TIME', ctx.getState());
+        // console.log('** SETTING DASHBOARD TIME', ctx.getState());
     }
 
     @Action(UpdateDashboardTimeZone)
@@ -163,7 +163,7 @@ export class DBSettingsState {
             time.end = this.dateUtilsService.timestampToTime(endUnix.toString(), time.zone);
         }
         ctx.patchState({...state, time: time });
-        console.log('** SETTING DASHBOARD TIME ZONE', ctx.getState());
+        // console.log('** SETTING DASHBOARD TIME ZONE', ctx.getState());
     }
 
     @Action(UpdateDashboardTimeOnZoom)
@@ -181,7 +181,7 @@ export class DBSettingsState {
         t = {...zoomTime};
         t.zone = state.time.zone;
         ctx.setState({...state, time: {...t}, initialZoomTime: {...zTime} });
-        console.log('** SETTING DASHBOARD TIME ON ZOOM', ctx.getState());
+        // console.log('** SETTING DASHBOARD TIME ON ZOOM', ctx.getState());
     }
 
     @Action(UpdateDashboardAutoRefresh)

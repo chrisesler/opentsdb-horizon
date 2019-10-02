@@ -16,22 +16,18 @@ export class DatepickerComponent implements OnInit {
     // tslint:disable:no-output-on-prefix
     @Input('date')
     set date(value: string) {
-        this._date = value;
-        if (this.dateForm) {
-            this.dateForm.setValue({dateInput: value});
-        }
+        this._date = value.trim();
+        this.setInternalTimestamps();
     }
     get date(): string { return this._date; }
 
     @Input('timezone')
     set timezone(value: string) {
-        this._timezone = value;
-        if (this.date && this.isInitialized) {
-            this.shouldUpdateTimestamp = false;
-            this.onDateChange(this.date);
-        }
+        this._timezone = value.trim();
+        this.setInternalTimestamps();
     }
     get timezone(): string { return this._timezone; }
+
     @Input() minDateError: String;
     @Input() maxDateError: String;
     @Input() formatError: String;
@@ -77,65 +73,32 @@ export class DatepickerComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.dateForm = this.formBuilder.group({
-            dateInput: ['', [this.formatValidator(), this.maxDateValidator(), this.minDateValidator()]],
-        });
-
-        if (!this.date) {
-            this.date = '1h';
-        }
-        if (!this.timezone) {
-            this.timezone = 'local';
-        }
-        this.date = this.date; // sets the dateForm
-
-        this.unixTimestamp = this.utilsService.timeToMoment(this.date, this.timezone).unix();
-        this.tempUnixTimestamp = this.unixTimestamp;
-        this.monthCalendarTitle = this.utilsService.timeToMoment(this.tempUnixTimestamp.toString(), this.timezone).year().toString();
-
         if (this.dayNames.length === 0) {
             this.generateDayNames();
         }
 
         this.isInitialized = true;
+        this.setInternalTimestamps();
+    }
+
+    setInternalTimestamps() {
+        if (this.isInitialized && this.date && this.timezone) {
+            this.unixTimestamp = this.utilsService.timeToMoment(this.date, this.timezone).unix();
+            this.tempUnixTimestamp = this.unixTimestamp;
+            this.monthCalendarTitle = this.utilsService.timeToMoment(this.tempUnixTimestamp.toString(), this.timezone).year().toString();
+            this.dateForm = this.formBuilder.group({
+                dateInput: [this.date, [this.formatValidator(), this.maxDateValidator(), this.minDateValidator()]],
+            });
+        }
     }
 
     // convenience getter for easy access to form fields
     get formFields() { return this.dateForm.controls; }
 
     dateInputChanged() {
-        this.onDateChange(this.dateForm.value.dateInput);
-    }
-
-    onDateChange = (value: string) => {
-        value = value.trim();
-        const theMoment: Moment = this.utilsService.timeToMoment(value, this.timezone);
-
-        if (theMoment && theMoment.unix() > this.utilsService.getMinUnixTimestamp()) {
-            this.tempUnixTimestamp = this.utilsService.timeToMoment(value, this.timezone).unix();
-            if (this.utilsService.isTimeStampValid(value)) { // input is timestamp
-                this.date = this.utilsService.timestampToTime(value, this.timezone);
-                this.unixTimestamp = this.utilsService.timeToMoment(value, this.timezone).unix();
-            } else if (!this.shouldUpdateTimestamp &&
-                !this.utilsService.relativeTimeToMoment(value) &&
-                value.toLowerCase() !== 'now' &&
-                !this.utilsService.timeToTime(value)) { // input is not relative time or 'this' time
-                this.date = this.utilsService.timestampToTime(this.unixTimestamp.toString(), this.timezone);
-            } else if (this.shouldUpdateTimestamp) { // input changed
-                this.date = value;
-                this.unixTimestamp = this.utilsService.timeToMoment(value, this.timezone).unix();
-            }
-            this.isDateValid = true;
-            this.generateCalendar(this.utilsService.timeToMoment(value, this.timezone).format(this.dateFormat));
-            this.dateChange.emit(this.date);
-        } else {
-            console.log('date invalid: ' + value);
-            this.isDateValid = false;
-            this.date = value;
-            this.generateCalendar(this.utilsService.timeToMoment(this.unixTimestamp.toString(), this.timezone).format(this.dateFormat));
+        if (this.dateForm.valid) {
+            this.date = this.dateForm.value.dateInput;
         }
-
-        this.shouldUpdateTimestamp = true;
     }
 
     generateDayNames = () => {

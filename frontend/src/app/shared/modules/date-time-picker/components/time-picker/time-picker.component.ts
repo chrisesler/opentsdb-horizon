@@ -240,6 +240,7 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
         if ( this.refresh && this.refresh.duration && this.isRelativeTime()) {
             this.subscribeToAutoRefresh(this.refresh.duration);
         }
+        this.updateToolTips();
     }
 
     setAutoRefresh(duration, event) {
