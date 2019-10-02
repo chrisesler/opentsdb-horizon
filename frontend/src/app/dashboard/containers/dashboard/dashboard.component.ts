@@ -37,7 +37,8 @@ import {
     UpdateDashboardTitle,
     UpdateVariables,
     UpdateMeta,
-    UpdateDashboardTimeOnZoom
+    UpdateDashboardTimeOnZoom,
+    UpdateDashboardTimeOnZoomOut
 } from '../../state/settings.state';
 import { AppShellState, NavigatorState, DbfsLoadTopFolder, DbfsLoadSubfolder, DbfsDeleteDashboard, DbfsResourcesState } from '../../../app-shell/state';
 import { MatMenuTrigger, MenuPositionX, MatSnackBar } from '@angular/material';
@@ -196,9 +197,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // used for unsaved changes warning message
     oldMeta = {};
     oldWidgets = [];
-
-    // used for url when zooming back out
-    oldTime = {};
 
     // used to determine db write access (and display popup for unsaved changes)
     dbOwner: string = ''; // /namespace/yamas
@@ -443,12 +441,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         this.dbTime.end = this.dateUtil.timestampToTime(message.payload.end, this.dbTime.zone);
                         message.payload = this.dbTime;
                         this.store.dispatch(new UpdateDashboardTimeOnZoom({start: this.dbTime.start, end: this.dbTime.end}));
-                    } else {
-                        this.store.dispatch(new UpdateDashboardTime(this.oldTime));
+                    }  else { // zoomed out
                         const dbSettings = this.store.selectSnapshot(DBSettingsState);
-                        this.dbTime = { ...dbSettings.time };
+                        this.dbTime = dbSettings.initialZoomTime ? { ...dbSettings.initialZoomTime } : { ...dbSettings.time };
                         message.payload = this.dbTime;
+                        this.store.dispatch(new UpdateDashboardTimeOnZoomOut());
                     }
+
                     this.interCom.responsePut({
                         action: 'ZoomDateRange',
                         payload: { zoomingWid: message.id, date: message.payload }
@@ -542,7 +541,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     // reset state for save pop-up
                     this.oldMeta = {...this.meta};
                     this.oldWidgets = [... this.widgets];
-                    this.oldTime = {...this.dbTime};
                     break;
                 case 'delete-success':
                     this.snackBar.open('Dashboard has been moved to trash folder.', '', {
@@ -587,9 +585,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.subscription.add(this.dbTime$.subscribe(t => {
 
-            if (Object.keys(this.oldTime).length === 0 && t) {
-                this.oldTime = {...t};
-            }
             const timeZoneChanged = (this.dbTime && this.dbTime.zone !== t.zone);
             this.dbTime = {...t};
 

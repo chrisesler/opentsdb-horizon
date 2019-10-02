@@ -2,7 +2,6 @@ import { State, Action, StateContext, Selector } from '@ngxs/store';
 import { HttpService } from '../../core/http/http.service';
 import { DashboardService } from '../services/dashboard.service';
 import { DateUtilsService } from '../../core/services/dateutils.service';
-import * as deepEqual from 'fast-deep-equal';
 
 export interface DBSettingsModel {
     mode: string;
@@ -43,6 +42,11 @@ export class UpdateDashboardTime {
 export class UpdateDashboardTimeOnZoom {
     public static type = '[Dashboard] Update Dashboard Zoom Time';
     constructor(public readonly zoomTime: any) {}
+}
+
+export class UpdateDashboardTimeOnZoomOut {
+    public static type = '[Dashboard] Update Dashboard Zoom Out Time';
+    constructor() {}
 }
 
 export class UpdateDashboardTimeZone {
@@ -138,12 +142,9 @@ export class DBSettingsState {
     @Action(UpdateDashboardTime)
     updateDashboardTime(ctx: StateContext<DBSettingsModel>, { time }: UpdateDashboardTime) {
         const state = ctx.getState();
-        time.zone = state.time.zone;
-        if (deepEqual(time, state.initialZoomTime)) {
-            ctx.patchState({...state, time: time, initialZoomTime: defaultInitialZoomTime });
-        } else {
-            ctx.patchState({time: time});
-        }
+        const newTime = {... time};
+        newTime.zone = state.time.zone;
+        ctx.patchState({...state, time: newTime, initialZoomTime: defaultInitialZoomTime });
         // console.log('** SETTING DASHBOARD TIME', ctx.getState());
     }
 
@@ -172,16 +173,29 @@ export class DBSettingsState {
         let t;
         let zTime;
 
-        if (!state.initialZoomTime || state.initialZoomTime.start === '') {
-            zTime = {...state.time};
-        } else {
+        if (state.initialZoomTime && state.initialZoomTime.start && state.initialZoomTime.end && state.initialZoomTime.zone) {
             zTime = {...state.initialZoomTime};
+        } else { // first time zooming
+            zTime = {...state.time};
         }
 
         t = {...zoomTime};
         t.zone = state.time.zone;
         ctx.setState({...state, time: {...t}, initialZoomTime: {...zTime} });
         // console.log('** SETTING DASHBOARD TIME ON ZOOM', ctx.getState());
+    }
+
+    @Action(UpdateDashboardTimeOnZoomOut)
+    updateDashboardTimeOnZoomOut(ctx: StateContext<DBSettingsModel>, { }: UpdateDashboardTimeOnZoomOut) {
+        const state = ctx.getState();
+        let t;
+        if (state.initialZoomTime && state.initialZoomTime.start && state.initialZoomTime.end && state.initialZoomTime.zone) {
+            t = state.initialZoomTime;
+        } else { // backup
+            t = state.time;
+        }
+        ctx.setState({...state, time: {...t}, initialZoomTime: defaultInitialZoomTime});
+        // console.log('** SETTING DASHBOARD TIME ON ZOOM OUT', ctx.getState());
     }
 
     @Action(UpdateDashboardAutoRefresh)
