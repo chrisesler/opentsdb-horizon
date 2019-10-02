@@ -2,6 +2,7 @@ import { State, Action, StateContext, Selector } from '@ngxs/store';
 import { HttpService } from '../../core/http/http.service';
 import { DashboardService } from '../services/dashboard.service';
 import { DateUtilsService } from '../../core/services/dateutils.service';
+import { UtilsService } from '../../core/services/utils.service';
 
 export interface DBSettingsModel {
     mode: string;
@@ -103,7 +104,8 @@ export class UpdateMeta {
 })
 
 export class DBSettingsState {
-    constructor( private httpService: HttpService, private dbService: DashboardService, private dateUtilsService: DateUtilsService ) {}
+    constructor( private httpService: HttpService, private dbService: DashboardService,
+        private dateUtilsService: DateUtilsService, private utilsService: UtilsService ) {}
 
     @Selector() static getDashboardSettings(state: DBSettingsModel ) {
         return state;
@@ -173,7 +175,7 @@ export class DBSettingsState {
         let t;
         let zTime;
 
-        if (state.initialZoomTime && state.initialZoomTime.start && state.initialZoomTime.end && state.initialZoomTime.zone) {
+        if (this.utilsService.hasInitialZoomTimeSet(state.initialZoomTime)) {
             zTime = {...state.initialZoomTime};
         } else { // first time zooming
             zTime = {...state.time};
@@ -189,7 +191,7 @@ export class DBSettingsState {
     updateDashboardTimeOnZoomOut(ctx: StateContext<DBSettingsModel>, { }: UpdateDashboardTimeOnZoomOut) {
         const state = ctx.getState();
         let t;
-        if (state.initialZoomTime && state.initialZoomTime.start && state.initialZoomTime.end && state.initialZoomTime.zone) {
+        if (this.utilsService.hasInitialZoomTimeSet(state.initialZoomTime)) {
             t = state.initialZoomTime;
         } else { // backup
             t = state.time;
