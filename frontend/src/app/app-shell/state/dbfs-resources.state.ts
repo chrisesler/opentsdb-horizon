@@ -333,6 +333,16 @@ export class DbfsResourcesState {
         });
     }
 
+    public static getFileById(id: string) {
+      return createSelector([DbfsResourcesState], (state: DbfsResourcesModel) => {
+          const keys = Object.keys(state.files);
+          const idx = keys.findIndex( item => state.files[item].id === id);
+          const path = keys[idx];
+          const data = {...state.files[path]};
+          return data;
+      });
+  }
+
     public static getUser(userid?: string) {
         return createSelector([DbfsResourcesState], (state: DbfsResourcesModel) => {
             // tslint:disable-next-line: prefer-const
@@ -341,6 +351,26 @@ export class DbfsResourcesState {
             return user;
         });
     }
+
+    public static getUserMemberNamespaceData(userid?: string) {
+        return createSelector([DbfsResourcesState], (state: DbfsResourcesModel) => {
+            const id = (userid) ? userid : state.activeUser;
+            const user = state.users[id];
+            let namespaces = [];
+            // filter this, because filtering doesn't work correctly with ALL the data
+            namespaces = user.memberNamespaces.map(item => {
+                const data = {
+                    alias: state.namespaces[item].alias,
+                    id: state.namespaces[item].id,
+                    name: state.namespaces[item].name,
+                    enabled: state.namespaces[item].enabled
+                };
+                return data;
+            });
+            return namespaces;
+        });
+    }
+
     /** Utils */
     private resourceLockCheck(path: string, state: any) {
         const details = this.dbfsUtils.detailsByFullPath(path);

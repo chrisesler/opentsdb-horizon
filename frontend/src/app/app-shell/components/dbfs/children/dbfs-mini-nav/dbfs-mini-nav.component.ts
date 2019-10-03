@@ -231,9 +231,9 @@ export class DbfsMiniNavComponent implements OnInit, OnDestroy {
 
                 this.panels.push(folderPanel);
                 this.folders[folderPanel.fullPath] = folderPanel;
-                
+
                 for (let j = 0; j < folder.subfolders.length; j++) {
-                    const item = folder.subfolders[i];
+                    const item = folder.subfolders[j];
                     console.log('ITEM', item);
                     if (item) {
                         const subfolder = this.store.selectSnapshot(DbfsResourcesState.getFolder(item));

@@ -13,7 +13,7 @@ import { skip } from 'rxjs/operators';
 import { Observable, Subscription, of, Subject } from 'rxjs';
 import { UtilsService } from '../../../core/services/utils.service';
 import { DateUtilsService } from '../../../core/services/dateutils.service';
-import { DBState, LoadDashboard, SaveDashboard, DeleteDashboard } from '../../state/dashboard.state';
+import { DBState, LoadDashboard, SaveDashboard, DeleteDashboardSuccess, DeleteDashboardFail, SetDashboardStatus } from '../../state/dashboard.state';
 import { LoadUserNamespaces, LoadUserFolderData, UserSettingsState } from '../../state/user.settings.state';
 import { WidgetsState,
     UpdateWidgets, UpdateGridPos, UpdateWidget,
@@ -38,7 +38,7 @@ import {
     UpdateVariables,
     UpdateMeta
 } from '../../state/settings.state';
-import { AppShellState, NavigatorState, DbfsLoadTopFolder, DbfsLoadSubfolder } from '../../../app-shell/state';
+import { AppShellState, NavigatorState, DbfsLoadTopFolder, DbfsLoadSubfolder, DbfsDeleteDashboard, DbfsResourcesState } from '../../../app-shell/state';
 import { MatMenuTrigger, MenuPositionX, MatSnackBar } from '@angular/material';
 import {
     SearchMetricsDialogComponent
@@ -162,7 +162,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ];
     // other variables
     dbSettings: any;
-    dbTime: any;
+    dbTime: any = {};
     meta: any = {};
     // variables: any;
     dbTags: any;
@@ -536,7 +536,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.oldWidgets = [... this.widgets];
                     break;
                 case 'delete-success':
-                    this.router.navigate(['/home'], { queryParams: { 'db-delete': true } });
+                    this.snackBar.open('Dashboard has been moved to trash folder.', '', {
+                      horizontalPosition: 'center',
+                      verticalPosition: 'top',
+                      duration: 5000,
+                      panelClass: 'info'
+                    });
                     break;
             }
         }));
@@ -572,12 +577,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }));
 
         this.subscription.add(this.dbTime$.subscribe(t => {
+            const timeZoneChanged = (this.dbTime && this.dbTime.zone !== t.zone);
             this.dbTime = this.utilService.deepClone(t);
             // do not intercom if widgets are still loading
             if (!this.widgets.length) {
                 return;
             }
-            if (this.dbTime && this.dbTime.zone !== t.zone) {
+            if (timeZoneChanged) {
                 this.interCom.responsePut({
                     action: 'TimezoneChanged',
                     payload: t
@@ -1088,7 +1094,33 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.dashboardDeleteDialog = this.dialog.open(DashboardDeleteDialogComponent, dialogConf);
         this.dashboardDeleteDialog.afterClosed().subscribe((dialog_out: any) => {
             if (dialog_out && dialog_out.delete) {
-                this.store.dispatch(new DeleteDashboard(this.dbid));
+                // this does not work... calls non-existant api endpoint
+                // this.store.dispatch(new DeleteDashboard(this.dbid));
+
+                // Going to use a patchwork of calls to DBFS first (which has correct endpoints)
+                // it will also update navigator cache in the process
+                // THEN, make calls to Dashboard state
+
+                // get the fullPath. We pass this to DBFS Resources for delete action
+                const dbFullPath = this.store.selectSnapshot(DBState.getDashboardFullPath);
+                // tell dashboard state we are starting delete process
+                this.store.dispatch(new SetDashboardStatus('delete-progress', true));
+                // start delete process from DBFS. This will update navigator data as well
+                this.store.dispatch(new DbfsDeleteDashboard(dbFullPath, {})).subscribe( value => {
+                    // delete was successful
+                    // grab updated file record from DBFS cache, and pass to dashboard state
+                    const details = this.store.selectSnapshot(DbfsResourcesState.getFileById(this.dbid));
+                    // tell dashboard state it was success, passing updated file detail
+                    this.store.dispatch(new DeleteDashboardSuccess(details));
+                    this.location.replaceState('/d/' + this.dbid + details.fullPath);
+                },
+                err => {
+                    // there was a problem, need to notify dashboard state
+                    this.store.dispatch(new DeleteDashboardFail(err));
+                },
+                () => {
+                    // console.log('COMPLETE');
+                });
             }
         });
     }
