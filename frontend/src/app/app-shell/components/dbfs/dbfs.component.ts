@@ -15,17 +15,15 @@ import {
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 
-import { Observable, Subscription, BehaviorSubject } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 import { NavigatorPanelComponent } from '../navigator-panel/navigator-panel.component';
 
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
-import { UtilsService } from '../../../core/services/utils.service';
 
 import {
     Select,
     Store,
-    StateContext
 } from '@ngxs/store';
 
 import { DbfsState } from '../../state/dbfs.state';
@@ -47,7 +45,6 @@ import {
 import { LoggerService } from '../../../core/services/logger.service';
 import { MatMenuTrigger } from '@angular/material';
 import { DBState, LoadDashboard } from '../../../dashboard/state';
-
 import {
     MatTableDataSource
 } from '@angular/material';
@@ -158,7 +155,6 @@ export class DbfsComponent implements OnInit, OnDestroy {
         private store: Store,
         private interCom: IntercomService,
         private router: Router,
-        private utils: UtilsService,
         private logger: LoggerService,
         private fb: FormBuilder,
         @Inject('WINDOW') private window: any
@@ -549,13 +545,6 @@ export class DbfsComponent implements OnInit, OnDestroy {
 
     createDashboard() {
         // this.logger.log('CREATE DASHBOARD');
-
-        // check if the current dashboard is a newly saved dashboard (there will be mismatched id between loadedDB and the dashboard id)
-        const dbId = this.store.selectSnapshot(DBState.getDashboardId);
-        const dbLoaded = this.store.selectSnapshot(DBState.getLoadedDB);
-        if (dbId !== '_new_' && dbLoaded.id === '_new_') {
-          this.store.dispatch(new LoadDashboard('_new_'));
-        }
         this.router.navigate(['d', '_new_']);
         this.closeDrawer();
     }
