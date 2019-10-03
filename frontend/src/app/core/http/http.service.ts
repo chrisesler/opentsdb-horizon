@@ -261,6 +261,7 @@ export class HttpService {
     }
 
     deleteDashboard(id) {
+        /* This API call is an invalid endpoint */
         const apiUrl = environment.configdb + '/object/' + id;
         return this.http.delete(apiUrl, { withCredentials: true });
     }
