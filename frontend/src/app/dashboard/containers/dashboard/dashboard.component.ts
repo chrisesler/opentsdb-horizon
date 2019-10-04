@@ -505,7 +505,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 // necessary after saving a _new_ dashboard, so save dialog will not prompt again
                 if (this.dbid === '_new_') {
 
-                    this.dbid = this.store.selectSnapshot<any>(DBState.getDashboardId);
+                    const dbstate = this.store.selectSnapshot(DBState);
+                    this.dbid = dbstate.id;
 
                     // if the save was on a NEW dashboard, lets tell the navigator to update
                     if (path !== '/_new_' && path !== undefined) {
