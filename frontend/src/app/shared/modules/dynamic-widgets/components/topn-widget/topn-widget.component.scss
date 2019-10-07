@@ -7,6 +7,13 @@
     .widget-panel-content.topnchart-widget {
         flex: 1;
         display: flex;
+        .widget-title {
+            flex-direction: row;
+            box-sizing: border-box;
+            display: flex;
+            flex: 1 0 30px;
+            max-height: 30px;
+        }
         .widget-output {
             padding: 0px 0px;
             width: 100%;
