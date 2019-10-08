@@ -150,7 +150,7 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
 
     private calculateOptionsMenuWidth() {
         const longestOption = this.findLongestTagOptionInArray(this.tagOptions);
-        const renderedWidth = this.utils.calculateTextWidth(<string>longestOption.name, '17', 'Ubuntu');
+        let renderedWidth: number = this.utils.calculateTextWidth(<string>longestOption.name, '20', 'Ubuntu');
         return (renderedWidth > 280) ? renderedWidth : 280;
     }
 
