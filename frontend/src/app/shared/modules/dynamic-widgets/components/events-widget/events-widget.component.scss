@@ -17,18 +17,10 @@
 
         .main-container {
             height: 100%;
-            flex-direction: row-reverse;
+            flex-direction: column-reverse;
         }
 
         .widget-output-container {
-            // height: 100%;
-            // overflow-x: hidden;
-            // .widget-output {
-            //     &.notCentered {
-            //         align-items: flex-start;
-            //     }
-            //     height: 100%;
-            // }
 
             .event-stream-title {
                 border-bottom: 1px solid lightgray;
@@ -48,15 +40,12 @@
             }
         }
 
-        
-
         .query-container {
             display: flex;
             padding: 10px;
             padding-top: 15px;
             flex-direction: row;
         }
-
     }
 
     // EDIT MODE
@@ -66,6 +55,7 @@
             .widget-output-container {
                 flex: 1;
                 max-height: initial;
+                height: 50px;
             }
 
             .widget-output {
@@ -77,6 +67,7 @@
 
             .widget-controls-container {
                 flex: 1;
+                flex-grow: 0.25;
                 margin: 12px;
                 background-color: white;
             }
@@ -85,10 +76,7 @@
                 margin-left: initial;
             }
         }
-
-        
     }
-
 }
 
 @mixin events-widget-component-theme($theme-config) {
