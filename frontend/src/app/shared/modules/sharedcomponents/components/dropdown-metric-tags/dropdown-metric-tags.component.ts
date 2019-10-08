@@ -7,10 +7,12 @@ import {
     Output,
     EventEmitter,
     HostBinding,
-    ViewChild
+    ViewChild,
+    ElementRef
 } from '@angular/core';
 import { HttpService } from '../../../../../core/http/http.service';
-import { MatMenuTrigger } from '@angular/material';
+import { MatMenuTrigger, MatMenu } from '@angular/material';
+import { UtilsService } from '../../../../../core/services/utils.service';
 
 
 @Component({
@@ -24,6 +26,7 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
     @HostBinding('class.dropdown-metric-tags') private _hostClass = true;
 
     @ViewChild(MatMenuTrigger) private trigger: MatMenuTrigger;
+    @ViewChild(MatMenu, {read: ElementRef}) private optionsMenu: ElementRef;
 
     @Input() namespace: string;
     @Input() metric: any;
@@ -36,7 +39,10 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
 
     tagOptions: any[] = [];
 
-    constructor(private httpService: HttpService) { }
+    constructor(
+        private httpService: HttpService,
+        private utils: UtilsService
+    ) { }
 
     ngOnInit() {
         // tslint:disable-next-line:arrow-return-shorthand
@@ -128,5 +134,29 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
         } else {
             return val === 'all';
         }
+    }
+
+    /* Events from MatMenuTrigger */
+
+    private findLongestTagOptionInArray(array: any[]) {
+        if (array.length === 0) {
+            return '';
+        }
+        const longest = array.reduce(function(a, b) {
+            return (a.name.length > b.name.length) ? a : b;
+        });
+        return longest;
+    }
+
+    private calculateOptionsMenuWidth() {
+        const longestOption = this.findLongestTagOptionInArray(this.tagOptions);
+        const renderedWidth = this.utils.calculateTextWidth(<string>longestOption.name, '17', 'Ubuntu');
+        return (renderedWidth > 280) ? renderedWidth : 280;
+    }
+
+    optionsMenuOpened(e: any) {
+        const menuWidth: any = this.calculateOptionsMenuWidth();
+        const matPanel: HTMLElement = document.querySelector('.tag-options-cdk-menu');
+        matPanel.style.maxWidth = (parseInt(menuWidth)) + 'px';
     }
 }
