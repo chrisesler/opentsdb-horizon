@@ -328,11 +328,13 @@ export class DatatranformerService {
 
     getHashFromMetricAndTags(metric, tags) {
         let res = metric;
-        let keys = Object.keys(tags);
-        keys = keys.sort();
-        for ( let i = 0; i < keys.length; i++ ) {
-            const key = keys[i];
-            res += '-' + key + ':' + tags[keys[i]];
+        if (tags) {
+            let keys = Object.keys(tags);
+            keys = keys.sort();
+            for ( let i = 0; i < keys.length; i++ ) {
+                const key = keys[i];
+                res += '-' + key + ':' + tags[keys[i]];
+            }
         }
         return res;
     }
