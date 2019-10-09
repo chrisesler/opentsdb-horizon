@@ -152,7 +152,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
         };
 
         const clickCallback = function(e, x, points) {
-            console.log('GRAPH CLICK', {e, x, points, _g: this});
+            // console.log('GRAPH CLICK', {e, x, points, _g: this});
 
             // check if tsLegend is configured
             if (Object.keys(self.timeseriesLegend).length > 0) {
