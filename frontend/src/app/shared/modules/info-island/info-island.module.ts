@@ -15,8 +15,9 @@ import { EventStreamComponent } from './components/event-stream/event-stream.com
 import { TimeseriesLegendComponent } from './components/timeseries-legend/timeseries-legend.component';
 import { MatTableModule, MatSortModule } from '@angular/material';
 import { InfoIslandToolbarComponent } from './components/info-island-toolbar/info-island-toolbar.component';
+import { HeatmapBucketDetailComponent } from './components/heatmap-bucket-detail/heatmap-bucket-detail.component';
 
-
+import { D3Module } from '../d3/d3.module';
 @NgModule({
     imports: [
         CommonModule,
@@ -26,14 +27,16 @@ import { InfoIslandToolbarComponent } from './components/info-island-toolbar/inf
         OverlayModule,
         MaterialModule,
         MatTableModule,
-        MatSortModule
+        MatSortModule,
+        D3Module
     ],
     declarations: [
         InfoIslandComponent,
         IslandTestComponent,
         EventStreamComponent,
         TimeseriesLegendComponent,
-        InfoIslandToolbarComponent
+        InfoIslandToolbarComponent,
+        HeatmapBucketDetailComponent
     ],
     providers: [
         InfoIslandService
@@ -42,7 +45,8 @@ import { InfoIslandToolbarComponent } from './components/info-island-toolbar/inf
         InfoIslandComponent,
         IslandTestComponent,
         EventStreamComponent,
-        TimeseriesLegendComponent
+        TimeseriesLegendComponent,
+        HeatmapBucketDetailComponent
     ]
 })
 export class InfoIslandModule { }
