@@ -35,6 +35,7 @@
     // cdk items
     .tag-options-cdk-menu.mat-menu-panel {
         min-width: initial;
+        max-height: 300px;
 
         .mat-menu-content {
             padding: 0;
