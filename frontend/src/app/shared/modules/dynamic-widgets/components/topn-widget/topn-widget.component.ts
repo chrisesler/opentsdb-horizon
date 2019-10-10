@@ -33,6 +33,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     // tslint:disable-next-line:no-inferrable-types
 
     options: any  = {
+        direction: 'horizontal',
         data: [],
         format: { unit: '', precision: 2 , precisionStrict: true}
     };
