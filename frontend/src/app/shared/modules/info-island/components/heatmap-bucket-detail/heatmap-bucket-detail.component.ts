@@ -17,8 +17,7 @@ import * as moment from 'moment';
 
 @Component({
   selector: 'heatmap-bucket-detail',
-  templateUrl: './heatmap-bucket-detail.component.html',
-  styleUrls: ['./heatmap-bucket-detail.component.scss']
+  templateUrl: './heatmap-bucket-detail.component.html'
 })
 export class HeatmapBucketDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   @HostBinding('class.heatmap-bucket-detail-component') private _hostClass = true;
@@ -129,6 +128,8 @@ export class HeatmapBucketDetailComponent implements OnInit, AfterViewInit, OnDe
     this.meta.formattedTime = this.options.labelsUTC ? moment(payload.tickData.x).utc().format('MM/DD/YYYY h:mm a') : moment(payload.tickData.x).format('MM/DD/YYYY h:mm a');
     // tslint:disable-next-line: max-line-length
     this.meta.bucketNSeries = this.options.series[this.meta.bucket] && this.options.series[this.meta.bucket][this.meta.xTime] ? this.options.series[this.meta.bucket][this.meta.xTime].length : 0;
+    // tslint:disable-next-line: max-line-length
+    this.meta.bucketNSPercent = this.meta.bucketNSeries ? this.unitConvertor.convert((this.meta.bucketNSeries / this.options.heatmap.nseries) * 100, '', '', { unit: '', precision: 'auto'}) : 0 ;
     const range = yScale.invertExtent(this.meta.bucket);
     for (let i = 0; i < 2; i++) {
       const dunit = this.unitConvertor.getNormalizedUnit(range[i], format);

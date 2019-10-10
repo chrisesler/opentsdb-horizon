@@ -1,8 +1,8 @@
-<div class="bucket-meta">matches {{ meta.bucketNSeries }} of {{ options.heatmap.nseries }} series, Bucket Range: [ {{meta.bucketRange[0] }} ,  {{ meta.bucketRange[1] }} )</div>
+<div class="bucket-meta">{{ meta.bucketNSPercent}} % of Series, {{ meta.bucketNSeries }} of {{ options.heatmap.nseries }}, Bucket Range: [ {{meta.bucketRange[0] }} ,  {{ meta.bucketRange[1] }} )</div>
 <div class="bucket-detail">
     <div class="column ts-data-wrapper has-scroller">
             <div class="is-scroller" >
-                <table #legendTable class="ts-legend-table"
+                <table #legendTable class="ts-legend-table" *ngIf="meta.bucketNSeries"
                     mat-table
                     [dataSource]="tableDataSource"
                     matSort
