@@ -90,6 +90,10 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
   };
   data: any = { ts: [[0]] };
   size: any = { width: 120, height: 75};
+  tsLegendOptions: any = {
+    open: false,
+    trackMouse: false
+  };
   newSize$: BehaviorSubject<any>;
   newSizeSub: Subscription;
   doRefreshData$: BehaviorSubject<boolean>;
@@ -480,6 +484,58 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
         this.requestData();
     } else {
         this.requestCachedData();
+    }
+  }
+
+  timeseriesTickListener(event: any) {
+    // console.log('TIMESERIES TICK LISTENER', { widget: this.widget, event});
+
+    if (this.editMode === true) {
+        return;
+    }
+
+    const widgetOptions = this.options;
+
+    if (event.action === 'openLegend') {
+
+        // open the infoIsland with TimeseriesLegend
+        const payload: any = {
+            portalDef: {
+                type: 'component',
+                name: 'HeatmapBucketDetailComponent'
+            },
+            data: {
+                tickData: event.tickData
+            },
+            options: {
+                title: 'Timeseries Legend',
+                height: 300,
+                positionStrategy: 'connected'
+            }
+        };
+
+        // this goes to widgetLoader
+        this.interCom.requestSend({
+            id: this.widget.id,
+            action: 'InfoIslandOpen',
+            payload: payload
+        });
+    }
+
+    if (event.action === 'tickDataChange') {
+        // update tickData from mouseover
+        // this goes to TimeseriesLegend
+        const payload: any = {
+            tickData: event.tickData
+        };
+        if (event.trackMouse) {
+            payload.trackMouse = event.trackMouse;
+        }
+        this.interCom.requestSend({
+            id: this.widget.id,
+            action: 'tsTickDataChange',
+            payload: payload
+        });
     }
   }
 

@@ -390,6 +390,51 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                     }
                 } else if (this.chartType === 'heatmap') {
                     this.options.interactionModel = {
+                        'mousedown': function (event, g, context) {
+                            const xlabels = g.user_attrs_.heatmap.x;
+                            if (!xlabels || !xlabels.length) {
+                                return;
+                            }
+                            const plotArea = g.layout_.getPlotArea();
+                            const height = plotArea.h / g.user_attrs_.heatmap.buckets;
+                            const width = g.layout_.points.length > 1 ? g.layout_.points[0][1].canvasx - g.layout_.points[0][0].canvasx : 0;
+
+                            const xdiff = xlabels[1] - xlabels[0];
+                            const xdiffd2 = xdiff / 2;
+                            const graphPos = Dygraph.findPos(g.graphDiv);
+                            const cx = Dygraph.pageX(event) - graphPos.x;
+                            let xv = g.toDataXCoord(Dygraph.pageX(event) - graphPos.x);
+                            const d = xv % xdiff;
+                            xv = d > xdiffd2 ? xv + (xdiff - d) : xv - d;
+                            const cx2 = g.toDomXCoord(xv);
+
+                            const cy = Dygraph.pageY(event) - graphPos.y;
+
+
+                            if (cx >= plotArea.x && cy <= plotArea.h) {
+                                const bucket = g.user_attrs_.heatmap.buckets - (cy - cy % height) / height;
+                                const ts = g.toDataXCoord(cx2);
+                                const hasData = g.user_attrs_.series[bucket] && g.user_attrs_.series[bucket][ts];
+
+                                if (!self.timeseriesLegend.open) {
+                                    self.currentTickEvent.emit({
+                                        action: 'openLegend',
+                                        tickData: { options: self.options, x: ts, bucket: bucket, data: hasData  }
+                                    });
+                                } else {
+                                    self.currentTickEvent.emit({
+                                        action: 'tickDataChange',
+                                        tickData: { options: self.options, x: ts, bucket: bucket, data: hasData },
+                                    });
+                                }
+
+                                const x = cx2 - width / 2;
+                                const y = cy - cy % height;
+
+
+                                g._prevBucketHighlightBucket = { x: x, y: y, w: width, h: height, bucket: bucket };
+                            }
+                        },
                         'mousemove': function (event, g, context) {
                             const xlabels = g.user_attrs_.heatmap.x;
                             if (!xlabels || !xlabels.length) {
@@ -399,7 +444,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                             const plotArea = g.layout_.getPlotArea();
                             const height = plotArea.h / g.user_attrs_.heatmap.buckets;
                             const width = g.layout_.points.length > 1 ? g.layout_.points[0][1].canvasx - g.layout_.points[0][0].canvasx : 0;
-                            const prevHighlightArea = g._prevBucketHighlightBucket;
+                            const _prev = g._prevBucketHighlightBucket;
                             const labelsDiv = g.user_attrs_.labelsDiv;
 
                             const xdiff = xlabels[1] - xlabels[0];
@@ -413,31 +458,43 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
 
                             const cy = Dygraph.pageY(event) - graphPos.y;
 
-                            if (prevHighlightArea) {
+                            if ( _prev ) {
                                 g.clearSelection();
                             }
 
-                            const bucket = g.user_attrs_.heatmap.buckets - (cy - cy % height) / height;
-                            const ts = g.toDataXCoord(cx2);
-                            const hasData = g.user_attrs_.series[bucket] && g.user_attrs_.series[bucket][ts];
-                            if (hasData) {
-                                setHeatmapLegend(event, g, ts, bucket);
-                            } else {
-                                if (labelsDiv) {
-                                    labelsDiv.style.display = 'none';
-                                }
-                            }
 
                             if (cx >= plotArea.x && cy <= plotArea.h) {
+                                const bucket = g.user_attrs_.heatmap.buckets - (cy - cy % height) / height;
+                                const ts = g.toDataXCoord(cx2);
+                                const hasData = g.user_attrs_.series[bucket] && g.user_attrs_.series[bucket][ts];
+                                if (hasData) {
+                                    setHeatmapLegend(event, g, ts, bucket);
+                                } else {
+                                    if (labelsDiv) {
+                                        labelsDiv.style.display = 'none';
+                                    }
+                                }
+
                                 const x = cx2 - width / 2;
                                 const y = cy - cy % height;
+                                if ( !_prev || _prev.x !== x || _prev.bucket !== bucket ) {
+                                    self.currentTickEvent.emit({
+                                        action: 'tickDataChange',
+                                        tickData: { options: self.options, x: ts, bucket: bucket, data: hasData },
+                                    });
+                                }
+
                                 ctx.fillStyle = !hasData ? '#dddddd' : g.user_attrs_.heatmap.color;
                                 ctx.fillRect(x, y, width, height);
                                 ctx.strokeStyle = 'red';
                                 ctx.strokeWidth = 1;
                                 ctx.rect(x, 0, width, plotArea.h);
                                 ctx.stroke();
-                                g._prevBucketHighlightBucket = { x: x, y: y, w: width, h: height };
+                                g._prevBucketHighlightBucket = { x: x, y: y, w: width, h: height, bucket: bucket };
+                            } else {
+                                if (labelsDiv) {
+                                    labelsDiv.style.display = 'none';
+                                }
                             }
                         }
                     };
