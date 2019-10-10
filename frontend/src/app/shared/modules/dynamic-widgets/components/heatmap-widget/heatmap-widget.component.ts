@@ -509,7 +509,7 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
             },
             options: {
                 title: 'Timeseries Legend',
-                height: 350,
+                height: 300,
                 positionStrategy: 'connected'
             }
         };

@@ -13,6 +13,7 @@
             display: flex;
             flex: 1 1 100%;
             flex-direction: row;
+            height: calc(100% - 20px);
             .column {
                 // display: inline-flex;
                 // flex-direction: column;
@@ -25,11 +26,11 @@
                 // width: calc(100% - 20px);
             }
 
-            .chart {
-                // display: flex;
-                // flex: 1;
+            .chartContainer {
                 position: relative;
                 overflow: overlay;
+            }
+            .chart {
             }
             .chart svg {
                 width: 100%;

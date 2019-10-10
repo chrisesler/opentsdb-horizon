@@ -231,7 +231,7 @@ export class D3BarChartDirective implements OnInit, OnChanges {
         x = d3.scaleLinear()
               .domain([ min, max + m ])
               .range([0, chartAreawidth]);
-        barSize = (chartAreawidth / dataset.length);
+        barSize = (chartAreawidth / dataset.length) -1 ;
       }
 
       const g = svg.append('g').attr('transform', 'translate(' + (margin.left + yAxisWidth + 3) + ',' + margin.top + ')');

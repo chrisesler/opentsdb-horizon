@@ -1,5 +1,5 @@
 import {
-  Component, OnInit, AfterViewInit, HostBinding, Inject, OnDestroy, ViewChild, Renderer2, ElementRef
+  Component, OnInit, AfterViewInit, ChangeDetectorRef, HostBinding, Inject, OnDestroy, ViewChild, ElementRef
 } from '@angular/core';
 import { ISLAND_DATA } from '../../info-island.tokens';
 import { IntercomService } from '../../../../../core/services/intercom.service';
@@ -20,7 +20,7 @@ import * as moment from 'moment';
   templateUrl: './heatmap-bucket-detail.component.html',
   styleUrls: ['./heatmap-bucket-detail.component.scss']
 })
-export class HeatmapBucketDetailComponent implements OnInit, AfterViewInit {
+export class HeatmapBucketDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   @HostBinding('class.heatmap-bucket-detail-component') private _hostClass = true;
 
   @ViewChild('chartContainer') private chartContainer: ElementRef;
@@ -64,7 +64,7 @@ export class HeatmapBucketDetailComponent implements OnInit, AfterViewInit {
 
   constructor(
     private interCom: IntercomService,
-    private renderer: Renderer2,
+    private cdr: ChangeDetectorRef,
     private utilsService: UtilsService,
     private unitConvertor: UnitConverterService,
     @Inject(ISLAND_DATA) private _islandData: any
@@ -109,7 +109,8 @@ export class HeatmapBucketDetailComponent implements OnInit, AfterViewInit {
   }
 
   setSize(newSize) {
-    this.size = { width: newSize.width, height: newSize.height - 3 };
+    this.size = { width: newSize.width, height: newSize.height };
+    this.cdr.detectChanges();
   }
 
   setData(payload) {
@@ -171,5 +172,10 @@ export class HeatmapBucketDetailComponent implements OnInit, AfterViewInit {
     columns.push('value');
     this.tableColumns = columns;
     this.tableDataSource.data = dsData;
+    this.tableDataSource.sort = this.sort;
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
   }
 }
