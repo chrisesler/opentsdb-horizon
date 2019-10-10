@@ -13,6 +13,7 @@ import {
 import { HttpService } from '../../../../../core/http/http.service';
 import { MatMenuTrigger, MatMenu } from '@angular/material';
 import { UtilsService } from '../../../../../core/services/utils.service';
+import { FormControl } from '@angular/forms';
 
 
 @Component({
@@ -39,6 +40,13 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
 
     tagOptions: any[] = [];
 
+    filteredTagOptions: any[] = [];
+    filterTagInputFC: FormControl = new FormControl('');
+
+    get filterTagInput(): string {
+      return this.filterTagInputFC.value;
+    }
+
     constructor(
         private httpService: HttpService,
         private utils: UtilsService
@@ -50,6 +58,10 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
         if (this.enableGroupBy === null || this.enableGroupBy === undefined) {
             this.enableGroupBy = true;
         }
+
+        this.filterTagInputFC.valueChanges.subscribe((value: any) => {
+            this.filteredTagOptions = this.tagOptions.filter((item: any) => item.name.toLowerCase().includes(value.toLowerCase()));
+        });
     }
 
     ngOnChanges(change: SimpleChanges) {
@@ -63,19 +75,23 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
         query.search = '';
         if ( this.tags ) {
             this.tagOptions = this.tags.length ? this.tags.map(d=>  { return { name: d } } ) : [];
+            this.filteredTagOptions = this.tagOptions;
             this.triggerMenu();
         } else if (load ) {
             if ( !this.namespace || !this.metric ) {
                 this.tagOptions = [];
+                this.filteredTagOptions = this.tagOptions;
                 this.triggerMenu();
                 return;
             }
             this.httpService.getNamespaceTagKeys(query).subscribe(res => {
                 this.tagOptions = res;
+                this.filteredTagOptions = this.tagOptions;
                 this.triggerMenu();
             },
             err => {
                 this.tagOptions = [];
+                this.filteredTagOptions = this.tagOptions;
                 this.triggerMenu();
             });
         }
@@ -134,6 +150,10 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
         } else {
             return val === 'all';
         }
+    }
+
+    clearFilterTagInput() {
+      this.filterTagInputFC.setValue('');
     }
 
     /* Events from MatMenuTrigger */

@@ -40,6 +40,30 @@
         .mat-menu-content {
             padding: 0;
 
+            .filter-input {
+                width: 100%;
+                padding: 4px;
+
+                .mat-form-field {
+                    width: 100%;
+
+                    .mat-icon-button {
+                        width: 2em;
+                        height: 2em;
+                        opacity: .6;
+                        transform: translateY(2px);
+
+                        &:hover {
+                            opacity: .8;
+                        }
+                    }
+
+                    .mat-icon {
+                        @include sizeDenaliIcon(16px);
+                    }
+                }
+            }
+
             .mat-selection-list {
                 padding-top: 0;
             }
