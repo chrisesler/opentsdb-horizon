@@ -495,12 +495,12 @@ export class YamasService {
     }
 
     transformFilters(fConfigs) {
-        const filters = [];
+        let filters = [];
         for (let k = 0;  k < fConfigs.length; k++) {
             const f = fConfigs[k];
             const values = f.filter;
-            const filter = values.length === 1 ? this.getFilter(f.tagk, values[0]) : this.getChainFilter(f.tagk, values);
-            filters.push(filter);
+            const filter = values.length === 1 ? [this.getFilter(f.tagk, values[0])] : this.getChainFilter(f.tagk, values);
+            filters = filters.concat(filter);
         }
         return filters;
     }
@@ -512,6 +512,11 @@ export class YamasService {
             'regexp': 'TagValueRegex',
             'librange': 'TagValueLibrange'
         };
+        let hasNotOp = false;
+        if ( v[0] === '!' ) {
+            hasNotOp = true;
+            v = v.substr(1);
+        }
         const regexp = v.match(/regexp\((.*)\)/);
         let filtertype = 'literalor';
         if (regexp) {
@@ -527,15 +532,23 @@ export class YamasService {
             filter: v,
             tagKey: key
         };
-        return filter;
+        return !hasNotOp ? filter : { type: 'NOT', filter: filter };
     }
     getOrFilters(key, values) {
         const filterTypes = { 'literalor': 'TagValueLiteralOr', 
             'wildcard': 'TagValueWildCard', 'regexp': 'TagValueRegex', 'librange': 'TagValueLibrange'};
-        const filters = [];
-        const literals = [];
+        const filters: any = { };
+        const literals: any = { };
         for ( let i = 0, len = values.length; i < len; i++ ) {
             let v = values[i];
+            let operator = 'include';
+            if ( v[0] === '!' ) {
+                operator = 'exclude';
+                v = v.substr(1);
+            }
+            if ( filters[operator] === undefined ) {
+                filters[operator] = [];
+            }
             const regexp = v.match(/regexp\((.*)\)/);
             let filtertype = 'literalor';
             if (regexp) {
@@ -546,7 +559,10 @@ export class YamasService {
                 filtertype = 'librange';
                 v = librange[1];
             } else {
-                literals.push(v);
+                if ( literals[operator] === undefined ) {
+                    literals[operator] = [];
+                }
+                literals[operator].push(v);
             }
             if ( filtertype !== 'literalor' ) {
                 const filter = {
@@ -554,29 +570,38 @@ export class YamasService {
                     filter: v,
                     tagKey: key
                 };
-                filters.push(filter);
+                filters[operator].push(filter);
             }
         }
 
-        if ( literals.length ) {
-            const filter = {
-                type: 'TagValueLiteralOr',
-                filter: literals.join('|'),
-                tagKey: key
-            };
-            filters.push(filter);
+        for ( const operator in literals ) {
+            if ( literals[operator].length ) {
+                const filter = {
+                    type: 'TagValueLiteralOr',
+                    filter: literals[operator].join('|'),
+                    tagKey: key
+                };
+                filters[operator].push(filter);
+            }
         }
+
         return filters;
     }
 
     getChainFilter(key, values) {
-        const chain: any = {
-                        'type': 'Chain',
-                        'op': 'OR',
-                        'filters': []
-                    };
-        chain.filters = this.getOrFilters(key, values);
-        return chain;
+        const chainFilters = [];
+        const filters = this.getOrFilters(key, values);
+        for ( const operator in filters ) {
+            if ( filters[operator] ) {
+                const filter: any = {
+                    'type': 'Chain',
+                    'op': 'OR',
+                    'filters': filters[operator]
+                };
+                chainFilters.push(operator === 'include' ? filter : { type: 'NOT', filter: filter } );
+            }
+        }
+        return chainFilters;
     }
 
     getQueryGroupBy(tagAggregator, tagKeys, sources, id= null) {
