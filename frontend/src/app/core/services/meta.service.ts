@@ -23,7 +23,7 @@ export class MetaService {
     };
 
     for ( let i = 0, len = params.length; i < len; i++ ) {
-      const filters = [];
+      let filters = [];
       const query: any = {};
       query.id = params[i].id || 'id-' + i;
       query.namespace =  type !== 'NAMESPACES' ? params[i].namespace : this.utilsService.convertPatternTSDBCompat(params[i].search);
@@ -81,8 +81,8 @@ export class MetaService {
       for (let k = 0;  params[i].tags && k < params[i].tags.length; k++) {
           const f = params[i].tags[k];
           const values = f.filter;
-          const filter:any = values.length === 1 ? this.getFilter(f.tagk, values[0]) : this.getChainFilter(f.tagk, values);
-          filters.push(filter);
+          const filter:any = values.length === 1 ? [this.getFilter(f.tagk, values[0])] : this.getChainFilter(f.tagk, values);
+          filters = filters.concat(filter);
       }
       if ( filters.length ) {
         query.filter = {
@@ -98,6 +98,11 @@ export class MetaService {
 
   getFilter(key, v) {
     const filterTypes = { 'literalor': 'TagValueLiteralOr', 'wildcard': 'TagValueWildCard', 'regexp': 'TagValueRegex'};
+    let hasNotOp = false;
+    if ( v[0] === '!' ) {
+        hasNotOp = true;
+        v = v.substr(1);
+    }
     const regexp = v.match(/regexp\((.*)\)/);
     v = regexp ? regexp[1] : v;
     const type = regexp  ? 'regexp' : 'literalor';
@@ -106,30 +111,56 @@ export class MetaService {
         filter: v,
         tagKey: key
     };
-    return filter;
+    return !hasNotOp ? filter : { type: 'NOT', filter: filter };
   }
 
   getChainFilter(key, values) {
-    const literalorV = [];
-    const chain = {
-                    'type': 'Chain',
-                    'op': 'OR',
-                    'filters': []
-                };
+    const literalorV = {};
+    const filters = {};
+
     for ( let i = 0, len = values.length; i < len; i++ ) {
-      const regexp = values[i].match(/regexp\((.*)\)/);
-      const v = regexp ? regexp[1] : values[i];
+      let v = values[i];
+      let operator = 'include';
+      if ( v[0] === '!' ) {
+          operator = 'exclude';
+          v = v.substr(1);
+      }
+      if ( !filters[operator] ) {
+        filters[operator] = [];
+      }
+      const regexp = v.match(/regexp\((.*)\)/);
       const type = regexp  ? 'regexp' : 'literalor';
       if ( type === 'regexp') {
-        chain.filters.push(this.getFilter(key, values[i]));
+        filters[operator].push(this.getFilter(key, v));
       } else {
-        literalorV.push(v);
+        if ( !literalorV[operator] ) {
+          literalorV[operator] = [];
+        }
+        literalorV[operator].push(v);
       }
     }
 
-    if ( literalorV.length > 0 ) {
-      chain.filters.push({ type: 'TagValueLiteralOr', filter: literalorV.join('|'), tagKey: key});
+    for ( const operator in literalorV ) {
+      if ( literalorV[operator].length ) {
+          const filter = {
+              type: 'TagValueLiteralOr',
+              filter: literalorV[operator].join('|'),
+              tagKey: key
+          };
+          filters[operator].push(filter);
+      }
     }
-    return chain;
+    const chainFilters = [];
+    for ( const operator in filters ) {
+        if ( filters[operator] ) {
+            const filter: any = {
+                'type': 'Chain',
+                'op': 'OR',
+                'filters': filters[operator]
+            };
+            chainFilters.push(operator === 'include' ? filter : { type: 'NOT', filter: filter } );
+        }
+    }
+    return chainFilters;
   }
 }
