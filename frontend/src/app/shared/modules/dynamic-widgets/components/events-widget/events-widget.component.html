@@ -11,27 +11,28 @@
                 </button>
             </span>
         </div>
+
+        <div class="widget-controls-container" *ngIf="editMode">
+            <!-- tabs with config content -->
+            <mat-tab-group class="widget-configs" selectedIndex="0" color="primary" [@.disabled]="'true'" mat-align-tabs="start">
+                <mat-tab label="Events" [disabled]="editQueryId">
+                    <ng-template matTabContent>
+                        <widget-config-events [widget]="widget" [allowEventToggling]="false" (widgetChange)="updateConfig($event);"></widget-config-events>
+                    </ng-template>
+                </mat-tab>
+                <div class="flex-spacer"></div>
+            </mat-tab-group>
+        </div>
       
         <div class="widget-output notCentered" #widgetoutput [ngClass]="{'top-margin': editMode }">
             <div class="widget-container">
                 <!-- Limit b/c rendering slows down query entry -->
+                <div *ngIf="editMode" class="event-result-title"> Preview </div>
                 <event-list *ngIf="editMode" [events]="events" [timezone]="timezone" [startTime]="startTime" [endTime]="endTime" [previewLimit]="10"></event-list>
                 <event-list *ngIf="!editMode" [events]="events" [timezone]="timezone" [startTime]="startTime" [endTime]="endTime"></event-list>
             </div>
         </div>
       </div>
-      
-      <div class="widget-controls-container" *ngIf="editMode">
-        <!-- tabs with config content -->
-        <mat-tab-group class="widget-configs" selectedIndex="0" color="primary" [@.disabled]="'true'" mat-align-tabs="start">
-            <mat-tab label="Events" [disabled]="editQueryId">
-                <ng-template matTabContent>
-                    <widget-config-events [widget]="widget" [allowEventToggling]="false" (widgetChange)="updateConfig($event);"></widget-config-events>
-                </ng-template>
-            </mat-tab>
-            <div class="flex-spacer"></div>
-        </mat-tab-group>
-    </div>    
 </div>
 
 <div class="widget-actions" *ngIf="editMode">
