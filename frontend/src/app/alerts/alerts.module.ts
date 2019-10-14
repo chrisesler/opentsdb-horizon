@@ -23,8 +23,9 @@ import { SnoozeDetailsComponent } from './components/snooze-details/snooze-detai
 import { NameAlertDialogComponent } from './components/name-alert-dialog/name-alert-dialog.component';
 import { AlertDetailsComponent } from './components/alert-details/alert-details.component';
 import { DygraphsModule } from '../shared/modules/dygraphs/dygraphs.module';
-// tslint:disable-next-line:max-line-length
+// tslint:disable:max-line-length
 import { AlertConfigurationContactsComponent } from './components/alert-details/children/recipients-manager/recipients-manager.component';
+import { AlertDetailsMetricPeriodOverPeriodComponent } from './components/alert-details/children/alert-details-metric-period-over-period/alert-details-metric-period-over-period.component';
 
 // directives
 
@@ -49,7 +50,8 @@ import { AlertConfigurationContactsComponent } from './components/alert-details/
         SnoozeDetailsComponent,
         NameAlertDialogComponent,
         AlertDetailsComponent,
-        AlertConfigurationContactsComponent
+        AlertConfigurationContactsComponent,
+        AlertDetailsMetricPeriodOverPeriodComponent
     ],
     providers: [
         AlertsService

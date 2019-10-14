@@ -78,182 +78,190 @@
                         <div class="step-section-label">
                             <span class="step-section-label-text">2. Threshold</span>
                         </div>
-                        <div class="step-section-content">
-                            <!-- this might change to radio buttons -->
-                            <div class="form-group select-threshold-type">
+
+                          <div class="form-group select-threshold-type">
                                 <div class="form-label vertical-center"><strong>Select threshold type</strong></div>
                                 <div class="threshold-type-options">
-                                    <mat-radio-group formControlName="subType">
-                                        <mat-radio-button value="singleMetric">Single</mat-radio-button>
-                                        <mat-radio-button value="composite" disabled>Composite</mat-radio-button>
-                                        <mat-radio-button value="periodOverPeriod" disabled>Period / Period</mat-radio-button>
+                                    <mat-radio-group formControlName="subType" (change)="metricSubTypeChanged($event)">
+                                        <mat-radio-button value="singleMetric">Simple</mat-radio-button>
+                                        <!-- <mat-radio-button value="composite" disabled>Composite</mat-radio-button> -->
+                                        <mat-radio-button value="periodOverPeriod">Period / Period</mat-radio-button>
                                     </mat-radio-group>
-                                    <mat-hint>One metric with one or more static thresholds.</mat-hint>
+                                    <mat-hint *ngIf="data.threshold.subType === 'singleMetric'">One metric with one or more static thresholds.</mat-hint>
+                                    <mat-hint *ngIf="data.threshold.subType === 'periodOverPeriod'">One metric with bottom & top bounds from the average across N period lookbacks.</mat-hint>
                                 </div>                                
                             </div>
-
-                            <!-- select query -->
-                            <div class="form-group select-query" formGroupName="singleMetric">
-                                <div class="form-label vertical-center"><strong>Select Metric</strong></div>
-                                <div class="form-control-wrap auto-width">
-                                    <mat-form-field appearance="fill">
-                                        <mat-select placeholder="Select Metric" formControlName="metricId" disableOptionCentering>
-                                            <mat-option>None</mat-option>
-                                            <mat-optgroup  *ngFor="let query of queries; let qindex=index" label="Q{{qindex + 1}}">
-                                                <mat-option *ngFor="let metric of query.metrics; let mindex = index" [value]="qindex + ':' + mindex">{{ metric.name || getExpressionLabel(qindex, mindex)}}</mat-option>
-                                            </mat-optgroup>
-                                        </mat-select>
-                                    </mat-form-field>
-                                    <mat-error *ngIf="alertForm.touched && thresholdSingleMetricControls.metricId.errors && thresholdSingleMetricControls.metricId.errors.required">Please select a metric</mat-error>
-                                </div>
-                            </div>
-
-                            <div class="form-group sliding-window" formGroupName="singleMetric">
-                                <div class="form-label vertical-center"><strong>Sliding Window</strong></div>
-                                <!-- sentence-like form -->
-                                <div class="sentence-chain-form">
-                                    <div class="sentence-item">
-                                        <span>Trigger when the metric is</span>
-                                    </div>
-                                    <div class="sentence-item">
-                                        <mat-form-field appearance="fill">
-                                            <mat-label></mat-label>
-                                            <mat-select placeholder="Select" formControlName="comparisonOperator" disableOptionCentering>
-                                                <mat-option value="above">above</mat-option>
-                                                <mat-option value="above_or_equal_to">above or equal to</mat-option>
-                                                <mat-option value="below">below</mat-option>
-                                                <mat-option value="below_or_equal_to">below or equal to</mat-option>
-                                            </mat-select>
-                                        </mat-form-field>
-                                    </div>
-                                    <div class="sentence-item">
-                                        <span>the threshold</span>
-                                    </div>
-                                    <div class="sentence-item">
-                                        <mat-form-field appearance="fill">
-                                            <mat-label></mat-label>
-                                            <mat-select placeholder="Select" formControlName="timeSampler" disableOptionCentering>
-                                                <mat-option value='at_least_once'>at least once</mat-option>
-                                                <mat-option value='all_of_the_times'>at all times</mat-option>
-                                                <mat-option value='on_avg'>on average</mat-option>
-                                                <mat-option value='in_total'>in total</mat-option>
-                                            </mat-select>
-                                        </mat-form-field>
-                                    </div>
-                                    <div class="sentence-item">
-                                        <span>during the last</span>
-                                    </div>
-                                    <div class="sentence-item">
-                                        <time-selector [timeInSeconds]="alertForm.value.threshold.singleMetric.slidingWindow" (newTimeInSeconds)="newSingleMetricTimeWindowSelected($event)"></time-selector>
-                                    </div>
-                                </div>
-                            </div>
                             
-                            <div class="form-group bad-threshold-setting" formGroupName="singleMetric">
-                                <div class="form-label"><span class="indicator-square is-bad"></span> <strong>Bad state</strong> when metric is {{alertStateDirection}}</div>
-                                <div class="form-control-wrap auto-width">
-                                    <mat-form-field appearance="fill" floatLabel="never" [ngClass]="{'mat-form-field-invalid': alertForm['controls'].threshold.errors && alertForm['controls'].threshold.errors.required}">
-                                        <input matInput type="number" autocomplete="off" placeholder="Enter value" formControlName="badThreshold">
-                                    </mat-form-field>
-                                    <mat-error *ngIf="alertForm['controls'].threshold.errors && alertForm['controls'].threshold.errors.required">Bad or Warning state should not be empty</mat-error>
-                                </div>
+                        <alert-details-metric-period-over-period *ngIf="data.threshold.subType === 'periodOverPeriod'"
+                            [queries]="queries">
+                        </alert-details-metric-period-over-period>
 
-                            </div>
-                            <div class="form-group warning-threshold-setting" formGroupName="singleMetric">
-                                <div class="form-label"><span class="indicator-square is-warning"></span> <strong>Warning state</strong> when metric is {{alertStateDirection}}</div>
-                                <div class="form-control-wrap auto-width">
-                                    <mat-form-field appearance="fill" floatLabel="never" [ngClass]="{'mat-form-field-invalid': alertForm['controls'].threshold.errors && alertForm['controls'].threshold.errors.required}">
-                                        <input matInput type="number" autocomplete="off" placeholder="Enter value" formControlName="warnThreshold">
-                                    </mat-form-field>
-                                    <mat-error *ngIf="thresholdSingleMetricControls['warnThreshold'].errors && thresholdSingleMetricControls['warnThreshold'].errors.invalid">Warning state value should be {{ alertStateDirection=== 'above' ? 'less' : 'greater'}} than the Bad state value</mat-error>
-                                </div>
-                            </div>
-                                    
-
-                            <div class="form-group recovery-threshold-setting" formGroupName="singleMetric">
-                                <div class="form-label"><span class="indicator-square is-good"></span> <strong>Alert will recover</strong> when metric is {{recoveryStateDirection}}</div>
-                                <div class="recovery-options">
-                                    <div class="recovery-option">
-                                        <mat-radio-button 
-                                            name="recoveryType"
-                                            value="minimum"
-                                            [checked]="thresholdRecoveryType === 'minimum'"
-                                            (change)="recoveryTypeChange($event)">configured threshold</mat-radio-button>
-                                        <mat-hint class="info-hint">
-                                            <mat-icon fontSet="denali" fontIcon="d-information-circle"></mat-icon>
-                                            <span>Within 0.0001% of bad threshold (or warning threshold if specified).</span>
-                                        </mat-hint>
-                                    </div>
-                                    <div class="recovery-option">
-                                        <mat-radio-button
-                                            name="recoveryType"
-                                            value="specific"
-                                            [checked]="thresholdRecoveryType === 'specific'"
-                                            (change)="recoveryTypeChange($event)">reaches a value</mat-radio-button>
-                                        <mat-form-field appearance="fill" floatLabel="never" style="margin-left: 16px;">
-                                            <input matInput type="number" autocomplete="off" placeholder="Enter value" formControlName="recoveryThreshold">
+                        <span *ngIf="data.threshold.subType === 'singleMetric'">
+                            <div class="step-section-content">
+                              
+                                <!-- select query -->
+                                <div class="form-group select-query" formGroupName="singleMetric">
+                                    <div class="form-label vertical-center"><strong>Select Metric</strong></div>
+                                    <div class="form-control-wrap auto-width">
+                                        <mat-form-field appearance="fill">
+                                            <mat-select placeholder="Select Metric" formControlName="metricId" disableOptionCentering>
+                                                <mat-option>None</mat-option>
+                                                <mat-optgroup  *ngFor="let query of queries; let qindex=index" label="Q{{qindex + 1}}">
+                                                    <mat-option *ngFor="let metric of query.metrics; let mindex = index" [value]="qindex + ':' + mindex">{{ metric.name || getExpressionLabel(qindex, mindex)}}</mat-option>
+                                                </mat-optgroup>
+                                            </mat-select>
                                         </mat-form-field>
-                                        <mat-error *ngIf="thresholdSingleMetricControls.recoveryThreshold.errors && thresholdSingleMetricControls.recoveryThreshold.errors.required">Recovery should not be empty</mat-error>
-                                        <mat-error *ngIf="thresholdSingleMetricControls.recoveryThreshold.errors && thresholdSingleMetricControls.recoveryThreshold.errors.invalid">Recovery state value should be {{ alertStateDirection.indexOf('above') === 0 ? 'less' : 'greater'}} than the {{ thresholdSingleMetricControls.warnThreshold.value ? 'Warning' : 'Bad' }} state value</mat-error>
-
+                                        <mat-error *ngIf="alertForm.touched && thresholdSingleMetricControls.metricId.errors && thresholdSingleMetricControls.metricId.errors.required">Please select a metric</mat-error>
                                     </div>
                                 </div>
-                            </div>
+
+                                <div class="form-group sliding-window" formGroupName="singleMetric">
+                                    <div class="form-label vertical-center"><strong>Sliding Window</strong></div>
+                                    <!-- sentence-like form -->
+                                    <div class="sentence-chain-form">
+                                        <div class="sentence-item">
+                                            <span>Trigger when the metric is</span>
+                                        </div>
+                                        <div class="sentence-item">
+                                            <mat-form-field appearance="fill">
+                                                <mat-label></mat-label>
+                                                <mat-select placeholder="Select" formControlName="comparisonOperator" disableOptionCentering>
+                                                    <mat-option value="above">above</mat-option>
+                                                    <mat-option value="above_or_equal_to">above or equal to</mat-option>
+                                                    <mat-option value="below">below</mat-option>
+                                                    <mat-option value="below_or_equal_to">below or equal to</mat-option>
+                                                </mat-select>
+                                            </mat-form-field>
+                                        </div>
+                                        <div class="sentence-item">
+                                            <span>the threshold</span>
+                                        </div>
+                                        <div class="sentence-item">
+                                            <mat-form-field appearance="fill">
+                                                <mat-label></mat-label>
+                                                <mat-select placeholder="Select" formControlName="timeSampler" disableOptionCentering>
+                                                    <mat-option value='at_least_once'>at least once</mat-option>
+                                                    <mat-option value='all_of_the_times'>at all times</mat-option>
+                                                    <mat-option value='on_avg'>on average</mat-option>
+                                                    <mat-option value='in_total'>in total</mat-option>
+                                                </mat-select>
+                                            </mat-form-field>
+                                        </div>
+                                        <div class="sentence-item">
+                                            <span>during the last</span>
+                                        </div>
+                                        <div class="sentence-item">
+                                            <time-selector [timeInSeconds]="alertForm.value.threshold.singleMetric.slidingWindow" (newTimeInSeconds)="newSingleMetricTimeWindowSelected($event)"></time-selector>
+                                        </div>
+                                    </div>
+                                </div>
                                 
-                            <div class="show-advanced-threshold-toggle" [ngClass]="{'is-open': showThresholdAdvanced}">
-                                <div class="toggle-wrap">
-                                    <a class="toggle-action" (click)="showThresholdAdvanced = !showThresholdAdvanced;">
-                                        <mat-icon fontSet="denali" [fontIcon]="showThresholdAdvanced ? 'd-arrowhead-up' : 'd-arrowhead-down'"></mat-icon>
-                                        <span>{{showThresholdAdvanced ? 'Hide' : 'Show'}} advanced options</span>
-                                    </a>
-                                </div>
+                                <div class="form-group bad-threshold-setting" formGroupName="singleMetric">
+                                    <div class="form-label"><span class="indicator-square is-bad"></span> <strong>Bad state</strong> when metric is {{alertStateDirection}}</div>
+                                    <div class="form-control-wrap auto-width">
+                                        <mat-form-field appearance="fill" floatLabel="never" [ngClass]="{'mat-form-field-invalid': alertForm['controls'].threshold.errors && alertForm['controls'].threshold.errors.required}">
+                                            <input matInput type="number" autocomplete="off" placeholder="Enter value" formControlName="badThreshold">
+                                        </mat-form-field>
+                                        <mat-error *ngIf="alertForm['controls'].threshold.errors && alertForm['controls'].threshold.errors.required">Bad or Warning state should not be empty</mat-error>
+                                    </div>
 
-                                <div class="form-group alert-nag-interval">
-                                    <div class="form-label vertical-center"><strong>Nag interval</strong></div>
-                                    <div class="nag-interval-item">
-                                        <mat-form-field appearance="fill" floatLabel="never">
-                                            <mat-select placeholder="Select" formControlName="nagInterval" disableOptionCentering>
-                                                <mat-option value="0">Disabled</mat-option>
-                                                <mat-option value="300">5 min</mat-option>
-                                                <mat-option value="600">10 min</mat-option>
-                                                <mat-option value="900">15 min</mat-option>
-                                                <mat-option value="1800">30 min</mat-option>
-                                                <mat-option value="3600">1 hr</mat-option>
-                                                <mat-option value="21600">6 hr</mat-option>
-                                                <mat-option value="43200">12 hr</mat-option>
-                                                <mat-option value="86400">24 hr</mat-option>
-                                            </mat-select>
+                                </div>
+                                <div class="form-group warning-threshold-setting" formGroupName="singleMetric">
+                                    <div class="form-label"><span class="indicator-square is-warning"></span> <strong>Warning state</strong> when metric is {{alertStateDirection}}</div>
+                                    <div class="form-control-wrap auto-width">
+                                        <mat-form-field appearance="fill" floatLabel="never" [ngClass]="{'mat-form-field-invalid': alertForm['controls'].threshold.errors && alertForm['controls'].threshold.errors.required}">
+                                            <input matInput type="number" autocomplete="off" placeholder="Enter value" formControlName="warnThreshold">
                                         </mat-form-field>
-                                        <mat-hint class="info-hint">
-                                            <mat-icon fontSet="denali" fontIcon="d-information-circle"></mat-icon>
-                                            <span>How often an alert is fired when state persists.</span>
-                                        </mat-hint>
+                                        <mat-error *ngIf="thresholdSingleMetricControls['warnThreshold'].errors && thresholdSingleMetricControls['warnThreshold'].errors.invalid">Warning state value should be {{ alertStateDirection=== 'above' ? 'less' : 'greater'}} than the Bad state value</mat-error>
                                     </div>
                                 </div>
-                                <div class="form-group alert-nag-interval">
-                                    <div class="form-label vertical-center"><strong>Missing data</strong></div>
-                                    <div class="missing-data-item">
-                                        <mat-form-field appearance="fill" floatLabel="never">
-                                            <mat-select placeholder="Select" formControlName="notifyOnMissing" disableOptionCentering>
-                                                <mat-option value="false">Do not notify</mat-option>
-                                                <mat-option value="true">Notify</mat-option>
-                                            </mat-select>
-                                        </mat-form-field>
-                                        <mat-hint class="info-hint">
-                                            <mat-icon fontSet="denali" fontIcon="d-information-circle"></mat-icon>
-                                            <span>Receive separate notification if there is no data.</span>
-                                        </mat-hint>
+                                        
+
+                                <div class="form-group recovery-threshold-setting" formGroupName="singleMetric">
+                                    <div class="form-label"><span class="indicator-square is-good"></span> <strong>Alert will recover</strong> when metric is {{recoveryStateDirection}}</div>
+                                    <div class="recovery-options">
+                                        <div class="recovery-option">
+                                            <mat-radio-button 
+                                                name="recoveryType"
+                                                value="minimum"
+                                                [checked]="thresholdRecoveryType === 'minimum'"
+                                                (change)="recoveryTypeChange($event)">configured threshold</mat-radio-button>
+                                            <mat-hint class="info-hint">
+                                                <mat-icon fontSet="denali" fontIcon="d-information-circle"></mat-icon>
+                                                <span>Within 0.0001% of bad threshold (or warning threshold if specified).</span>
+                                            </mat-hint>
+                                        </div>
+                                        <div class="recovery-option">
+                                            <mat-radio-button
+                                                name="recoveryType"
+                                                value="specific"
+                                                [checked]="thresholdRecoveryType === 'specific'"
+                                                (change)="recoveryTypeChange($event)">reaches a value</mat-radio-button>
+                                            <mat-form-field appearance="fill" floatLabel="never" style="margin-left: 16px;">
+                                                <input matInput type="number" autocomplete="off" placeholder="Enter value" formControlName="recoveryThreshold">
+                                            </mat-form-field>
+                                            <mat-error *ngIf="thresholdSingleMetricControls.recoveryThreshold.errors && thresholdSingleMetricControls.recoveryThreshold.errors.required">Recovery should not be empty</mat-error>
+                                            <mat-error *ngIf="thresholdSingleMetricControls.recoveryThreshold.errors && thresholdSingleMetricControls.recoveryThreshold.errors.invalid">Recovery state value should be {{ alertStateDirection.indexOf('above') === 0 ? 'less' : 'greater'}} than the {{ thresholdSingleMetricControls.warnThreshold.value ? 'Warning' : 'Bad' }} state value</mat-error>
+
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="form-group delay-evaluation">
-                                    <div class="form-label vertical-center"><strong>Delay evaluation by</strong></div>
-                                    <mat-form-field appearance="fill" floatLabel="never">
-                                        <input matInput type="number" onkeypress="return event.charCode >= 48" autocomplete="off" placeholder="Enter value" formControlName="delayEvaluation">
-                                    </mat-form-field>
-                                    <mat-hint class="info-hint">mins</mat-hint>
+                                    
+                                <div class="show-advanced-threshold-toggle" [ngClass]="{'is-open': showThresholdAdvanced}">
+                                    <div class="toggle-wrap">
+                                        <a class="toggle-action" (click)="showThresholdAdvanced = !showThresholdAdvanced;">
+                                            <mat-icon fontSet="denali" [fontIcon]="showThresholdAdvanced ? 'd-arrowhead-up' : 'd-arrowhead-down'"></mat-icon>
+                                            <span>{{showThresholdAdvanced ? 'Hide' : 'Show'}} advanced options</span>
+                                        </a>
+                                    </div>
+
+                                    <div class="form-group alert-nag-interval">
+                                        <div class="form-label vertical-center"><strong>Nag interval</strong></div>
+                                        <div class="nag-interval-item">
+                                            <mat-form-field appearance="fill" floatLabel="never">
+                                                <mat-select placeholder="Select" formControlName="nagInterval" disableOptionCentering>
+                                                    <mat-option value="0">Disabled</mat-option>
+                                                    <mat-option value="300">5 min</mat-option>
+                                                    <mat-option value="600">10 min</mat-option>
+                                                    <mat-option value="900">15 min</mat-option>
+                                                    <mat-option value="1800">30 min</mat-option>
+                                                    <mat-option value="3600">1 hr</mat-option>
+                                                    <mat-option value="21600">6 hr</mat-option>
+                                                    <mat-option value="43200">12 hr</mat-option>
+                                                    <mat-option value="86400">24 hr</mat-option>
+                                                </mat-select>
+                                            </mat-form-field>
+                                            <mat-hint class="info-hint">
+                                                <mat-icon fontSet="denali" fontIcon="d-information-circle"></mat-icon>
+                                                <span>How often an alert is fired when state persists.</span>
+                                            </mat-hint>
+                                        </div>
+                                    </div>
+                                    <div class="form-group alert-nag-interval">
+                                        <div class="form-label vertical-center"><strong>Missing data</strong></div>
+                                        <div class="missing-data-item">
+                                            <mat-form-field appearance="fill" floatLabel="never">
+                                                <mat-select placeholder="Select" formControlName="notifyOnMissing" disableOptionCentering>
+                                                    <mat-option value="false">Do not notify</mat-option>
+                                                    <mat-option value="true">Notify</mat-option>
+                                                </mat-select>
+                                            </mat-form-field>
+                                            <mat-hint class="info-hint">
+                                                <mat-icon fontSet="denali" fontIcon="d-information-circle"></mat-icon>
+                                                <span>Receive separate notification if there is no data.</span>
+                                            </mat-hint>
+                                        </div>
+                                    </div>
+                                    <div class="form-group delay-evaluation">
+                                        <div class="form-label vertical-center"><strong>Delay evaluation by</strong></div>
+                                        <mat-form-field appearance="fill" floatLabel="never">
+                                            <input matInput type="number" onkeypress="return event.charCode >= 48" autocomplete="off" placeholder="Enter value" formControlName="delayEvaluation">
+                                        </mat-form-field>
+                                        <mat-hint class="info-hint">mins</mat-hint>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </span>
                     </div>
                     <div class="step-section condition-section" *ngIf="data.type === 'healthcheck'" formGroupName="threshold" [ngClass]="{'is-visible': data.id || queries && queries[0] && queries[0].filters.length > 0}">
                             <!--<div class="step-section threshold-section" formGroupName="threshold" [hidden]=" !data.id && !showDetail ">-->

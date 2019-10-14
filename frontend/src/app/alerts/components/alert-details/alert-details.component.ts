@@ -1175,6 +1175,10 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         this.utils.setTabTitle(name);
     }
 
+    metricSubTypeChanged(e) {
+        this.data.threshold.subType = e.value;
+    }
+
     validate() {
         this.alertForm.markAsTouched();
         switch ( this.data.type ) {
