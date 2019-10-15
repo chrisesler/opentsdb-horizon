@@ -40,9 +40,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
     set editMode(value: boolean) {
         this._editMode = value;
-        if (value === true) {
-            this.iiService.closeIsland();
-        }
     }
     @Input() widget: WidgetModel;
     @Output() widgetOut = new EventEmitter<any>();
@@ -417,7 +414,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             // delay required. sometimes, edit to viewmode the chartcontainer width is not available
                             setTimeout(() => {
                                 this.setSize(true);
-                                this.legendDataSource.sort = this.sort;
+                                if (!this.multigraphEnabled) {
+                                    this.legendDataSource.sort = this.sort;
+                                }
                             });
                         }
                         break;

@@ -169,7 +169,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                                 { label: 'After 12 hours', value: 720 * 60 },
                                 { label: 'After 24 hours', value: 1440 * 60 }
                             ];
-
+    maxTimeRange = 172801;
     dsTimeRange = {
                     60: { value: 1, unit: 'hours', label: '1h'}, // 1m
                     300: { value: 2, unit: 'hours', label: '2h'}, // 5m
@@ -180,8 +180,20 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                     21600: { value: 6, unit: 'days', label: '6d'}, // 6hr
                     43200: { value: 12, unit: 'days', label: '12d'}, // 12 hr
                     86400: { value: 2, unit: 'weeks', label: '2w'}, // 24 hr
-                    172800: { value: 4, unit: 'weeks', label: '4w'} // 48 hr
+                    172800: { value: 4, unit: 'weeks', label: '4w'}, // 48 hr
+                    172801: { value: 8, unit: 'weeks', label: '8w'}  // more than 48 hr
                 };
+
+    slidingWindowToDSTimeRange(seconds) {
+        const validTimeRanges = [60, 300, 600, 900, 1800, 3600, 21600, 43200, 86400, 172800];
+        for (const validTimeRange of validTimeRanges) {
+            if (seconds <= validTimeRange) {
+                return validTimeRange;
+            }
+        }
+        return this.maxTimeRange;
+    }
+
     transitionOptions: any = {
                                 'goodToBad' : 'Good To Bad',
                                 'warnToBad' : 'Warn To Bad',
@@ -578,14 +590,16 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             })
         });
         this.options.axes.y.valueRange[0] = 0;
-        this.startTime =  this.dsTimeRange[this.alertForm.get('threshold').get('eventAlert').get('slidingWindow').value].label;
+        // tslint:disable-next-line:max-line-length
+        this.startTime =  this.dsTimeRange[this.slidingWindowToDSTimeRange(this.alertForm.get('threshold').get('eventAlert').get('slidingWindow').value)].label;
         this.endTime = 'now';
         this.doEventQuery$.next(['list', 'count']);
         this.setThresholds('bad', data.threshold.eventAlert.threshold || 1);
         this.setTags();
 
         this.alertForm.get('threshold').get('eventAlert').get('slidingWindow').valueChanges.subscribe(value => {
-            this.startTime =  this.dsTimeRange[this.alertForm.get('threshold').get('eventAlert').get('slidingWindow').value].label;
+            // tslint:disable-next-line:max-line-length
+            this.startTime =  this.dsTimeRange[this.slidingWindowToDSTimeRange(this.alertForm.get('threshold').get('eventAlert').get('slidingWindow').value)].label;
             this.endTime = 'now';
             this.doEventQuery$.next(['list', 'count']);
         });

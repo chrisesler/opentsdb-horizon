@@ -529,7 +529,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         const mfilters = this.utils.deepClone(filters);
         this.tagFilters = []; // reset
         for (let i = 0; i < mfilters.length; i++) {
-            if (mfilters[i].customFilter.length > 0) {
+            if (mfilters[i].customFilter && mfilters[i].customFilter.length > 0) {
                 // they do have one or more customFilter for same tag key, add value of it
                 for (let j = 0; j < mfilters[i].customFilter.length; j++) {
                     const cusFilter = mfilters[i].customFilter[j];

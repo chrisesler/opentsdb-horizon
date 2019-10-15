@@ -18,17 +18,23 @@
             <div class="mat-select-arrow"></div>
         </div>
     </div>
-    <span class="menu-trigger" [matMenuTriggerFor]="tagOptionsMenu" #tagOptionsMenuTrigger></span>
+    <span class="menu-trigger" [matMenuTriggerFor]="tagOptionsMenu" (menuOpened)="optionsMenuOpened($event)" #tagOptionsMenuTrigger></span>
 </button>
 <mat-menu class="tag-options-cdk-menu" #tagOptionsMenu="matMenu" yPosition="below">
-
     <div class="tag-options-wrapper" (click)="$event.stopPropagation()">
+        <div class="filter-input">
+            <mat-form-field floatLabel="never" appearance="fill">
+                <input matInput placeholder="filter tags" autocomplete="off" [formControl]="filterTagInputFC">
+                <button mat-icon-button matSuffix (click)="clearFilterTagInput()">
+                    <mat-icon fontSet="denali" fontIcon="d-close-circle-solid"></mat-icon>
+                </button>
+            </mat-form-field>
+        </div>
         <mat-selection-list #tagOptionsList (selectionChange)="onTagSelection($event, tagOptionsList.selectedOptions.selected)">
             <mat-list-option checkboxPosition="before" value='all' [selected]="optionIsSelected('all')" *ngIf="all">Everything</mat-list-option>
-            <mat-list-option *ngFor="let option of tagOptions" checkboxPosition="before" [value]="option.name" [selected]="optionIsSelected(option.name)">
+            <mat-list-option *ngFor="let option of filteredTagOptions" checkboxPosition="before" [value]="option.name" [selected]="optionIsSelected(option.name)">
                 {{option.name}}
             </mat-list-option>
-        </mat-selection-list>  
+        </mat-selection-list>
     </div>
-
 </mat-menu>
