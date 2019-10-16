@@ -1,6 +1,6 @@
 import {
     Component, OnInit, HostBinding, Input, EventEmitter,
-    OnDestroy, ViewChild, ElementRef, ChangeDetectorRef, AfterViewInit, ViewChildren, QueryList, Output
+    OnDestroy, ViewChild, ElementRef, ChangeDetectorRef, AfterViewInit, AfterViewChecked, ViewChildren, QueryList, Output
 } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
@@ -55,7 +55,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     @ViewChild('multigraphHeaderRow', {read: ElementRef}) multigraphHeaderRow: ElementRef;
 
     @ViewChildren('graphLegend', {read: ElementRef}) graphLegends: QueryList<ElementRef>;
-
+    @ViewChildren('graphdiv', { read: ElementRef}) graphdivs: QueryList<ElementRef>;
+    inViewport: any = {};
     private subscription: Subscription = new Subscription();
     isDataLoaded = false;
     private isStackedGraph = false;
@@ -139,7 +140,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     fakeLoopData = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; // eventually remove this
     multigraphColumns: string[] = [];
     freeflowBreak = 1;
-
     graphData: any = {}; // { y: { x: { ts: [[0]] }}};
     graphRowLabelMarginLeft: 0;
 
@@ -363,7 +363,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 } else {
                                     limitGraphs = results;
                                 }
-                                // graphs = this.utilService.deepClone(results);
                                 // we need to convert to dygraph for these multigraph
                                 for (const ykey in limitGraphs) {
                                     if (limitGraphs.hasOwnProperty(ykey)) {
@@ -417,7 +416,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 if (!this.multigraphEnabled) {
                                     this.legendDataSource.sort = this.sort;
                                 }
+                                // this is for initial load before scroll event on widget
+                                this.applyMultiLazyLoad();
                             });
+                            
                         }
                         break;
                     case 'getUpdatedWidgetConfig':
@@ -1384,12 +1386,18 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     // event listener to multigraph container scroll
     // used to reposition column headers
     multigraphContainerScroll(event: any) {
+        // apply lazy load for graphcell
+               setTimeout(() => {
+                this.applyMultiLazyLoad();
+            }, 300);
+        if (event !== null) {
         // column header row needs to update position
         if (this.multigraphHeaderRow) {
             this.multigraphHeaderRow.nativeElement.style.marginTop = event.target.scrollTop + 'px';
         }
         // update row label marginLeft
         this.graphRowLabelMarginLeft = event.target.scrollLeft;
+    }
     }
 
     /* TIMESERIES LEGEND */
@@ -1465,6 +1473,50 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 payload: payload
             });
         }
+    }
+
+     applyMultiLazyLoad() {
+        this.inViewport = {};
+        let temp = {};
+        const parentElem = this.widgetOutputElement;
+        this.graphdivs.filter( elem => {
+            if (this.inWidgetViewport(parentElem, elem)) {
+                const [y,x] = elem.nativeElement.id.split(':');
+                temp[y] = {};
+                temp[y][x] = true;
+            }
+            return false;
+        });
+        this.inViewport = {...temp};
+        this.cdRef.detectChanges();
+    }
+
+
+    inWidgetViewport(pElem: ElementRef, elem: ElementRef) {
+        // parent element bounding
+        const pBounding = pElem.nativeElement.getBoundingClientRect();
+        const graphcell = elem.nativeElement.closest('.graph-cell');
+        const cBounding = graphcell.getBoundingClientRect();
+        const inwvp: any = {};
+        
+        const cTopLeft = { x: cBounding.left, y: cBounding.top };
+        const cTopRight = { x: cBounding.right, y: cBounding.top };
+        const cBottomLeft = { x: cBounding.left, y: cBounding.bottom };
+        const cBottomRight = { x: cBounding.right, y: cBounding.bottom };
+        
+        inwvp.topLeft = this.isIn(pBounding, cTopLeft);
+        inwvp.topRight = this.isIn(pBounding, cTopRight);
+        inwvp.bottomLeft = this.isIn(pBounding, cBottomLeft);
+        inwvp.bottomRight = this.isIn(pBounding, cBottomRight);
+
+        return inwvp.topLeft || inwvp.topRight || inwvp.bottomLeft || inwvp.bottomRight;
+    };
+
+    private isIn(pBounding:any, cCord: any) {
+        return cCord.x > pBounding.left && 
+                cCord.x < pBounding.right &&
+                cCord.y > pBounding.top &&
+                cCord.y < pBounding.bottom;
     }
 
     /* ON DESTROY */
