@@ -262,6 +262,9 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 this.refreshData();
                 this.needRequery = message.payload.reQuery;
                 break;
+            case 'SummarizerChange':
+                this.refreshData();
+                break;
         }
     }
     isApplyTpl(): boolean {
