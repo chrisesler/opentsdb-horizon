@@ -801,6 +801,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
                     label: ''
                 }
             },
+            summarizer: this.options.enableSummarizer ? 'avg' : ''
         };
         return config;
     }
