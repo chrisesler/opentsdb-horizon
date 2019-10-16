@@ -58,7 +58,7 @@
                                 </div>
                                 <div #graphdiv id="{{yKey}}:{{xKey}}" *ngIf="graphData[yKey][xKey].ts.length > 0">
                                     
-                                    <div #dygraph class="graph-chart" *ngIf="(inViewport[yKey] !== undefined && inViewport[yKey][xKey].isin === 1) || !multigraphEnabled"
+                                    <div #dygraph class="graph-chart" *ngIf="(inViewport[yKey] !== undefined && inViewport[yKey][xKey] === true) || !multigraphEnabled"
                                         [ngClass]="{'hide': widget.settings.legend.display &&  ( size.width <= 10 || size.height <= 10 ) }"
                                         dygraphsChart
                                         [chartType]="chartType"

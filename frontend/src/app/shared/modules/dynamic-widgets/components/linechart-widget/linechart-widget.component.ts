@@ -416,7 +416,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 if (!this.multigraphEnabled) {
                                     this.legendDataSource.sort = this.sort;
                                 }
+                                // this is for initial load before scroll event on widget
+                                this.applyMultiLazyLoad();
                             });
+                            
                         }
                         break;
                     case 'getUpdatedWidgetConfig':
@@ -1387,12 +1390,14 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                setTimeout(() => {
                 this.applyMultiLazyLoad();
             }, 300);
+        if (event !== null) {
         // column header row needs to update position
         if (this.multigraphHeaderRow) {
             this.multigraphHeaderRow.nativeElement.style.marginTop = event.target.scrollTop + 'px';
         }
         // update row label marginLeft
         this.graphRowLabelMarginLeft = event.target.scrollLeft;
+    }
     }
 
     /* TIMESERIES LEGEND */
@@ -1478,7 +1483,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             if (this.inWidgetViewport(parentElem, elem)) {
                 const [y,x] = elem.nativeElement.id.split(':');
                 temp[y] = {};
-                temp[y][x] = { isin: 1};
+                temp[y][x] = true;
             }
             return false;
         });
