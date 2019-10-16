@@ -56,8 +56,10 @@
                                 <div class="no-data" *ngIf="graphData[yKey][xKey].ts.length === 0" [style.minWidth.px]="size.width">
                                     <span>No Data Available</span>
                                 </div>
-                                <div *ngIf="graphData[yKey][xKey].ts.length > 0">
-                                    <div #dygraph class="graph-chart" [ngClass]="{'hide': widget.settings.legend.display &&  ( size.width <= 10 || size.height <= 10 ) }"
+                                <div #graphdiv id="{{yKey}}:{{xKey}}" *ngIf="graphData[yKey][xKey].ts.length > 0">
+                                    
+                                    <div #dygraph class="graph-chart" *ngIf="(inViewport[yKey] !== undefined && inViewport[yKey][xKey].isin === 1) || !multigraphEnabled"
+                                        [ngClass]="{'hide': widget.settings.legend.display &&  ( size.width <= 10 || size.height <= 10 ) }"
                                         dygraphsChart
                                         [chartType]="chartType"
                                         [data]="graphData[yKey][xKey]"
