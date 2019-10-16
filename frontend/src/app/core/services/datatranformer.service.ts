@@ -328,11 +328,13 @@ export class DatatranformerService {
 
     getHashFromMetricAndTags(metric, tags) {
         let res = metric;
-        let keys = Object.keys(tags);
-        keys = keys.sort();
-        for ( let i = 0; i < keys.length; i++ ) {
-            const key = keys[i];
-            res += '-' + key + ':' + tags[keys[i]];
+        if (tags) {
+            let keys = Object.keys(tags);
+            keys = keys.sort();
+            for ( let i = 0; i < keys.length; i++ ) {
+                const key = keys[i];
+                res += '-' + key + ':' + tags[keys[i]];
+            }
         }
         return res;
     }
@@ -409,12 +411,12 @@ export class DatatranformerService {
             const color = vConfig.color === 'auto' ? autoColors[cIndex++] : vConfig.color;
             options.heatmap.nseries = n;
             options.heatmap.color = color;
-
             for ( let j = 0; j < n; j ++ ) {
                 const data = queryResults.data[j].NumericType;
                 const tags = queryResults.data[j].tags;
                 const numPoints = data.length;
                 const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, qIndex, mIndex);
+                options.heatmap.metric = mConfig.expression ?  mLabel  : queryResults.data[j].metric;
                     let metric = vConfig.label ? vConfig.label : mConfig.expression ? mLabel : queryResults.data[j].metric;
                     metric = this.getLableFromMetricTags(metric, { metric: !mConfig.expression ? queryResults.data[j].metric : mLabel, ...tags});
                     const unit = timeSpecification.interval.replace(/[0-9]/g, '');
@@ -435,7 +437,7 @@ export class DatatranformerService {
                                 if (!options.series[bucket][time]) {
                                     options.series[bucket][time] = [];
                                 }
-                                options.series[bucket][time].push({label: metric, v: data[k]});
+                                options.series[bucket][time].push({label: metric, v: data[k], tags: tags });
                             }
                     }
             }

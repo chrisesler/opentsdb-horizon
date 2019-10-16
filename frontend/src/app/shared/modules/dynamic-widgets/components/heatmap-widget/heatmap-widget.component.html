@@ -13,6 +13,8 @@
           [chartType]="'heatmap'"
           [data]="data"
           [size]="size"
+          [timeseriesLegend]="tsLegendOptions"
+          (currentTickEvent)="timeseriesTickListener($event)"
           [options]="options">
       </div>
       <div class="dygraph-legend" #graphLegend></div>

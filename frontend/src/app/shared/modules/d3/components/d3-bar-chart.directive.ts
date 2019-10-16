@@ -22,10 +22,14 @@ export class D3BarChartDirective implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes.options && changes.options || changes.size && changes.size.currentValue) {
-      this.createChart();
+      if ( this.options && this.options.direction === 'horizontal') {
+        this.horizontalBarChart();
+      } else {
+        this.verticalBarChart();
+      }
     }
   }
-  createChart() {
+  horizontalBarChart() {
     if (!this.size || !this.size.width || !this.options) {
       return;
     }
@@ -158,5 +162,132 @@ export class D3BarChartDirective implements OnInit, OnChanges {
 
       bars.exit().remove();
     }, 200);
+  }
+
+
+  verticalBarChart() {
+    if ( ! this.size || !this.size.width || !this.options ) {
+      return;
+    }
+
+    const margin = {top: 5, bottom: 3, left: 3, right: 5 };
+    let xAxisHeight = 25, yAxisWidth = 35,  labelHeight = 0;
+    const chartAreaHeight = this.size.height - margin.top - margin.bottom - xAxisHeight;
+
+    const yAxisConf = this.options.axes.y;
+    const xAxisConf = this.options.axes.x;
+    const dataset = this.options.data;
+    const direction = this.options.direction;
+
+    const xKey = this.options.axes.x && this.options.axes.x.key ? this.options.axes.x.key  : direction === 'horizontal' ? 'value' : 'label';
+    const yKey = this.options.axes.y && this.options.axes.y.key ? this.options.axes.y.key  : direction === 'horizontal' ? 'label' : 'value';
+
+    const max = dataset.length ? d3.max(dataset, (d: any) => Number(d.value)) : 0;
+
+    const yAxisFormat = this.options.axes.y.format || { unit: 'auto', precision: 'auto'};
+    const xAxisFormat = this.options.axes.x.format || { unit: 'auto', precision: 'auto'};
+    const self = this;
+
+    this.host = d3.select(this.element.nativeElement);
+    let svg = this.host.select('svg');
+
+    if (svg.empty()) {
+      svg = this.host
+        .append('svg');
+    }
+
+    // rerendering causing issue as we clear the chart container. the svg container is not available to calculate the yaxis label width
+  setTimeout( () => {
+    svg
+    .style('height', this.size.height + 'px'); // chartHeight
+
+    svg.selectAll('*').remove();
+    let x, y, chartAreawidth, barSize;
+
+      if ( this.options.axes.y.type === 'category' ) {
+        y = d3.scaleBand()
+        .rangeRound([0, chartAreaHeight])
+        .padding(0.1)
+        .domain(dataset.map(d => d[yKey]));
+        barSize = y.bandwidth();
+      } else {
+        y = d3.scaleLinear()
+        .range([ 0, chartAreaHeight])
+        .domain([max, 0]);
+      }
+
+      chartAreawidth = this.size.width  - yAxisWidth - margin.left - margin.right;
+      if ( this.options.axes.x.type === 'category' ) {
+        x = d3.scaleBand()
+        .rangeRound([0, chartAreawidth])
+        .padding(0.1)
+        .domain(dataset.map(d => d[xKey]));
+        barSize = x.bandwidth();
+      } else {
+        const key = this.options.axes.x.key ? this.options.axes.x.key : 'value';
+        const min = dataset.length ? d3.min(dataset, (d) => Number(d[key])) : 0;
+        const max = dataset.length ? d3.max(dataset, (d) => Number(d[key])) : 0;
+        const m = Math.abs(max - min) / dataset.length;
+        x = d3.scaleLinear()
+              .domain([ min, max + m ])
+              .range([0, chartAreawidth]);
+        barSize = (chartAreawidth / dataset.length) -1 ;
+      }
+
+      const g = svg.append('g').attr('transform', 'translate(' + (margin.left + yAxisWidth + 3) + ',' + margin.top + ')');
+
+      const d3YAxis = this.getAxisByPosition(yAxisConf.position);
+      const yAxis = d3[d3YAxis](y)
+                    // tslint:disable-next-line: max-line-length
+                    .tickFormat((d, i) => self.unitService.convert(d, yAxisFormat.unit, self.unitService.getNormalizedUnit(d, yAxisFormat), yAxisFormat));
+
+      const ytx =  0;
+      const yty =  0;
+      if ( yAxisConf.display === undefined || yAxisConf.display ) {
+        g.append('g')
+                    .attr('class', 'yaxis')
+                    .attr('transform', 'translate(' + ytx + ',' + yty + ')')
+                    .call(yAxis)
+                    .selectAll('text')
+                    .attr('class', 'axisLabel');
+      }
+      const xtx =   0;
+      const xty = chartAreaHeight;
+      const d3XAxis = this.getAxisByPosition(xAxisConf.position);
+      const xAxis = d3[d3XAxis](x)
+                          // tslint:disable-next-line: max-line-length
+                          .tickFormat((d, i) => self.unitService.convert(d, xAxisFormat.unit, self.unitService.getNormalizedUnit(d, xAxisFormat), xAxisFormat));
+        if ( xAxisConf.display === undefined || xAxisConf.display ) {
+          g.append('g')
+                      .attr('class', 'xaxis')
+                      .attr('transform', 'translate(' + xtx + ',' + xty + ')')
+                      .call(xAxis)
+                      .selectAll('text')
+                      .attr('class', 'axisLabel')
+                      .attr('text-anchor', 'middle');
+        }
+        const bars = g.selectAll('.bar')
+                      .data(dataset)
+                      .enter()
+                      .append('g');
+
+        bars.append('rect')
+            .attr('class', 'bar')
+            .attr('x', d => x( d[xKey]) + 1 )
+            .attr('y', d =>  y(d.value) )
+            .attr('width', barSize)
+            .attr('height', d => y( max - d.value) )
+            .style('stroke', (d) => d.color )
+            .style('fill', (d) => d.color);
+      }, 0);
+  }
+
+  getAxisByPosition(position) {
+    switch ( position ) {
+      case 'left':
+        return 'axisLeft';
+      case 'bottom':
+        return 'axisBottom';
+    }
   }
 }

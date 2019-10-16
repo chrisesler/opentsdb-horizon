@@ -7,10 +7,13 @@ import {
     Output,
     EventEmitter,
     HostBinding,
-    ViewChild
+    ViewChild,
+    ElementRef
 } from '@angular/core';
 import { HttpService } from '../../../../../core/http/http.service';
-import { MatMenuTrigger } from '@angular/material';
+import { MatMenuTrigger, MatMenu } from '@angular/material';
+import { UtilsService } from '../../../../../core/services/utils.service';
+import { FormControl } from '@angular/forms';
 
 
 @Component({
@@ -24,6 +27,7 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
     @HostBinding('class.dropdown-metric-tags') private _hostClass = true;
 
     @ViewChild(MatMenuTrigger) private trigger: MatMenuTrigger;
+    @ViewChild(MatMenu, {read: ElementRef}) private optionsMenu: ElementRef;
 
     @Input() namespace: string;
     @Input() metric: any;
@@ -36,7 +40,17 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
 
     tagOptions: any[] = [];
 
-    constructor(private httpService: HttpService) { }
+    filteredTagOptions: any[] = [];
+    filterTagInputFC: FormControl = new FormControl('');
+
+    get filterTagInput(): string {
+      return this.filterTagInputFC.value;
+    }
+
+    constructor(
+        private httpService: HttpService,
+        private utils: UtilsService
+    ) { }
 
     ngOnInit() {
         // tslint:disable-next-line:arrow-return-shorthand
@@ -44,6 +58,10 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
         if (this.enableGroupBy === null || this.enableGroupBy === undefined) {
             this.enableGroupBy = true;
         }
+
+        this.filterTagInputFC.valueChanges.subscribe((value: any) => {
+            this.filteredTagOptions = this.tagOptions.filter((item: any) => item.name.toLowerCase().includes(value.toLowerCase()));
+        });
     }
 
     ngOnChanges(change: SimpleChanges) {
@@ -57,19 +75,23 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
         query.search = '';
         if ( this.tags ) {
             this.tagOptions = this.tags.length ? this.tags.map(d=>  { return { name: d } } ) : [];
+            this.filteredTagOptions = this.tagOptions;
             this.triggerMenu();
         } else if (load ) {
             if ( !this.namespace || !this.metric ) {
                 this.tagOptions = [];
+                this.filteredTagOptions = this.tagOptions;
                 this.triggerMenu();
                 return;
             }
             this.httpService.getNamespaceTagKeys(query).subscribe(res => {
                 this.tagOptions = res;
+                this.filteredTagOptions = this.tagOptions;
                 this.triggerMenu();
             },
             err => {
                 this.tagOptions = [];
+                this.filteredTagOptions = this.tagOptions;
                 this.triggerMenu();
             });
         }
@@ -128,5 +150,33 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
         } else {
             return val === 'all';
         }
+    }
+
+    clearFilterTagInput() {
+      this.filterTagInputFC.setValue('');
+    }
+
+    /* Events from MatMenuTrigger */
+
+    private findLongestTagOptionInArray(array: any[]) {
+        if (array.length === 0) {
+            return '';
+        }
+        const longest = array.reduce(function(a, b) {
+            return (a.name.length > b.name.length) ? a : b;
+        });
+        return longest;
+    }
+
+    private calculateOptionsMenuWidth() {
+        const longestOption = this.findLongestTagOptionInArray(this.tagOptions);
+        let renderedWidth: number = this.utils.calculateTextWidth(<string>longestOption.name, '20', 'Ubuntu');
+        return (renderedWidth > 280) ? renderedWidth : 280;
+    }
+
+    optionsMenuOpened(e: any) {
+        const menuWidth: any = this.calculateOptionsMenuWidth();
+        const matPanel: HTMLElement = document.querySelector('.tag-options-cdk-menu');
+        matPanel.style.maxWidth = (parseInt(menuWidth)) + 'px';
     }
 }

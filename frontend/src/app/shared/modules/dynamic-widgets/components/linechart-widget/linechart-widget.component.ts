@@ -40,9 +40,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
     set editMode(value: boolean) {
         this._editMode = value;
-        if (value === true) {
-            this.iiService.closeIsland();
-        }
     }
     @Input() widget: WidgetModel;
     @Output() widgetOut = new EventEmitter<any>();

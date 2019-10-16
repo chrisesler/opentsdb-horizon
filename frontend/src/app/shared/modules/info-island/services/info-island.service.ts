@@ -21,6 +21,7 @@ import { IslandTestComponent } from '../components/island-test/island-test.compo
 import { EventStreamComponent } from '../components/event-stream/event-stream.component';
 import { IntercomService } from '../../../../core/services/intercom.service';
 import { TimeseriesLegendComponent } from '../components/timeseries-legend/timeseries-legend.component';
+import { HeatmapBucketDetailComponent } from '../components/heatmap-bucket-detail/heatmap-bucket-detail.component';
 import { Subscription } from 'rxjs';
 
 @Injectable()
@@ -57,6 +58,9 @@ export class InfoIslandService {
                 break;
             case 'TimeseriesLegendComponent':
                 retComp = TimeseriesLegendComponent;
+                break;
+            case 'HeatmapBucketDetailComponent':
+                retComp = HeatmapBucketDetailComponent;
                 break;
             case 'IslandTestComponent':
             default:
