@@ -313,6 +313,9 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 this.refreshData();
                 this.needRequery = message.payload.reQuery;
                 break;
+            case 'SummarizerChange':
+                this.refreshData();
+                break;
         }
     }
     isApplyTpl(): boolean {
