@@ -135,20 +135,17 @@ export class YamasService {
                                                             });
         }
 
-        if (sorting && sorting.order && sorting.limit) {
-            const ids = [];
-            for (const id of outputIds) {
-                if (outputIdToSummarizer[id]) {
-                    // tslint:disable-next-line:max-line-length
-                    this.transformedQuery.executionGraph.push(this.getTopN(sorting.order, sorting.limit, id, outputIdToSummarizer[id]));
-                    ids.push(this.topnPrefix + id);
-                }
+        const summarizerIds = [];
+        for (const id of outputIds) {
+            if (sorting && sorting.order && sorting.limit && outputIdToSummarizer[id]) { // must be sorting and metric has summarizer picked
+                // tslint:disable-next-line:max-line-length
+                this.transformedQuery.executionGraph.push(this.getTopN(sorting.order, sorting.limit, id, outputIdToSummarizer[id]));
+                summarizerIds.push(this.topnPrefix + id);
+            } else {
+                summarizerIds.push(id);
             }
-            this.transformedQuery.executionGraph.push(this.getQuerySummarizer(ids));
-        } else {
-            this.transformedQuery.executionGraph.push(this.getQuerySummarizer(outputIds));
         }
-
+        this.transformedQuery.executionGraph.push(this.getQuerySummarizer(summarizerIds));
 
         this.transformedQuery.serdesConfigs = [{
             id: 'JsonV3QuerySerdes',

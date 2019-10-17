@@ -7,7 +7,7 @@ import { MAT_SLIDE_TOGGLE_DEFAULT_OPTIONS } from '@angular/material';
 })
 export class DashboardConverterService {
 
-  currentVersion = 5;
+  currentVersion = 6;
 
   constructor(private utils: UtilsService) { }
 
@@ -189,6 +189,30 @@ export class DashboardConverterService {
           }
         }
       // }
+    }
+    return dashboard;
+  }
+
+  // update dashboard to version 6: make sure summarizer is set for barchart, big number, donut, and topn
+  toDBVersion6(dashboard: any) {
+    dashboard.content.version = 5;
+    const widgets = dashboard.content.widgets;
+    for (let i = 0; i < widgets.length; i++) {
+      const queries = widgets[i].queries;
+      if (widgets[i].settings.component_type === 'BarchartWidgetComponent' ||
+        widgets[i].settings.component_type === 'BignumberWidgetComponent' ||
+        widgets[i].settings.component_type === 'DonutWidgetComponent' ||
+        widgets[i].settings.component_type === 'TopnWidgetComponent') {
+        for (let j = 0; j < queries.length; j++) {
+          const metrics = queries[j].metrics;
+          for (let k = 0; k < metrics.length; k++) {
+            // metrics
+            if (!metrics[k].summarizer) {
+              metrics[k].summarizer = 'avg';
+            }
+          }
+        }
+      }
     }
     return dashboard;
   }
