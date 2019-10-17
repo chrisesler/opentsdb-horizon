@@ -1482,7 +1482,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         this.graphdivs.filter( elem => {
             if (this.inWidgetViewport(parentElem, elem)) {
                 const [y,x] = elem.nativeElement.id.split(':');
-                temp[y] = {};
+                if (temp[y] === undefined) {
+                    temp[y] = {};
+                }
                 temp[y][x] = true;
             }
             return false;
