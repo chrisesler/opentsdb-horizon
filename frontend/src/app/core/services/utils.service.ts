@@ -737,4 +737,11 @@ export class UtilsService {
       }
   }
 
+  hasInitialZoomTimeSet(time): boolean {
+      if (time && time.zone && time.start && time.end) {
+          return true;
+      }
+      return false;
+  }
+
 }
