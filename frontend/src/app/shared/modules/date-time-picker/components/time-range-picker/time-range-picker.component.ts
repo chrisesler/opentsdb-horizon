@@ -22,13 +22,29 @@ export class TimeRangePickerComponent implements OnInit {
     @HostBinding('class.dtp-time-range-picker') private _hostClass = true;
 
     @Input() set startTime(time: string) {
-      this.startTimeReference.date = String(time);
+      this._startTime = time;
+      this.startTimeReference.date = time;
     }
+    get startTime(): string {
+      return this._startTime;
+    }
+
     @Input() set endTime(time: string) {
-      this.endTimeReference.date = String(time);
+      this._endTime = time;
+      this.endTimeReference.date = time;
     }
+    get endTime(): string {
+      return this._endTime;
+    }
+
+    @Input() set timezone(timezone: string) {
+      this._timezone = timezone;
+    }
+    get timezone(): string {
+      return this._timezone;
+    }
+
     @Input() options: TimeRangePickerOptions;
-    @Input() timezone: string;
     @Output() timeSelected = new EventEmitter<ISelectedTime>();
     @Output() cancelSelected = new EventEmitter();
 
@@ -36,6 +52,10 @@ export class TimeRangePickerComponent implements OnInit {
     @ViewChild('daytimePickerEnd') endTimeReference: DatepickerComponent;
     @ViewChild('presetsDiv') presetsDiv: ElementRef;
     @ViewChildren(MatMenuTrigger) triggers: QueryList<MatMenuTrigger>;
+
+    private _startTime: string;
+    private _endTime: string;
+    private _timezone: string;
 
     startTimeSelected: Moment;
     endTimeSelected: Moment;
@@ -114,12 +134,6 @@ export class TimeRangePickerComponent implements OnInit {
         if (this.utilsService.relativeTimeToMoment(this.endTimeReference.date)) {
           this.endTimeReference.date = this.utilsService.strippedRelativeTime(this.endTimeReference.date);
         }
-
-        // sets the relative times and 'this' to latest values
-        this.startTimeReference.shouldUpdateTimestamp = true;
-        this.endTimeReference.shouldUpdateTimestamp = true;
-        this.startTimeReference.onDateChange(this.startTimeReference.date);
-        this.endTimeReference.onDateChange(this.endTimeReference.date);
 
         this.timeSelected.emit(this.getTimeSelected());
       }

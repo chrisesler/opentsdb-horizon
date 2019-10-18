@@ -36,7 +36,9 @@ import {
     UpdateDashboardTimeZone,
     UpdateDashboardTitle,
     UpdateVariables,
-    UpdateMeta
+    UpdateMeta,
+    UpdateDashboardTimeOnZoom,
+    UpdateDashboardTimeOnZoomOut
 } from '../../state/settings.state';
 import { AppShellState, NavigatorState, DbfsLoadTopFolder, DbfsLoadSubfolder, DbfsDeleteDashboard, DbfsResourcesState } from '../../../app-shell/state';
 import { MatMenuTrigger, MenuPositionX, MatSnackBar } from '@angular/material';
@@ -230,8 +232,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.subscription.add(this.activatedRoute.url.subscribe(url => {
             this.widgets = [];
             this.meta = {};
-            this.oldWidgets = [];
-            this.oldMeta = {};
             this.isDbTagsLoaded = false;
             this.variablePanelMode = { view: true };
             this.store.dispatch(new ClearWidgetsData());
@@ -431,16 +431,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     break;
                 case 'SetZoomDateRange':
                     if ( message.payload.isZoomed ) {
-                        // tslint:disable-next-line:max-line-length
+                        // tslint:disable:max-line-length
                         message.payload.start = message.payload.start !== -1 ? message.payload.start : this.dateUtil.timeToMoment(this.dbTime.start, this.dbTime.zone).unix();
-                        // tslint:disable-next-line:max-line-length
                         message.payload.end = message.payload.end !== -1 ? message.payload.end : this.dateUtil.timeToMoment(this.dbTime.end, this.dbTime.zone).unix();
                         this.dbTime.start = this.dateUtil.timestampToTime(message.payload.start, this.dbTime.zone);
                         this.dbTime.end = this.dateUtil.timestampToTime(message.payload.end, this.dbTime.zone);
-                    } else {
+                        message.payload = this.dbTime;
+                        this.store.dispatch(new UpdateDashboardTimeOnZoom({start: this.dbTime.start, end: this.dbTime.end}));
+                    }  else { // zoomed out
                         const dbSettings = this.store.selectSnapshot(DBSettingsState);
-                        this.dbTime = { ...dbSettings.time };
+                        this.dbTime = this.utilService.hasInitialZoomTimeSet(dbSettings.initialZoomTime) ? {...dbSettings.initialZoomTime} : {...dbSettings.time};
+                        console.log('***', this.dbTime);
+                        message.payload = this.dbTime;
+                        this.store.dispatch(new UpdateDashboardTimeOnZoomOut());
                     }
+
                     this.interCom.responsePut({
                         action: 'ZoomDateRange',
                         payload: { zoomingWid: message.id, date: message.payload }
@@ -466,6 +471,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }));
 
         this.subscription.add(this.loadedRawDB$.subscribe(db => {
+
+            // reset when loading new dashboard
+            if  (this.dbid !== db.id) {
+                this.oldWidgets = [];
+                this.oldMeta = {};
+            }
 
             if (db && db.fullPath) {
                 this.dbOwner = this.getOwnerFromPath(db.fullPath);
@@ -578,12 +589,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }));
 
         this.subscription.add(this.dbTime$.subscribe(t => {
+
             const timeZoneChanged = (this.dbTime && this.dbTime.zone !== t.zone);
-            this.dbTime = this.utilService.deepClone(t);
+            this.dbTime = {...t};
+
             // do not intercom if widgets are still loading
             if (!this.widgets.length) {
                 return;
             }
+
             if (timeZoneChanged) {
                 this.interCom.responsePut({
                     action: 'TimezoneChanged',
@@ -1071,8 +1085,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     isDashboardDirty() {
-        const widgetChange = !deepEqual(this.widgets, this.oldWidgets);
-        const metaChange = !deepEqual(this.meta, this.oldMeta);
+        let widgetChange = !deepEqual(this.widgets, this.oldWidgets);
+        let metaChange = !deepEqual(this.meta, this.oldMeta);
+
+        // sometimes current dashboard is not loaded before loading new db
+        if (this.widgets.length === 0 && Object.entries(this.meta).length === 0 && this.dbid !== '_new_') {
+            widgetChange = false;
+            metaChange = false;
+        }
+
         const writeAccess = this.doesUserHaveWriteAccess();
         return (writeAccess && (widgetChange || metaChange));
     }

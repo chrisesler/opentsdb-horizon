@@ -37,7 +37,7 @@
         <mat-tab label="Queries">
             <!-- ng-template is to lazy-load tab content (see: https://material.angular.io/components/tabs/overview#lazy-loading ) -->
             <ng-template matTabContent >
-                <widget-config-metric-queries *ngIf="!isStackedGraph" [options]="{enableSummarizer: false, enableMultipleQueries:true}" [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-metric-queries>
+                <widget-config-metric-queries *ngIf="!isStackedGraph" [options]="{enableSummarizer: true, enableMultipleQueries:true}" [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-metric-queries>
                 <stacked-barchart-config-metric-queries *ngIf="isStackedGraph" [widget]="widget" (widgetChange)="updateConfig($event);"></stacked-barchart-config-metric-queries>
             </ng-template>
         </mat-tab>
