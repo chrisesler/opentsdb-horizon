@@ -232,8 +232,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.subscription.add(this.activatedRoute.url.subscribe(url => {
             this.widgets = [];
             this.meta = {};
-            this.oldWidgets = [];
-            this.oldMeta = {};
             this.isDbTagsLoaded = false;
             this.variablePanelMode = { view: true };
             this.store.dispatch(new ClearWidgetsData());
@@ -473,6 +471,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }));
 
         this.subscription.add(this.loadedRawDB$.subscribe(db => {
+
+            // reset when loading new dashboard
+            if  (this.dbid !== db.id) {
+                this.oldWidgets = [];
+                this.oldMeta = {};
+            }
 
             if (db && db.fullPath) {
                 this.dbOwner = this.getOwnerFromPath(db.fullPath);
@@ -1081,8 +1085,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     isDashboardDirty() {
-        const widgetChange = !deepEqual(this.widgets, this.oldWidgets);
-        const metaChange = !deepEqual(this.meta, this.oldMeta);
+        let widgetChange = !deepEqual(this.widgets, this.oldWidgets);
+        let metaChange = !deepEqual(this.meta, this.oldMeta);
+
+        // sometimes current dashboard is not loaded before loading new db
+        if (this.widgets.length === 0 && Object.entries(this.meta).length === 0 && this.dbid !== '_new_') {
+            widgetChange = false;
+            metaChange = false;
+        }
+
         const writeAccess = this.doesUserHaveWriteAccess();
         return (writeAccess && (widgetChange || metaChange));
     }

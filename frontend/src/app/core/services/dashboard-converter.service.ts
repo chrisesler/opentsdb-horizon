@@ -7,7 +7,7 @@ import { MAT_SLIDE_TOGGLE_DEFAULT_OPTIONS } from '@angular/material';
 })
 export class DashboardConverterService {
 
-  currentVersion = 6;
+  currentVersion = 7;
 
   constructor(private utils: UtilsService) { }
 
@@ -195,7 +195,7 @@ export class DashboardConverterService {
 
   // update dashboard to version 6: make sure summarizer is set for barchart, big number, donut, and topn
   toDBVersion6(dashboard: any) {
-    dashboard.content.version = 5;
+    dashboard.content.version = 6;
     const widgets = dashboard.content.widgets;
     for (let i = 0; i < widgets.length; i++) {
       const queries = widgets[i].queries;
@@ -216,5 +216,24 @@ export class DashboardConverterService {
     }
     return dashboard;
   }
+    // update dashboard to version 7: set eventQueries if not there
+    toDBVersion7(dashboard: any) {
+      dashboard.content.version = 7;
+      const widgets = dashboard.content.widgets;
+      for (let i = 0; i < widgets.length; i++) {
+        if (widgets[i].settings.component_type === 'LinechartWidgetComponent') {
+          if (!widgets[i].settings.visual || !widgets[i].eventQueries) {
+            widgets[i].settings.visual = {};
+            widgets[i].settings.visual.showEvents = false;
+            widgets[i].eventQueries = [];
+            widgets[i].eventQueries[0] = {};
+            widgets[i].eventQueries[0].namespace = '';
+            widgets[i].eventQueries[0].search = '';
+            widgets[i].eventQueries[0].id = 'q1_m1';
+          }
+        }
+      }
+      return dashboard;
+    }
 
 }
