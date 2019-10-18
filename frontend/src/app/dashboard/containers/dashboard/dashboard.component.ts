@@ -887,7 +887,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 if (Object.keys(queries).length) {
                     const query = this.queryService.buildQuery(payload, dt, queries);
                     gquery.query = query;
-                    console.debug("****** DSHBID: " + this.dbid + "  WID: " + gquery.wid);
+                    // console.debug("****** DSHBID: " + this.dbid + "  WID: " + gquery.wid);
                     // ask widget to loading signal
                     this.interCom.responsePut({
                         id: payload.id,

@@ -111,7 +111,7 @@ export class MultigraphService {
       results['y'] = {'x': rawdata };
     }
     const timeDiff = new Date().getTime() - startTime; // mil sec
-    console.debug('execution time for multiconf data for widget', widget.id, timeDiff);
+    // console.debug('execution time for multiconf data for widget', widget.id, timeDiff);
     return results;
   }
 
