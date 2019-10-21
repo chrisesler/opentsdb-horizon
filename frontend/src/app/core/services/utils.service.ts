@@ -728,7 +728,8 @@ export class UtilsService {
             .replace(/&gt;/g, ">")
             .replace(/&nbsp;/g, " ")
             .replace(/&quot/g, "\"")
-            .replace(/&apos;/g,"\'");
+            .replace(/&apos;/g,"\'")
+            .replace(/amp;/g,"");
 
   }
 
