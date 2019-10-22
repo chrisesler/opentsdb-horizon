@@ -341,12 +341,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 const maxCols = colKeys.length <= maxGraphs ? colKeys.length : maxGraphs;
                                 let numOfRows = 1;
                                 if (rowKeys.length * colKeys.length > maxGraphs) {
-                                    if (rowKeys.length < maxGraphs) {
+                                    if (colKeys.length < maxGraphs) {
                                         numOfRows = Math.ceil(maxGraphs / colKeys.length);
-                                    } else {
-                                        numOfRows = maxGraphs;
-                                    }
-                                    // let get maxGraphs
+                                    } 
+                                    // fill up
                                     for (let i = 0; i < numOfRows; i++) {
                                         for (let j = 0; j < maxCols; j++) {
                                             if (!limitGraphs[rowKeys[i]]) {
@@ -397,7 +395,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 graphs['y']['x'] = this.data;
                                 limitGraphs = graphs;
                             }
-
+                            // console.log('hill - limit graph', limitGraphs);
                             this.setMultigraphColumns(limitGraphs);
                             this.graphData = {...limitGraphs};
                             if (environment.debugLevel.toUpperCase() === 'TRACE' ||
