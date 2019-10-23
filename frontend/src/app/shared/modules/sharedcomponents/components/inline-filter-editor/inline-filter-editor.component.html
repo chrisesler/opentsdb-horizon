@@ -50,8 +50,8 @@
                                 <div class="option-item" *ngFor="let option of filteredTagValues" 
                                     [ngClass]="{'added': filters[selectedTagIndex] && (filters[selectedTagIndex].filter.indexOf(option.name) >= 0 || (filters[selectedTagIndex].customFilter && filters[selectedTagIndex].customFilter.indexOf(option.name) >= 0))}">
                                     <div class="option-cell add-remove">
-                                        <mat-icon *ngIf="getTagValueIndex(selectedTag, option.name) === -1" (click)="updateTagValueSelection(option.name, 'add');">add_circle_outline</mat-icon>
-                                        <mat-icon *ngIf="getTagValueIndex(selectedTag, option.name) !== -1" (click)="updateTagValueSelection(option.name, 'remove')">remove_circle_outline</mat-icon>
+                                        <mat-icon *ngIf="getTagValueIndex(selectedTag, option.name) === -1" (click)="updateTagValueSelection(selectedTag, option.name, 'add');">add_circle_outline</mat-icon>
+                                        <mat-icon *ngIf="getTagValueIndex(selectedTag, option.name) !== -1" (click)="updateTagValueSelection(selectedTag, option.name, 'remove')">remove_circle_outline</mat-icon>
                                     </div>
                                     <div class="option-cell label">{{ option.name }}</div>
                                 </div>
@@ -64,15 +64,30 @@
                     </div>
                     <div class="tag-filter-options-column tag-values-selected">
                         <div class="tag-values-selected-header">
-                            <strong>Selected tag values</strong>
+                            <strong>Selected Filters({{ filters.length }})</strong>
                         </div>
-                        <div class="tag-values-selected-list has-scroller" *ngIf="filters[selectedTagIndex]">
+                        <div class="tag-values-selected-list has-scroller" *ngIf="filters.length">
                             <div class="is-scroller">
-                                <div class="option-item tag-value-option" *ngFor="let option of selectedTagValues">
-                                    <div class="option-cell add-remove">
-                                        <mat-icon (click)="updateTagValueSelection(option, 'remove')">remove_circle_outline</mat-icon>
+                                <div  *ngFor="let filter of filters; let index=index">
+                                    <div *ngIf="filter.filter.length || (filter.customFilter && filter.customFilter.length)">
+                                        <mat-chip-list>
+                                            <strong>{{ filter.tagk }}:</strong>
+                                            <mat-chip *ngFor="let fItem of filter.filter"
+                                                removable="true"
+                                                (removed)="updateTagValueSelection(filter.tagk, fItem, 'remove')">
+                                                <div><mat-slide-toggle [checked]="fItem[0] === '!'" (change)="toggleExclude(filter.tagk, fItem, $event.checked)"></mat-slide-toggle></div>
+                                                <span>{{ fItem }}</span>
+                                                <mat-icon matChipRemove>cancel</mat-icon>
+                                            </mat-chip>
+                                            <mat-chip *ngFor="let fItem of filter.customFilter"
+                                                removable="true"
+                                                (removed)="updateTagValueSelection(filter.tagk, fItem, 'remove')"> 
+                                                <div><mat-slide-toggle [checked]="fItem[0] === '!'" (change)="toggleExclude(filter.tagk, fItem, $event.checked)"></mat-slide-toggle></div>
+                                                <span>{{ fItem }}</span>
+                                                <mat-icon matChipRemove>cancel</mat-icon>
+                                            </mat-chip>
+                                        </mat-chip-list>
                                     </div>
-                                    <div class="option-cell label"> {{ option }} </div>
                                 </div>
                             </div>
                         </div>

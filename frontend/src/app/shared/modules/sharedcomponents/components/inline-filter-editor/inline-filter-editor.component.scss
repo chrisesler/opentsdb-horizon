@@ -213,7 +213,22 @@
                     flex-direction: column;
                     align-items: stretch;
                     justify-content: stretch;
-                    max-width: 33.333333%
+                    max-width: 200px;
+                }
+
+                .tag-filter-options-column:last-child {
+                    min-width: 500px;
+                    .mat-chip-list-wrapper {
+                        margin: 0px;
+                    }
+                    .mat-chip {
+                        font-weight: 300;
+                    }
+                    .mat-standard-chip {
+                        margin: 2px;
+                        min-height: 25px;
+                        padding: 5px 8px;
+                    }
                 }
 
                 .tag-search-input-field {
