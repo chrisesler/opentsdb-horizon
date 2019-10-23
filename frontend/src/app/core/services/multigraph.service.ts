@@ -111,8 +111,20 @@ export class MultigraphService {
       results['y'] = {'x': rawdata };
     }
     const timeDiff = new Date().getTime() - startTime; // mil sec
-    console.debug('execution time for multiconf data for widget', widget.id, timeDiff);
-    return results;
+    // console.debug('execution time for multiconf data for widget', widget.id, timeDiff);
+    // we need to sort the results first before apply limit or anything on it
+    const sortedResults = {};
+    Object.keys(results)
+      .sort(this.utils.sortAlphaNum)
+      .forEach((k1) => {
+        sortedResults[k1] = {};
+        Object.keys(results[k1])
+          .sort(this.utils.sortAlphaNum)
+          .forEach((k2) => {
+            sortedResults[k1][k2] = results[k1][k2]
+          })
+      });
+    return sortedResults;
   }
 
   // build multigraph config

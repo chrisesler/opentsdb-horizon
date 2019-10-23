@@ -319,7 +319,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             let limitGraphs = {};
                             const multiConf = this.multiService.buildMultiConf(this.widget.settings.multigraph);
                             this.multigraphEnabled = (multiConf.x || multiConf.y) ? true : false;
-
                             if (this.multigraphEnabled) {
                                 // disable events and legend
                                 if (this.widget.settings.visual && this.widget.settings.visual.showEvents) {
@@ -341,12 +340,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 const maxCols = colKeys.length <= maxGraphs ? colKeys.length : maxGraphs;
                                 let numOfRows = 1;
                                 if (rowKeys.length * colKeys.length > maxGraphs) {
-                                    if (rowKeys.length < maxGraphs) {
+                                    if (colKeys.length < maxGraphs) {
                                         numOfRows = Math.ceil(maxGraphs / colKeys.length);
-                                    } else {
-                                        numOfRows = maxGraphs;
-                                    }
-                                    // let get maxGraphs
+                                    } 
+                                    // fill up
                                     for (let i = 0; i < numOfRows; i++) {
                                         for (let j = 0; j < maxCols; j++) {
                                             if (!limitGraphs[rowKeys[i]]) {
@@ -397,7 +394,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 graphs['y']['x'] = this.data;
                                 limitGraphs = graphs;
                             }
-
                             this.setMultigraphColumns(limitGraphs);
                             this.graphData = {...limitGraphs};
                             if (environment.debugLevel.toUpperCase() === 'TRACE' ||
@@ -1480,8 +1476,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         let temp = {};
         const parentElem = this.widgetOutputElement;
         this.graphdivs.filter( elem => {
-            if (this.inWidgetViewport(parentElem, elem)) {
-                const [y,x] = elem.nativeElement.id.split(':');
+            if (this.inWidgetViewport(parentElem, elem)) {           
+                const [y,x] = elem.nativeElement.id.split('|');
                 if (temp[y] === undefined) {
                     temp[y] = {};
                 }
