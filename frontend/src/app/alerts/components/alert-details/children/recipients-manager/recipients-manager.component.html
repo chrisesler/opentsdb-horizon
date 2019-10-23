@@ -62,7 +62,7 @@
                                 <mat-list-item
                                     *ngFor="let recipient of getRecipientItemsByType(type)"
                                     (click)="viewMode === _mode.all ? addRecipientToAlertRecipients($event, recipient.name, recipient.type) : !recipient.admin ? editRecipientMode($event, recipient) : null"
-                                    [ngClass]="{'no-highlight': viewMode === _mode.edit && type === _recipientType.Email && recipient.admin}">
+                                    [ngClass]="{'no-highlight': viewMode === _mode.edit && type === _recipientType.email && recipient.admin}">
                                     <span class="add-contact">
                                         <mat-icon fontSet="denali" fontIcon="d-add-circle" *ngIf="viewMode === _mode.all"></mat-icon>
                                     </span>

@@ -1,5 +1,7 @@
-import { Component, OnInit, OnDestroy,
-    HostBinding, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import {
+    Component, OnInit, OnDestroy,
+    HostBinding, Input, Output, EventEmitter, ViewChild, ElementRef
+} from '@angular/core';
 
 import { FormBuilder, FormGroup, Validators, FormControl, FormArray } from '@angular/forms';
 import { Subscription, Subject } from 'rxjs';
@@ -22,8 +24,8 @@ import { pairwise, startWith, distinctUntilChanged } from 'rxjs/operators';
 export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
 
     @ViewChild('chartTable') chartTable: MatTable<any>;
-    @ViewChild('tagKeyInput', {read: ElementRef}) tagKeyInput: ElementRef;
-    @ViewChild('tagKeyInput', {read: MatAutocompleteTrigger}) tagKeyACTrigger: MatAutocompleteTrigger;
+    @ViewChild('tagKeyInput', { read: ElementRef }) tagKeyInput: ElementRef;
+    @ViewChild('tagKeyInput', { read: MatAutocompleteTrigger }) tagKeyACTrigger: MatAutocompleteTrigger;
 
     @HostBinding('class.widget-config-tab') private _hostClass = true;
     @HostBinding('class.multigraph-configuration') private _tabClass = true;
@@ -214,7 +216,7 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
 
     addTagKeyChartItem(key: string) {
         const control = <FormArray>this.FC_chart;
-        const chartItem = {key, displayAs: 'g', order: (control['controls'].length - 1)};
+        const chartItem = { key, displayAs: 'g', order: (control['controls'].length - 1) };
         this.addChartItem(chartItem);
     }
 
@@ -232,7 +234,7 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
             const formGroup = <FormGroup>controls[i];
             formGroup.get('order').setValue(i);
         }
-        this.FC_chart.updateValueAndValidity({onlySelf: false, emitEvent: true});
+        this.FC_chart.updateValueAndValidity({ onlySelf: false, emitEvent: true });
     }
 
     setViewportDisplayMode(event: any) {
@@ -247,12 +249,12 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
     }
 
     selectCustomRows(event: any) {
-        this.FC_gridOpts_custom_x.setValue(event.value, { emitEvent: false});
+        this.FC_gridOpts_custom_x.setValue(event.value, { emitEvent: false });
         this.FC_gridOpts_viewportDisplay.setValue('custom');
     }
 
     selectCustomColumns(event: any) {
-        this.FC_gridOpts_custom_y.setValue(event.value, { emitEvent: false});
+        this.FC_gridOpts_custom_y.setValue(event.value, { emitEvent: false });
         this.FC_gridOpts_viewportDisplay.setValue('custom');
     }
 

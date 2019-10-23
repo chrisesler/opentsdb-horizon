@@ -244,7 +244,7 @@ export class DatatranformerService {
                 return (b.config.group < a.config.group ? -1 : b.config.group > a.config.group ? 1 : 0)  || a.config.aggregations[orderBy] - b.config.aggregations[orderBy];
             }
         }).reverse();
-        console.debug(widget.id, "time taken for sorting data series(ms) ", new Date().getTime() - intermediateTime );
+        // console.debug(widget.id, "time taken for sorting data series(ms) ", new Date().getTime() - intermediateTime );
         intermediateTime = new Date().getTime();
         // reset visibility, instead of constantly pushing (which causes it to grow in size if refresh/autorefresh is called)
         options.visibility = [];
@@ -285,7 +285,7 @@ export class DatatranformerService {
                 }
             }
         }
-        console.debug(widget.id, "time taken for finding min, max(ms)", new Date().getTime() - intermediateTime );
+        // console.debug(widget.id, "time taken for finding min, max(ms)", new Date().getTime() - intermediateTime );
 
         if (isStacked) {
             for ( let i = 0; i < stackedYAxes.length; i++ ) {
@@ -322,7 +322,7 @@ export class DatatranformerService {
         if ( options.axes.y2.valueRange[0] !== null && options.axes.y2.valueRange[0] >= y2Max ) {
             options.axes.y2.valueRange[0] = null;
         }
-        console.debug(widget.id, "time taken on data transformer(ms) ", new Date().getTime() - startTime );
+        // console.debug(widget.id, "time taken on data transformer(ms) ", new Date().getTime() - startTime );
         return [...normalizedData];
     }
 
