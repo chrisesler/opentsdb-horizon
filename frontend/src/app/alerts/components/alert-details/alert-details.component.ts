@@ -316,6 +316,10 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['slidingWindow'].setValue(timeInSeconds);
     }
 
+    periodOverPeriodChanged(e) {
+        console.log(e);
+    }
+
     setupForm(data = null) {
         const def = {
                 threshold : { singleMetric: {} },

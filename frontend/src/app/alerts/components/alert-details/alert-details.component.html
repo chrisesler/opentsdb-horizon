@@ -93,7 +93,8 @@
                             </div>
                             
                         <alert-details-metric-period-over-period *ngIf="data.threshold.subType === 'periodOverPeriod'"
-                            [queries]="queries">
+                            [queries]="queries"
+                            (configChange)="periodOverPeriodChanged($event)">
                         </alert-details-metric-period-over-period>
 
                         <span *ngIf="data.threshold.subType === 'singleMetric'">
