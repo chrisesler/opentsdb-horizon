@@ -166,7 +166,6 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
                     distinctUntilChanged(),
                     pairwise()
                 ).subscribe(([prev, changes]: [any, any]) => {
-                    console.log('hill - conf changes', prev, changes);
                     if (this.chartTable && !deepEqual(prev, changes)) {
                         this.chartTable.renderRows();
                         this.widgetChange.emit({
