@@ -26,6 +26,7 @@
 @import './components/alert-details/alert-details.component';
 @import './components/name-alert-dialog/name-alert-dialog.component';
 @import './components/alert-details/children/recipients-manager/recipients-manager.component';
+@import './components/alert-details/children/alert-details-metric-period-over-period-preview/alert-details-metric-period-over-period-preview.component';
 
 // Common classes for widget components
 
@@ -44,6 +45,7 @@
     @include alert-details-component-base();
     @include name-alert-dialog-component-base();
     @include alert-configuration-contacts-component-base();
+    @include alert-details-metric-period-over-period-preview-component-base();
 
 }
 
@@ -62,5 +64,6 @@
     @include alert-details-component-theme($theme-config);
     @include name-alert-dialog-component-theme($theme-config);
     @include alert-configuration-contacts-component-theme($theme-config);
+    @include alert-details-metric-period-over-period-preview-component-theme($theme-config);
 
 }
