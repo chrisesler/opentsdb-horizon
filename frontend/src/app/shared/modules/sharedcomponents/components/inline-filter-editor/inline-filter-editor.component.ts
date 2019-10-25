@@ -15,6 +15,8 @@ import { BehaviorSubject } from 'rxjs';
 import { Subscription } from 'rxjs';
 import { startWith, debounceTime, catchError } from 'rxjs/operators';
 import { HttpService } from '../../../../../core/http/http.service';
+import { MatMenuTrigger } from '@angular/material';
+
 
 @Component({
     // tslint:disable-next-line: component-selector
@@ -31,6 +33,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
     @Output() filterOutput = new EventEmitter();
     @ViewChild('tagValueSearchInput') tagValueSearchInput: ElementRef;
     @ViewChild('tagSearchInput') tagSearchInput: ElementRef;
+    @ViewChild('trigger', { read: MatMenuTrigger }) tagFilterMenuTrigger: MatMenuTrigger;
 
     namespace: string;
     filters: any[];
@@ -317,7 +320,13 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
             const index = this.filters[tagIndex].filter.indexOf(v);
             this.filters[tagIndex].filter[index] = isExclude ? '!' + stripV : stripV ;
         }
+        this.setTagKeys();
         this.queryChanges$.next(true);
+    }
+
+    closeMenu(e) {
+        this.tagFilterMenuTrigger.closeMenu();
+        e.stopPropagation();
     }
 
     isInfilteredKeys(key) {
