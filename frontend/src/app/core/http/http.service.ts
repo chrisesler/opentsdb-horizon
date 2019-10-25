@@ -91,8 +91,16 @@ export class HttpService {
             'Content-Type': 'application/json'
         });
         const newQueryParams = {};
-        for (let i = 0, len = queryObj.metrics.length; i < len; i++) {
-            const res = queryObj.metrics[i].match(this.regexMetricFormat);
+        const namespaces = queryObj.namespaces || [];
+        for (let i = 0, len = namespaces.length; i < len; i++) {
+            const namespace = namespaces[i];
+            if (!newQueryParams[namespace]) {
+                newQueryParams[namespace] = { search: '', namespace: namespace, metrics: [] };
+            }
+        }
+        const metrics = queryObj.metrics || [];
+        for (let i = 0, len = metrics.length; i < len; i++) {
+            const res = metrics[i].match(this.regexMetricFormat);
             const namespace = res[1];
             const metric = res[2] + '.' + res[3];
             if (!newQueryParams[namespace]) {
@@ -190,8 +198,16 @@ export class HttpService {
             'Content-Type': 'application/json'
         });
         const newQueryParams = {};
-        for (let i = 0, len = queryObj.metrics.length; i < len; i++) {
-            const res = queryObj.metrics[i].match(this.regexMetricFormat);
+        const namespaces = queryObj.namespaces || [];
+        for (let i = 0, len = namespaces.length; i < len; i++) {
+            if (!newQueryParams[namespaces[i]]) {
+                newQueryParams[namespaces[i]] = { tagkey: queryObj.tag.key, search: queryObj.tag.value, namespace: namespaces[i], metrics: [] };
+            }
+        }
+
+        const metrics = queryObj.metrics || [];
+        for (let i = 0, len = metrics.length; i < len; i++) {
+            const res = metrics[i].match(this.regexMetricFormat);
             const namespace = res[1];
             const metric = res[2] + '.' + res[3];
             if (!newQueryParams[namespace]) {

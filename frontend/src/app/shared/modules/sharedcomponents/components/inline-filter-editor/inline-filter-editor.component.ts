@@ -42,7 +42,6 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
     tagOptions = [];
     tagFilteredOptions = [];
     filteredTagValues = [];
-    selectedTagIndex = -1;
     selectedTag = '';
     loadFirstTagValues = true;
     tagValueTypeControl = new FormControl('literalor');
@@ -55,7 +54,6 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
     tagValueSub: Subscription;
     visible = false;
     regexVars = /^!?\[.*\]$/;
-    selectedTagValues = []; // to hold list selected values of both filter and customFilter
     constructor(
         private elRef: ElementRef,
         private httpService: HttpService,
@@ -154,7 +152,6 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
                 debounceTime(200)
             )
             .subscribe(value => {
-
                 const query: any = {
                     namespace: this.namespace,
                     // add condition since adding var may not with not existing value so fitler length is zero.
@@ -211,16 +208,8 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
 
     handlerTagClick(tag) {
         this.selectedTag = tag;
-        this.selectedTagIndex = this.getTagIndex(tag);
         this.tagValueTypeControl.setValue('literalor');
         this.tagValueSearchControl.setValue(null);
-        if (this.selectedTagIndex > -1) {
-            if (this.filters[this.selectedTagIndex].customFilter) {
-                this.selectedTagValues = [...this.filters[this.selectedTagIndex].filter, ...this.filters[this.selectedTagIndex].customFilter];
-            } else {
-                this.selectedTagValues = [...this.filters[this.selectedTagIndex].filter];
-            }
-        }
     }
 
     // to remove tag key and all of its values
@@ -299,14 +288,14 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
                 (this.filters[tagIndex].filter.length === 0 &&
                     this.filters[tagIndex].customFilter.length === 0)) {
                 this.filters.splice(tagIndex, 1);
-                tagIndex = -1;
             }
 
         }
-        this.setTagKeys();
-        if (tagIndex > -1) {
-            this.selectedTagValues = [...this.filters[tagIndex].filter, ...this.filters[tagIndex].customFilter];
+
+        if ( tag !== this.selectedTag ) {
+            this.tagValueSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
         }
+        this.setTagKeys();
         this.queryChanges$.next(true);
     }
 
@@ -319,6 +308,9 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
         } else {
             const index = this.filters[tagIndex].filter.indexOf(v);
             this.filters[tagIndex].filter[index] = isExclude ? '!' + stripV : stripV ;
+        }
+        if ( tag !== this.selectedTag ) {
+            this.tagValueSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
         }
         this.setTagKeys();
         this.queryChanges$.next(true);
