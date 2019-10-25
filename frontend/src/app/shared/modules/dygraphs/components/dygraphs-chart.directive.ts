@@ -29,11 +29,13 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
     @Output() zoomed = new EventEmitter;
     @Output() dateWindow = new EventEmitter<any>();
     @Output() currentTickEvent = new EventEmitter<any>();
+    @Output() lastTimeseriesHighlighted = new EventEmitter<any>();
 
     private startTime = 0; // for icon placement
     private _g: any;
     private gDimension: any;
     public dataLoading: boolean;
+    private lastSeriesHighlighted: number = -1;
 
     public labelsDiv: any;
     /* Commenting out for now
@@ -86,7 +88,8 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
 
 
         const self = this;
-        const mouseover = function (e, x, points, row) {
+        const mouseover = function (e, x, points, row, seriesName) {
+            this.lastSeriesHighlighted = seriesName;
 
             /* Commenting out for now
                 will be part of next PR that will improve tooltip movement*/
@@ -147,12 +150,12 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                 });
             }
 
-            // console.log('MOUSEOVER', {event, x, points, row});
+            // console.log('MOUSEOVER', e, {event, x, points, row, seriesName});
 
         };
 
         const clickCallback = function(e, x, points) {
-            // console.log('GRAPH CLICK', {e, x, points, _g: this});
+            // console.log('GRAPH CLICK', this.lastSeriesHighlighted, {e, x, points, _g: this}, this);
 
             // check if tsLegend is configured
             if (Object.keys(self.timeseriesLegend).length > 0) {
@@ -218,6 +221,10 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                     });
                 }
             }
+
+            // emit last time series that was highlighted
+            self.lastTimeseriesHighlighted.emit({ timeSeries: this.lastSeriesHighlighted });
+
         };
 
         // needed to capture start and end times

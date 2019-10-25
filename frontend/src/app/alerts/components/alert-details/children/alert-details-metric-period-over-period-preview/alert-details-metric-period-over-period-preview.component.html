@@ -6,18 +6,23 @@
         [data]="chartData"
         [size]="{'width': size.width/2 - 25, 'height': size.height - 10}"
         [options]="options"
-        (zoomed)="handleZoom($event)">
+        (lastTimeseriesHighlighted)="timeSeriesClicked($event)"
+        (zoomed)="handleZoomQuery($event)">
       </div>
     </div>
     
-    <div class="graph-output">
+    <div class="graph-output" *ngIf="thresholdData && thresholdData.ts">
       <div #dygraph class="chart"
         dygraphsChart
         [chartType]="'line'"
-        [data]="chartData"
+        [data]="thresholdData"
         [size]="{'width': size.width/2 - 25, 'height': size.height - 10}"
-        [options]="options"
-        (zoomed)="handleZoom($event)">
+        [options]="thresholdOptions"
+        (zoomed)="handleZoomThreshold($event)">
       </div>
+    </div>
+
+    <div *ngIf="!thresholdData.ts">
+      <-- Click a line for Threshold Preview
     </div>
 </div>
