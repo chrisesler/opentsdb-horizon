@@ -99,7 +99,7 @@
             </div>
 </div>
 <!-- TAG VALUE ACTION MENU -->
-<mat-menu class="filter-action-cdk-menu" #tagValueActionMenu="matMenu" hasBackdrop="true">
+<mat-menu class="filter-action-cdk-menu" #tagValueActionMenu="matMenu" xPosition="before" hasBackdrop="true">
     <ng-template matMenuContent let-data="data">
         <button mat-menu-item *ngIf="data.value[0] === '!'" (click)="toggleExclude(data.tag, data.value, false);closeMenu($event);">
             <mat-icon></mat-icon>
