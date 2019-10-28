@@ -425,7 +425,7 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
     }
 
     // Helpers
-    typeToDisplayName(type: RecipientType) {
+    typeToDisplayName(type: string) {
         if (type === RecipientType.opsgenie) {
             return 'OpsGenie';
         } else if (type === RecipientType.slack) {

@@ -235,6 +235,9 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
             id: this.widget.id,
             payload: 'edit'
         });
+
+        // if island open, close island
+        this.infoIslandService.closeIsland();
     }
 
     widgetClone() {

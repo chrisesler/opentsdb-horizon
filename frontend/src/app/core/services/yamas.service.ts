@@ -30,6 +30,7 @@ export class YamasService {
     // used to map the sub graphs for use in expressions so we can link to the final
     // function in the list.
     metricSubGraphs: any = new Map();
+    topnPrefix = 'topn-';
 
     constructor( private utils: UtilsService ) { }
 
@@ -46,6 +47,7 @@ export class YamasService {
         this.queries = queries;
         this.metricSubGraphs = new Map();
         const outputIds = [];
+        const outputIdToSummarizer = new Map();
 
         // add metric definitions
         for ( const i in this.queries ) {
@@ -77,9 +79,13 @@ export class YamasService {
                         for (let node of subGraph) {
                             this.transformedQuery.executionGraph.push(node);
                         }
-                        
                         this.metricSubGraphs.set(q.id, subGraph);
-                        outputIds.push(subGraph[subGraph.length - 1].id);
+                        const outputId = subGraph[subGraph.length - 1].id;
+                        outputIds.push(outputId);
+
+                        if (this.queries[i].metrics[j].summarizer) { // build for summarizer (which works with topN)
+                            outputIdToSummarizer[outputId] = this.queries[i].metrics[j].summarizer;
+                        }
                     }
                 }
 
@@ -110,7 +116,12 @@ export class YamasService {
                             this.transformedQuery.executionGraph.push(node);
                         }
                         this.metricSubGraphs.set(q.id, subGraph);
-                        outputIds.push(subGraph[subGraph.length - 1].id);
+                        const outputId = subGraph[subGraph.length - 1].id;
+                        outputIds.push(outputId);
+
+                        if (this.queries[i].metrics[j].summarizer) { // build for summarizer (which works with topN)
+                            outputIdToSummarizer[outputId] = this.queries[i].metrics[j].summarizer;
+                        }
                     }
                 }
             }
@@ -124,13 +135,17 @@ export class YamasService {
                                                             });
         }
 
-        if (sorting && sorting.order && sorting.limit) {
-            this.transformedQuery.executionGraph.push(this.getTopN(sorting.order, sorting.limit, outputIds));
-            this.transformedQuery.executionGraph.push(this.getQuerySummarizer(['topn']));
-        } else {
-            this.transformedQuery.executionGraph.push(this.getQuerySummarizer(outputIds));
+        const summarizerIds = [];
+        for (const id of outputIds) {
+            if (sorting && sorting.order && sorting.limit && outputIdToSummarizer[id]) { // must be sorting and metric has summarizer picked
+                // tslint:disable-next-line:max-line-length
+                this.transformedQuery.executionGraph.push(this.getTopN(sorting.order, sorting.limit, id, outputIdToSummarizer[id]));
+                summarizerIds.push(this.topnPrefix + id);
+            } else {
+                summarizerIds.push(id);
+            }
         }
-
+        this.transformedQuery.executionGraph.push(this.getQuerySummarizer(summarizerIds));
 
         this.transformedQuery.serdesConfigs = [{
             id: 'JsonV3QuerySerdes',
@@ -164,7 +179,7 @@ export class YamasService {
         return q;
     }
 
-    getTopN(order: string, count: number, sources: string[]) {
+    getTopN(order: string, count: number, source: string, aggregator: string) {
 
         let _order = true;  // true is topN
         if (order.toLowerCase() === 'bottom') {
@@ -172,10 +187,10 @@ export class YamasService {
         }
 
         return {
-            'id': 'topn',
+            'id': this.topnPrefix + source,
             'type': 'topn',
-            'sources': sources,
-            'aggregator': this.downsample.aggregator,
+            'sources': [source],
+            'aggregator': aggregator,
             'top': _order,
             'count': count
         };
@@ -486,7 +501,7 @@ export class YamasService {
                 fillPolicy: 'NAN',
                 realFillPolicy: 'NONE'
             }],
-            infectiousNan: true,
+            infectiousNan: false,
             substituteMissing: true,
             variableInterpolators: {},
             sources: sources

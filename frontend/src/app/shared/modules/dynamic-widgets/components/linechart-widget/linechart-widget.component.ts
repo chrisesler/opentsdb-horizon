@@ -1,6 +1,6 @@
 import {
     Component, OnInit, HostBinding, Input, EventEmitter,
-    OnDestroy, ViewChild, ElementRef, ChangeDetectorRef, AfterViewInit, ViewChildren, QueryList, Output
+    OnDestroy, ViewChild, ElementRef, ChangeDetectorRef, AfterViewInit, AfterViewChecked, ViewChildren, QueryList, Output
 } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
@@ -40,9 +40,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
     set editMode(value: boolean) {
         this._editMode = value;
-        if (value === true) {
-            this.iiService.closeIsland();
-        }
     }
     @Input() widget: WidgetModel;
     @Output() widgetOut = new EventEmitter<any>();
@@ -58,7 +55,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     @ViewChild('multigraphHeaderRow', {read: ElementRef}) multigraphHeaderRow: ElementRef;
 
     @ViewChildren('graphLegend', {read: ElementRef}) graphLegends: QueryList<ElementRef>;
-
+    @ViewChildren('graphdiv', { read: ElementRef}) graphdivs: QueryList<ElementRef>;
+    inViewport: any = {};
     private subscription: Subscription = new Subscription();
     isDataLoaded = false;
     private isStackedGraph = false;
@@ -142,7 +140,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     fakeLoopData = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; // eventually remove this
     multigraphColumns: string[] = [];
     freeflowBreak = 1;
-
     graphData: any = {}; // { y: { x: { ts: [[0]] }}};
     graphRowLabelMarginLeft: 0;
 
@@ -322,7 +319,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             let limitGraphs = {};
                             const multiConf = this.multiService.buildMultiConf(this.widget.settings.multigraph);
                             this.multigraphEnabled = (multiConf.x || multiConf.y) ? true : false;
-
                             if (this.multigraphEnabled) {
                                 // disable events and legend
                                 if (this.widget.settings.visual && this.widget.settings.visual.showEvents) {
@@ -344,12 +340,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 const maxCols = colKeys.length <= maxGraphs ? colKeys.length : maxGraphs;
                                 let numOfRows = 1;
                                 if (rowKeys.length * colKeys.length > maxGraphs) {
-                                    if (rowKeys.length < maxGraphs) {
+                                    if (colKeys.length < maxGraphs) {
                                         numOfRows = Math.ceil(maxGraphs / colKeys.length);
-                                    } else {
-                                        numOfRows = maxGraphs;
-                                    }
-                                    // let get maxGraphs
+                                    } 
+                                    // fill up
                                     for (let i = 0; i < numOfRows; i++) {
                                         for (let j = 0; j < maxCols; j++) {
                                             if (!limitGraphs[rowKeys[i]]) {
@@ -366,7 +360,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 } else {
                                     limitGraphs = results;
                                 }
-                                // graphs = this.utilService.deepClone(results);
                                 // we need to convert to dygraph for these multigraph
                                 for (const ykey in limitGraphs) {
                                     if (limitGraphs.hasOwnProperty(ykey)) {
@@ -401,7 +394,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 graphs['y']['x'] = this.data;
                                 limitGraphs = graphs;
                             }
-
                             this.setMultigraphColumns(limitGraphs);
                             this.graphData = {...limitGraphs};
                             if (environment.debugLevel.toUpperCase() === 'TRACE' ||
@@ -420,7 +412,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 if (!this.multigraphEnabled) {
                                     this.legendDataSource.sort = this.sort;
                                 }
+                                // this is for initial load before scroll event on widget
+                                this.applyMultiLazyLoad();
                             });
+                            
                         }
                         break;
                     case 'getUpdatedWidgetConfig':
@@ -1128,8 +1123,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         if ( zConfig.isZoomed && n > 0 ) {
             const startTime = new Date(this.data.ts[0][0]).getTime() / 1000;
             const endTime = new Date(this.data.ts[n - 1][0]).getTime() / 1000;
-            zConfig.start = Math.floor(zConfig.start) <= startTime ? -1 : zConfig.start;
-            zConfig.end = Math.ceil(zConfig.end) >= endTime ? -1 : zConfig.end;
+            zConfig.start = Math.floor(zConfig.start) <= startTime ? -1 : Math.floor(zConfig.start);
+            zConfig.end = Math.ceil(zConfig.end) >= endTime ? -1 : Math.floor(zConfig.end);
         }
         // zoom.start===-1 or zoom.end=== -1, the start or end times will be calculated from the datepicker start or end time
         this.interCom.requestSend({
@@ -1387,12 +1382,18 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     // event listener to multigraph container scroll
     // used to reposition column headers
     multigraphContainerScroll(event: any) {
+        // apply lazy load for graphcell
+               setTimeout(() => {
+                this.applyMultiLazyLoad();
+            }, 300);
+        if (event !== null) {
         // column header row needs to update position
         if (this.multigraphHeaderRow) {
             this.multigraphHeaderRow.nativeElement.style.marginTop = event.target.scrollTop + 'px';
         }
         // update row label marginLeft
         this.graphRowLabelMarginLeft = event.target.scrollLeft;
+    }
     }
 
     /* TIMESERIES LEGEND */
@@ -1468,6 +1469,52 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 payload: payload
             });
         }
+    }
+
+     applyMultiLazyLoad() {
+        this.inViewport = {};
+        let temp = {};
+        const parentElem = this.widgetOutputElement;
+        this.graphdivs.filter( elem => {
+            if (this.inWidgetViewport(parentElem, elem)) {           
+                const [y,x] = elem.nativeElement.id.split('|');
+                if (temp[y] === undefined) {
+                    temp[y] = {};
+                }
+                temp[y][x] = true;
+            }
+            return false;
+        });
+        this.inViewport = {...temp};
+        this.cdRef.detectChanges();
+    }
+
+
+    inWidgetViewport(pElem: ElementRef, elem: ElementRef) {
+        // parent element bounding
+        const pBounding = pElem.nativeElement.getBoundingClientRect();
+        const graphcell = elem.nativeElement.closest('.graph-cell');
+        const cBounding = graphcell.getBoundingClientRect();
+        const inwvp: any = {};
+        
+        const cTopLeft = { x: cBounding.left, y: cBounding.top };
+        const cTopRight = { x: cBounding.right, y: cBounding.top };
+        const cBottomLeft = { x: cBounding.left, y: cBounding.bottom };
+        const cBottomRight = { x: cBounding.right, y: cBounding.bottom };
+        
+        inwvp.topLeft = this.isIn(pBounding, cTopLeft);
+        inwvp.topRight = this.isIn(pBounding, cTopRight);
+        inwvp.bottomLeft = this.isIn(pBounding, cBottomLeft);
+        inwvp.bottomRight = this.isIn(pBounding, cBottomRight);
+
+        return inwvp.topLeft || inwvp.topRight || inwvp.bottomLeft || inwvp.bottomRight;
+    };
+
+    private isIn(pBounding:any, cCord: any) {
+        return cCord.x > pBounding.left && 
+                cCord.x < pBounding.right &&
+                cCord.y > pBounding.top &&
+                cCord.y < pBounding.bottom;
     }
 
     /* ON DESTROY */
