@@ -317,7 +317,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     }
 
     periodOverPeriodChanged(e) {
-        console.log(e);
+        this.data.threshold = {... e};
+        this.data = {... this.data};
     }
 
     setupForm(data = null) {
@@ -472,6 +473,10 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             this.setTags();
             this.refreshChart();
         }));
+
+        if (!this.data.threshold) {
+            this.data.threshold = {};
+        }
     }
 
     setupHealthCheckForm(data = null) {

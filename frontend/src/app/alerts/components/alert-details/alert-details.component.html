@@ -22,12 +22,13 @@
             </event-list>
         </div>
 
-        <div [ngClass]="{'invisible': data.threshold.subType !== 'periodOverPeriod'}">
+        <div [ngClass]="{'invisible': data.type === 'simple' && data.threshold.subType !== 'periodOverPeriod'}">
             <alert-details-metric-period-over-period-preview
                 [chartData]="chartData"
                 [size]="size"
                 [options]="options"
-                [nQueryDataLoading]="nQueryDataLoading">
+                [nQueryDataLoading]="nQueryDataLoading"
+                [thresholdConfig]="data.threshold">
             </alert-details-metric-period-over-period-preview>
         </div>
 
@@ -104,7 +105,8 @@
                             
                         <alert-details-metric-period-over-period *ngIf="data.threshold.subType === 'periodOverPeriod'"
                             [queries]="queries"
-                            (configChange)="periodOverPeriodChanged($event)">
+                            (configChange)="periodOverPeriodChanged($event)"
+                            [config]= "data.threshold">
                         </alert-details-metric-period-over-period>
 
                         <span *ngIf="data.threshold.subType === 'singleMetric'">
