@@ -544,8 +544,8 @@
     // CDK ITEMS
 
     .tag-filters-menu-wrapper.mat-menu-panel {
-        min-width: 600px;
-
+        max-width: 100%;
+        width: calc(100vw - 122px);
         .mat-menu-content:not(:empty) {
             padding: 0px;
         }
