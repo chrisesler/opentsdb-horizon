@@ -299,21 +299,23 @@ export class DashboardService {
       // they do have custom filter mean static filter
       if (qFilter.customFilter && qFilter.customFilter.length > 0) {
         for (let j = 0; j < qFilter.customFilter.length; j++) {
-          const alias = qFilter.customFilter[j].substring(1, qFilter.customFilter[j].length - 1);
+          const hasNot = qFilter.customFilter[j][0] === '!';
+          const alias = qFilter.customFilter[j].substring(hasNot ? 2 : 1, qFilter.customFilter[j].length - 1);
           const tplIdx = tplVariables.findIndex(tpl => tpl.alias === alias);
           if (tplIdx > -1) {
             if (tplVariables[tplIdx].filter.trim() !== '' && qFilter.filter.indexOf(tplVariables[tplIdx].filter) === -1) {
-              qFilter.filter.push(tplVariables[tplIdx].filter);
+              qFilter.filter.push(hasNot ? '!' + tplVariables[tplIdx].filter : tplVariables[tplIdx].filter);
             }
           }
         }
       } else if (qFilter.dynamicFilter && qFilter.dynamicFilter.length > 0) {
         for (let j = 0; j < qFilter.dynamicFilter.length; j++) {
-          const alias = qFilter.dynamicFilter[j].substring(1, qFilter.dynamicFilter[j].length - 1);
+          const hasNot = qFilter.dynamicFilter[j][0] === '!';
+          const alias = qFilter.dynamicFilter[j].substring(hasNot ? 2 : 1, qFilter.dynamicFilter[j].length - 1);
           const tplIdx = tplVariables.findIndex(tpl => tpl.alias === alias);
           if (tplIdx > -1) {
             if (tplVariables[tplIdx].filter !== '' && qFilter.filter.indexOf(tplVariables[tplIdx].filter) === -1) {
-              qFilter.filter.push(tplVariables[tplIdx].filter);
+              qFilter.filter.push( hasNot ? '!' + tplVariables[tplIdx].filter : tplVariables[tplIdx].filter );
             }
           }
         }

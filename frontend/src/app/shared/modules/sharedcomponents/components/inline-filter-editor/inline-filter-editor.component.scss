@@ -213,7 +213,43 @@
                     flex-direction: column;
                     align-items: stretch;
                     justify-content: stretch;
-                    max-width: 33.333333%
+                    max-width: 200px;
+                }
+
+                .tag-filter-options-column:last-child {
+                    min-width: calc(100% - 400px);
+                    .tag-value-list-item:not(:last-of-type) {
+                        border-bottom: 1px solid #efefef;
+                    }
+                    .mat-chip-list-wrapper {
+                        margin: 0px;
+                    }
+                    .mat-chip {
+                        font-weight: 300;
+                    }
+                    .mat-standard-chip {
+                        background: #eaf1fb;
+                        margin: 2px;
+                        min-height: 25px;
+                        padding: 5px 8px;
+                    }
+                    .prefix.mat-icon{
+                        width: 5px;
+                        height: 5px;
+                        font-size: 5px;
+                        color: #03a9f4;
+                        margin-right: 2px;
+                    }
+                    .prefix.not {
+                        margin-right: 2px;
+                    }
+
+                    .mat-icon {
+                        width: 15px;
+                        height: 15px;
+                        font-size: 15px;
+                    }
+
                 }
 
                 .tag-search-input-field {
