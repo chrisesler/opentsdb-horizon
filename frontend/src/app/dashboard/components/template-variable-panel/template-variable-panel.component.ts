@@ -43,6 +43,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     disableDone = false;
     trackingSub: any = {};
 
+    selectedNamespaces: any[] = [];
+
     constructor (
         private fb: FormBuilder,
         private interCom: IntercomService,
