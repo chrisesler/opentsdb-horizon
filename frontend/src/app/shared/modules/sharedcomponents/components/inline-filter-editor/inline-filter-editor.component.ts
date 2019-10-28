@@ -15,6 +15,8 @@ import { BehaviorSubject } from 'rxjs';
 import { Subscription } from 'rxjs';
 import { startWith, debounceTime, catchError } from 'rxjs/operators';
 import { HttpService } from '../../../../../core/http/http.service';
+import { MatMenuTrigger } from '@angular/material';
+
 
 @Component({
     // tslint:disable-next-line: component-selector
@@ -31,6 +33,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
     @Output() filterOutput = new EventEmitter();
     @ViewChild('tagValueSearchInput') tagValueSearchInput: ElementRef;
     @ViewChild('tagSearchInput') tagSearchInput: ElementRef;
+    @ViewChild('trigger', { read: MatMenuTrigger }) tagFilterMenuTrigger: MatMenuTrigger;
 
     namespace: string;
     filters: any[];
@@ -39,7 +42,6 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
     tagOptions = [];
     tagFilteredOptions = [];
     filteredTagValues = [];
-    selectedTagIndex = -1;
     selectedTag = '';
     loadFirstTagValues = true;
     tagValueTypeControl = new FormControl('literalor');
@@ -51,8 +53,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
     tagKeySub: Subscription;
     tagValueSub: Subscription;
     visible = false;
-    regexVars = /^\[.*\]$/;
-    selectedTagValues = []; // to hold list selected values of both filter and customFilter
+    regexVars = /^!?\[.*\]$/;
     constructor(
         private elRef: ElementRef,
         private httpService: HttpService,
@@ -151,7 +152,6 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
                 debounceTime(200)
             )
             .subscribe(value => {
-
                 const query: any = {
                     namespace: this.namespace,
                     // add condition since adding var may not with not existing value so fitler length is zero.
@@ -208,16 +208,8 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
 
     handlerTagClick(tag) {
         this.selectedTag = tag;
-        this.selectedTagIndex = this.getTagIndex(tag);
         this.tagValueTypeControl.setValue('literalor');
         this.tagValueSearchControl.setValue(null);
-        if (this.selectedTagIndex > -1) {
-            if (this.filters[this.selectedTagIndex].customFilter) {
-                this.selectedTagValues = [...this.filters[this.selectedTagIndex].filter, ...this.filters[this.selectedTagIndex].customFilter];
-            } else {
-                this.selectedTagValues = [...this.filters[this.selectedTagIndex].filter];
-            }
-        }
     }
 
     // to remove tag key and all of its values
@@ -243,9 +235,9 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
         let tagValueIndex = -1;
         let varValueIndex = -1;
         if (tagIndex !== -1) {
-            tagValueIndex = this.filters[tagIndex].filter.indexOf(v);
+            tagValueIndex = this.filters[tagIndex].filter.findIndex(d => { d = d[0] === '!' ? d.substr(1) : d; return d === v; });
             if (this.filters[tagIndex].customFilter) {
-                varValueIndex = this.filters[tagIndex].customFilter.indexOf(v);
+                varValueIndex = this.filters[tagIndex].customFilter.findIndex(d => { d = d[0] === '!' ? d.substr(1) : d; return d === v; });
             }
         }
         if (tagValueIndex === -1 && varValueIndex === -1) {
@@ -259,51 +251,74 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
         let v = this.tagValueSearchControl.value.trim();
         if (this.tagValueTypeControl.value === 'regexp' && v) {
             v = 'regexp(' + v + ')';
-            this.updateTagValueSelection(v, 'add');
+            this.updateTagValueSelection(this.selectedTag, v, 'add');
             this.tagValueSearchControl.setValue(null);
         }
     }
 
-    updateTagValueSelection(v, operation) {
+    updateTagValueSelection(tag, v, operation) {
+        let tagIndex = this.getTagIndex(tag);
         v = v.trim();
-        if (this.selectedTagIndex === -1 && operation === 'add') {
-            this.selectedTagIndex = this.filters.length;
+        if (tagIndex === -1 && operation === 'add') {
+            tagIndex = this.filters.length;
             const filter: any = { tagk: this.selectedTag, filter: [], customFilter: [] };
             filter.groupBy = false;
-            this.filters[this.selectedTagIndex] = filter;
+            this.filters[tagIndex] = filter;
         }
 
         if (operation === 'add') {
             const checkVar = this.regexVars.test(v);
             if (checkVar) {
-                this.filters[this.selectedTagIndex].customFilter ?
-                this.filters[this.selectedTagIndex].customFilter.push(v) :
-                this.filters[this.selectedTagIndex].customFilter = [v];
+                this.filters[tagIndex].customFilter ?
+                this.filters[tagIndex].customFilter.push(v) :
+                this.filters[tagIndex].customFilter = [v];
             } else {
-                this.filters[this.selectedTagIndex].filter.push(v);
+                this.filters[tagIndex].filter.push(v);
             }
-        } else if (this.selectedTagIndex !== -1 && operation === 'remove') {
+        } else if (tagIndex !== -1 && operation === 'remove') {
             if (this.regexVars.test(v)) {
-                const varIndex = this.filters[this.selectedTagIndex].customFilter.indexOf(v);
-                this.filters[this.selectedTagIndex].customFilter.splice(varIndex, 1);
+                const varIndex = this.filters[tagIndex].customFilter.indexOf(v);
+                this.filters[tagIndex].customFilter.splice(varIndex, 1);
             } else {
-                const index = this.filters[this.selectedTagIndex].filter.indexOf(v);
-                this.filters[this.selectedTagIndex].filter.splice(index, 1);
+                const index = this.filters[tagIndex].filter.indexOf(v);
+                this.filters[tagIndex].filter.splice(index, 1);
             }
 
-            if ( (this.filters[this.selectedTagIndex].filter.length === 0 && !this.filters[this.selectedTagIndex].customFilter) ||
-                (this.filters[this.selectedTagIndex].filter.length === 0 &&
-                    this.filters[this.selectedTagIndex].customFilter.length === 0)) {
-                this.filters.splice(this.selectedTagIndex, 1);
-                this.selectedTagIndex = -1;
+            if ( (this.filters[tagIndex].filter.length === 0 && !this.filters[tagIndex].customFilter) ||
+                (this.filters[tagIndex].filter.length === 0 &&
+                    this.filters[tagIndex].customFilter.length === 0)) {
+                this.filters.splice(tagIndex, 1);
             }
 
+        }
+
+        if ( tag !== this.selectedTag ) {
+            this.tagValueSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
         }
         this.setTagKeys();
-        if (this.selectedTagIndex > -1) {
-            this.selectedTagValues = [...this.filters[this.selectedTagIndex].filter, ...this.filters[this.selectedTagIndex].customFilter];
-        }
         this.queryChanges$.next(true);
+    }
+
+    toggleExclude(tag, v, isExclude) {
+        const stripV = v[0] === '!' ? v.substr(1) : v;
+        const tagIndex = this.getTagIndex(tag);
+        if (this.regexVars.test(v)) {
+            const index = this.filters[tagIndex].customFilter.indexOf(v);
+            this.filters[tagIndex].customFilter[index] = isExclude ? '!' + stripV : stripV ;
+        } else {
+            const index = this.filters[tagIndex].filter.indexOf(v);
+            this.filters[tagIndex].filter[index] = isExclude ? '!' + stripV : stripV ;
+        }
+        if ( tag !== this.selectedTag ) {
+            this.tagValueSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+        }
+        this.setTagKeys();
+        this.queryChanges$.next(true);
+    }
+
+    closeMenu(e) {
+        this.tagFilterMenuTrigger.closeMenu();
+        e.stopPropagation();
     }
 
     isInfilteredKeys(key) {
