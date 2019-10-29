@@ -22,7 +22,8 @@
         }
 
         td {
-            padding: 0 4px;
+            padding: 4px;
+            vertical-align: center;
 
             &:first-child {
                 padding-left: 0;
@@ -47,9 +48,11 @@
 
 
 
+        /*
         tbody tr:first-child td {
             padding-top: 4px;
-        }
+
+        }*/
 
         /* TODO: possible remove when done
         span.actionslist {
@@ -83,7 +86,7 @@
             display: flex;
             flex-direction: column;
             // padding: 0 6px 4px 6px;
-            padding: 4px 0;
+            padding: 6px 0;
             flex: 1;
             // box-shadow: inset 0 50px 0 rgba(0,0,0,0.05);
         }
@@ -92,17 +95,25 @@
             display: flex;
             flex: 1;
 
+            .column-title {
+                margin-bottom: 6px;
+            }
+
             .namespace-column,
             .filters-column {
                 display: flex;
                 flex-direction: column;
-                padding: 6px 10px 10px 10px;
+                padding: 10px 16px 16px 16px;
             }
 
             .namespace-column {
-                max-width: 200px;
-                min-width: 200px;
-                flex: 1 1 200px;
+                max-width: 300px;
+                min-width: 300px;
+                flex: 1 1 300px;
+
+                .mat-form-field {
+                    width: 100%;
+                }
             }
 
             .filters-column {
@@ -202,6 +213,11 @@
                         display: flex;
                     }
 
+                    .add-to-button,
+                    .remove-from-button {
+                        padding: 0 10px;
+                    }
+
                     // TODO: May remove the next 3 blocks
                     .affected-count {
                         margin-right: 12px;
@@ -218,6 +234,18 @@
                     }
                 }
 
+                &.error-control {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    .errors {
+                        display: flex;
+                        align-items: stretch;
+                        justify-content: center;
+                    }
+                }
+
                 &.filter-mode-control {
                     display: inline-flex;
                     align-items: center;
@@ -225,13 +253,15 @@
                     border-bottom: 0 !important;
                     padding: 0 2px;
                     display: inline-block;
+                    margin-top: 3px;
 
                     .sliding-toggle-group {
                         padding: 0 2px;
 
+
                         .mat-tab-link {
                             font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
-                            height: 24px;
+                            height: 31px;
                             padding: 0 4px;
                             min-width: 50px;
                             opacity: 1;
@@ -253,7 +283,7 @@
                         }
 
                         .mat-ink-bar {
-                            height: 20px;
+                            height: 27px;
                             bottom: 2px;
                             border-radius: 4px;
                         }
@@ -290,7 +320,7 @@
             flex: 1;
             width: 100%;
             max-width: 100%;
-            padding: 6px;
+            padding: 8px 10px 4px 10px;
 
             .edit-actions {
 
@@ -353,9 +383,7 @@
 
         /* list-view controls */
 
-        .variable-list-wrapper {
-
-        }
+        // .variable-list-wrapper { }
 
         .variable-form-wrapper {
             .namespace-column {
