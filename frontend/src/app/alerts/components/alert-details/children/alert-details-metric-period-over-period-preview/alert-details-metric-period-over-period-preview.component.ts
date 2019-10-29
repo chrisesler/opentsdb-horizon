@@ -25,7 +25,7 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.timeseriesIndex >= 0 && this.thresholdConfig && this.thresholdConfig.singleMetric && this.thresholdData) {
-      this.thresholdData = this.getThresholdData(this.chartData.ts, this.timeseriesIndex);
+      // this.thresholdData = this.getThresholdData(this.chartData.ts, this.timeseriesIndex);
     }
   }
 
@@ -36,9 +36,35 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
   timeSeriesClicked(e) {
     this.timeseriesIndex = parseInt(e.timeSeries, 10);
     this.thresholdOptions = {...this.options};
-    this.thresholdOptions.labels = ['x', e.timeSeries, 'observed', 'lowerBad', 'lowerWarning', 'upperWarning', 'upperBad'];
+    // this.thresholdOptions.labels = ['x', e.timeSeries, 'observed', 'lowerBad', 'lowerWarning', 'upperWarning', 'upperBad'];
+    this.thresholdOptions.labels = ['x', '1', '2', '3', '4', '5', '6'];
     this.thresholdOptions.thresholds = [];
     this.thresholdOptions.visibility = ['true', 'true', 'true', 'true', 'true', 'true', 'true'];
+    this.thresholdOptions.series = this.getSeriesOptions(this.options.series[this.timeseriesIndex]);
+    this.thresholdData = this.getThresholdData(this.chartData.ts, this.timeseriesIndex);
+  }
+
+  getSeriesOptions(selectedTimeSeriesOption) {
+    const series = {};
+    const baseOption = {...selectedTimeSeriesOption};
+
+    series[1] = {...selectedTimeSeriesOption};
+    series[2] = this.setLabelAndColor(baseOption, 'Expected_Value', '#000000');
+    series[3] = this.setLabelAndColor(baseOption, 'Upper_Bad_Threshold', '#ff0000');
+    series[4] = this.setLabelAndColor(baseOption, 'Upper_Warning_Threshold', '#ffa500');
+    series[5] = this.setLabelAndColor(baseOption, 'Lower_Warning_Threshold', '#ffa500');
+    series[6] = this.setLabelAndColor(baseOption, 'Lower_Bad_Threshold', '#ff0000');
+    return series;
+  }
+
+  setLabelAndColor(option, label: string, color: string) {
+    const optionCopy = {...option};
+    optionCopy.tags = {metric: label};
+    optionCopy.label = label;
+    optionCopy.metric = label;
+    optionCopy.hash = label;
+    optionCopy.color = color;
+    return optionCopy;
   }
 
   getThresholdData(allTimeSeries, timeSeriesIndex) {
@@ -46,10 +72,10 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
     const selectedTimeseries: any[] = this.getSelectedTimeSeries(allTimeSeries, timeSeriesIndex);
     const expectedTimeSeries: any[] = this.getExpectedTimeSeries(selectedTimeseries);
     // tslint:disable:max-line-length
-    const lowerBadTimeSeries: any[] = this.getThresholdTimeSeries(expectedTimeSeries, parseFloat(this.thresholdConfig.singleMetric.badLowerThreshold), this.thresholdConfig.singleMetric.lowerThresholdType, 'below');
-    const lowerWarningTimeSeries: any[] = this.getThresholdTimeSeries(expectedTimeSeries, parseFloat(this.thresholdConfig.singleMetric.warnLowerThreshold), this.thresholdConfig.singleMetric.lowerThresholdType, 'below');
-    const upperWarningTimeSeries: any[] = this.getThresholdTimeSeries(expectedTimeSeries, parseFloat(this.thresholdConfig.singleMetric.warnUpperThreshold), this.thresholdConfig.singleMetric.upperThresholdType, 'above');
     const upperBadTimeSeries: any[] = this.getThresholdTimeSeries(expectedTimeSeries, parseFloat(this.thresholdConfig.singleMetric.badUpperThreshold), this.thresholdConfig.singleMetric.upperThresholdType, 'above');
+    const upperWarningTimeSeries: any[] = this.getThresholdTimeSeries(expectedTimeSeries, parseFloat(this.thresholdConfig.singleMetric.warnUpperThreshold), this.thresholdConfig.singleMetric.upperThresholdType, 'above');
+    const lowerWarningTimeSeries: any[] = this.getThresholdTimeSeries(expectedTimeSeries, parseFloat(this.thresholdConfig.singleMetric.warnLowerThreshold), this.thresholdConfig.singleMetric.lowerThresholdType, 'below');
+    const lowerBadTimeSeries: any[] = this.getThresholdTimeSeries(expectedTimeSeries, parseFloat(this.thresholdConfig.singleMetric.badLowerThreshold), this.thresholdConfig.singleMetric.lowerThresholdType, 'below');
 
     let index = 0;
     for (const timePoints of allTimeSeries) {
@@ -58,10 +84,10 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
       timePointsArray.push(timePoints[0]);
       timePointsArray.push(selectedTimeseries[index]);
       timePointsArray.push(expectedTimeSeries[index]);
-      timePointsArray.push(lowerBadTimeSeries[index]);
-      timePointsArray.push(lowerWarningTimeSeries[index]);
-      timePointsArray.push(upperWarningTimeSeries[index]);
       timePointsArray.push(upperBadTimeSeries[index]);
+      timePointsArray.push(upperWarningTimeSeries[index]);
+      timePointsArray.push(lowerWarningTimeSeries[index]);
+      timePointsArray.push(lowerBadTimeSeries[index]);
 
       data.push(timePointsArray);
       index++;
