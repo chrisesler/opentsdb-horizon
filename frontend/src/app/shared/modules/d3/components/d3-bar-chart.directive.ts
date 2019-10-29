@@ -41,15 +41,19 @@ export class D3BarChartDirective implements OnInit, OnChanges {
     chartHeight = chartHeight > this.size.height || !this.size.height ? chartHeight : this.size.height - 7; // -7 avoids the scrollbar
     const chartAreaHeight = chartHeight - margin.top - margin.bottom;
 
-    const min = dataset.length ? d3.min(dataset, (d: any) => Number(d.value)) : 0;
-    const max = dataset.length ? d3.max(dataset, (d: any) => Number(d.value)) : 0;
     // const refValue = min >=0  ? Math.pow(10, Math.floor(Math.log10(max))) : 1;
     // const formatter = d3.formatPrefix(".2s", refValue);
     const unitOptions = this.options.format;
     const tooltipUnitOptions = this.utils.deepClone(this.options.format);
     unitOptions.precision = 2;
     tooltipUnitOptions.precision = 'auto';
-    const dunit = this.unitService.getNormalizedUnit(max, unitOptions);
+    let longText = '';
+    // const dunit = this.unitService.getNormalizedUnit(max, unitOptions);
+    for ( let i = 0, len = dataset.length; i < len; i++ ) {
+      // tslint:disable-next-line: max-line-length
+      dataset[i].formattedValue = this.unitService.convert(dataset[i].value, unitOptions.unit, this.unitService.getNormalizedUnit(dataset[i].value, unitOptions), unitOptions);
+      longText = longText.length > dataset[i].formattedValue.length ? longText : dataset[i].formattedValue;
+    }
     const self = this;
     const mousemove = function (d) {
       const containerPos = self.element.nativeElement.parentNode.parentNode.getBoundingClientRect();
@@ -88,7 +92,7 @@ export class D3BarChartDirective implements OnInit, OnChanges {
     const barHeight = y.bandwidth();
     const yAxis = d3.axisLeft(y)
       .tickSize(0)
-      .tickFormat((d, i) => self.unitService.convert(dataset[i].value, unitOptions.unit, self.unitService.getNormalizedUnit(dataset[i].value, unitOptions), unitOptions));
+      .tickFormat((d: any, i) => dataset[i].formattedValue);
 
 
     let svg = this.host.select('svg');
@@ -102,14 +106,13 @@ export class D3BarChartDirective implements OnInit, OnChanges {
       // .style('width', (this.size.width - margin.left - margin.right) + 'px')
       .style('height', chartHeight + 'px');
 
-
     // rerendering causing issue as we clear the chart container. the svg container is not available to calculate the yaxis label width
     setTimeout(() => {
       svg.selectAll('*').remove();
       // calculate the max label length and remove
       svg.append("text").attr("class", "axisLabel")
-        .text(self.unitService.convert(max, unitOptions.unit, dunit, unitOptions))
-        .each(function () { yAxisWidth = this.getBBox().width; labelHeight = Math.floor(this.getBBox().height); })
+        .text(longText)
+        .each(function () { console.log("longtext2"); yAxisWidth = this.getBBox().width; labelHeight = Math.floor(this.getBBox().height); })
         .remove();
       const fontSize = barHeight >= labelHeight ? '1em' : barHeight * 0.75 + 'px'; //y.bandwidth()  * 0.4 + "px";
       const chartAreawidth = this.size.width - yAxisWidth - margin.left - margin.right;
