@@ -123,7 +123,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             const vardata = {
                 tagk: new FormControl((data.tagk) ? data.tagk : '', []),
                 alias: new FormControl((data.alias) ? data.alias : '', []),
-                filter: new FormControl((data.filter) ? data.filter : '', [])
+                filter: new FormControl((data.filter) ? data.filter : '', []),
+                mode: new FormControl((data.mode) ? data.mode : 'auto')
             };
             const control = <FormArray>this.listForm.controls['listVariables'];
             control.push(this.fb.group(vardata));
@@ -186,7 +187,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         const varData = {
             tagk: new FormControl((data.tagk) ? data.tagk : '', [Validators.required]),
             alias: new FormControl((data.alias) ? data.alias : '', [Validators.required]),
-            filter: new FormControl((data.filter) ? data.filter : '', [])
+            filter: new FormControl((data.filter) ? data.filter : '', []),
+            mode: new FormControl((data.mode) ? data.mode : 'auto')
         };
         const control = <FormArray>this.editForm.controls['formTplVariables'];
         control.push(this.fb.group(varData));
@@ -417,6 +419,21 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             // 40 is padding and such
             return (prefixWidth + inputWidth + 40) + 'px';
         }
+    }
+
+    addFilterToAll(index: any) {
+      // add filter to all
+    }
+
+    removeFilterFromAll(index: any) {
+      // remove filter from all
+    }
+
+    switchFilterMode(mode: string, index: any) {
+      // console.log('EDIT FORM', this.editForm);
+      const control = <FormArray>this.editForm.controls['formTplVariables'];
+      const controlItem = control.at(index);
+      controlItem.get('mode').setValue(mode);
     }
 
     ngOnDestroy() {

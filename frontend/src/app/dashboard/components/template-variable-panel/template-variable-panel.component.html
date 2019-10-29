@@ -36,7 +36,7 @@
                 <div class="column-title">Namespaces</div>
                 <div class="namespace-input">
                     <mat-form-field appearance="fill" color="primary" floatLabel="never">
-                        <input matInput placeholder="Enter namespace">
+                        <input matInput placeholder="Enter namespace" autocomplete="off">
                     </mat-form-field>
                 </div>
             </div>
@@ -51,8 +51,93 @@
                             <th>Name</th>
                             <th>Default value (optional)</th>
                             <th>Actions</th>
+                            <th><!--empty for trash--></th>
                         </tr>
                     </thead>
+                    <tbody>
+                        <tr *ngFor="let tpl of formTplVariables.controls; let i=index" [formGroupName]="i" class="variable-edit-controls">
+                            <!-- auto/manu toggle (TODO: still have to style) -->
+                            <td>
+                                <div class="settings-control filter-mode-control">
+                                    <nav mat-tab-nav-bar class="sliding-toggle-group">
+                                        <a mat-tab-link
+                                            [active]="tpl.get('mode').value === 'auto'"
+                                            (click)="switchFilterMode('auto', i)">
+                                            Auto
+                                        </a>
+                                        <a mat-tab-link
+                                            [active]="tpl.get('mode').value === 'manual'"
+                                            (click)="switchFilterMode('manual',i)">
+                                            Manual
+                                        </a>
+                                    </nav>
+                                </div>
+                            </td>
+                            <!-- tag key -->
+                            <td>
+                                <div class="settings-control tag-key-control">
+                                    <mat-form-field appearance="fill" color="primary" floatLabel="never">
+                                        <input matInput placeholder="Enter tag key" formControlName="tagk"
+                                            [matAutocomplete]="filterKeyAuto" (focus)="onInputFocus('tagk', i)"
+                                            (blur)="onInputBlur('tagk', i)" (keydown.enter) ="onInputBlur('tagk', i)" autocomplete="off">
+                                        <mat-autocomplete #filterKeyAuto="matAutocomplete" (optionSelected)="selectTagKeyOption($event, i)" panelWidth="auto">
+                                            <mat-option *ngFor="let option of filteredKeyOptions | async" [value]="option">
+                                                {{option}}
+                                            </mat-option>
+                                        </mat-autocomplete>
+                                    </mat-form-field>
+                                </div>
+                            </td>
+                            <!-- filter alias/name -->
+                            <td>
+                                <div class="settings-control alias-control" style="min-width: 100px; width: 100%;">
+                                    <mat-form-field appearance="fill" color="primary" floatLabel="never" style="width: 100%;" >
+                                        <input matInput placeholder="Enter name/alias" formControlName="alias" (blur)="onInputBlur('alias', i)" (focus)="onInputFocus('alias', i)" autocomplete="off">
+                                    </mat-form-field>
+                                </div>
+                            </td>
+                            <!-- default value -->
+                            <td>
+                                <div class="settings-control values-control">
+                                    <mat-form-field appearance="fill" color="primary" floatLabel="never" style="width: 300px;">
+                                        <input matInput placeholder="Enter default value" formControlName="filter"
+                                            (focus)="onInputFocus('filter', i)" (blur)="onInputBlur('filter', i)" (keydown.enter) ="onInputBlur('filter', i)" [matAutocomplete]="filterValueAuto">
+                                        <mat-autocomplete #filterValueAuto="matAutocomplete" (optionSelected)="selectFilterValueOption($event, i)" panelWidth="auto">
+                                            <mat-option *ngFor="let option of filteredValueOptions[i]" [value]="option">
+                                                {{option}}
+                                            </mat-option>
+                                        </mat-autocomplete>
+                                    </mat-form-field>
+                                </div>
+                            </td>
+                            <!-- filter actions -->
+                            <td>
+                                <div class="settings-control actions-control">
+                                    <div class="auto-message" *ngIf="tpl.get('mode').value === 'auto'">
+                                        <span>Automatically applied to queries</span>
+                                    </div>
+                                    <div class="actions" *ngIf="tpl.get('mode').value === 'manual'">
+                                        <button mat-button class="add-to-button" color="primary" (click)="addFilterToAll(i)">
+                                            <span>Add to all</span>
+                                        </button>
+                                        <button mat-button class="remove-from-button" color="primary" (click)="removeFilterFromAll(i)">
+                                            <span>Remove from all</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+                            <!-- trash filter -->
+                            <td>
+                                <div class="settings-control actions-control">
+                                    <div class="actions">
+                                        <button mat-icon-button class="delete-variable-button" color="primary" (click)="removeTemplateVariable(i)">
+                                            <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
                 </table>
                 <div class="new-tag-filter" *ngIf="selectedNamespaces.length > 0">
                     <button mat-button [disabled]="formTplVariables.invalid" class="add-template-button" color="primary" (click)="addVariableTemplate()">
