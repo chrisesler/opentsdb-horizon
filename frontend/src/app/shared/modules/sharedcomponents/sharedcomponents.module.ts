@@ -55,7 +55,6 @@ import { TagAggregatorComponent } from './components/tag-aggregator/tag-aggregat
 import { TagGroupbyComponent } from './components/tag-groupby/tag-groupby.component';
 import { WidgetConfigSortingComponent } from './components/widget-config-sorting/widget-config-sorting.component';
 import { ConditionalFormatterComponent } from './components/conditional-formatter/conditional-formatter.component';
-import { QueryEditorFlatComponent } from './components/query-editor-flat/query-editor-flat.component';
 import { QueryEditorProtoComponent } from './components/query-editor-proto/query-editor-proto.component';
 import { InlineFilterEditorComponent } from './components/inline-filter-editor/inline-filter-editor.component';
 import { MetricAutocompleteComponent } from './components/metric-autocomplete/metric-autocomplete.component';
@@ -118,7 +117,6 @@ import { TimeSelectorComponent } from './components/time-selector/time-selector.
         TagGroupbyComponent,
         WidgetConfigSortingComponent,
         ConditionalFormatterComponent,
-        QueryEditorFlatComponent,
         QueryEditorProtoComponent,
         InlineFilterEditorComponent,
         MetricAutocompleteComponent,
