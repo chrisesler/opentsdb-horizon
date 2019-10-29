@@ -287,10 +287,12 @@ export class YamasService {
     }
 
     handleRateFunction(qindex, index, subGraph, funs, i) {
+        const rates = funs[i].val.split(',');
         var func = {
             'id': this.generateNodeId('q' + qindex + '_m' + index + '-rate', subGraph),
             'type': 'rate',
-            'interval': funs[i].val,
+            'interval': rates[0],
+            'dataInterval': rates.length > 1 ? rates[1] : null,
             'counter': false,
             'dropResets': false,
             'deltaOnly': false,
