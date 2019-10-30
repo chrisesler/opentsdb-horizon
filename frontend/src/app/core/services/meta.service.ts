@@ -31,7 +31,7 @@ export class MetaService {
         metaQuery.aggregationField =  params[i].tagkey;
         filters.push({
           type: 'TagValueRegex',
-          filter: this.utilsService.convertPatternTSDBCompat(params[i].search),
+          filter: this.utilsService.convertPattern(params[i].search),
           tagKey: params[i].tagkey
         });
       }
@@ -39,7 +39,7 @@ export class MetaService {
         case 'METRICS':
           filters.push({
             'type': 'MetricRegex',
-            'metric': this.utilsService.convertPatternTSDBCompat(params[i].search)
+            'metric': this.utilsService.convertPattern(params[i].search)
           });
           break;
 
@@ -48,7 +48,7 @@ export class MetaService {
             if ( mSource === 'meta' ) {
               filters.push({
                 'type': 'TagKeyRegex',
-                'filter': this.utilsService.convertPatternTSDBCompat(params[i].search)
+                'filter': this.utilsService.convertPattern(params[i].search)
               });
             }
           break;
