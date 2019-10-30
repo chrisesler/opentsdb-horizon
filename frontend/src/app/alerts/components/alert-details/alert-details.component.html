@@ -425,7 +425,11 @@
                                 </div>
                             </div>
 
-                            <alert-details-transitions *ngIf="data.threshold.subType === 'periodOverPeriod'">
+                            <alert-details-transitions *ngIf="data.threshold.subType === 'periodOverPeriod'"
+                              [showWarn]="'true'"
+                              [enabledTransitions]="periodOverPeriodTransitionsEnabled"
+                              [selectedTransitions]="periodOverPeriodTransitionsSelected"
+                              (newEnabledTransitions)="periodOverPeriodSelectedTransitionsChanged($event)">
                             </alert-details-transitions>
 
                             <!-- TODO: add the grouping rules control here -->

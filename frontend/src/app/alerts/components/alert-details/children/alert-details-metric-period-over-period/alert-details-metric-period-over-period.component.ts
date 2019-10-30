@@ -26,7 +26,7 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
 
     if (!this.config || !this.config.singleMetric) {
       this.setDefaultConfig();
-      this.configChange.emit({...this.config});
+      this.configChange.emit({thresholdChanged: false, config: {...this.config}});
     }
   }
 
@@ -58,12 +58,16 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
   }
 
   updateConfig(prop, val) {
+    let thresholdChanged = false;
     if (prop === 'delayEvaluation') {
       this.config[prop] = val;
     } else {
       this.config.singleMetric[prop] = val;
     }
-    this.configChange.emit(this.config);
+    if (prop === 'badUpperThreshold' || prop === 'warnUpperThreshold' || prop === 'badLowerThreshold' || prop === 'warnLowerThreshold') {
+      thresholdChanged = true;
+    }
+    this.configChange.emit({thresholdChanged, config: {...this.config}});
   }
 
 }

@@ -1,5 +1,4 @@
-import { Component, OnInit, Input, Output } from '@angular/core';
-import { EventEmitter } from 'events';
+import { Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -11,12 +10,12 @@ export class AlertDetailsTransitionsComponent implements OnInit {
 
   constructor() { }
 
-  @Input() allowWarn: boolean;
-  @Input() allowComposite: boolean;
-  @Input() allowUnknown: boolean;
+  @Input() showWarn: boolean;
+  @Input() showComposite: boolean;
+  @Input() showUnknown: boolean;
 
   @Input() selectedTransitions;
-  @Input() disabledTransitions;
+  @Input() enabledTransitions;
 
   @Output() newEnabledTransitions = new EventEmitter();
 
@@ -27,7 +26,7 @@ export class AlertDetailsTransitionsComponent implements OnInit {
     'WarnToBad' : 'Warn to Bad',
     'GoodToWarn' : 'Good to Warn',
     'BadToWarn' : 'Bad to Warn',
-    'GoodToGood' : 'Good to Good',
+    'WarnToWarn' : 'Warn to Warn',
     'BadToBad' : 'Bad to Bad',
     'BadToUnknown' : 'Bad to Unknown',
     'UnknownToBad' : 'Unknown to Bad',
@@ -39,7 +38,7 @@ export class AlertDetailsTransitionsComponent implements OnInit {
 
   baseTransitions = ['GoodToBad', 'BadToGood'];
   warnTransitions = ['WarnToGood', 'WarnToBad', 'GoodToWarn', 'BadToWarn'];
-  compositeTransitions = ['GoodToGood', 'BadToBad'];
+  compositeTransitions = ['WarnToWarn', 'BadToBad'];
   unknownTransitions = ['BadToUnknown', 'UnknownToBad', 'GoodToUnknown', 'UnknownToGood'];
   warnUnknownTransitions = ['WarnToUnknown', 'UnknownToWarn'];
 
@@ -51,25 +50,25 @@ export class AlertDetailsTransitionsComponent implements OnInit {
       this.selectedTransitions = [];
     }
 
-    if (!this.disabledTransitions) {
-      this.disabledTransitions = [];
+    if (!this.enabledTransitions) {
+      this.enabledTransitions = [];
     }
 
     this.addTransitions(this.baseTransitions);
 
-    if (this.allowWarn) {
+    if (this.showWarn) {
       this.addTransitions(this.warnTransitions);
     }
 
-    if (this.allowComposite) {
-      this.addTransitions(this.allowComposite);
+    if (this.showComposite) {
+      this.addTransitions(this.compositeTransitions);
     }
 
-    if (this.allowUnknown) {
+    if (this.showUnknown) {
       this.addTransitions(this.unknownTransitions);
     }
 
-    if (this.allowWarn && this.allowUnknown) {
+    if (this.showWarn && this.showUnknown) {
       this.addTransitions(this.warnUnknownTransitions);
     }
   }
@@ -80,8 +79,8 @@ export class AlertDetailsTransitionsComponent implements OnInit {
     }
   }
 
-  isDisabled(transition): boolean {
-    return this.disabledTransitions.includes(transition);
+  isEnabled(transition): boolean {
+    return this.enabledTransitions.includes(transition);
   }
 
   isSelected(transition): boolean {

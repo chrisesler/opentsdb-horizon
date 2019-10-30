@@ -744,4 +744,37 @@ export class UtilsService {
       return false;
   }
 
+    addTransitions(arr: any[], transitions: any[]) {
+        for (const transition of transitions) {
+            this.addTransition(arr, transition);
+        }
+    }
+
+    removeTransitions(arr: any[], transitions: any[]) {
+        for (const transition of transitions) {
+            this.removeTransition(arr, transition);
+        }
+    }
+
+    addTransition(arr, transition) {
+        let transitionExists = false;
+        for (let i = 0; i < arr.length; i++) {
+            if (arr[i] === transition) {
+                transitionExists = true;
+                return;
+            }
+        }
+        if (!transitionExists) {
+            arr.push(transition);
+        }
+    }
+
+    removeTransition(arr, transition) {
+        for (let i = 0; i < arr.length; i++) {
+            if (arr[i] === transition) {
+              arr = arr.splice(i, 1);
+            }
+        }
+    }
+
 }

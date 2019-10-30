@@ -137,7 +137,10 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     alertName: FormControl = new FormControl('');
     alertForm: FormGroup;
 
+    // Period Over Period STUFF
     periodOverPeriodConfig: any = {};
+    periodOverPeriodTransitionsSelected = [];
+    periodOverPeriodTransitionsEnabled = [];
 
     // form control options
     ocSeverityOptions: any[] = [
@@ -318,8 +321,34 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['slidingWindow'].setValue(timeInSeconds);
     }
 
-    periodOverPeriodChanged(e) {
-        this.periodOverPeriodConfig = {... e};
+    periodOverPeriodChanged(periodOverPeriodConfig) {
+        if (periodOverPeriodConfig.thresholdChanged) {
+            this.determineEnabledTransitions(periodOverPeriodConfig.config.singleMetric);
+        }
+        this.periodOverPeriodConfig = {... periodOverPeriodConfig.config};
+    }
+
+    periodOverPeriodSelectedTransitionsChanged(transitions) {
+        this.periodOverPeriodTransitionsSelected = [...transitions];
+    }
+
+    determineEnabledTransitions(config) {
+        this.periodOverPeriodTransitionsEnabled = [];
+        const upperBad: boolean = config.badUpperThreshold !== '';
+        const upperWarn: boolean = config.warnUpperThreshold !== '';
+        const lowerWarn: boolean = config.warnLowerThreshold !== '';
+        const lowerBad: boolean = config.badLowerThreshold !== '';
+
+        if (upperBad || lowerBad) {
+            this.utils.addTransitions(this.periodOverPeriodTransitionsEnabled, ['BadToGood', 'GoodToBad']);
+        }
+        if (upperWarn || lowerWarn) {
+            this.utils.addTransitions(this.periodOverPeriodTransitionsEnabled, ['WarnToGood', 'GoodToWarn']);
+        }
+        if ((upperBad || lowerBad) && (upperWarn || lowerWarn)) {
+            this.utils.addTransitions(this.periodOverPeriodTransitionsEnabled, ['BadToWarn', 'WarnToBad']);
+        }
+        this.periodOverPeriodTransitionsSelected = [...this.periodOverPeriodTransitionsEnabled];
     }
 
     setupForm(data = null) {
