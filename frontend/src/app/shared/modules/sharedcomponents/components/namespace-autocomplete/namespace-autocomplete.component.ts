@@ -15,7 +15,7 @@ import {
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith, debounceTime, switchMap, skip } from 'rxjs/operators';
-import { MatAutocomplete } from '@angular/material';
+import { MatAutocomplete, MatAutocompleteTrigger } from '@angular/material';
 import { HttpService } from '../../../../../core/http/http.service';
 
 @Component({
@@ -34,7 +34,7 @@ export class NamespaceAutocompleteComponent implements OnInit, OnDestroy {
     @Output() nschange = new EventEmitter();
     @Output() blur = new EventEmitter();
     @ViewChild('namespaceInput') nsInput: ElementRef;
-    @ViewChild('namespaceAuto') nsAutoCompleteCntrl: MatAutocomplete;
+    @ViewChild('trigger') trigger: MatAutocompleteTrigger;
 
     visible = false;
     destroy = false;
@@ -102,6 +102,7 @@ export class NamespaceAutocompleteComponent implements OnInit, OnDestroy {
             this.selectedNamespace = this.filteredNamespaceOptions[checkIdx];
             // emit change
             this.nschange.emit(this.selectedNamespace);
+            this.clearInput();
         }
     }
 
@@ -117,6 +118,18 @@ export class NamespaceAutocompleteComponent implements OnInit, OnDestroy {
     namespaceOptionSelected(event: any) {
         this.selectedNamespace = event.option.value;
         this.nschange.emit(this.selectedNamespace);
+        this.clearInput();
+    }
+
+    clearInput() {
+        console.log("this.trigger", this.options);
+        if ( this.trigger.panelOpen ) {
+            this.trigger.closePanel();
+        }
+        this.nsInput.nativeElement.blur();
+        if ( this.options.resetOnBlur ) {
+            this.namespaceControl.setValue(this.value, {emitEvent: false});
+        }
     }
 
     @HostListener('click', ['$event'])
