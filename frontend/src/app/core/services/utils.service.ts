@@ -777,4 +777,21 @@ export class UtilsService {
         }
     }
 
+    getExpressionLabel(qindex, mindex, queries) {
+        const label = 'q' + (qindex + 1) + '.e';
+        let eIndex = -1;
+        for ( let i = 0; i <= mindex && i < queries[qindex].metrics.length; i++ ) {
+            if ( queries[qindex].metrics[i].expression ) {
+                eIndex++;
+            }
+        }
+        return label + (eIndex + 1);
+    }
+
+    getMetricDropdownValue(queries, qindex, mid) {
+        const REGDSID = /q?(\d+)?_?(m|e)(\d+).*/;
+        const qids = REGDSID.exec(mid);
+        const mIndex =  this.getDSIndexToMetricIndex(queries[qindex], parseInt(qids[3], 10) - 1, qids[2] );
+        return qindex + ':' + mIndex;
+    }
 }

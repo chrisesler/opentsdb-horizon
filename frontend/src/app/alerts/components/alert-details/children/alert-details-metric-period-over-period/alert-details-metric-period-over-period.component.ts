@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { UtilsService } from '../../../../../core/services/utils.service';
 
 @Component({
   selector: 'alert-details-metric-period-over-period',
@@ -7,12 +8,18 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 })
 export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
 
-  constructor() { }
+  constructor(
+    public utils: UtilsService
+  ) { }
 
   @Input() queries: any[];
   @Input() viewMode: boolean;
   @Input() config: any;
+  @Input() rawQueries: any;  // used to convert metricId (e.g., 0:0) to metric
+
   @Output() configChange = new EventEmitter();
+  @Output() configIsValid = new EventEmitter();
+  @Output() metricIdChanged = new EventEmitter();
 
   showThresholdAdvanced = false; // toggle in threshold form
   slidingWindowPresets = [60, 300, 600, 900, 3600, 3600 * 6, 3600 * 24];
@@ -27,6 +34,8 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
     if (!this.config || !this.config.singleMetric) {
       this.setDefaultConfig();
       this.configChange.emit({thresholdChanged: false, config: {...this.config}});
+    } else {
+      this.configIsValid.emit(true);
     }
   }
 
@@ -57,6 +66,11 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
     this.config.singleMetric.algorithm = this.config.singleMetric.algorithm || 'simple-average';
   }
 
+  selectedMetric(metric) {
+    console.log(metric);
+    this.metricIdChanged.emit(metric);
+  }
+
   updateConfig(prop, val) {
     let thresholdChanged = false;
     if (prop === 'delayEvaluation') {
@@ -66,6 +80,7 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
     }
     if (prop === 'badUpperThreshold' || prop === 'warnUpperThreshold' || prop === 'badLowerThreshold' || prop === 'warnLowerThreshold') {
       thresholdChanged = true;
+      this.configIsValid.emit(true);
     }
     this.configChange.emit({thresholdChanged, config: {...this.config}});
   }

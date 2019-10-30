@@ -5,10 +5,10 @@
   <div class="form-control-wrap auto-width">
       <mat-form-field appearance="fill">
           <!-- formControlName="metricId" -->
-          <mat-select placeholder="Select Metric"  disableOptionCentering>
+          <mat-select placeholder="Select Metric" disableOptionCentering [value]="utils.getMetricDropdownValue(rawQueries, config.singleMetric.queryIndex, config.singleMetric.metricId)">
               <mat-option>None</mat-option>
               <mat-optgroup *ngFor="let query of queries; let qindex=index" label="Q{{qindex + 1}}">
-                  <mat-option *ngFor="let metric of query.metrics; let mindex = index" [value]="qindex + ':' + mindex">{{ metric.name || getExpressionLabel(qindex, mindex)}}</mat-option>
+                  <mat-option (click)="selectedMetric(qindex + ':' + mindex)" *ngFor="let metric of query.metrics; let mindex = index" [value]="qindex + ':' + mindex">{{ metric.name || utils.getExpressionLabel(qindex, mindex, queries)}}</mat-option>
               </mat-optgroup>
           </mat-select>
       </mat-form-field>

@@ -141,6 +141,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     periodOverPeriodConfig: any = {};
     periodOverPeriodTransitionsSelected = [];
     periodOverPeriodTransitionsEnabled = [];
+    periodOverPeriodConfigIsValid = false;
 
     // form control options
     ocSeverityOptions: any[] = [
@@ -317,6 +318,10 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         });
     }
 
+    periodOverPeriodConfigValid(isValid: boolean) {
+        this.periodOverPeriodConfigIsValid = isValid;
+    }
+
     newSingleMetricTimeWindowSelected(timeInSeconds: string) {
         this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['slidingWindow'].setValue(timeInSeconds);
     }
@@ -352,6 +357,11 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     }
 
     setupForm(data = null) {
+        console.log('** setting up form', data);
+
+        if (data.threshold.subType === 'periodOverPeriod') {
+           this.periodOverPeriodConfig = {...data.threshold};
+        }
         const def = {
                 threshold : { singleMetric: {} },
                 notification: {},
@@ -374,6 +384,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             enabled: data.enabled === undefined ? true : data.enabled,
             alertGroupingRules: [ data.alertGroupingRules || []],
             labels: this.fb.array(data.labels || []),
+
             threshold: this.fb.group({
                 subType: data.threshold.subType || 'singleMetric',
                 nagInterval: data.threshold.nagInterval || '0',
@@ -383,7 +394,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                     queryIndex: data.threshold.singleMetric.queryIndex || -1 ,
                     queryType : data.threshold.singleMetric.queryType || 'tsdb',
                     // tslint:disable-next-line:max-line-length
-                    metricId: [ data.threshold.singleMetric.metricId ? this.getMetricDropdownValue(data.queries.raw, data.threshold.singleMetric.queryIndex, data.threshold.singleMetric.metricId) : ''],
+                    metricId: [ data.threshold.singleMetric.metricId ? this.utils.getMetricDropdownValue(data.queries.raw, data.threshold.singleMetric.queryIndex, data.threshold.singleMetric.metricId) : ''],
                     badThreshold:  bad,
                     warnThreshold: warn,
                     recoveryThreshold: recover,
@@ -491,22 +502,26 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
 
         // tslint:disable-next-line: max-line-length
         this.subscription.add(<Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['metricId'].valueChanges.subscribe(val => {
-            const [qindex, mindex] = val ? val.split(':') : [null, null];
-            const gValues = this.alertForm.get('alertGroupingRules').value;
-            if ( qindex && mindex && gValues.length ) {
-                let tags = this.getMetricGroupByTags(qindex, mindex);
-                tags = tags.filter(v => gValues.includes(v));
-                this.alertForm.get('alertGroupingRules').setValue(tags);
-            } else {
-                this.alertForm.get('alertGroupingRules').setValue([]);
-            }
-            this.setTags();
-            this.refreshChart();
+            this.metricIdChanged(val);
         }));
 
         if (!this.data.threshold) {
             this.data.threshold = {};
         }
+    }
+
+    metricIdChanged(val) {
+        const [qindex, mindex] = val ? val.split(':') : [null, null];
+        const gValues = this.alertForm.get('alertGroupingRules').value;
+        if ( qindex && mindex && gValues.length ) {
+            let tags = this.getMetricGroupByTags(qindex, mindex);
+            tags = tags.filter(v => gValues.includes(v));
+            this.alertForm.get('alertGroupingRules').setValue(tags);
+        } else {
+            this.alertForm.get('alertGroupingRules').setValue([]);
+        }
+        this.setTags();
+        this.refreshChart();
     }
 
     setupHealthCheckForm(data = null) {
@@ -847,13 +862,6 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         }
     }
 
-    getMetricDropdownValue(queries, qindex, mid) {
-        const REGDSID = /q?(\d+)?_?(m|e)(\d+).*/;
-        const qids = REGDSID.exec(mid);
-        const mIndex =  this.utils.getDSIndexToMetricIndex(queries[qindex], parseInt(qids[3], 10) - 1, qids[2] );
-        return qindex + ':' + mIndex;
-    }
-
     setThresholds(type, value) {
         let color;
         switch ( type ) {
@@ -1182,17 +1190,6 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         this.getData();
     }
 
-    getExpressionLabel(qindex, mindex) {
-        const label = 'q' + (qindex + 1) + '.e';
-        let eIndex = -1;
-        for ( let i = 0; i <= mindex && i < this.queries[qindex].metrics.length; i++ ) {
-            if ( this.queries[qindex].metrics[i].expression ) {
-                eIndex++;
-            }
-        }
-        return label + (eIndex + 1);
-    }
-
     showError() {
         const parentPos = this.elRef.nativeElement.getBoundingClientRect();
         const dialogConf: MatDialogConfig = new MatDialogConfig();
@@ -1222,12 +1219,21 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         this.alertForm.markAsTouched();
         switch ( this.data.type ) {
             case 'simple':
-                this.validateSingleMetricThresholds(this.alertForm['controls'].threshold);
-                if ( !this.thresholdSingleMetricControls.metricId.value ) {
-                    this.thresholdSingleMetricControls.metricId.setErrors({ 'required': true });
-                }
-                if ( !this.alertForm['controls'].notification.get('transitionsToNotify').value.length ) {
-                    this.alertForm['controls'].notification.get('transitionsToNotify').setErrors({ 'required': true });
+                if (this.data.threshold.subType === 'singleMetric') {
+                    this.validateSingleMetricThresholds(this.alertForm['controls'].threshold);
+                    if ( !this.thresholdSingleMetricControls.metricId.value ) {
+                        this.thresholdSingleMetricControls.metricId.setErrors({ 'required': true });
+                    }
+                    if ( !this.alertForm['controls'].notification.get('transitionsToNotify').value.length ) {
+                        this.alertForm['controls'].notification.get('transitionsToNotify').setErrors({ 'required': true });
+                    }
+                } else { // period-over-period
+                    if ( this.periodOverPeriodTransitionsSelected.length === 0) {
+                        this.alertForm['controls'].notification.get('transitionsToNotify').setErrors({ 'required': true });
+                    }
+                    if (!this.periodOverPeriodConfigIsValid) {
+                        this.alertForm['controls'].threshold.get('singleMetric').setErrors({ 'isInvalid': true });
+                    }
                 }
                 break;
             case 'healthcheck':
@@ -1286,6 +1292,10 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         switch (data.type) {
             case 'simple':
                 const tsdbQuery = this.getTsdbQuery();
+                if (this.data.threshold.subType === 'periodOverPeriod') {
+                    data.notification.transitionsToNotify = [...this.periodOverPeriodTransitionsSelected];
+                    data.threshold.singleMetric = {...this.periodOverPeriodConfig};
+                }
                 data.queries = { raw: this.queries, tsdb: this.getTsdbQuery()};
                 const [qindex, mindex] = data.threshold.singleMetric.metricId.split(':');
                 data.threshold.singleMetric.queryIndex = qindex;

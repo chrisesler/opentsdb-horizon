@@ -22,7 +22,7 @@
             </event-list>
         </div>
 
-        <div [ngClass]="{'invisible': data.type === 'simple' && data.threshold.subType !== 'periodOverPeriod'}">
+        <div [ngClass]="{'invisible': data && data.type === 'simple' && data.threshold && data.threshold.subType !== 'periodOverPeriod'}">
             <alert-details-metric-period-over-period-preview
                 [chartData]="chartData"
                 [size]="size"
@@ -98,18 +98,21 @@
                                         <!-- <mat-radio-button value="composite" disabled>Composite</mat-radio-button> -->
                                         <mat-radio-button value="periodOverPeriod">Period / Period</mat-radio-button>
                                     </mat-radio-group>
-                                    <mat-hint *ngIf="data.threshold.subType === 'singleMetric'">One metric with one or more static thresholds.</mat-hint>
-                                    <mat-hint *ngIf="data.threshold.subType === 'periodOverPeriod'">One metric with bottom & top bounds from the average across N period lookbacks.</mat-hint>
+                                    <mat-hint *ngIf="data && data.threshold && data.threshold.subType === 'singleMetric'">One metric with one or more static thresholds.</mat-hint>
+                                    <mat-hint *ngIf="data && data.threshold && data.threshold.subType === 'periodOverPeriod'">One metric with bottom & top bounds from the average across N period lookbacks.</mat-hint>
                                 </div>                                
                             </div>
                             
-                        <alert-details-metric-period-over-period *ngIf="data.threshold.subType === 'periodOverPeriod'"
+                        <alert-details-metric-period-over-period *ngIf="data && data.threshold && data.threshold.subType === 'periodOverPeriod'"
                             [queries]="queries"
                             (configChange)="periodOverPeriodChanged($event)"
-                            [config]= "periodOverPeriodConfig">
+                            (configIsValid)="periodOverPeriodConfigValid($event)"
+                            (metricIdChanged)="metricIdChanged($event)"
+                            [config]= "periodOverPeriodConfig"
+                            [rawQueries]="data.queries.raw ">
                         </alert-details-metric-period-over-period>
 
-                        <span *ngIf="data.threshold.subType === 'singleMetric'">
+                        <span *ngIf="data && data.threshold && data.threshold.subType === 'singleMetric'">
                             <div class="step-section-content">
                               
                                 <!-- select query -->
@@ -120,7 +123,7 @@
                                             <mat-select placeholder="Select Metric" formControlName="metricId" disableOptionCentering>
                                                 <mat-option>None</mat-option>
                                                 <mat-optgroup  *ngFor="let query of queries; let qindex=index" label="Q{{qindex + 1}}">
-                                                    <mat-option *ngFor="let metric of query.metrics; let mindex = index" [value]="qindex + ':' + mindex">{{ metric.name || getExpressionLabel(qindex, mindex)}}</mat-option>
+                                                    <mat-option *ngFor="let metric of query.metrics; let mindex = index" [value]="qindex + ':' + mindex">{{ metric.name || utils.getExpressionLabel(qindex, mindex, queries)}}</mat-option>
                                                 </mat-optgroup>
                                             </mat-select>
                                         </mat-form-field>
@@ -407,7 +410,7 @@
                             <div class="form-group alert-notify-when">
                                 <div class="form-label"><strong>Notify</strong> when state transitions from</div>
                                 <div class="form-control-wrap">
-                                        <mat-selection-list class="notify-when-options" formControlName="transitionsToNotify">
+                                        <mat-selection-list *ngIf="data && data.threshold && data.threshold.subType !== 'periodOverPeriod'" class="notify-when-options" formControlName="transitionsToNotify">
                                             <mat-list-option value="goodToBad" [disabled]="thresholdControls[thresholdType].controls.badThreshold.value === null">Good to Bad</mat-list-option>
                                             <mat-list-option value="warnToBad" [disabled]="thresholdControls[thresholdType].controls.badThreshold.value === null || thresholdControls[thresholdType].controls.warnThreshold.value === null">Warn to Bad</mat-list-option>
                                             <mat-list-option value="warnToGood" [disabled]="thresholdControls[thresholdType].controls.warnThreshold.value === null">Warn to Good</mat-list-option>
@@ -421,16 +424,17 @@
                                             <mat-list-option *ngIf="data.type === 'healthcheck'" value="warnToUnknown" [disabled]="thresholdControls[thresholdType].controls.unknownThreshold.value === null || thresholdControls[thresholdType].controls.warnThreshold.value === null">Warn To Unknown</mat-list-option>
                                             <mat-list-option *ngIf="data.type === 'healthcheck'" value="UnknownToWarn" [disabled]="thresholdControls[thresholdType].controls.unknownThreshold.value === null || thresholdControls[thresholdType].controls.warnThreshold.value === null">Unknown To Warn</mat-list-option>
                                         </mat-selection-list>
+
+                                        <alert-details-transitions *ngIf="data && data.threshold && data.threshold.subType === 'periodOverPeriod'"
+                                            [showWarn]="'true'"
+                                            [enabledTransitions]="periodOverPeriodTransitionsEnabled"
+                                            [selectedTransitions]="periodOverPeriodTransitionsSelected"
+                                            (newEnabledTransitions)="periodOverPeriodSelectedTransitionsChanged($event)">
+                                        </alert-details-transitions>
+
                                         <mat-error *ngIf="alertForm.get('notification').get('transitionsToNotify').errors && alertForm.get('notification').get('transitionsToNotify').errors.required">Please select the state transitions</mat-error>
                                 </div>
                             </div>
-
-                            <alert-details-transitions *ngIf="data.threshold.subType === 'periodOverPeriod'"
-                              [showWarn]="'true'"
-                              [enabledTransitions]="periodOverPeriodTransitionsEnabled"
-                              [selectedTransitions]="periodOverPeriodTransitionsSelected"
-                              (newEnabledTransitions)="periodOverPeriodSelectedTransitionsChanged($event)">
-                            </alert-details-transitions>
 
                             <!-- TODO: add the grouping rules control here -->
                             <div class="form-group alert-grouping-rules">
