@@ -20,6 +20,9 @@ export class HttpService {
     };
 
     regexMetricFormat = /([^\.]*)\.([^\.]*)\.(.*)/;
+
+    assigned_tsdb_host = ''; // use for session of the app.
+
     constructor(
         private http: HttpClient,
         private metaService: MetaService,
@@ -60,8 +63,11 @@ export class HttpService {
                          .set('X-Horizon-WID', String(payload.wid));
         // simple random from 0 to length of hosts - 1
         // const metricsUrl = environment.tsdb_host + '/api/query/graph';
-        const metricsUrl = environment.tsdb_hosts[Math.floor(Math.random() * (environment.tsdb_hosts.length - 1))] + '/api/query/graph';
-        return this.http.post(metricsUrl, payload.query, { headers, withCredentials: true });
+         // const metricsUrl = environment.tsdb_hosts[Math.floor(Math.random() * (environment.tsdb_hosts.length - 1))] + '/api/query/graph';
+        if (this.assigned_tsdb_host === '') {
+            this.assigned_tsdb_host = environment.tsdb_hosts[Math.floor(Math.random() * (environment.tsdb_hosts.length - 1))] + '/api/query/graph';
+        }
+        return this.http.post(this.assigned_tsdb_host, payload.query, { headers, withCredentials: true });
     }
     /* post to search for metric */
     searchMetrics(queryObj: any): Observable<any> {
