@@ -122,7 +122,6 @@ export class NamespaceAutocompleteComponent implements OnInit, OnDestroy {
     }
 
     clearInput() {
-        console.log("this.trigger", this.options);
         if ( this.trigger.panelOpen ) {
             this.trigger.closePanel();
         }
