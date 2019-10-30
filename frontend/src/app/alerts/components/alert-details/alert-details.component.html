@@ -1,6 +1,6 @@
 <mat-card class="alert-configuration-wrapper mat-elevation-z0" [formGroup]="alertForm">
     <mat-card-content>
-        <div class="preview-wrapper"  #graphOutput  [ngClass]="{'is-visible': (data.type === 'simple' && data.threshold.subType !== 'periodOverPeriod') || data.type === 'event'}">
+        <div class="preview-wrapper"  #graphOutput  [ngClass]="{'is-visible': (data && data.type === 'simple' && data.threshold.subType !== 'periodOverPeriod') || data.type === 'event'}">
             <div class="graph-wrapper">
                 <div class="graph-output" >
                     <div #dygraph class="chart"
@@ -28,7 +28,7 @@
                 [size]="size"
                 [options]="options"
                 [nQueryDataLoading]="nQueryDataLoading"
-                [thresholdConfig]="data.threshold">
+                [thresholdConfig]="periodOverPeriodConfig">
             </alert-details-metric-period-over-period-preview>
         </div>
 
@@ -106,7 +106,7 @@
                         <alert-details-metric-period-over-period *ngIf="data.threshold.subType === 'periodOverPeriod'"
                             [queries]="queries"
                             (configChange)="periodOverPeriodChanged($event)"
-                            [config]= "data.threshold">
+                            [config]= "periodOverPeriodConfig">
                         </alert-details-metric-period-over-period>
 
                         <span *ngIf="data.threshold.subType === 'singleMetric'">

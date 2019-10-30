@@ -137,6 +137,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     alertName: FormControl = new FormControl('');
     alertForm: FormGroup;
 
+    periodOverPeriodConfig: any = {};
+
     // form control options
     ocSeverityOptions: any[] = [
         { label: '1', value: '1' },
@@ -317,8 +319,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     }
 
     periodOverPeriodChanged(e) {
-        this.data.threshold = {... e};
-        this.data = {... this.data};
+        this.periodOverPeriodConfig = {... e};
     }
 
     setupForm(data = null) {

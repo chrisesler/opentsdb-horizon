@@ -6,7 +6,7 @@ import { Component, OnInit, Input, HostBinding, OnChanges, SimpleChanges } from 
   templateUrl: './alert-details-metric-period-over-period-preview.component.html',
   styleUrls: []
 })
-export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnInit, OnChanges {
+export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnInit {
   @HostBinding('class.period-over-period-preview') private _hostClass = true;
 
   constructor() { }
@@ -15,19 +15,24 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
   @Input() size;
   @Input() nQueryDataLoading;
   @Input() options;
-  @Input() thresholdConfig;
-
-  thresholdData: any = {};
-  thresholdOptions: any = {};
-  timeseriesIndex: number = -1;
-
-  ngOnInit() { }
-
-  ngOnChanges(changes: SimpleChanges): void {
+  @Input('thresholdConfig')
+  set thresholdConfig(value: any) {
+    this._thresholdConfig = value;
     if (this.timeseriesIndex >= 0 && this.thresholdConfig && this.thresholdConfig.singleMetric && this.thresholdData) {
-      // this.thresholdData = this.getThresholdData(this.chartData.ts, this.timeseriesIndex);
+      this.thresholdData = this.getThresholdData(this.chartData.ts, this.timeseriesIndex);
     }
   }
+
+  get thresholdConfig(): any {
+    return this._thresholdConfig;
+  }
+
+  _thresholdConfig: any = {};
+  thresholdData: any = {};
+  thresholdOptions: any = {};
+  timeseriesIndex = -1;
+
+  ngOnInit() { }
 
   handleZoomQuery(e) { }
 

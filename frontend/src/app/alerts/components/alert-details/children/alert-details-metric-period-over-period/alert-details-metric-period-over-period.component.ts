@@ -1,12 +1,11 @@
-import { Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, FormControl, Validators, FormsModule, NgForm } from '@angular/forms';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'alert-details-metric-period-over-period',
   templateUrl: './alert-details-metric-period-over-period.component.html',
   styleUrls: []
 })
-export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit, OnChanges {
+export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
 
   constructor() { }
 
@@ -24,10 +23,11 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit, OnCh
     if (this.viewMode) {
       this.showThresholdAdvanced = true;
     }
-  }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    this.setDefaultConfig();
+    if (!this.config || !this.config.singleMetric) {
+      this.setDefaultConfig();
+      this.configChange.emit({...this.config});
+    }
   }
 
   setDefaultConfig() {
@@ -55,32 +55,7 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit, OnCh
     this.config.singleMetric.highestOutliersToRemove = this.config.singleMetric.highestOutliersToRemove || '1';
     this.config.singleMetric.lowestOutliersToRemove = this.config.singleMetric.lowestOutliersToRemove || '1';
     this.config.singleMetric.algorithm = this.config.singleMetric.algorithm || 'simple-average';
-
-    this.configChange.emit(this.config);
   }
-  // getDefaultConfig() {
-  //   return {
-  //       'subType': 'period-over-period',
-  //       'delayEvaluation': '0',
-  //       'singleMetric': {
-  //         'queryIndex': '0',
-  //         'queryType': 'tsdb',
-  //         'metricId': 'q1_m1_groupby',
-  //         'slidingWindow': '300',
-  //         'period': '3600',
-  //         'lookbacks': '6',
-  //         'badUpperThreshold': '',
-  //         'warnUpperThreshold': '',
-  //         'badLowerThreshold': '',
-  //         'warnLowerThreshold': '',
-  //         'upperThresholdType': 'value',
-  //         'lowerThresholdType': 'value',
-  //         'highestOutliersToRemove': '1',
-  //         'lowestOutliersToRemove': '1',
-  //         'algorithm' : 'simple-average'
-  //       },
-  //   };
-  // }
 
   updateConfig(prop, val) {
     if (prop === 'delayEvaluation') {
