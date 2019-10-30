@@ -568,7 +568,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.subscription.add(this.widgets$.subscribe((widgets) => {
             const dbstate = this.store.selectSnapshot(DBState);
             if (dbstate.loaded) {
-                this.widgets = this.utilService.deepClone(widgets);
+                // sort widget by grid row, then assign
+                let sortWidgets = this.utilService.deepClone(widgets);
+                sortWidgets.sort((a,b) => a.gridPos.y - b.gridPos.y);
+                this.widgets = this.utilService.deepClone(sortWidgets);
 
                 // set oldWidgets when widgets is not empty and oldWidgets is empty
                 if (this.widgets.length && this.oldWidgets.length === 0) {
