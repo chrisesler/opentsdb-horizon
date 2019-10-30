@@ -218,7 +218,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
                 {
                     label: 'Total Using Base Interval - Minute',
                     fxCall: 'TotalUsingBaseInterval',
-                    val: '1m,10s'
+                    val: '1m,1m'
                 }
             ]
         },
