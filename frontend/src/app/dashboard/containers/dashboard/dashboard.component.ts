@@ -570,7 +570,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             if (dbstate.loaded) {
                 // sort widget by grid row, then assign
                 let sortWidgets = this.utilService.deepClone(widgets);
-                sortWidgets.sort((a,b) => a.gridPos.y - b.gridPos.y);
+                sortWidgets.sort((a,b) => a.gridPos.y - b.gridPos.y || a.gridPos.x - b.gridPos.x);
                 this.widgets = this.utilService.deepClone(sortWidgets);
 
                 // set oldWidgets when widgets is not empty and oldWidgets is empty
