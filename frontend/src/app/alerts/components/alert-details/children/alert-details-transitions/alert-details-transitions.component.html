@@ -1,0 +1,10 @@
+<div class="form-control-wrap">
+  <mat-selection-list class="notify-when-options">
+      <mat-list-option *ngFor="let transition of possibleTransitions" 
+        [value]="transition" 
+        [disabled]="isDisabled(transition)" 
+        [selected]="isSelected(transition)"
+        (click)="selectionChanged(transition)">{{transitionToLabel[transition]}}</mat-list-option>
+  </mat-selection-list>
+  <!-- <mat-error *ngIf="alertForm.get('notification').get('transitionsToNotify').errors && alertForm.get('notification').get('transitionsToNotify').errors.required">Please select the state transitions</mat-error> -->
+</div>

@@ -424,6 +424,10 @@
                                         <mat-error *ngIf="alertForm.get('notification').get('transitionsToNotify').errors && alertForm.get('notification').get('transitionsToNotify').errors.required">Please select the state transitions</mat-error>
                                 </div>
                             </div>
+
+                            <alert-details-transitions *ngIf="data.threshold.subType === 'periodOverPeriod'">
+                            </alert-details-transitions>
+
                             <!-- TODO: add the grouping rules control here -->
                             <div class="form-group alert-grouping-rules">
                                 <div class="form-label vertical-center"><strong>Send one notification per</strong></div>
