@@ -224,7 +224,7 @@ export class DatatranformerService {
                         } else {
                             groups['line'] = true;
                         }
-                        config.label = this.getLableFromMetricTags(metric, config.tags);
+                        config.label = this.getLableFromMetricTags(vConfig.label ? vConfig.label : '', config.tags);
                         dseries.push({  mid: mid,
                                         config: config,
                                         data: data,
@@ -417,8 +417,8 @@ export class DatatranformerService {
                 const numPoints = data.length;
                 const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, qIndex, mIndex);
                 options.heatmap.metric = mConfig.expression ?  mLabel  : queryResults.data[j].metric;
-                    let metric = vConfig.label ? vConfig.label : mConfig.expression ? mLabel : queryResults.data[j].metric;
-                    metric = this.getLableFromMetricTags(metric, { metric: !mConfig.expression ? queryResults.data[j].metric : mLabel, ...tags});
+                    let label = vConfig.label ? vConfig.label : '';
+                    label = this.getLableFromMetricTags(label, { metric: !mConfig.expression ? queryResults.data[j].metric : mLabel, ...tags});
                     const unit = timeSpecification.interval.replace(/[0-9]/g, '');
                     const m = parseInt(timeSpecification.interval, 10);
                     for (let k = 0; k < numPoints ; k++ ) {
@@ -437,7 +437,7 @@ export class DatatranformerService {
                                 if (!options.series[bucket][time]) {
                                     options.series[bucket][time] = [];
                                 }
-                                options.series[bucket][time].push({label: metric, v: data[k], tags: tags });
+                                options.series[bucket][time].push({label: label, v: data[k], tags: tags });
                             }
                     }
             }
@@ -519,7 +519,7 @@ export class DatatranformerService {
                 const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
                 const aggData = results[i].data[j].NumericSummaryType.data[0][key];
                 const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, qIndex, mIndex);
-                let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : mConfig.expression ? mLabel : results[i].data[j].metric;
+                let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : '';
                 const aggrIndex = aggs.indexOf(summarizer);
                 label = this.getLableFromMetricTags(label, { metric: !mConfig.expression ? results[i].data[j].metric : mLabel, ...tags});
                 options.labels.push(label);
@@ -533,13 +533,15 @@ export class DatatranformerService {
 
     getLableFromMetricTags(label, tags, len= 70 ) {
         const regex = /\{\{([\w-.:\/]+)\}\}/ig
+        label = label.trim();
         const matches = label.match(regex);
         if ( matches ) {
             for ( let i = 0, len = matches.length; i < len; i++ ) {
                 const key = matches[i].replace(/\{|\}/g,'');
                 label = label.replace(matches[i], tags[key]? tags[key] : '');
             }
-        } else {
+        } else if ( !label ) {
+            label = tags.metric;
             for ( let k in tags ) {
                 if ( k !== 'metric' ) {
                     label = label + '-' + tags[k];
@@ -576,7 +578,7 @@ export class DatatranformerService {
                 const key = Object.keys(results[i].data[j].NumericType)[0];
                 const aggData = results[i].data[j].NumericType[key];
                 if ( mConfig.settings && mConfig.settings.visual.visible ) {
-                    let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
+                    let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : '';
                     const aggrIndex = aggs.indexOf(aggregator);
                     label = this.getLableFromMetricTags(label, { metric:results[i].data[j].metric, ...tags});
                     options.labels.push(label);
@@ -621,7 +623,7 @@ export class DatatranformerService {
                 const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
                 const aggData = results[i].data[j].NumericSummaryType.data[0][key];
                 const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, qIndex, mIndex);
-                let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : mConfig.expression ? mLabel : results[i].data[j].metric;
+                let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : '';
                 const aggrIndex = aggs.indexOf(summarizer);
                 label = this.getLableFromMetricTags(label, { metric: !mConfig.expression ? results[i].data[j].metric : mLabel, ...tags});
                 const o = { label: label, value: aggData[aggrIndex], color: colors[j], tooltipData: tags};
@@ -660,7 +662,7 @@ export class DatatranformerService {
                 const aggrIndex = aggs.indexOf(summarizer);
                 const aggData = results[i].data[j].NumericSummaryType.data[0][key];
                 const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, qIndex, mIndex);
-                let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : mConfig.expression ? mLabel : results[i].data[j].metric;
+                let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : '';
                 label = this.getLableFromMetricTags(label, { metric: !mConfig.expression ? results[i].data[j].metric : mLabel, ...tags});
                 if ( !isNaN(aggData[aggrIndex])) {
                     const o = { label: label, value: aggData[aggrIndex], color: this.overrideColor(aggData[aggrIndex], color, widget.settings.visual.conditions), tooltipData: tags};

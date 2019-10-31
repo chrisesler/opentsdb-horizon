@@ -16,6 +16,10 @@ import { Subscription } from 'rxjs';
 import { startWith, debounceTime, catchError } from 'rxjs/operators';
 import { HttpService } from '../../../../../core/http/http.service';
 import { MatMenuTrigger } from '@angular/material';
+import { MatIconRegistry } from '@angular/material/icon';
+import { DomSanitizer } from '@angular/platform-browser';
+
+
 
 
 @Component({
@@ -57,8 +61,11 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
     constructor(
         private elRef: ElementRef,
         private httpService: HttpService,
+        private matIconRegistry: MatIconRegistry,
+        private domSanitizer: DomSanitizer,
         private cdRef: ChangeDetectorRef) {
-
+            matIconRegistry.addSvgIcon('exclamation_point', domSanitizer.bypassSecurityTrustResourceUrl('assets/exclamation-point.svg')
+            );
     }
 
     ngOnInit() {
