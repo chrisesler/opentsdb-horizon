@@ -357,9 +357,14 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     }
 
     setupForm(data = null) {
-        console.log('** setting up form', data);
-
+        console.log('** setting up form', data.threshold.singleMetric.metricId , data);
         if (data.threshold.subType === 'periodOverPeriod') {
+            // const singleMetric = {... data.threshold.singleMetric};
+            // data.threshold.singleMetric = {
+            //     metricId: singleMetric.metricId,
+            //     queryIndex: singleMetric.queryIndex,
+            //     queryType: singleMetric.queryType
+            // };
            this.periodOverPeriodConfig = {...data.threshold};
         }
         const def = {
@@ -1293,8 +1298,11 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             case 'simple':
                 const tsdbQuery = this.getTsdbQuery();
                 if (this.data.threshold.subType === 'periodOverPeriod') {
+                    const dataThresholdCopy = {...data.threshold};
                     data.notification.transitionsToNotify = [...this.periodOverPeriodTransitionsSelected];
-                    data.threshold.singleMetric = {...this.periodOverPeriodConfig};
+                    data.threshold = {...this.periodOverPeriodConfig};
+                    data.threshold.singleMetric.metricId = dataThresholdCopy.singleMetric.metricId;
+                    data.threshold.singleMetric.queryIndex = dataThresholdCopy.singleMetric.queryIndex;
                 }
                 data.queries = { raw: this.queries, tsdb: this.getTsdbQuery()};
                 const [qindex, mindex] = data.threshold.singleMetric.metricId.split(':');
@@ -1305,6 +1313,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 // tslint:disable-next-line: max-line-length
                 data.threshold.singleMetric.metricId =  dsId;
                 data.threshold.isNagEnabled = data.threshold.nagInterval !== '0' ? true : false;
+                console.log('**', data);
                 break;
             case 'healthcheck':
                 data.threshold.missingDataInterval = data.threshold.notifyOnMissing === 'true' ? data.threshold.missingDataInterval : null;

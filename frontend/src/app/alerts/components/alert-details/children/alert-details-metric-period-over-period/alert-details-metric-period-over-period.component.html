@@ -1,21 +1,3 @@
-<!-- select query -->
-<!-- formGroupName="periodOverPeriodMetric" -->
-<div class="form-group select-query" >
-  <div class="form-label vertical-center"><strong>Select Metric</strong></div>
-  <div class="form-control-wrap auto-width">
-      <mat-form-field appearance="fill">
-          <!-- formControlName="metricId" -->
-          <mat-select placeholder="Select Metric" disableOptionCentering [value]="utils.getMetricDropdownValue(rawQueries, config.singleMetric.queryIndex, config.singleMetric.metricId)">
-              <mat-option>None</mat-option>
-              <mat-optgroup *ngFor="let query of queries; let qindex=index" label="Q{{qindex + 1}}">
-                  <mat-option (click)="selectedMetric(qindex + ':' + mindex)" *ngFor="let metric of query.metrics; let mindex = index" [value]="qindex + ':' + mindex">{{ metric.name || utils.getExpressionLabel(qindex, mindex, queries)}}</mat-option>
-              </mat-optgroup>
-          </mat-select>
-      </mat-form-field>
-      <!-- <mat-error *ngIf="alertForm.touched && thresholdSingleMetricControls.metricId.errors && thresholdSingleMetricControls.metricId.errors.required">Please select a metric</mat-error> -->
-  </div>
-</div>
-
 <div class="form-group sliding-window" >
     <div class="form-label vertical-center"><strong>Sliding Window</strong></div>
     <div class="form-control-wrap auto-width">

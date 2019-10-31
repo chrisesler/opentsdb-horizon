@@ -15,11 +15,9 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
   @Input() queries: any[];
   @Input() viewMode: boolean;
   @Input() config: any;
-  @Input() rawQueries: any;  // used to convert metricId (e.g., 0:0) to metric
 
   @Output() configChange = new EventEmitter();
   @Output() configIsValid = new EventEmitter();
-  @Output() metricIdChanged = new EventEmitter();
 
   showThresholdAdvanced = false; // toggle in threshold form
   slidingWindowPresets = [60, 300, 600, 900, 3600, 3600 * 6, 3600 * 24];
@@ -49,9 +47,9 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
 
     this.config.subType = this.config.subType || 'period-over-period';
     this.config.delayEvaluation = this.config.delayEvaluation || '0';
-    this.config.singleMetric.queryIndex = this.config.singleMetric.queryIndex || '0';
+    // this.config.singleMetric.queryIndex = this.config.singleMetric.queryIndex || '0';
     this.config.singleMetric.queryType = this.config.singleMetric.queryType || 'tsdb';
-    this.config.singleMetric.metricId = this.config.singleMetric.metricId || 'q1_m1_groupby';
+    // this.config.singleMetric.metricId = this.config.singleMetric.metricId || 'q1_m1_groupby';
     this.config.singleMetric.slidingWindow = this.config.singleMetric.slidingWindow || '300';
     this.config.singleMetric.period = this.config.singleMetric.period || '3600';
     this.config.singleMetric.lookbacks = this.config.singleMetric.lookbacks || '6';
@@ -64,11 +62,7 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
     this.config.singleMetric.highestOutliersToRemove = this.config.singleMetric.highestOutliersToRemove || '1';
     this.config.singleMetric.lowestOutliersToRemove = this.config.singleMetric.lowestOutliersToRemove || '1';
     this.config.singleMetric.algorithm = this.config.singleMetric.algorithm || 'simple-average';
-  }
 
-  selectedMetric(metric) {
-    console.log(metric);
-    this.metricIdChanged.emit(metric);
   }
 
   updateConfig(prop, val) {

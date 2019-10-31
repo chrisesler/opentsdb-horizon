@@ -789,6 +789,7 @@ export class UtilsService {
     }
 
     getMetricDropdownValue(queries, qindex, mid) {
+        console.log('**', queries, qindex, mid);
         const REGDSID = /q?(\d+)?_?(m|e)(\d+).*/;
         const qids = REGDSID.exec(mid);
         const mIndex =  this.getDSIndexToMetricIndex(queries[qindex], parseInt(qids[3], 10) - 1, qids[2] );
