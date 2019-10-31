@@ -85,7 +85,9 @@ export class HttpService {
                 map((res: any) => res ? res.results[0].namespaces : []),
             );
     }
-
+    // to get all tagkeys by namespaces
+    // can pass a list of namespace and optional a list of metrics
+    // queryObj = { namespaces: ['ssp', 'yamas'] }
     getTagKeys(queryObj: any): Observable<any> {
         const headers = new HttpHeaders({
             'Content-Type': 'application/json'

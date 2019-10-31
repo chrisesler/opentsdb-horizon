@@ -78,7 +78,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             this.initEditFormGroup();
         }
         if ( changes.dbNamespaces && changes.dbNamespaces.currentValue ) {
-            this.selectedNamespaces = this.dbNamespaces;
+            this.selectedNamespaces = this.utils.deepClone(this.dbNamespaces);
         }
     }
     doEdit() {
