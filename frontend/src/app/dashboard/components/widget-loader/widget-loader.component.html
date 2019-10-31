@@ -4,10 +4,13 @@
         <div fxFlex="1 1 18px" fxLayout="row" fxLayoutAlign="stretch stretch" class="panel-heading">
             <mat-toolbar>
                 <mat-toolbar-row>
-                    <span class="panel-title" *ngIf="widget.settings.component_type !== 'PlaceholderWidgetComponent' 
-                                                    && widget.settings.component_type !== 'BignumberWidgetComponent' 
-                                                    && widget.settings.component_type !== 'MarkdownWidgetComponent'
-                                                    && widget.settings.component_type !== 'EventsWidgetComponent'">{{widget.settings.title}}</span>
+                    <span class="panel-title"
+                        matTooltip="{{widget.settings.title}}"
+                        [matTooltipClass]="{'cdk-widget-title-tooltip':true}"
+                        *ngIf="widget.settings.component_type !== 'PlaceholderWidgetComponent'
+                                && widget.settings.component_type !== 'BignumberWidgetComponent'
+                                && widget.settings.component_type !== 'MarkdownWidgetComponent'
+                                && widget.settings.component_type !== 'EventsWidgetComponent'">{{widget.settings.title}}</span>
                     <span class="flex-spacer"></span>
                     <!--<button mat-icon-button (click)="openIsland();">
                         <mat-icon fontSet="denali" fontIcon="d-memory-chip"></mat-icon>
@@ -52,7 +55,7 @@
                     </mat-menu>-->
                 </mat-toolbar-row>
             </mat-toolbar>
-        </div>        
+        </div>
         <div widget-container></div>
     </mat-card-content>
 </mat-card>

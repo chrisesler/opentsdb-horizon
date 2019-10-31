@@ -16,12 +16,16 @@
             width: 100%;
             top: 0;
             cursor: move;
+
             .panel-title {
                 display: inline-block;
                 padding: 2px;
                 margin-left: auto;
                 margin-right: auto;
                 font-size: 16px;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
             }
         }
 
@@ -108,6 +112,10 @@
             margin: 8px auto;
         }
     }
+
+    .mat-tooltip.cdk-widget-title-tooltip {
+        margin-top: -6px !important;
+    }
 }
 
 @mixin widget-loader-component-theme($theme-config) {
@@ -125,7 +133,7 @@
             box-shadow: none;
             background-color: map-get($background, card);
             border: 1px solid rgba(0, 0, 0, .08);
-            
+
             .panel-body .panel-heading {
                 background-color: transparent;
                 display: none;
