@@ -103,6 +103,24 @@
                 max-width: 200px;
                 min-width: 200px;
                 flex: 1 1 200px;
+                
+                .mat-chip-list-wrapper {
+                    margin: 0px;
+                }
+                .mat-chip {
+                    font-weight: 300;
+                }
+                .mat-standard-chip {
+                    background: #eaf1fb;
+                    margin: 2px;
+                    min-height: 25px;
+                    padding: 5px 8px;
+                }
+                .mat-icon {
+                    width: 15px;
+                    height: 15px;
+                    font-size: 15px;
+                }
             }
 
             .filters-column {

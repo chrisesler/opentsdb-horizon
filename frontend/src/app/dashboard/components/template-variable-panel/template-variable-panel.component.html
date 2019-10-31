@@ -35,10 +35,15 @@
             <div class="namespace-column">
                 <div class="column-title">Namespaces</div>
                 <div class="namespace-input">
-                    <mat-form-field appearance="fill" color="primary" floatLabel="never">
-                        <input matInput placeholder="Enter namespace" autocomplete="off">
-                    </mat-form-field>
+                    <namespace-autocomplete  [options]="{ resetOnBlur: true }" (nschange)="addNamespace($event)"></namespace-autocomplete>
                 </div>
+                <mat-chip-list>
+                    <mat-chip *ngFor="let namespace of selectedNamespaces"
+                        [removable]="!dbNamespaces.includes(namespace)"
+                        (removed)="removeNamespace(namespace)">{{ namespace }}
+                        <mat-icon matChipRemove *ngIf="!dbNamespaces.includes(namespace)">cancel</mat-icon>
+                    </mat-chip>
+                </mat-chip-list>
             </div>
             <div class="filters-column">
                 <div class="column-title">Dashboard filters</div>

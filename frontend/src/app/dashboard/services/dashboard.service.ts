@@ -109,6 +109,17 @@ export class DashboardService {
     return modWidgets;
   }
 
+  getNamespacesFromWidgets( widgets ) {
+    const namespaces = {};
+    for ( let i = 0; i < widgets.length; i++ ) {
+        const queries = widgets[i].queries;
+        for ( let j = 0; j < queries.length; j++ ) {
+          namespaces[queries[j].namespace] = true;
+        }
+    }
+    return Object.keys(namespaces);
+  }
+
   getMetricsFromWidgets( widgets ) {
     const metrics = [];
     for ( let i = 0; i < widgets.length; i++ ) {

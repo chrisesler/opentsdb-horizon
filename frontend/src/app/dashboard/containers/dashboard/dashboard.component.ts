@@ -189,6 +189,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         totalQueries: 0,
         tags: []
     };
+    dashboardNamespaces = [];
     isDbTagsLoaded$ = new Subject();
     isDbTagsLoaded = false;
     eWidgets: any = {}; // to whole eligible widgets with custom dashboard tags
@@ -847,8 +848,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     changeVarPanelMode(mode: any) {
-        if (!mode.view && !this.isDbTagsLoaded) {
-            this.getDashboardTagKeys();
+        if ( !mode.view ) {
+            this.dashboardNamespaces = this.dbService.getNamespacesFromWidgets(this.widgets);
+            if ( !this.isDbTagsLoaded ) {
+                this.getDashboardTagKeys();
+            }
         }
         this.variablePanelMode = {...mode};
     }
