@@ -1242,11 +1242,15 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         data.id = this.data.id;
         switch (data.type) {
             case 'simple':
+                const tsdbQuery = this.getTsdbQuery();
                 data.queries = { raw: this.queries, tsdb: this.getTsdbQuery()};
                 const [qindex, mindex] = data.threshold.singleMetric.metricId.split(':');
                 data.threshold.singleMetric.queryIndex = qindex;
+                let dsId = this.utils.getDSId( this.utils.arrayToObject(this.queries), qindex, mindex);
+                const subNodes = tsdbQuery[0].executionGraph.filter(d => d.id.indexOf(dsId) === 0 );
+                dsId = subNodes[ subNodes.length - 1 ].id;
                 // tslint:disable-next-line: max-line-length
-                data.threshold.singleMetric.metricId =  this.utils.getDSId( this.utils.arrayToObject(this.queries), qindex, mindex) + (this.queries[qindex].metrics[mindex].expression === undefined ? '_groupby' : '');
+                data.threshold.singleMetric.metricId =  dsId;
                 data.threshold.isNagEnabled = data.threshold.nagInterval !== '0' ? true : false;
                 break;
             case 'healthcheck':

@@ -106,7 +106,7 @@
             <span>Include</span>
         </button>
         <button mat-menu-item *ngIf="data.value[0] !== '!'" (click)="toggleExclude(data.tag, data.value, true);closeMenu($event);">
-            <mat-icon fontSet="denali" fontIcon="d-value-exclude"></mat-icon>
+            <mat-icon svgIcon="exclamation_point"></mat-icon>
             <span>Exclude</span>
         </button>
         <button mat-menu-item  (click)="updateTagValueSelection(data.tag, data.value, 'remove');closeMenu($event);">
