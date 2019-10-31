@@ -57,6 +57,7 @@
                             <th>Default value (optional)</th>
                             <th>Actions</th>
                             <th><!--empty for trash--></th>
+                            <th><!-- empty for error messages --></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -125,7 +126,7 @@
                                         <button mat-button class="add-to-button" color="primary" (click)="addFilterToAll(i)">
                                             <span>Add to all</span>
                                         </button>
-                                        <button mat-button class="remove-from-button" color="primary" (click)="removeFilterFromAll(i)">
+                                        <button mat-button class="remove-from-button" color="primary" (click)="removeFilterFromAll(i)" [disabled]="true">
                                             <span>Remove from all</span>
                                         </button>
                                     </div>
@@ -138,6 +139,20 @@
                                         <button mat-icon-button class="delete-variable-button" color="primary" (click)="removeTemplateVariable(i)">
                                             <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
                                         </button>
+                                    </div>
+                                </div>
+                            </td>
+                            <!-- error messages-->
+                            <td>
+                                <div class="settings-control error-control">
+                                    <div class="errors">
+                                        <!-- error messages -->
+                                        <span *ngIf="tpl.get('alias').hasError('unique'); else requiredMesg" class="error-msg">
+                                            Name must be unique.
+                                        </span>
+                                        <ng-template #requiredMesg>
+                                            <span *ngIf="tpl.invalid" class="error-msg">Name and Tag are required.</span>
+                                        </ng-template>
                                     </div>
                                 </div>
                             </td>
@@ -157,10 +172,9 @@
         </div>
         <div class="variable-action-controls">
             <div class="edit-actions">
-
                 <button mat-stroked-button color="primary" [disabled]="disableDone"
                     class="editing-done-button" (click)="done()">
-                    <span>Close</span>
+                    <span>Done</span>
                 </button>
             </div>
         </div>
