@@ -30,6 +30,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     @Input() tplVariables: any;
     @Input() mode: any;
     @Input() dbTagKeys: any; // all available tags and widget tags from dashboard
+    @Input() dbNamespaces: string[] = [];
     @Input() widgets: any[];
     @Output() modeChange: EventEmitter<any> = new EventEmitter<any>();
     @Output() variableChanges: EventEmitter<any> = new EventEmitter<any>();
@@ -75,6 +76,9 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             this.initListFormGroup();
         } else if (changes.mode && !changes.mode.firstChange && !changes.mode.currentValue.view) {
             this.initEditFormGroup();
+        }
+        if ( changes.dbNamespaces && changes.dbNamespaces.currentValue ) {
+            this.selectedNamespaces = this.dbNamespaces;
         }
     }
     doEdit() {
@@ -434,6 +438,19 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
       const control = <FormArray>this.editForm.controls['formTplVariables'];
       const controlItem = control.at(index);
       controlItem.get('mode').setValue(mode);
+    }
+
+    addNamespace(namespace) {
+        if ( !this.selectedNamespaces.includes(namespace) ) {
+            this.selectedNamespaces.push(namespace);
+        }
+    }
+
+    removeNamespace(namespace) {
+        const index = this.selectedNamespaces.indexOf(namespace);
+        if ( !this.dbNamespaces.includes(namespace) && index !== -1 ) {
+            this.selectedNamespaces.splice(index, 1);
+        }
     }
 
     ngOnDestroy() {
