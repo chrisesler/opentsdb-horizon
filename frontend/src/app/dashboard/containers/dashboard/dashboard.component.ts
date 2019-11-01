@@ -193,7 +193,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     isDbTagsLoaded$ = new Subject();
     isDbTagsLoaded = false;
     eWidgets: any = {}; // to whole eligible widgets with custom dashboard tags
-    showDBTagFilters = false;
+    // showDBTagFilters = false;
 
     // used for unsaved changes warning message
     oldMeta = {};
@@ -584,7 +584,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.getDashboardTagKeys();
                 }
                 // check to see if we can display variable template panel or not
-                this.showDBTagFilters = this.dbService.havingDBMetrics(this.widgets);
+                // comment this out, since we now do allow user to set the dashboard tag filters
+                // even without any metrics
+                // this.showDBTagFilters = this.dbService.havingDBMetrics(this.widgets);
             }
         }));
 
@@ -631,6 +633,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }));
         this.subscription.add(this.tplVariables$.subscribe(tvars => {
             // whenever tplVariables$ trigger, we save to view too.
+            console.log('hill - tvars', tvars);
             if (tvars) {
                 this.tplVariables = {...this.tplVariables,
                     editTplVariables: this.utilService.deepClone(tvars),

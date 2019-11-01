@@ -1,12 +1,11 @@
 <div fxLayout="column" fxFlexFill>
     <!-- need to figure out how to toggle on/off depending on whether there is template variables -->
     <!--<variable-template-bar *ngIf="!viewEditMode" [dbSettingsVariables]="variables" ></variable-template-bar> -->
-    <template-variable-panel *ngIf="!viewEditMode && showDBTagFilters" 
+    <template-variable-panel *ngIf="!viewEditMode" 
         [ngClass]="{'is-edit-mode': !variablePanelMode.view}" 
         [mode]="variablePanelMode"
         [widgets]="widgets"
         [tplVariables]="tplVariables"
-        [dbNamespaces]="dashboardNamespaces"
         [dbTagKeys]="dashboardTags"
         (modeChange)="changeVarPanelMode($event)">
     </template-variable-panel>
