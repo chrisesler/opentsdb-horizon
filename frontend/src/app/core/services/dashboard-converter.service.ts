@@ -1,15 +1,14 @@
 import { Injectable } from '@angular/core';
 import { UtilsService } from './utils.service';
-import { MAT_SLIDE_TOGGLE_DEFAULT_OPTIONS } from '@angular/material';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DashboardConverterService {
 
-  currentVersion = 7;
+  currentVersion = 8;
 
-  constructor(private utils: UtilsService) { }
+  constructor (private utils: UtilsService) { }
 
   // call to convert dashboad to currentVersion
   convert(dashboard: any) {
@@ -91,25 +90,25 @@ export class DashboardConverterService {
     dashboard.content.version = 3;
     const tplVariables = [...dashboard.content.settings.variables.tplVariables];
     for (let i = 0; i < tplVariables.length; i++) {
-        const varObj: any = tplVariables[i];
-        // remove this property
-        if (varObj.hasOwnProperty('enabled')) {
-          delete varObj.enabled;
-        }
-        if (varObj.hasOwnProperty('allowedValues')) {
-          delete varObj.allowedValues;
-        }
-        if (varObj.hasOwnProperty('type')) {
-          delete varObj.type;
-        }
-        // take first value only if many
-        if (varObj.filter.length > 0) {
-          varObj.filter = varObj.filter[0];
-        }
-        // there is case that user did not set the alias
-        if (varObj.alias.trim() === '') {
-          varObj.alias = varObj.tagk;
-        }
+      const varObj: any = tplVariables[i];
+      // remove this property
+      if (varObj.hasOwnProperty('enabled')) {
+        delete varObj.enabled;
+      }
+      if (varObj.hasOwnProperty('allowedValues')) {
+        delete varObj.allowedValues;
+      }
+      if (varObj.hasOwnProperty('type')) {
+        delete varObj.type;
+      }
+      // take first value only if many
+      if (varObj.filter.length > 0) {
+        varObj.filter = varObj.filter[0];
+      }
+      // there is case that user did not set the alias
+      if (varObj.alias.trim() === '') {
+        varObj.alias = varObj.tagk;
+      }
     }
     // dashboard mode was set wrong to true in some dashboards
     dashboard.content.settings.mode = 'dashboard';
@@ -146,19 +145,19 @@ export class DashboardConverterService {
     return dashboard;
   }
 
-    // update dashboard to version 4, convert array to string
+  // update dashboard to version 4, convert array to string
   toDBVersion4(dashboard: any) {
     dashboard.content.version = 4;
     const tplVariables = [...dashboard.content.settings.tplVariables];
     for (let i = 0; i < tplVariables.length; i++) {
-        const varObj: any = tplVariables[i];
-        if (Array.isArray(varObj.filter)) {
-          if (varObj.filter.length > 0) {
-            varObj.filter = varObj.filter[0];
-          } else {
-            varObj.filter = '';
-          }
+      const varObj: any = tplVariables[i];
+      if (Array.isArray(varObj.filter)) {
+        if (varObj.filter.length > 0) {
+          varObj.filter = varObj.filter[0];
+        } else {
+          varObj.filter = '';
         }
+      }
     }
     dashboard.content.settings.tplVariables = tplVariables;
     return dashboard;
@@ -171,23 +170,23 @@ export class DashboardConverterService {
     for (let i = 0; i < widgets.length; i++) {
       const queries = widgets[i].queries;
       // if (widgets[i].settings.component_type === 'LinechartWidgetComponent') {
-        const ids = new Set();
-        ids.add(widgets[i].id);
-        for (let j = 0; j < queries.length; j++) {
-          const metrics = queries[j].metrics;
-          for (let k = 0; k < metrics.length; k++) {
-            // metrics
-            if (ids.has(metrics[k].id)) {
-              const oldId = metrics[k].id;
-              const newId = this.utils.generateId(3, this.utils.getIDs(this.utils.getAllMetrics(queries)));
-              this.utils.replaceIdsInExpressions(newId, oldId, metrics);
-              metrics[k].id = newId;
-              ids.add(newId);
-            } else {
-              ids.add(metrics[k].id);
-            }
+      const ids = new Set();
+      ids.add(widgets[i].id);
+      for (let j = 0; j < queries.length; j++) {
+        const metrics = queries[j].metrics;
+        for (let k = 0; k < metrics.length; k++) {
+          // metrics
+          if (ids.has(metrics[k].id)) {
+            const oldId = metrics[k].id;
+            const newId = this.utils.generateId(3, this.utils.getIDs(this.utils.getAllMetrics(queries)));
+            this.utils.replaceIdsInExpressions(newId, oldId, metrics);
+            metrics[k].id = newId;
+            ids.add(newId);
+          } else {
+            ids.add(metrics[k].id);
           }
         }
+      }
       // }
     }
     return dashboard;
@@ -216,24 +215,49 @@ export class DashboardConverterService {
     }
     return dashboard;
   }
-    // update dashboard to version 7: set eventQueries if not there
-    toDBVersion7(dashboard: any) {
-      dashboard.content.version = 7;
-      const widgets = dashboard.content.widgets;
-      for (let i = 0; i < widgets.length; i++) {
-        if (widgets[i].settings.component_type === 'LinechartWidgetComponent') {
-          if (!widgets[i].settings.visual || !widgets[i].eventQueries) {
-            widgets[i].settings.visual = {};
-            widgets[i].settings.visual.showEvents = false;
-            widgets[i].eventQueries = [];
-            widgets[i].eventQueries[0] = {};
-            widgets[i].eventQueries[0].namespace = '';
-            widgets[i].eventQueries[0].search = '';
-            widgets[i].eventQueries[0].id = 'q1_m1';
-          }
+  // update dashboard to version 7: set eventQueries if not there
+  toDBVersion7(dashboard: any) {
+    dashboard.content.version = 7;
+    const widgets = dashboard.content.widgets;
+    for (let i = 0; i < widgets.length; i++) {
+      if (widgets[i].settings.component_type === 'LinechartWidgetComponent') {
+        if (!widgets[i].settings.visual || !widgets[i].eventQueries) {
+          widgets[i].settings.visual = {};
+          widgets[i].settings.visual.showEvents = false;
+          widgets[i].eventQueries = [];
+          widgets[i].eventQueries[0] = {};
+          widgets[i].eventQueries[0].namespace = '';
+          widgets[i].eventQueries[0].search = '';
+          widgets[i].eventQueries[0].id = 'q1_m1';
         }
       }
-      return dashboard;
     }
+    return dashboard;
+  }
+
+  // update dashboard to version 8
+  // to deal with dashboard template v2
+  toDBVersion8(dashboard: any) {
+    dashboard.content.version = 8;
+    const settings = dashboard.content.settings;
+    const widgets = dashboard.content.widgets;
+    const vars = settings.tplVariables || [];
+    // get all namespace from widgets
+    const namespaces = {};
+    for ( let i = 0; i < widgets.length; i++ ) {
+        const queries = widgets[i].queries;
+        for ( let j = 0; j < queries.length; j++ ) {
+          namespaces[queries[j].namespace] = true;
+        }
+    }
+    const tplVariables = {
+      namespaces: Object.keys(namespaces),
+      vars: vars
+    };
+    delete dashboard.content.settings.tplVariables;
+    dashboard.content.settings.tplVariables = tplVariables;
+
+    return dashboard;
+  }
 
 }
