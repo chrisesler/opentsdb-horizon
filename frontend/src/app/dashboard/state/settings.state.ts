@@ -25,7 +25,10 @@ export interface DBSettingsModel {
         description: string;
         labels: Array<any>; // [{label: ''}]
     };
-    tplVariables: Array<object>;
+    tplVariables: {
+        namespaces: string[];
+        vars: any[];
+    };
 }
 
 const defaultInitialZoomTime = {start: '', end: '', zone: ''};
@@ -72,7 +75,9 @@ export class UpdateDashboardTitle {
 
 export class UpdateVariables {
     public static type = '[Dashboard] Update Variables';
-    constructor(public readonly variables: any) {}
+    // tplVars is object with namespaces and vars properties
+    // tplVars : { namespaces: [], vars: []}
+    constructor(public readonly tplVars: any) {}
 }
 
 export class UpdateMeta {
@@ -99,7 +104,10 @@ export class UpdateMeta {
             description: '',
             labels: []
         },
-        tplVariables: []
+        tplVariables: {
+            namespaces: [],
+            vars: []
+        }
     }
 })
 
@@ -214,9 +222,9 @@ export class DBSettingsState {
     }
 
     @Action(UpdateVariables)
-    updateVariables(ctx: StateContext<DBSettingsModel>, { variables }: UpdateVariables) {
+    updateVariables(ctx: StateContext<DBSettingsModel>, { tplVars }: UpdateVariables) {
         const state = ctx.getState();
-        ctx.patchState({...state, tplVariables: [...variables]});
+        ctx.patchState({...state, tplVariables: tplVars});
     }
 
     @Action(UpdateMeta)
