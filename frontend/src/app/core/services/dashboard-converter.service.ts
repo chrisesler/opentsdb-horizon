@@ -241,7 +241,7 @@ export class DashboardConverterService {
     dashboard.content.version = 8;
     const settings = dashboard.content.settings;
     const widgets = dashboard.content.widgets;
-    const vars = settings.tplVariables || [];
+    const tvars = settings.tplVariables.tvars || [];
     // get all namespace from widgets
     const namespaces = {};
     for ( let i = 0; i < widgets.length; i++ ) {
@@ -252,7 +252,7 @@ export class DashboardConverterService {
     }
     const tplVariables = {
       namespaces: Object.keys(namespaces),
-      vars: vars
+      tvars: tvars
     };
     delete dashboard.content.settings.tplVariables;
     dashboard.content.settings.tplVariables = tplVariables;

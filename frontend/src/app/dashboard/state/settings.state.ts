@@ -27,7 +27,7 @@ export interface DBSettingsModel {
     };
     tplVariables: {
         namespaces: string[];
-        vars: any[];
+        tvars: any[];
     };
 }
 
@@ -106,7 +106,7 @@ export class UpdateMeta {
         },
         tplVariables: {
             namespaces: [],
-            vars: []
+            tvars: []
         }
     }
 })
