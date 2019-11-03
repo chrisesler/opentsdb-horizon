@@ -43,9 +43,9 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     prevSelectedTagk = '';
     disableDone = false;
     trackingSub: any = {};
-
-    selectedNamespaces: any[] = ['yamas'];
-
+    selectedNamespaces: any[] = [];
+    newTags: any[] = []; // to hold new tags added in this session.
+    tagKeysByNamespaces: string[] = [];
     constructor (
         private fb: FormBuilder,
         private interCom: IntercomService,
@@ -64,7 +64,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     ngOnInit() {}
 
     ngOnChanges(changes: SimpleChanges) {
-        if (changes.tplVariables && changes.tplVariables.currentValue.editTplVariables.length > 0) {
+        if (changes.tplVariables && changes.tplVariables.currentValue.editTplVariables.tvars.length > 0) {
             if (this.mode.view) {
                 this.initListFormGroup();
             } else {
@@ -123,7 +123,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     initListFormGroup() {
         this.filteredValueOptions = [];
         this.listForm.controls['listVariables'] = this.fb.array([]);
-        this.tplVariables.viewTplVariables.forEach((data, index) => {
+        this.tplVariables.viewTplVariables.tvars.forEach((data, index) => {
+            console.log('hill - init form  data', data);
             const vardata = {
                 tagk: new FormControl((data.tagk) ? data.tagk : '', []),
                 alias: new FormControl((data.alias) ? data.alias : '', []),
@@ -138,10 +139,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     initEditFormGroup() {
         this.filteredValueOptions = [];
         this.editForm.controls['formTplVariables'] = this.fb.array([]);
-        this.initializeTplVariables(this.tplVariables.editTplVariables);
+        this.initializeTplVariables(this.tplVariables.editTplVariables.tvars);
         // after reload the tplVariables state and if they are not the same as
         // viewTplVariables, we need to requery, since they are exactly same order, we can do JSON string check
-        if (JSON.stringify(this.tplVariables.editTplVariables) !== JSON.stringify(this.tplVariables.viewTplVariables)) {
+        if (JSON.stringify(this.tplVariables.editTplVariables.tvars) !== JSON.stringify(this.tplVariables.viewTplVariables.tvars)) {
             this.interCom.requestSend({
                 action: 'ApplyTplVarValue',
             });
@@ -178,7 +179,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     initializeTplVariables(values: any) {
         if (values.length === 0) {
             // add an empty one if there are no values
-            this.addVariableTemplate();
+            this.addVariableTemplate(null, true);
         } else {
             for (const item of values) {
                 this.addVariableTemplate(item);
@@ -186,7 +187,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         }
     }
 
-    addVariableTemplate(data?: any) {
+    addVariableTemplate(data?: any, isNew = false) {
         data = (data) ? data : { applied: 0};
         const varData = {
             tagk: new FormControl((data.tagk) ? data.tagk : '', [Validators.required]),
@@ -196,6 +197,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         };
         const control = <FormArray>this.editForm.controls['formTplVariables'];
         control.push(this.fb.group(varData));
+        if (isNew) {
+            this.newTags.push(varData);
+        }
+        console.log('hill - new tags session', this.newTags);
     }
 
     onVariableFocus(index: number) {
@@ -213,7 +218,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
            selControl.get('filter').setValue(this.filteredValueOptions[index][idx]);
         }
         // if it's a different value from viewlist
-        if (this.tplVariables.viewTplVariables[index].filter !== selControl.get('filter').value) {
+        if (this.tplVariables.viewTplVariables.tvars[index].filter !== selControl.get('filter').value) {
             this.updateViewTplVariables();
         }
     }
@@ -300,7 +305,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             } else {
                selControl.get('filter').setValue(this.filteredValueOptions[index][idx], { emitEvent: false });
             }
-            if (this.tplVariables.editTplVariables[index].filter !== selControl.get('filter').value) {
+            if (this.tplVariables.editTplVariables.tvars[index].filter !== selControl.get('filter').value) {
                 this.updateState(selControl);
             }
         }
@@ -334,7 +339,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     selectVarValueOption(event: any, index: number) {
-        if (this.tplVariables.viewTplVariables[index].filter !== event.option.value) {
+        if (this.tplVariables.viewTplVariables.tvars[index].filter !== event.option.value) {
             this.updateViewTplVariables();
         }
     }
@@ -366,12 +371,14 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             this.interCom.requestSend({
                 action: 'updateTemplateVariables',
                 payload: {
-                    variables: sublist
+                    namespaces: this.selectedNamespaces,
+                    tvars: sublist
                 }
             });
             if (reQuery) {
                 this.interCom.requestSend({
                     action: 'ApplyTplVarValue',
+                    payload: selControl.value
                 });
             }
         }
@@ -382,13 +389,17 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         for (let i = 0; i < this.listVariables.controls.length; i++) {
             varsList.push(this.listVariables.controls[i].value);
         }
-        this.tplVariables.viewTplVariables = varsList;
+        this.tplVariables.viewTplVariables.tvars = varsList;
+        // no need to update state since use just play with it.
+        /*
         this.interCom.requestSend({
             action: 'updateTemplateVariables',
             payload: {
-                variables: varsList
+                namespaces: this.selectedNamespaces,
+                tvars: varsList
             }
         });
+        */
         this.interCom.requestSend({
             action: 'ApplyTplVarValue',
         });
@@ -452,6 +463,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             this.selectedNamespaces.splice(index, 1);
         }
     }
+
+ 
 
     ngOnDestroy() {
         for (const sub in this.trackingSub) {

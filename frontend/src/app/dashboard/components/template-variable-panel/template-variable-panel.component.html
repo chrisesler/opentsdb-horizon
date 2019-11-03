@@ -1,10 +1,10 @@
 <ng-template [ngIf]="mode.view" [ngIfElse]="variableEditMode">
     <div [formGroup]="listForm" class="variable-list-wrapper">
-        <button mat-button color="primary" class="configure-variables-button" *ngIf="tplVariables.viewTplVariables.length === 0" (click)="doEdit()">
+        <button mat-button color="primary" class="configure-variables-button" *ngIf="tplVariables.viewTplVariables.tvars.length === 0" (click)="doEdit()">
             <mat-icon fontSet="denali" fontIcon="d-setting"></mat-icon>
             <span>Configure dashboard tag filters</span>
         </button>
-        <div *ngIf="tplVariables.viewTplVariables.length > 0">
+        <div *ngIf="tplVariables.viewTplVariables.tvars.length > 0">
             <ul class="varlist" formArrayName="listVariables">
                 <li *ngFor="let vartpl of listVariables.controls; let i = index" [formGroupName]="i">
                     <mat-form-field appearance="fill" color="primary" floatLabel="never" class="dashboard-template-variable" [ngStyle]="{width: calculateVariableDisplayWidth(vartpl)}" [attr.id]="'filter-tpl-'+i">
