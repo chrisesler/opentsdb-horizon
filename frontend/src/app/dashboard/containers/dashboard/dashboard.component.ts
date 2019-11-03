@@ -397,9 +397,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
                     break;
                 case 'updateTemplateVariables':
-                    this.store.dispatch(new UpdateVariables(message.payload.variables));
+                    this.store.dispatch(new UpdateVariables(message.payload));
                     break;
                 case 'ApplyTplVarValue':
+                    console.log('hill - this passing tag', message.payload);
                     this.applyTplVarValue();
                     break;
                 case 'UpdateTplAlias':
@@ -633,13 +634,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }));
         this.subscription.add(this.tplVariables$.subscribe(tvars => {
             // whenever tplVariables$ trigger, we save to view too.
-            console.log('hill - tvars', tvars);
+            console.log('hill - tvars once the state is updated', tvars);
             if (tvars) {
                 this.tplVariables = {...this.tplVariables,
                     editTplVariables: this.utilService.deepClone(tvars),
                     viewTplVariables: this.utilService.deepClone(tvars)
                 };
             }
+            console.log('hill - updated this.tplVariables', this.tplVariables);
         }));
         this.subscription.add(this.widgetGroupRawData$.subscribe(result => {
             let error = null;
