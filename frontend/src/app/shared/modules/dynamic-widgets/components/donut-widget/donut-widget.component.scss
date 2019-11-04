@@ -7,7 +7,7 @@
     // .widget-panel-content.donut-widget { }
 
     // when we are in edit view
-    // .edit-view-container.is-active { 
+    // .edit-view-container.is-active {
     //    .widget-panel-content.donut-widget { }
     // }
 
@@ -23,7 +23,8 @@
             max-height: 100%;
             display: flex;
 
-            .loading-spinner {
+            .loading-spinner,
+            .gif-spinner {
                 position: absolute;
                 left: 5px;
                 bottom: 5px;
@@ -44,7 +45,7 @@
                     color: rgb(216, 216, 215);
                 }
             }
-            
+
             .error{
                 position: absolute;
                 left: 0px;
@@ -81,24 +82,24 @@
                 font-family: 'Ubuntu';
             }
             rect {
-                cursor: pointer; 
+                cursor: pointer;
                 stroke-width: 1;
             }
             rect.disabled {
                 fill: transparent !important;
             }
-              
+
             /* tooltip */
             .tooltip{
-                background: #eee; 
-                box-shadow: 0 0 5px #999999;                                    
-                color: #333;                                                    
-                display: none;                                                  
-                font-size: 12px;                                                
-                padding: 5px;                                                  
-                position: absolute;                                             
-                min-width: 100px;                                                    
-                z-index: 10; 
+                background: #eee;
+                box-shadow: 0 0 5px #999999;
+                color: #333;
+                display: none;
+                font-size: 12px;
+                padding: 5px;
+                position: absolute;
+                min-width: 100px;
+                z-index: 10;
                 top:10px;
                 left: 10px;
 		    }
@@ -117,7 +118,7 @@
                 height: 100%;
                 overflow: auto;
             }
-              
+
             .legend svg {
                 position: relative!important;
             }

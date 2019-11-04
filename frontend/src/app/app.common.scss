@@ -133,12 +133,12 @@
             .mat-form-field-wrapper {
                 padding-bottom: initial;
             }
-    
+
             .mat-form-field-flex {
                 line-height: 1;
                 border-radius: 4px;
             }
-    
+
             .mat-form-field-infix {
                 padding: 8px;
                 display: inline-flex;
@@ -156,7 +156,7 @@
             .mat-input-element {
                 padding: 0 8px;
             }
-            
+
         }
 
 
@@ -259,7 +259,7 @@
             */
             height: 24px;
             line-height: 24px;
-            font-size: 14px; 
+            font-size: 14px;
         }
     }
 
@@ -267,7 +267,7 @@
         .mat-option {
             height: 24px;
             line-height: 24px;
-            font-size: 14px; 
+            font-size: 14px;
         }
     }
 
@@ -295,7 +295,7 @@
         transform: translate(-50%, 0);
         z-index:1;
     }
-    
+
     .chartjs-tooltip-key {
         display: inline-block;
         width: 10px;
@@ -325,7 +325,7 @@
         border-right-style: solid;
         border-bottom-style: solid;
         border-left-style: solid;
-        
+
         -webkit-transform: translateZ(0);
         -ms-transform: translateZ(0);
         transform: translateZ(0);
@@ -379,6 +379,13 @@
         }
     }
 
+    /* animated spinner */
+    .gif-spinner {
+        width: 25px;
+        height: 26px;
+        display: inline-block;
+    }
+
 }
 
 @mixin app-common-theme($theme-config) {
@@ -419,7 +426,7 @@
     }
 
     /* MATERIAL OVERRIDES */
-    
+
     // CDK items are outside of component namespace class - be sure to give them very unique names
     .mat-menu-panel {
         background-color: map-get($background, menu);
@@ -439,7 +446,7 @@
 
     .mat-datepicker-content {
         border: 1px solid map-get($accent, default);
-        background-color: map-get($background, menu); 
+        background-color: map-get($background, menu);
     }
 
     // Mat Form Field
@@ -491,7 +498,7 @@
                 }
             }
         }
-        
+
     }
 
     /* loading spinner */
@@ -543,7 +550,7 @@
     * {
         // background of the bar itself
         &::-webkit-scrollbar {
-            background-color: transparent; 
+            background-color: transparent;
             &:vertical {
                 width: $scrollbar-size;
             }

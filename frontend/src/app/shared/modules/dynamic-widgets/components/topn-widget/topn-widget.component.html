@@ -15,7 +15,10 @@
                 [size]="size"
                 ></div>
         </div>
-        <div class="loading-spinner size-s color-primary" *ngIf="nQueryDataLoading > 0"></div>
+        <!--<div class="loading-spinner size-s color-primary" *ngIf="nQueryDataLoading > 0"></div>-->
+        <div class="gif-spinner" *ngIf="nQueryDataLoading > 0">
+            <img src="/assets/spinner-26x26.gif" />
+        </div>
         <div class="error" *ngIf="error" (click)="showError()">
             <mat-icon>error</mat-icon>
         </div>
@@ -75,4 +78,3 @@
         <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="closeViewEditMode()">Cancel</button>
     </div>
 </div>
-    

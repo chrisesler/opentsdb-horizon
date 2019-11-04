@@ -44,7 +44,7 @@
                         <!-- graph loop -->
                         <ng-container *ngFor="let xKey of getGraphDataObjectKeys(graphData[yKey]); let j = index;">
                             <div class="graph-cell graph-cell-{{i}}-{{j}}"
-                                [ngClass]="{'ts-legend-focus': (!multigraphEnabled) ? legendFocus : (legendFocus && (legendFocus.y === yKey && legendFocus.x === xKey))}" 
+                                [ngClass]="{'ts-legend-focus': (!multigraphEnabled) ? legendFocus : (legendFocus && (legendFocus.y === yKey && legendFocus.x === xKey))}"
                                 [style.width.px]="(!multigraphEnabled) ? size.width + legendWidth : size.width"
                                 [style.height.px]="(!multigraphEnabled) ? size.height + legendHeight : (multigraphEnabled && multigraphMode === 'freeflow') ? size.height + 15 : size.height"
                                 [style.maxWidth]="(multigraphEnabled && multigraphMode === 'freeflow') ? size.width + 'px' : 'initial'">
@@ -74,19 +74,19 @@
                                     </div>
                                     <!--<div class="dygraph-legend" #graphLegend [attr.id]="'graphlegend-' + i + '-' + j"></div>-->
                                     <div class="events-overlay" [hidden]="!widget.settings.visual.showEvents" *ngIf="!multigraphEnabled">
-                                        <event-timeline 
-                                        [startTime]="startTime" 
-                                        [endTime]="endTime" 
-                                        [width]="eventsWidth" 
+                                        <event-timeline
+                                        [startTime]="startTime"
+                                        [endTime]="endTime"
+                                        [width]="eventsWidth"
                                         [events]="events"
                                         [toolTipHeightFromTop]="size.height"
-                                        [timezone] = "options.labelsUTC ? 'utc' : 'local'" 
+                                        [timezone] = "options.labelsUTC ? 'utc' : 'local'"
                                         (canvasClicked)="updatedShowEventStream(true)"
                                         (bucketClicked)="bucketClickedAtIndex($event)"
                                         (newBuckets)="newBuckets($event)"></event-timeline>
                                     </div>
                                 </div>
-                    
+
                                 <div class="graph-legend"
                                     [style.minWidth]="legendWidth"
                                     [style.height]="legendHeight"
@@ -121,7 +121,10 @@
             </div>
         </div>
 
-        <div class="loading-spinner size-s color-primary" *ngIf="nQueryDataLoading > 0"></div>
+        <!--<div class="loading-spinner size-s color-primary" *ngIf="nQueryDataLoading > 0"></div>-->
+        <div class="gif-spinner" *ngIf="nQueryDataLoading > 0">
+            <img src="/assets/spinner-26x26.gif" />
+        </div>
         <div class="error" *ngIf="error" (click)="showError()">
             <mat-icon>error</mat-icon>
         </div>
