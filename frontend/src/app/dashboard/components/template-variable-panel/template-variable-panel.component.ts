@@ -113,13 +113,11 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 distinctUntilChanged(),
                 debounceTime(300)
             ).subscribe(val => {
-                let payload = '.*';
-                if (val.toString().trim().length > 0) {
-                    payload += val + '.*';
-                }
-                const metrics = this.dbService.getMetricsFromWidgets(this.widgets);
-                const tag = { key: selControl.get('tagk').value, value: payload };
-                const query = { metrics, tag };
+
+                const query = {
+                    namespaces: this.selectedNamespaces,
+                    tag: { key: selControl.get('tagk').value, value: val}
+                };
                 this.httpService.getTagValues(query).subscribe(
                     results => {
                         this.filteredValueOptions[index] = results;
