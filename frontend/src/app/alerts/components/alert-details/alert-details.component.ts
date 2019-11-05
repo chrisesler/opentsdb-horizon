@@ -357,15 +357,10 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     }
 
     setupForm(data = null) {
-        console.log('** setting up form', data.threshold.singleMetric.metricId , data);
-        if (data.threshold.subType === 'periodOverPeriod') {
-            // const singleMetric = {... data.threshold.singleMetric};
-            // data.threshold.singleMetric = {
-            //     metricId: singleMetric.metricId,
-            //     queryIndex: singleMetric.queryIndex,
-            //     queryType: singleMetric.queryType
-            // };
-           this.periodOverPeriodConfig = {...data.threshold};
+        if (data && data.threshold && data.threshold.subType === 'periodOverPeriod') {
+            this.determineEnabledTransitions(data.threshold.singleMetric);
+            this.periodOverPeriodTransitionsSelected = [...data.notification.transitionsToNotify];
+            this.periodOverPeriodConfig = {...data.threshold};
         }
         const def = {
                 threshold : { singleMetric: {} },
@@ -1224,20 +1219,21 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         this.alertForm.markAsTouched();
         switch ( this.data.type ) {
             case 'simple':
+                if ( !this.thresholdSingleMetricControls.metricId.value ) {
+                    this.thresholdSingleMetricControls.metricId.setErrors({ 'required': true });
+                }
+
                 if (this.data.threshold.subType === 'singleMetric') {
                     this.validateSingleMetricThresholds(this.alertForm['controls'].threshold);
-                    if ( !this.thresholdSingleMetricControls.metricId.value ) {
-                        this.thresholdSingleMetricControls.metricId.setErrors({ 'required': true });
-                    }
                     if ( !this.alertForm['controls'].notification.get('transitionsToNotify').value.length ) {
                         this.alertForm['controls'].notification.get('transitionsToNotify').setErrors({ 'required': true });
                     }
                 } else { // period-over-period
-                    if ( this.periodOverPeriodTransitionsSelected.length === 0) {
-                        this.alertForm['controls'].notification.get('transitionsToNotify').setErrors({ 'required': true });
-                    }
                     if (!this.periodOverPeriodConfigIsValid) {
                         this.alertForm['controls'].threshold.get('singleMetric').setErrors({ 'isInvalid': true });
+                    }
+                    if ( this.periodOverPeriodTransitionsSelected.length === 0) {
+                        this.alertForm['controls'].notification.get('transitionsToNotify').setErrors({ 'required': true });
                     }
                 }
                 break;
@@ -1313,7 +1309,6 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 // tslint:disable-next-line: max-line-length
                 data.threshold.singleMetric.metricId =  dsId;
                 data.threshold.isNagEnabled = data.threshold.nagInterval !== '0' ? true : false;
-                console.log('**', data);
                 break;
             case 'healthcheck':
                 data.threshold.missingDataInterval = data.threshold.notifyOnMissing === 'true' ? data.threshold.missingDataInterval : null;

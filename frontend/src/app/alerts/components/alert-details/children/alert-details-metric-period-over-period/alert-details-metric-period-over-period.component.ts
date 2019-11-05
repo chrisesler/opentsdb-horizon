@@ -45,7 +45,7 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
       this.config.singleMetric = {};
     }
 
-    this.config.subType = this.config.subType || 'period-over-period';
+    this.config.subType = this.config.subType || 'periodOverPeriod';
     this.config.delayEvaluation = this.config.delayEvaluation || '0';
     // this.config.singleMetric.queryIndex = this.config.singleMetric.queryIndex || '0';
     this.config.singleMetric.queryType = this.config.singleMetric.queryType || 'tsdb';
