@@ -381,9 +381,20 @@
 
     /* animated spinner */
     .gif-spinner {
-        width: 25px;
-        height: 26px;
-        display: inline-block;
+        width: 16px;
+        height: 16px;
+        padding: 2px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        img {
+            width: 12px;
+            min-width: 12px;
+            height: 12px;
+            min-height: 12px;
+        }
     }
 
 }
@@ -397,6 +408,8 @@
     $background: map-get($theme-config, background);
     $is-dark: map-get($theme-config, is-dark);
 
+
+    $divider: map-get($foreground, divider);
     /* SCROLLBAR STYLING */
     // @include app-scrollbar($theme-config);
 
@@ -530,6 +543,10 @@
             border-bottom-color: rgba(map-get($warn, default), 0.2);
             border-left-color: map-get($warn, default);
         }
+    }
+
+    .gif-spinner {
+        background-color: rgba(map-get($background, card), .8);
     }
 }
 
