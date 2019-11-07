@@ -388,6 +388,16 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
         this.widget.queries.splice(qindex, 1);
     }
 
+    changeWidgetType(type) {
+        const wConfig = this.util.deepClone(this.widget);
+        wConfig.id = wConfig.id.replace('__EDIT__', '');
+         this.interCom.requestSend({
+             action: 'changeWidgetType',
+             id: wConfig.id,
+             payload: { wConfig: wConfig, newType: type }
+         });
+    }
+
     showError() {
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         const offsetHeight = 60;

@@ -12,6 +12,7 @@ import { AuthState } from '../../../shared/state/auth.state';
 import { skip } from 'rxjs/operators';
 import { Observable, Subscription, of, Subject } from 'rxjs';
 import { UtilsService } from '../../../core/services/utils.service';
+import { WidgetService } from '../../../core/services/widget.service';
 import { DateUtilsService } from '../../../core/services/dateutils.service';
 import { DBState, LoadDashboard, SaveDashboard, DeleteDashboardSuccess, DeleteDashboardFail, SetDashboardStatus } from '../../state/dashboard.state';
 import { LoadUserNamespaces, LoadUserFolderData, UserSettingsState } from '../../state/user.settings.state';
@@ -178,6 +179,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     userNamespaces: any = [];
     viewEditMode = false;
     newWidget: any; // setup new widget based on type from top bar
+    mWidget: any; // change the widget type
     searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
     dashboardDeleteDialog: MatDialogRef<DashboardDeleteDialogComponent> | null;
     activeMediaQuery = '';
@@ -220,6 +222,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         private elRef: ElementRef,
         private logger: LoggerService,
         private httpService: HttpService,
+        private wdService: WidgetService,
         private dbfsUtils: DbfsUtilsService,
         private urlOverrideService: URLOverrideService
     ) { }
@@ -258,15 +261,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'getWidgetCachedData':
                     const widgetCachedData = this.store.selectSnapshot(WidgetsRawdataState.getWidgetRawdataByID(message.id));
                     let hasQueryError = false;
-                    if (widgetCachedData) {
-                        for (const qid in widgetCachedData) {
-                            if (!widgetCachedData[qid] || widgetCachedData[qid]['error'] !== undefined) {
-                                hasQueryError = true;
-                            }
-                        }
+                    if ( widgetCachedData && widgetCachedData['error'] !== undefined) {
+                        hasQueryError = true;
                     }
                     // requery if cachedData has error or data not fetched yet
-                    if (!widgetCachedData || hasQueryError) {
+                    if (!widgetCachedData || Object.keys(widgetCachedData).length === 0 || hasQueryError) {
                         this.handleQueryPayload(message);
                     } else {
                         this.updateWidgetGroup(message.id, widgetCachedData);
@@ -314,6 +313,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         }, 100);
                     }
                     break;
+                case 'changeWidgetType':
+                    const [newConfig, needRefresh] = this.wdService.convertToNewType(message.payload.newType, message.payload.wConfig);
+                    if ( needRefresh ) {
+                        this.store.dispatch(new ClearQueryData({ wid: '__EDIT__' + message.id }));
+                    }
+                    this.mWidget = newConfig;
+                    break;
                 case 'closeViewEditMode':
                     this.store.dispatch(new UpdateMode(message.payload));
                     this.rerender = { 'reload': true };
@@ -347,9 +353,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         mIndex = 0;
                         this.store.dispatch(new UpdateWidgets(this.widgets));
                     } else {
-                        // check the component type is PlaceholderWidgetComponent.
-                        // If yes, it needs to be replaced with new component
-                        if (this.widgets[mIndex].settings.component_type === 'PlaceholderWidgetComponent') {
+                        // check the component type of updated widget config.
+                        // it needs to be replaced with new component
+                        if (this.widgets[mIndex].settings.component_type !== message.payload.widget.settings.component_type ) {
                             this.widgets[mIndex] = message.payload.widget;
                             // change name to fist metric if name is not change
                             if (message.payload.widget.settings.component_type !== 'MarkdownWidgetComponent' &&

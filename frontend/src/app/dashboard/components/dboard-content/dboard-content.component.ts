@@ -26,6 +26,7 @@ export class DboardContentComponent implements OnChanges {
   @Output() widgetsLayoutUpdate = new EventEmitter();
   @Input() widgets: any[];
   @Input() newWidget: any; // new widget when adding from top bar
+  @Input() mWidget: any;
   @Input() rerender: any;
   @Input() dashboardMode: string;
 
@@ -105,16 +106,21 @@ export class DboardContentComponent implements OnChanges {
     if ( changes.newWidget && changes.newWidget.currentValue ) {
       this.newComponent(changes.newWidget.currentValue);
     }
+    if ( changes.mWidget && changes.mWidget.currentValue ) {
+      this.newComponent(changes.mWidget.currentValue, true);
+    }
   }
 
-  newComponent(widget: any) {
-    this.interCom.requestSend(<IMessage> {
-      action: 'setDashboardEditMode',
-      payload: 'edit'
-    });
+  newComponent(widget: any, override= false) {
+    if ( !override ) {
+      this.interCom.requestSend(<IMessage> {
+        action: 'setDashboardEditMode',
+        payload: 'edit'
+      });
+      widget.settings = { ...widget.settings, ...this.widgetService.getWidgetDefaultSettings(widget.settings.component_type)};
+    }
     const component: Type<any> = this.widgetService.getComponentToLoad(widget.settings.component_type);
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
-    widget.settings = { ...widget.settings, ...this.widgetService.getWidgetDefaultSettings(widget.settings.component_type)};
     this.editComponent( { 'compFactory': componentFactory, widget: widget });
   }
 

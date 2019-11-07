@@ -683,7 +683,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             if (this.widgetTitle) {
                 titleSize = this.widgetTitle.nativeElement.getBoundingClientRect();
             }
-            padding = 8; // 8px top and bottom
+            padding = 15; // 8px top and bottom
             nHeight = newSize.height - heightOffset - titleSize.height - (padding * 2);
 
             if (this.widget.settings.visual.showEvents) {  // give room for events
@@ -1300,6 +1300,16 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     deleteQueryFilter(qid, findex) {
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
         this.widget.queries[qindex].filters.splice(findex, 1);
+    }
+
+    changeWidgetType(type) {
+       const wConfig = this.utilService.deepClone(this.widget);
+       wConfig.id = wConfig.id.replace('__EDIT__', '');
+        this.interCom.requestSend({
+            action: 'changeWidgetType',
+            id: wConfig.id,
+            payload: { wConfig: wConfig, newType: type }
+        });
     }
 
     showError() {
