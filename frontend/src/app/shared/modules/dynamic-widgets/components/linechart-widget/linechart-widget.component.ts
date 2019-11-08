@@ -639,6 +639,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
+    setTitle(title) {
+        this.widget.settings.title = title;
+    }
+
     isApplyTpl(): boolean {
         return (!this.widget.settings.hasOwnProperty('useDBFilter') || this.widget.settings.useDBFilter);
     }

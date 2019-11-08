@@ -126,7 +126,7 @@ export class WidgetsRawdataState {
         const curState = ctx.getState();
         const state = this.utils.deepClone(curState);
         state.data[payload.wid] = {};
-        state.lastModifiedWidget = { wid: payload.wid};
+        state.lastModifiedWidget = { wid: payload.triggerChange ? payload.wid : null };
         ctx.setState({...state});
     }
 

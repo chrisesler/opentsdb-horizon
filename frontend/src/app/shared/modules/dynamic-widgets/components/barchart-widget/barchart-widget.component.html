@@ -25,8 +25,15 @@
 <!-- NOTE: This needs to move to other component -->
 <div class="widget-controls-container" *ngIf="editMode">
     <div class="widget-title">
-            <span fxFlex="1 1 100%">{{ widget.settings.title }}</span>
-            <graph-type (change)="changeWidgetType($event)" selected="BarchartWidgetComponent"></graph-type>
+        <span fxFlex="1 1 100%">
+            <inline-editable class="navbar-item" 
+                [fieldValue]="widget.settings.title"
+                [minLength]="3"
+                [maxLength]="100"
+                (updatedValue)="setTitle($event)">
+            </inline-editable>
+        </span>
+        <graph-type (change)="changeWidgetType($event)" selected="BarchartWidgetComponent"></graph-type>
     </div>
     <!-- tabs with config content -->
     <mat-tab-group class="widget-configs" [@.disabled]="'true'">

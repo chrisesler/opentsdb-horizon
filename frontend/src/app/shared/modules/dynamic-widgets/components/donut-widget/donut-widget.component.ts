@@ -172,6 +172,10 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
         });
     }
 
+    setTitle(title) {
+        this.widget.settings.title = title;
+    }
+
     setSize(newSize) {
         const maxRadius = Math.min(newSize.width, newSize.height);
         let legendWidth = newSize.width - maxRadius;

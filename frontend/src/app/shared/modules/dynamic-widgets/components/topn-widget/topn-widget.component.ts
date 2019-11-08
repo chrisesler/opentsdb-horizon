@@ -163,6 +163,10 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
         this.cdRef.detectChanges();
     }
 
+    setTitle(title) {
+        this.widget.settings.title = title;
+    }
+
     requestData() {
         if (!this.isDataLoaded) {
             this.nQueryDataLoading = 1;

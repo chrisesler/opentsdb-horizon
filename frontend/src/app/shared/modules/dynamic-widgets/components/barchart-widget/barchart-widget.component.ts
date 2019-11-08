@@ -209,6 +209,11 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
             this.newSize$.next(newSize);
         });
     }
+
+    setTitle(title) {
+        this.widget.settings.title = title;
+    }
+
     requestData() {
         if (!this.isDataLoaded) {
             this.nQueryDataLoading = 1;

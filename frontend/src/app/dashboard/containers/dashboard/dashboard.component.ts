@@ -316,7 +316,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'changeWidgetType':
                     const [newConfig, needRefresh] = this.wdService.convertToNewType(message.payload.newType, message.payload.wConfig);
                     if ( needRefresh ) {
-                        this.store.dispatch(new ClearQueryData({ wid: '__EDIT__' + message.id }));
+                        this.store.dispatch(new ClearQueryData({ wid: '__EDIT__' + message.id , triggerChange: false }));
                     }
                     this.mWidget = newConfig;
                     break;
@@ -926,7 +926,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.store.dispatch(new SetQueryDataByGroup(gquery));
                 }
             } else {
-                this.store.dispatch(new ClearQueryData({ wid: message.id }));
+                this.store.dispatch(new ClearQueryData({ wid: message.id , triggerChange: true }));
             }
             // very important to unsubscribe
             if (subs) {

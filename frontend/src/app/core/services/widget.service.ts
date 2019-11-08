@@ -12,6 +12,7 @@ import {
     MarkdownWidgetComponent,
     EventsWidgetComponent
 } from '../../shared/modules/dynamic-widgets/components';
+import { literalArr } from '@angular/compiler/src/output/output_ast';
 
 @Injectable({
     providedIn: 'root'
@@ -110,7 +111,7 @@ export class WidgetService {
         const source = widget.settings.component_type;
         widget.settings.component_type = type;
         // tslint:disable:max-line-length
-        const needRefresh = !( series.includes(source) && series.includes(type) || summary.includes(source) && summary.includes(type) || series.includes(source) && summary.includes(type));
+        const needRefresh = type === 'BignumberWidgetComponent' || !( series.includes(source) && series.includes(type) || summary.includes(source) && summary.includes(type));
         // query override
         for (let i = 0;  i < queries.length; i++) {
             for (let j = 0;  j < queries[i].metrics.length; j++) {
@@ -124,6 +125,22 @@ export class WidgetService {
                 }
                 if ( queries[i].metrics[j].settings.visual.visible ) {
                     hasVisible = true;
+                }
+                // remove the metric settings
+                let msettings = ['lineType', 'lineWeight', 'type', 'axis'];
+                // big number doesn't have groupby
+                if ( type === 'BignumberWidgetComponent' ) {
+                    msettings = msettings.concat(['label', 'color']);
+                    delete queries[i].metrics[j].groupByTags;
+                }
+                if ( type === 'TopnWidgetComponent' ) {
+                    msettings.push('color');
+                }
+                if ( source === 'LinechartWidgetComponent' ) {
+                    for ( let k = 0; k < msettings.length; k++ ) {
+                        const key = msettings[k];
+                        delete queries[i].metrics[j].settings.visual[key];
+                    }
                 }
             }
         }
@@ -171,12 +188,12 @@ export class WidgetService {
         }
 
         // sorting preference, the following don't have sorting preference
-        if  ( ['BignumberWidgetComponent', 'LinechartWidgetComponent', 'HeatmapWidgetComponent', 'EventsWidgetComponent'].includes(type) ) {
+        if  ( ['BignumberWidgetComponent', 'LinechartWidgetComponent', 'HeatmapWidgetComponent'].includes(type) ) {
             delete widget.settings.sorting;
         }
 
         if ( source === 'LinechartWidgetComponent' ) {
-            delete widget.settings.eventQueries;
+            delete widget.eventQueries;
             delete widget.settings.multigraph;
         }
         return [ widget, needRefresh ];
