@@ -1,13 +1,16 @@
 <div class="widget-output-container" fxLayout="column" #testing>
     <div class="widget-output"  #widgetoutput >
         <div id="container" [style.width]="width" [style.height]="height">
-            <canvas id="canvas" 
+            <canvas id="canvas"
                 chartjs
                 [chartType]="type"
                 [data]="data"
                 [options]="options"
                 ></canvas>
-            <div class="loading-spinner size-s color-primary" *ngIf="nQueryDataLoading > 0"></div>
+            <!--<div class="loading-spinner size-s color-primary" *ngIf="nQueryDataLoading > 0"></div>-->
+            <div class="gif-spinner" *ngIf="nQueryDataLoading > 0">
+                <img src="/assets/spinner-26x26.gif" />
+            </div>
             <div class="error" *ngIf="error" (click)="showError()">
                 <mat-icon>error</mat-icon>
             </div>
@@ -19,7 +22,7 @@
                          fontIcon="d-lock-close-solid" *ngIf="!isApplyTpl()"></mat-icon>
             </div>
         </div>
-        
+
     </div>
 </div>
 <!-- NOTE: This needs to move to other component -->

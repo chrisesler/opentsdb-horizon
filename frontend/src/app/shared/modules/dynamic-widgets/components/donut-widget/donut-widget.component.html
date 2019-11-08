@@ -3,14 +3,17 @@
         <div id="container" #container [ngClass]="{
             'display-legend-right': widget.settings.legend.display && widget.settings.legend.position=='right',
             'display-legend-left': widget.settings.legend.display && widget.settings.legend.position=='left'}">
-            <div class="chart" 
+            <div class="chart"
                 D3PieChart
                 [options]="options"
                 [size]="size"
                 ></div>
             <span class="legend" [style.maxWidth]="size.legendWidth + 'px'" [style.height]="size.height - 30 + 'px'" [style.display]="size.legendWidth>=80 ? 'inline-block':'none'" #chartLegend></span>
         </div>
-        <div class="loading-spinner size-s color-primary" *ngIf="nQueryDataLoading > 0"></div>
+        <!--<div class="loading-spinner size-s color-primary" *ngIf="nQueryDataLoading > 0"></div>-->
+        <div class="gif-spinner" *ngIf="nQueryDataLoading > 0">
+            <img src="/assets/spinner-26x26.gif" />
+        </div>
         <div class="error" *ngIf="error" (click)="showError()">
             <mat-icon>error</mat-icon>
         </div>
@@ -85,4 +88,3 @@
         <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="closeViewEditMode()">Cancel</button>
     </div>
 </div>
-    

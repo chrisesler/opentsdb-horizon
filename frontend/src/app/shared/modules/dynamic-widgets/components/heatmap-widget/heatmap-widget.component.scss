@@ -75,7 +75,8 @@
                 }
             }
 
-            .loading-spinner {
+            .loading-spinner,
+            .gif-spinner {
                 position: absolute;
                 left: 5px;
                 bottom: 5px;
@@ -96,7 +97,7 @@
                     color: rgb(216, 216, 215);
                 }
             }
-            
+
             .error{
                 position: absolute;
                 left: 0px;
@@ -187,7 +188,7 @@
     }
 
      // when we are in edit view
-     .edit-view-container.is-active { 
+     .edit-view-container.is-active {
         .widget-panel-content.linechart-widget {
             .widget-output {
                 //top: 30px;

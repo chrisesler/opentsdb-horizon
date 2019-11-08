@@ -7,7 +7,7 @@
                 [style.color]="textColor"
                 [style.font-size]="fontSizePercent + '%'"
                 [ngClass]= "{'edit-flex' : editMode}">
-    
+
                 <div class="content-container">
                     <div class="metric-container">
                         <div *ngIf="widget.settings.visual.prefix"
@@ -22,8 +22,8 @@
                                 'large':    widget.settings.visual.prefixSize=='l'
                                 }">{{ shortenString(widget.settings.visual.prefix, maxLabelLength) | uppercase }}</div>
                         </div>
-                        
-                        <div *ngIf="bigNumber.unitPos === 0" 
+
+                        <div *ngIf="bigNumber.unitPos === 0"
                                 class='left-unit unit' [ngClass]="{
                                 'top':     widget.settings.visual.unitAlignment=='top',
                                 'middle':  widget.settings.visual.unitAlignment=='middle',
@@ -35,11 +35,11 @@
                                 'large':   widget.settings.visual.unitSize=='l'
                                 }">{{ shortenString(bigNumber.unit, maxLabelLength) }}</div>
                         </div>
-    
+
                         <div class="big-number" *ngIf="bigNumber.num !== undefined">{{ bigNumber.num + bigNumber.postfix }}</div>
                         <div class="big-number" *ngIf="bigNumber.num === undefined">{{noDataText}}</div>
-    
-                        <div *ngIf="bigNumber.unitPos === 1" 
+
+                        <div *ngIf="bigNumber.unitPos === 1"
                                 class='right-unit unit' [ngClass]="{
                                 'top':     widget.settings.visual.unitAlignment=='top',
                                 'middle':  widget.settings.visual.unitAlignment=='middle',
@@ -74,7 +74,10 @@
                 </div>
             </div>
 
-            <div class="loading-spinner size-s color-primary" *ngIf="nQueryDataLoading > 0"></div>
+            <!--<div class="loading-spinner size-s color-primary" *ngIf="nQueryDataLoading > 0"></div>-->
+            <div class="gif-spinner" *ngIf="nQueryDataLoading > 0">
+                <img src="/assets/spinner-26x26.gif" />
+            </div>
             <div class="error" *ngIf="error" (click)="showError()">
                 <mat-icon>error</mat-icon>
             </div>
