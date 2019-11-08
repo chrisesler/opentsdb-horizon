@@ -16,17 +16,18 @@
         }
         #container {
             display:inline-block;
-            /* 
+            /*
                 this is parent containter(#container) of chartjs canvas.
-                position:relative is required on parent container as 
+                position:relative is required on parent container as
                 chartjs-zoom and threshold plugins inserts a canvas on top of chart canvas.
-            */ 
+            */
             position: relative;
             canvas {
                 width: 100% !important;
                 height: 100% !important;
             }
-            .loading-spinner {
+            .loading-spinner,
+            .gif-spinner {
                 position: absolute;
                 left: 5px;
                 bottom: 5px;
@@ -46,7 +47,7 @@
                     color: rgb(216, 216, 215);
                 }
             }
-    
+
             .error{
                 position: absolute;
                 left: 0px;
