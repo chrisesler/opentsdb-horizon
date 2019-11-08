@@ -36,6 +36,7 @@ import { AlertConverterService } from '../../services/alert-converter.service';
 import { CdkService } from '../../../core/services/cdk.service';
 import { DateUtilsService } from '../../../core/services/dateutils.service';
 import { TemplatePortal } from '@angular/cdk/portal';
+import { AlertDetailsMetricPeriodOverPeriodComponent } from './children/alert-details-metric-period-over-period/alert-details-metric-period-over-period.component';
 import * as d3 from 'd3';
 
 @Component({
@@ -52,6 +53,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     @ViewChild('graphLegend') private dygraphLegend: ElementRef;
     @ViewChild('eventSearchControl') private eventSearchControl: ElementRef;
     @ViewChild('alertDateTimeNavbarItemTmpl') alertDateTimeNavbarItemTmpl: TemplateRef<any>;
+    @ViewChild('periodOverPeriodForm') periodOverPeriodForm: AlertDetailsMetricPeriodOverPeriodComponent;
 
     @Input() response;
 
@@ -141,7 +143,6 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     periodOverPeriodConfig: any = {};
     periodOverPeriodTransitionsSelected = [];
     periodOverPeriodTransitionsEnabled = [];
-    periodOverPeriodConfigIsValid = false;
 
     // form control options
     ocSeverityOptions: any[] = [
@@ -316,10 +317,6 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             };
             this.size = newSize;
         });
-    }
-
-    periodOverPeriodConfigValid(isValid: boolean) {
-        this.periodOverPeriodConfigIsValid = isValid;
     }
 
     newSingleMetricTimeWindowSelected(timeInSeconds: string) {
@@ -1229,7 +1226,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                         this.alertForm['controls'].notification.get('transitionsToNotify').setErrors({ 'required': true });
                     }
                 } else { // period-over-period
-                    if (!this.periodOverPeriodConfigIsValid) {
+                    if (this.periodOverPeriodForm.anyErrors) {
                         this.alertForm['controls'].threshold.get('singleMetric').setErrors({ 'isInvalid': true });
                     }
                     if ( this.periodOverPeriodTransitionsSelected.length === 0) {

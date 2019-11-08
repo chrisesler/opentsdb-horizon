@@ -122,9 +122,9 @@
                                 </div>
 
                                 <alert-details-metric-period-over-period *ngIf="data && data.threshold && data.threshold.subType === 'periodOverPeriod'"
+                                    #periodOverPeriodForm
                                     [queries]="queries"
                                     (configChange)="periodOverPeriodChanged($event)"
-                                    (configIsValid)="periodOverPeriodConfigValid($event)"
                                     [config]= "periodOverPeriodConfig">
                                 </alert-details-metric-period-over-period>
 
