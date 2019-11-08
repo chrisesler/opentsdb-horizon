@@ -342,7 +342,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 if (rowKeys.length * colKeys.length > maxGraphs) {
                                     if (colKeys.length < maxGraphs) {
                                         numOfRows = Math.ceil(maxGraphs / colKeys.length);
-                                    } 
+                                    }
                                     // fill up
                                     for (let i = 0; i < numOfRows; i++) {
                                         for (let j = 0; j < maxCols; j++) {
@@ -415,7 +415,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 // this is for initial load before scroll event on widget
                                 this.applyMultiLazyLoad();
                             });
-                            
+
                         }
                         break;
                     case 'getUpdatedWidgetConfig':
@@ -668,7 +668,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         if (legendSettings.display &&
             (legendSettings.position === 'left' ||
                 legendSettings.position === 'right')) {
-            widthOffset = 10 + labelLen * 6.5 + 60 * legendColumns;
+            widthOffset = 45 + labelLen * 6.5 + 60 * legendColumns;
         }
 
         if (legendSettings.display &&
@@ -1476,7 +1476,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         let temp = {};
         const parentElem = this.widgetOutputElement;
         this.graphdivs.filter( elem => {
-            if (this.inWidgetViewport(parentElem, elem)) {           
+            if (this.inWidgetViewport(parentElem, elem)) {
                 const [y,x] = elem.nativeElement.id.split('|');
                 if (temp[y] === undefined) {
                     temp[y] = {};
@@ -1496,12 +1496,12 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         const graphcell = elem.nativeElement.closest('.graph-cell');
         const cBounding = graphcell.getBoundingClientRect();
         const inwvp: any = {};
-        
+
         const cTopLeft = { x: cBounding.left, y: cBounding.top };
         const cTopRight = { x: cBounding.right, y: cBounding.top };
         const cBottomLeft = { x: cBounding.left, y: cBounding.bottom };
         const cBottomRight = { x: cBounding.right, y: cBounding.bottom };
-        
+
         inwvp.topLeft = this.isIn(pBounding, cTopLeft);
         inwvp.topRight = this.isIn(pBounding, cTopRight);
         inwvp.bottomLeft = this.isIn(pBounding, cBottomLeft);
@@ -1511,7 +1511,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     };
 
     private isIn(pBounding:any, cCord: any) {
-        return cCord.x > pBounding.left && 
+        return cCord.x > pBounding.left &&
                 cCord.x < pBounding.right &&
                 cCord.y > pBounding.top &&
                 cCord.y < pBounding.bottom;
