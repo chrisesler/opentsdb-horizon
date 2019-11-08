@@ -92,6 +92,15 @@
         }
     }
 
+    /* see https://github.com/tiberiuzuld/angular-gridster2/issues/127 */
+    .gridster .gridster-column,
+    .gridster .gridster-row,
+    .gridster-item,
+    .gridster-item.gridster-item-resizing,
+    .gridster-item.gridster-item-moving {
+        transition: unset !important;
+    }
+
 
     /* MATERIAL OVERRIDES */
 
@@ -395,6 +404,12 @@
             height: 12px;
             min-height: 12px;
         }
+    }
+
+    /* see https://github.com/swiety85/angular2gridster/issues/104 */
+    .prevent-animation {
+        -webkit-transition: none !important;
+        transition: none !important;
     }
 
 }
