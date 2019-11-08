@@ -7,7 +7,7 @@ interface IQuery {
     type: string;
     metric: any;
     fetchLast: boolean;
-    source: any;
+    sourceId: any;
     timeShiftInterval?: string;
 }
 
@@ -167,7 +167,7 @@ export class YamasService {
                 type: 'MetricLiteral',
                 metric:  this.queries[qindex].namespace + '.' + this.queries[qindex].metrics[mindex].name
             },
-            source: environment.tsdbSource ? environment.tsdbSource : null,
+            sourceId: environment.tsdbSource ? environment.tsdbSource : null,
             fetchLast: false,
         };
 
