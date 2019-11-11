@@ -129,11 +129,12 @@ export class WidgetService {
                 let msettings = ['lineType', 'lineWeight', 'type', 'axis'];
                 // big number doesn't have groupby
                 if ( type === 'BignumberWidgetComponent' ) {
-                    msettings = msettings.concat(['label', 'color']);
                     delete queries[i].metrics[j].groupByTags;
+                    delete queries[i].metrics[j].settings.visual.label;
+                    delete queries[i].metrics[j].settings.visual.color;
                 }
                 if ( type === 'TopnWidgetComponent' ) {
-                    msettings.push('color');
+                    delete queries[i].metrics[j].settings.visual.color;
                 }
                 if ( source === 'LinechartWidgetComponent' ) {
                     for ( let k = 0; k < msettings.length; k++ ) {
