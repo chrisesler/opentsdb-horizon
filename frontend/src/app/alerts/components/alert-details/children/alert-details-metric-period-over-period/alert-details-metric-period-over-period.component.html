@@ -44,7 +44,7 @@
 <div class="form-group upper-threshold" >
     <span class="form-label vertical-center"><strong>Upper threshold</strong></span>
     <span class="threshold">
-        <span class="threshold-title">
+        <span class="threshold-bad-title ">
             Bad State
         </span>
 
@@ -76,8 +76,8 @@
             <mat-button-toggle-group name="upperThresholdType"
                 (change)="updateConfig('upperThresholdType', $event.value)"
                 [value]="config.singleMetric.upperThresholdType">
-                <mat-button-toggle value="value">Value</mat-button-toggle>
-                <mat-button-toggle value="percent">Percent</mat-button-toggle>
+                <mat-button-toggle value="value">#</mat-button-toggle>
+                <mat-button-toggle value="percent">%</mat-button-toggle>
             </mat-button-toggle-group>
         </span>
     </span>
@@ -97,7 +97,7 @@
 <div class="form-group lower-threshold">
     <span class="form-label vertical-center"><strong>Lower threshold</strong></span>
     <span class="threshold">
-        <span class="threshold-title">
+        <span class="threshold-bad-title">
             Bad State
         </span>
 
@@ -129,8 +129,8 @@
             <mat-button-toggle-group name="lowerThresholdType"
                 (change)="updateConfig('lowerThresholdType', $event.value)"
                 [value]="config.singleMetric.lowerThresholdType">
-                <mat-button-toggle value="value">Value</mat-button-toggle>
-                <mat-button-toggle value="percent">Percent</mat-button-toggle>
+                <mat-button-toggle value="value">#</mat-button-toggle>
+                <mat-button-toggle value="percent">%</mat-button-toggle>
             </mat-button-toggle-group>
         </span>
     </span>
@@ -152,7 +152,8 @@
     </mat-error>
 </div>
 
-<div class="show-advanced-threshold-toggle" [ngClass]="{'is-open': showThresholdAdvanced}">
+<!-- Advanced -->
+<div class="show-advanced-threshold-toggle" [ngClass]="{'is-open': showThresholdAdvanced || highestOutliersToRemove.errors || lowestOutliersToRemove.errors}">
     <div class="toggle-wrap">
         <a class="toggle-action" (click)="showThresholdAdvanced = !showThresholdAdvanced;">
             <mat-icon fontSet="denali" [fontIcon]="showThresholdAdvanced ? 'd-arrowhead-up' : 'd-arrowhead-down'"></mat-icon>
@@ -160,32 +161,35 @@
         </a>
     </div>
 
-    <div class="form-group alert-nag-interval">
-        <div class="form-label vertical-center"><strong>Outliers to remove</strong></div>
-        <div class="outliers">
-            <span>
-              Highest <input matInput
-                [formControl]="highestOutliersToRemove"
-                type="number" min="0"
-                [value]="config.singleMetric.highestOutliersToRemove"
-                (change)="updateConfig('highestOutliersToRemove', $event.target.value)">
+    <div class="form-group" id="outliers-form">
+        <span class="form-label vertical-center"><strong>Outliers to remove</strong></span>
+        <span class="outliers">
+            <span class="outlier-title"> Highest </span>
+            <span class="outlier-input">
+                <input matInput
+                    [formControl]="highestOutliersToRemove"
+                    type="number" min="0"
+                    [value]="config.singleMetric.highestOutliersToRemove"
+                    (change)="updateConfig('highestOutliersToRemove', $event.target.value)">
             </span>
-            <mat-error *ngIf="highestOutliersToRemove.errors">
-                Total removed outliers must be less than number of lookbacks.
-            </mat-error>
-            
-            <span>
-              Lowest <input matInput
-                [formControl]="lowestOutliersToRemove"
-                type="number" min="0"
-                [value]="config.singleMetric.lowestOutliersToRemove"
-                (change)="updateConfig('lowestOutliersToRemove', $event.target.value)">
+
+            <span class="outlier-title"> Lowest </span>
+            <span class="outlier-input">
+                <input matInput
+                    [formControl]="lowestOutliersToRemove"
+                    type="number" min="0"
+                    [value]="config.singleMetric.lowestOutliersToRemove"
+                    (change)="updateConfig('lowestOutliersToRemove', $event.target.value)">
             </span>
-            <mat-error *ngIf="lowestOutliersToRemove.errors">
-                Total removed outliers must be less than number of lookbacks.
-            </mat-error>
-        </div>
+        </span>
     </div>
+
+    <div class="error-messages">
+        <mat-error *ngIf="highestOutliersToRemove.errors || lowestOutliersToRemove.errors">
+            Total removed outliers must be less than number of lookbacks.
+        </mat-error>
+    </div>
+
     <div class="form-group delay-evaluation">
         <div class="form-label vertical-center"><strong>Delay evaluation by</strong></div>
         <mat-form-field appearance="fill" floatLabel="never">
