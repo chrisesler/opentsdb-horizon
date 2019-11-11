@@ -12,7 +12,6 @@ import {
     MarkdownWidgetComponent,
     EventsWidgetComponent
 } from '../../shared/modules/dynamic-widgets/components';
-import { literalArr } from '@angular/compiler/src/output/output_ast';
 
 @Injectable({
     providedIn: 'root'
