@@ -32,6 +32,7 @@
                 align-items: center;
 
                 .mat-input-element {
+                    font-family: mat-font-family(map-get($app-fontface-config, mono));
                     padding: 0 4px;
                     align-self: stretch;
                     min-width: 30px;
@@ -40,6 +41,7 @@
 
             .mat-form-field-prefix,
             .mat-form-field-suffix {
+                font-family: mat-font-family(map-get($app-fontface-config, mono));
                 align-self: stretch;
                 display: flex;
                 align-items: center;
@@ -64,7 +66,7 @@
                     display: none;
                 }
             }
-        }  
+        }
     }
 }
 @mixin metric-function-component-theme($theme-config) {
@@ -94,7 +96,7 @@
 
     $brand-color: map-get($background, navbar);
     $brand-color-inverse: map-get($foreground, navbar-text);
-    
+
     $lighter-divider: rgba(0,0,0,0.04);
 
     .metric-function-component {
@@ -119,6 +121,6 @@
                     background-color: $link;
                 }
             }
-        }  
+        }
     }
 }
