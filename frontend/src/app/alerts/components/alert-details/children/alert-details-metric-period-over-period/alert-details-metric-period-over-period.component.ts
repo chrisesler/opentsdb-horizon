@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, HostBinding } from '@angular/core';
 import { UtilsService } from '../../../../../core/services/utils.service';
 import { FormControl, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
 
@@ -9,6 +9,7 @@ import { FormControl, Validators, ValidatorFn, AbstractControl } from '@angular/
   styleUrls: []
 })
 export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
+  @HostBinding('class.period-over-period') private _hostClass = true;
 
   constructor(
     public utils: UtilsService

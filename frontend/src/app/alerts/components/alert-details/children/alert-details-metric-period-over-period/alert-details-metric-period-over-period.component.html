@@ -1,11 +1,15 @@
 <div class="form-group sliding-window" >
     <div class="form-label vertical-center"><strong>Sliding Window</strong></div>
-    <div class="form-control-wrap auto-width">
-      Average the last 
-      <time-selector [presets]="slidingWindowPresets"
-        [maxSeconds]="maxSlidingWindow"
-        [timeInSeconds]="config.singleMetric.slidingWindow"
-        (newTimeInSeconds)="updateConfig('slidingWindow', $event)"></time-selector>
+    <div class="sliding-window-form-control auto-width">
+      <span class="aggregator">
+            Average last
+      </span>
+      <span class="window-size">
+            <time-selector [presets]="slidingWindowPresets"
+            [maxSeconds]="maxSlidingWindow"
+            [timeInSeconds]="config.singleMetric.slidingWindow"
+            (newTimeInSeconds)="updateConfig('slidingWindow', $event)"></time-selector>
+      </span>
     </div>
 </div>
 
@@ -22,9 +26,9 @@
     Sliding window must be less than the period.
 </mat-error>
 
-<div class="form-group look-backs" >
+<div class="form-group lookbacks" >
   <div class="form-label vertical-center"><strong>Number of Lookbacks</strong></div>
-  <input matInput 
+  <input matInput class="lookbacks-input"
     [formControl]="lookbacks"
     required
     type="number" min="1" max="10"
@@ -35,77 +39,118 @@
     </mat-error>
 </div>
 
-<div class="form-group threshold" >
-    <div class="form-label vertical-center"><strong>Upper threshold</strong></div>
-    <span>
-        Bad State <input matInput
-                    [formControl]="badUpperThreshold"
-                    type="number" min="0"
-                    [value]="config.singleMetric.badUpperThreshold"
-                    (change)="updateConfig('badUpperThreshold', $event.target.value)">
+<!-- Upper Threshold -->
+
+<div class="form-group upper-threshold" >
+    <span class="form-label vertical-center"><strong>Upper threshold</strong></span>
+    <span class="threshold">
+        <span class="threshold-title">
+            Bad State
+        </span>
+
+        <span class="threshold-input">
+            <input matInput
+            [formControl]="badUpperThreshold"
+            type="number" min="0"
+            [value]="config.singleMetric.badUpperThreshold"
+            (change)="updateConfig('badUpperThreshold', $event.target.value)">
+            <span class="type" *ngIf="config.singleMetric.upperThresholdType === 'percent'">%</span>
+            <span class="type" *ngIf="config.singleMetric.upperThresholdType !== 'percent'">#</span>
+        </span>
+
+        <span class="threshold-title warning-title">
+            Warning State
+        </span>
+
+        <span class="threshold-input">
+            <input matInput
+            [formControl]="warnUpperThreshold"
+            type="number" min="0"
+            [value]="config.singleMetric.warnUpperThreshold"
+            (change)="updateConfig('warnUpperThreshold', $event.target.value)">
+            <span class="type" *ngIf="config.singleMetric.upperThresholdType === 'percent'">%</span>
+            <span class="type" *ngIf="config.singleMetric.upperThresholdType !== 'percent'">#</span>
+        </span>
+
+        <span class="threshold-type">
+            <mat-button-toggle-group name="upperThresholdType"
+                (change)="updateConfig('upperThresholdType', $event.value)"
+                [value]="config.singleMetric.upperThresholdType">
+                <mat-button-toggle value="value">Value</mat-button-toggle>
+                <mat-button-toggle value="percent">Percent</mat-button-toggle>
+            </mat-button-toggle-group>
+        </span>
     </span>
+</div>
+
+<div class="error-messages">
     <mat-error *ngIf="badUpperThreshold.errors && (badUpperThreshold.dirty || badUpperThreshold.touched)">
         Bad threshold must be greater than Warn threshold and 0.
     </mat-error>
 
-    <span>
-        Warning State <input matInput
-                        [formControl]="warnUpperThreshold"
-                        type="number" min="0"
-                        [value]="config.singleMetric.warnUpperThreshold"
-                        (change)="updateConfig('warnUpperThreshold', $event.target.value)">
-    </span>
     <mat-error *ngIf="warnUpperThreshold.errors && (warnUpperThreshold.dirty || warnUpperThreshold.touched)">
         Warn threshold must be less than Bad threshold and greater than 0.
     </mat-error>
+</div>
 
-    <span>
-        <mat-button-toggle-group name="upperThresholdType"
-            (change)="updateConfig('upperThresholdType', $event.value)"
-            [value]="config.singleMetric.upperThresholdType">
-            <mat-button-toggle value="value">Value</mat-button-toggle>
-            <mat-button-toggle value="percent">Percent</mat-button-toggle>
-        </mat-button-toggle-group>
+<!-- Lower Threshold -->
+<div class="form-group lower-threshold">
+    <span class="form-label vertical-center"><strong>Lower threshold</strong></span>
+    <span class="threshold">
+        <span class="threshold-title">
+            Bad State
+        </span>
+
+        <span class="threshold-input">
+            <input matInput
+                [formControl]="badLowerThreshold"
+                type="number" min="0"
+                [value]="config.singleMetric.badLowerThreshold"
+                (change)="updateConfig('badLowerThreshold', $event.target.value)">
+            <span class="type" *ngIf="config.singleMetric.lowerThresholdType === 'percent'">%</span>
+            <span class="type" *ngIf="config.singleMetric.lowerThresholdType !== 'percent'">#</span>
+        </span>
+
+        <span class="threshold-title warning-title">
+            Warning State
+        </span>
+
+        <span class="threshold-input">
+            <input matInput
+                [formControl]="warnLowerThreshold"
+                type="number" min="0"
+                [value]="config.singleMetric.warnLowerThreshold"
+                (change)="updateConfig('warnLowerThreshold', $event.target.value)">
+            <span class="type" *ngIf="config.singleMetric.lowerThresholdType === 'percent'">%</span>
+            <span class="type" *ngIf="config.singleMetric.lowerThresholdType !== 'percent'">#</span>
+        </span>
+
+        <span class="threshold-type"> 
+            <mat-button-toggle-group name="lowerThresholdType"
+                (change)="updateConfig('lowerThresholdType', $event.value)"
+                [value]="config.singleMetric.lowerThresholdType">
+                <mat-button-toggle value="value">Value</mat-button-toggle>
+                <mat-button-toggle value="percent">Percent</mat-button-toggle>
+            </mat-button-toggle-group>
+        </span>
     </span>
 </div>
 
-<div class="form-group threshold" >
-    <div class="form-label vertical-center"><strong>Lower threshold</strong></div>
-    <span>
-        Bad State <input matInput
-                    [formControl]="badLowerThreshold"
-                    type="number" min="0"
-                    [value]="config.singleMetric.badLowerThreshold"
-                    (change)="updateConfig('badLowerThreshold', $event.target.value)">
-    </span>
+<div class="error-messages">
     <mat-error *ngIf="badLowerThreshold.errors && (badLowerThreshold.dirty || badLowerThreshold.touched)">
         Bad threshold must be greater than Warn threshold and 0.
     </mat-error>
 
-    <span>
-        Warning State <input matInput
-                    [formControl]="warnLowerThreshold"
-                    type="number" min="0"
-                    [value]="config.singleMetric.warnLowerThreshold"
-                    (change)="updateConfig('warnLowerThreshold', $event.target.value)">
-    </span>
     <mat-error *ngIf="warnLowerThreshold.errors && (warnLowerThreshold.dirty || warnLowerThreshold.touched)">
         Warn threshold must be less than Bad threshold and greater than 0.
     </mat-error>
-
-    <span>
-        <mat-button-toggle-group name="lowerThresholdType"
-            (change)="updateConfig('lowerThresholdType', $event.value)"
-            [value]="config.singleMetric.lowerThresholdType">
-            <mat-button-toggle value="value">Value</mat-button-toggle>
-            <mat-button-toggle value="percent">Percent</mat-button-toggle>
-        </mat-button-toggle-group>
-    </span>
 </div>
 
-<mat-error *ngIf="!atleastOneThresholdSet()">
-   Please select atleast 1 threshold.
-</mat-error>
+<div class="error-messages">
+    <mat-error *ngIf="!atleastOneThresholdSet()">
+        Please select atleast 1 threshold.
+    </mat-error>
+</div>
 
 <div class="show-advanced-threshold-toggle" [ngClass]="{'is-open': showThresholdAdvanced}">
     <div class="toggle-wrap">

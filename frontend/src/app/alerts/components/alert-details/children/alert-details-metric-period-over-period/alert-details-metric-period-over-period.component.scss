@@ -1,0 +1,99 @@
+@mixin alert-details-metric-period-over-period-component-base() {
+
+    .period-over-period {
+
+        .hide {
+            display: none;
+        }
+
+        .sliding-window {
+
+            .sliding-window-form-control {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .aggregator{
+                display:inline;
+                margin-right: 5px;
+            }
+            
+        }
+
+        .lookbacks {
+            .lookbacks-input {
+                width: 100px;
+                height: 31px;
+                padding: 8px;
+            }
+        }
+
+        .time-button {
+            padding-left: 8px;
+
+            .mat-button-wrapper {
+                height: 31px;
+            }
+        }
+
+        .threshold {
+            display: flex;
+            align-items: center;
+            
+            .threshold-type,
+            .warning-title {
+                margin-left: 10px;
+            }
+
+            .threshold-title {
+                width: 100%
+            }
+
+            .threshold-input {
+                display: flex; 
+                justify-content: space-between;
+                width: 100%;
+                // height: 32px;
+                padding: 4px;
+            }
+
+            .type {
+                width: 10px;
+            }
+
+        }
+
+        .mat-button-toggle-group {
+            .mat-button-toggle-label-content {
+                line-height: 32px;
+            }
+        }
+    }
+
+}
+
+@mixin alert-details-metric-period-over-period-component-theme($theme-config) {
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $widget: map-get($theme-config, widgets);
+    $is-dark: map-get($theme-config, is-dark);
+
+    $divider: map-get($foreground, divider);
+
+    .period-over-period { 
+
+        .lookbacks-input {
+            background: rgba(map-get($primary, default), 0.08);
+        }
+
+        .threshold-input {
+            background: rgba(map-get($primary, default), 0.08);
+        }
+    }
+
+}
