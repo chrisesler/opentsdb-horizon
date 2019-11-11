@@ -61,9 +61,6 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
 }
 
   ngOnInit() {
-    if (this.viewMode) {
-      this.showThresholdAdvanced = true;
-    }
 
     if (!this.config || !this.config.singleMetric) {
       this.setDefaultConfig();
@@ -100,6 +97,15 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
     this.config.singleMetric.algorithm = this.config.singleMetric.algorithm || 'simple-average';
   }
 
+  getDelayEvalutionPlaceholder(): string {
+    let placeholder = 'Enter value';
+
+    if (this.viewMode && !this.config.singleMetric.delayEvaluation) {
+      placeholder = '0';
+    }
+
+    return placeholder;
+  }
   updateConfig(prop, val) {
     if (prop === 'badUpperThreshold' || prop === 'warnUpperThreshold' || prop === 'badLowerThreshold' || prop === 'warnLowerThreshold') {
       this.thresholdChanged = true;

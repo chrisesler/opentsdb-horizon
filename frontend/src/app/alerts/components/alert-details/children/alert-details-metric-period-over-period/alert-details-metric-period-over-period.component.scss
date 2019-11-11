@@ -107,14 +107,14 @@
 
     .period-over-period { 
 
-        .lookbacks-input,
-        .outlier-input,
-        .threshold-input,
-        .mat-button-toggle {
+        .blue-background {
             background: rgba(map-get($primary, default), 0.08);
         }
 
         .threshold-type {
+            .mat-button-toggle {
+                background: rgba(map-get($primary, default), 0.08);
+            }
             .mat-button-toggle-checked {
                 border: 2px solid blue;
                 border-radius: 3px;
@@ -122,5 +122,4 @@
             }
         }
     }
-
 }

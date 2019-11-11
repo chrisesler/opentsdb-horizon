@@ -14,6 +14,8 @@ export class AlertDetailsTransitionsComponent implements OnInit {
   @Input() showComposite: boolean;
   @Input() showUnknown: boolean;
 
+  @Input() readMode: boolean;
+
   @Input() selectedTransitions;
   @Input() enabledTransitions;
 

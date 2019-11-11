@@ -8,7 +8,8 @@
             <time-selector [presets]="slidingWindowPresets"
             [maxSeconds]="maxSlidingWindow"
             [timeInSeconds]="config.singleMetric.slidingWindow"
-            (newTimeInSeconds)="updateConfig('slidingWindow', $event)"></time-selector>
+            (newTimeInSeconds)="updateConfig('slidingWindow', $event)"
+            [isViewMode]="viewMode"></time-selector>
       </span>
     </div>
 </div>
@@ -18,7 +19,8 @@
     <div class="form-control-wrap auto-width">
       <time-selector [presets]="periodPresets"
         [timeInSeconds]="config.singleMetric.period"
-        (newTimeInSeconds)="updateConfig('period', $event)"> </time-selector>
+        (newTimeInSeconds)="updateConfig('period', $event)"
+        [isViewMode]="viewMode"> </time-selector>
     </div>
 </div>
 
@@ -28,7 +30,11 @@
 
 <div class="form-group lookbacks" >
   <div class="form-label vertical-center"><strong>Number of Lookbacks</strong></div>
-  <input matInput class="lookbacks-input"
+  <div *ngIf="viewMode">
+    {{config.singleMetric.lookbacks}}
+  </div>
+  <input matInput class="lookbacks-input" *ngIf="!viewMode"
+    [ngClass]="{'blue-background': !viewMode}"
     [formControl]="lookbacks"
     required
     type="number" min="1" max="10"
@@ -44,12 +50,13 @@
 <div class="form-group upper-threshold" >
     <span class="form-label vertical-center"><strong>Upper threshold</strong></span>
     <span class="threshold">
-        <span class="threshold-bad-title ">
+        <span class="threshold-bad-title">
             Bad State
         </span>
 
-        <span class="threshold-input">
+        <span class="threshold-input" [ngClass]="{'blue-background': !viewMode}">
             <input matInput
+            [readonly]="viewMode"
             [formControl]="badUpperThreshold"
             type="number" min="0"
             [value]="config.singleMetric.badUpperThreshold"
@@ -62,8 +69,9 @@
             Warning State
         </span>
 
-        <span class="threshold-input">
+        <span class="threshold-input" [ngClass]="{'blue-background': !viewMode}">
             <input matInput
+            [readonly]="viewMode"
             [formControl]="warnUpperThreshold"
             type="number" min="0"
             [value]="config.singleMetric.warnUpperThreshold"
@@ -72,7 +80,7 @@
             <span class="type" *ngIf="config.singleMetric.upperThresholdType !== 'percent'">#</span>
         </span>
 
-        <span class="threshold-type">
+        <span class="threshold-type" *ngIf="!viewMode">
             <mat-button-toggle-group name="upperThresholdType"
                 (change)="updateConfig('upperThresholdType', $event.value)"
                 [value]="config.singleMetric.upperThresholdType">
@@ -101,8 +109,9 @@
             Bad State
         </span>
 
-        <span class="threshold-input">
+        <span class="threshold-input" [ngClass]="{'blue-background': !viewMode}">
             <input matInput
+                [readonly]="viewMode"
                 [formControl]="badLowerThreshold"
                 type="number" min="0"
                 [value]="config.singleMetric.badLowerThreshold"
@@ -115,8 +124,9 @@
             Warning State
         </span>
 
-        <span class="threshold-input">
+        <span class="threshold-input" [ngClass]="{'blue-background': !viewMode}">
             <input matInput
+                [readonly]="viewMode"
                 [formControl]="warnLowerThreshold"
                 type="number" min="0"
                 [value]="config.singleMetric.warnLowerThreshold"
@@ -125,7 +135,7 @@
             <span class="type" *ngIf="config.singleMetric.lowerThresholdType !== 'percent'">#</span>
         </span>
 
-        <span class="threshold-type"> 
+        <span class="threshold-type" *ngIf="!viewMode"> 
             <mat-button-toggle-group name="lowerThresholdType"
                 (change)="updateConfig('lowerThresholdType', $event.value)"
                 [value]="config.singleMetric.lowerThresholdType">
@@ -165,8 +175,9 @@
         <span class="form-label vertical-center"><strong>Outliers to remove</strong></span>
         <span class="outliers">
             <span class="outlier-title"> Highest </span>
-            <span class="outlier-input">
+            <span class="outlier-input" [ngClass]="{'blue-background': !viewMode}">
                 <input matInput
+                    [readonly]="viewMode"
                     [formControl]="highestOutliersToRemove"
                     type="number" min="0"
                     [value]="config.singleMetric.highestOutliersToRemove"
@@ -174,8 +185,9 @@
             </span>
 
             <span class="outlier-title"> Lowest </span>
-            <span class="outlier-input">
+            <span class="outlier-input" [ngClass]="{'blue-background': !viewMode}">
                 <input matInput
+                    [readonly]="viewMode"
                     [formControl]="lowestOutliersToRemove"
                     type="number" min="0"
                     [value]="config.singleMetric.lowestOutliersToRemove"
@@ -192,11 +204,14 @@
 
     <div class="form-group delay-evaluation">
         <div class="form-label vertical-center"><strong>Delay evaluation by</strong></div>
-        <mat-form-field appearance="fill" floatLabel="never">
-            <input matInput type="number" onkeypress="return event.charCode >= 48" autocomplete="off" placeholder="Enter value"
+        <span class="delay-evaluation-input" [ngClass]="{'blue-background': !viewMode}">
+            <input matInput
+            [readonly]="viewMode"
+            type="number" onkeypress="return event.charCode >= 48" autocomplete="off" 
+            [placeholder]="getDelayEvalutionPlaceholder()"
             [value]="config.singleMetric.delayEvaluation"
             (change)="updateConfig('delayEvaluation', $event.target.value)">
-        </mat-form-field>
+        </span>
         <mat-hint class="info-hint">mins</mat-hint>
     </div>
 </div>

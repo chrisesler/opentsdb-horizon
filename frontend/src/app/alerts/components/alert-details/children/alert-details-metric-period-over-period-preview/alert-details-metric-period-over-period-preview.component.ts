@@ -54,11 +54,11 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
     const baseOption = {...selectedTimeSeriesOption};
 
     series[1] = {...selectedTimeSeriesOption};
-    series[2] = this.setLabelAndColor(baseOption, 'Expected_Value', '#000000');
-    series[3] = this.setLabelAndColor(baseOption, 'Upper_Bad_Threshold', '#ff0000');
-    series[4] = this.setLabelAndColor(baseOption, 'Upper_Warning_Threshold', '#ffa500');
-    series[5] = this.setLabelAndColor(baseOption, 'Lower_Warning_Threshold', '#ffa500');
-    series[6] = this.setLabelAndColor(baseOption, 'Lower_Bad_Threshold', '#ff0000');
+    series[2] = this.setLabelAndColor(baseOption, 'Expected Value', '#000000');
+    series[3] = this.setLabelAndColor(baseOption, 'Upper Bad Threshold', '#ff0000');
+    series[4] = this.setLabelAndColor(baseOption, 'Upper Warning Threshold', '#ffa500');
+    series[5] = this.setLabelAndColor(baseOption, 'Lower Warning Threshold', '#ffa500');
+    series[6] = this.setLabelAndColor(baseOption, 'Lower Bad Threshold', '#ff0000');
     return series;
   }
 
