@@ -74,6 +74,10 @@
             margin-bottom: 15px;
         }
 
+        .delay-evaluation-input {
+            padding: 5px;
+        }
+
         #outliers-form {
             margin-bottom: 0px;
 
@@ -112,9 +116,11 @@
         }
 
         .threshold-type {
+
             .mat-button-toggle {
                 background: rgba(map-get($primary, default), 0.08);
             }
+
             .mat-button-toggle-checked {
                 border: 2px solid blue;
                 border-radius: 3px;

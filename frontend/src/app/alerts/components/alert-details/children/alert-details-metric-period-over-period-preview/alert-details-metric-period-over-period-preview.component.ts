@@ -6,7 +6,7 @@ import { Component, OnInit, Input, HostBinding, OnChanges, SimpleChanges } from 
   templateUrl: './alert-details-metric-period-over-period-preview.component.html',
   styleUrls: []
 })
-export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnInit {
+export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnInit, OnChanges {
   @HostBinding('class.period-over-period-preview') private _hostClass = true;
 
   constructor() { }
@@ -32,11 +32,63 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
   thresholdOptions: any = {};
   timeseriesIndex = -1;
 
+  // zoom out data
+  chartDataZoomedOut: any = {};
+
   ngOnInit() { }
 
-  handleZoomQuery(e) { }
+  ngOnChanges(changes: SimpleChanges) {
+
+    // new data
+    if (changes.chartData && changes.nQueryDataLoading && changes.nQueryDataLoading.currentValue === 0 && this.timeseriesIndex !== -1) {
+      this.chartDataZoomedOut = {};
+      this.reloadPreview();
+    } else if (changes.chartData) { // selected metric changed
+      this.thresholdData = {};
+      this.timeseriesIndex = -1;
+    }
+
+  }
+
+  handleZoomQuery(zConfig) {
+    const n = this.chartData.ts.length;
+    if (zConfig.isZoomed && n > 0) {  // zoomed in
+      const startTime = new Date(this.chartData.ts[0][0]).getTime() / 1000;
+      const endTime = new Date(this.chartData.ts[n - 1][0]).getTime() / 1000;
+      zConfig.start = Math.floor(zConfig.start) <= startTime ? -1 : Math.floor(zConfig.start);
+      zConfig.end = Math.ceil(zConfig.end) >= endTime ? -1 : Math.floor(zConfig.end);
+
+      // cache zoomed-out data
+      if (this.isChartDataZoomedOutEmpty()) {
+        this.chartDataZoomedOut = {...this.chartData};
+      }
+
+      // extract out in-range timeseries
+      const zoomedTS = [];
+      for (const ts of this.chartData.ts) {
+        if (ts[0].getTime() / 1000 > zConfig.start && ts[0].getTime() / 1000 < zConfig.end) {
+          zoomedTS.push(ts);
+        }
+      }
+
+      // set chartData
+      this.chartData = {ts: zoomedTS};
+
+    } else if (!this.isChartDataZoomedOutEmpty()) {  // zoomed out
+      this.chartData = {...this.chartDataZoomedOut};
+      this.chartDataZoomedOut = {};
+    }
+  }
+
+  isChartDataZoomedOutEmpty() {
+    return Object.entries(this.chartDataZoomedOut).length === 0;
+  }
 
   handleZoomThreshold(e) { }
+
+  reloadPreview() {
+    this.timeSeriesClicked({timeSeries: this.timeseriesIndex.toString()});
+  }
 
   timeSeriesClicked(e) {
     this.timeseriesIndex = parseInt(e.timeSeries, 10);
@@ -46,7 +98,12 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
     this.thresholdOptions.thresholds = [];
     this.thresholdOptions.visibility = ['true', 'true', 'true', 'true', 'true', 'true', 'true'];
     this.thresholdOptions.series = this.getSeriesOptions(this.options.series[this.timeseriesIndex]);
-    this.thresholdData = this.getThresholdData(this.chartData.ts, this.timeseriesIndex);
+
+    if (this.isChartDataZoomedOutEmpty()) {
+      this.thresholdData = this.getThresholdData(this.chartData.ts, this.timeseriesIndex);
+    } else {
+      this.thresholdData = this.getThresholdData(this.chartDataZoomedOut.ts, this.timeseriesIndex);
+    }
   }
 
   getSeriesOptions(selectedTimeSeriesOption) {
