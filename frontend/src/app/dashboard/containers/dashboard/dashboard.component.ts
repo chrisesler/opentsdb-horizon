@@ -166,6 +166,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // other variables
     dbSettings: any;
     dbTime: any = {};
+    isDBZoomed = false;
     meta: any = {};
     // variables: any;
     dbTags: any;
@@ -436,27 +437,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.store.dispatch(new LoadUserFolderData());
                     break;
                 case 'SetZoomDateRange':
+                    // while zooming in, update the local var
+                    // reset from state when zoom out happens
                     if ( message.payload.isZoomed ) {
+                        this.isDBZoomed = true;
                         // tslint:disable:max-line-length
                         message.payload.start = message.payload.start !== -1 ? message.payload.start : this.dateUtil.timeToMoment(this.dbTime.start, this.dbTime.zone).unix();
                         message.payload.end = message.payload.end !== -1 ? message.payload.end : this.dateUtil.timeToMoment(this.dbTime.end, this.dbTime.zone).unix();
                         this.dbTime.start = this.dateUtil.timestampToTime(message.payload.start, this.dbTime.zone);
                         this.dbTime.end = this.dateUtil.timestampToTime(message.payload.end, this.dbTime.zone);
-                        message.payload = this.dbTime;
-                        this.store.dispatch(new UpdateDashboardTimeOnZoom({start: this.dbTime.start, end: this.dbTime.end}));
                     }  else { // zoomed out
+                        this.isDBZoomed = false;
                         const dbSettings = this.store.selectSnapshot(DBSettingsState);
-                        this.dbTime = this.utilService.hasInitialZoomTimeSet(dbSettings.initialZoomTime) ? {...dbSettings.initialZoomTime} : {...dbSettings.time};
-                        console.log('***', this.dbTime);
-                        message.payload = this.dbTime;
-                        this.store.dispatch(new UpdateDashboardTimeOnZoomOut());
+                        this.dbTime = {...dbSettings.time};
                     }
 
                     this.interCom.responsePut({
                         action: 'ZoomDateRange',
                         payload: { zoomingWid: message.id, date: message.payload }
                     });
-                    this.updateURLParams(message.payload);
+                    this.updateURLParams(this.dbTime);
                     break;
                 default:
                     break;
@@ -493,6 +493,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 // this.widgetTagLoaded = false;
                 // need to carry new loaded dashboard id from confdb
                 this.dbid = db.id;
+                this.isDBZoomed = false;
                 this.store.dispatch(new LoadDashboardSettings(db.content.settings)).subscribe(() => {
                     // update WidgetsState after settings state sucessfully loaded
                     this.store.dispatch(new UpdateWidgets(db.content.widgets));
@@ -600,7 +601,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.subscription.add(this.dbTime$.subscribe(t => {
 
             const timeZoneChanged = (this.dbTime && this.dbTime.zone !== t.zone);
-            this.dbTime = {...t};
+            if (timeZoneChanged ) {
+                this.dbTime.zone = t.zone;
+            } else {
+                this.isDBZoomed = false;
+                this.dbTime = {...t};
+            }
 
             // do not intercom if widgets are still loading
             if (!this.widgets.length) {
@@ -618,7 +624,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     payload: t
                 });
             }
-            this.updateURLParams(t);
+            this.updateURLParams(this.dbTime);
         }));
 
         this.subscription.add(this.dbSettings$.subscribe(settings => {
@@ -873,6 +879,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const dt = this.getDashboardDateRange();
         const subs = this.checkDbTagsLoaded().subscribe(loaded => {
             if (payload.queries.length) {
+                const wType = payload.settings.component_type;
+                // override downsample to auto when the dashboard is zoomed
+                if ( message.id.indexOf('__EDIT__') === -1 && ( wType === 'HeatmapWidgetComponent' || wType === 'LinechartWidgetComponent' ) ) {
+                    payload.settings.time.downsample.value = 'auto';
+                }
                 // should we modify the widget if using dashboard tag filter
                 const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables : this.tplVariables.editTplVariables;
                 if ((!payload.settings.hasOwnProperty('useDBFilter') || payload.settings.useDBFilter)
@@ -1042,6 +1053,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     setTimezone(e: any) {
+        // we change the local dbTime when zooming, so update the zone of local var
+        if ( this.isDBZoomed ) {
+            this.dbTime.start = this.dateUtil.timestampToTime(this.dateUtil.timeToMoment(this.dbTime.start, this.dbTime.zone).unix().toString(), e);
+            this.dbTime.end = this.dateUtil.timestampToTime(this.dateUtil.timeToMoment(this.dbTime.end, this.dbTime.zone).unix().toString(), e);
+        }
         this.store.dispatch(new UpdateDashboardTimeZone(e));
     }
 

@@ -205,7 +205,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             switch (message.action) {
                 case 'TimeChanged':
                     this.options.isCustomZoomed = false;
-                    delete this.options.dateWindow;
                     this.refreshData();
                     break;
                 case 'reQueryData':
@@ -214,22 +213,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 case 'TimezoneChanged':
                     this.setTimezone(message.payload.zone);
                     this.options = { ...this.options };
+                    this.cdRef.markForCheck();
                     break;
                 case 'ZoomDateRange':
-                    const downsample = this.widget.settings.time.downsample.value;
                     this.options.isCustomZoomed = message.payload.date.isZoomed;
-                    // requery data if auto is set, otherwise set/unset the dateWindow option to zoom/unzoon
-                    if ( downsample === 'auto' ) {
-                        this.refreshData();
-                    } else {
-                        if ( message.payload.date.start !== null ) {
-                            this.options.dateWindow = [message.payload.date.start * 1000, message.payload.date.end * 1000];
-                        } else {
-                            delete this.options.dateWindow;
-                        }
-                        this.options = {...this.options};
-                        this.cdRef.markForCheck();
-                    }
+                    this.refreshData();
                     break;
                 case 'tsLegendOptionsChange':
                     this.tsLegendOptions = message.payload;
@@ -401,6 +389,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 environment.debugLevel.toUpperCase() === 'INFO') {
                                     this.debugData = rawdata.log; // debug log
                             }
+                            console.log("graphData", this.graphData)
                             // we should not call setLegendDiv here as it's taken care in getUpdatedWidgetConfig
                             this.setLegendDiv();
                             if (!this.multigraphEnabled) {
