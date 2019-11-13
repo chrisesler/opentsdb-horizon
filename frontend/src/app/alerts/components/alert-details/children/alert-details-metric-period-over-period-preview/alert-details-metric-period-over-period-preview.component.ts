@@ -34,6 +34,7 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
 
   // zoom out data
   chartDataZoomedOut: any = {};
+  thresholdDataZoomedOut: any = {};
 
   ngOnInit() { }
 
@@ -42,6 +43,7 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
     // new data
     if (changes.chartData && changes.nQueryDataLoading && changes.nQueryDataLoading.currentValue === 0 && this.timeseriesIndex !== -1) {
       this.chartDataZoomedOut = {};
+      this.thresholdDataZoomedOut = {};
       this.reloadPreview();
     } else if (changes.chartData) { // selected metric changed
       this.thresholdData = {};
@@ -50,41 +52,61 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
 
   }
 
+  extractZoomedTimeseries(zConfig, data) {
+    const n = data.ts.length;
+    const startTime = new Date(data.ts[0][0]).getTime() / 1000;
+    const endTime = new Date(data.ts[n - 1][0]).getTime() / 1000;
+    zConfig.start = Math.floor(zConfig.start) <= startTime ? -1 : Math.floor(zConfig.start);
+    zConfig.end = Math.ceil(zConfig.end) >= endTime ? -1 : Math.floor(zConfig.end);
+
+    // extract out in-range timeseries
+    const zoomedTS = [];
+    for (const ts of data.ts) {
+      if (ts[0].getTime() / 1000 > zConfig.start && ts[0].getTime() / 1000 < zConfig.end) {
+        zoomedTS.push(ts);
+      }
+    }
+
+    return {ts: zoomedTS};
+  }
+
+   isChartDataZoomedOutEmpty() {
+    return Object.entries(this.chartDataZoomedOut).length === 0;
+  }
+
+  isThresholdDataZoomedOutEmpty() {
+    return Object.entries(this.thresholdDataZoomedOut).length === 0;
+  }
+
   handleZoomQuery(zConfig) {
     const n = this.chartData.ts.length;
     if (zConfig.isZoomed && n > 0) {  // zoomed in
-      const startTime = new Date(this.chartData.ts[0][0]).getTime() / 1000;
-      const endTime = new Date(this.chartData.ts[n - 1][0]).getTime() / 1000;
-      zConfig.start = Math.floor(zConfig.start) <= startTime ? -1 : Math.floor(zConfig.start);
-      zConfig.end = Math.ceil(zConfig.end) >= endTime ? -1 : Math.floor(zConfig.end);
-
       // cache zoomed-out data
       if (this.isChartDataZoomedOutEmpty()) {
         this.chartDataZoomedOut = {...this.chartData};
       }
-
-      // extract out in-range timeseries
-      const zoomedTS = [];
-      for (const ts of this.chartData.ts) {
-        if (ts[0].getTime() / 1000 > zConfig.start && ts[0].getTime() / 1000 < zConfig.end) {
-          zoomedTS.push(ts);
-        }
-      }
-
-      // set chartData
-      this.chartData = {ts: zoomedTS};
-
+      // get zoome-in data
+      this.chartData = this.extractZoomedTimeseries(zConfig, this.chartData);
     } else if (!this.isChartDataZoomedOutEmpty()) {  // zoomed out
       this.chartData = {...this.chartDataZoomedOut};
       this.chartDataZoomedOut = {};
     }
   }
 
-  isChartDataZoomedOutEmpty() {
-    return Object.entries(this.chartDataZoomedOut).length === 0;
+  handleZoomThreshold(zConfig) {
+    const n = this.thresholdData.ts.length;
+    if (zConfig.isZoomed && n > 0) {  // zoomed in
+      // cache zoomed-out data
+      if (this.isChartDataZoomedOutEmpty()) {
+        this.thresholdDataZoomedOut = {...this.thresholdData};
+      }
+      // get zoome-in data
+      this.thresholdData = this.extractZoomedTimeseries(zConfig, this.thresholdData);
+    } else if (!this.isThresholdDataZoomedOutEmpty()) {  // zoomed out
+      this.thresholdData = {...this.thresholdDataZoomedOut};
+      this.thresholdDataZoomedOut = {};
+    }
   }
-
-  handleZoomThreshold(e) { }
 
   reloadPreview() {
     this.timeSeriesClicked({timeSeries: this.timeseriesIndex.toString()});
