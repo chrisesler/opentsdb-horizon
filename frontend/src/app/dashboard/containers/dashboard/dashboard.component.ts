@@ -400,8 +400,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.store.dispatch(new UpdateVariables(message.payload));
                     break;
                 case 'ApplyTplVarValue':
-                    console.log('hill - this passing tag', message.payload);
-                    this.applyTplVarValue();
+                    console.log('hill - this passing tag to ApplyTplVarValue', message.payload);
+                    this.applyTplVarValue(message.payload);
                     break;
                 case 'UpdateTplAlias':
                     this.updateTplAlias(message.payload);
@@ -453,6 +453,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         payload: { zoomingWid: message.id, date: message.payload }
                     });
                     this.updateURLParams(message.payload);
+
                     break;
                 default:
                     break;
@@ -718,7 +719,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.urlOverrideService.applyParamstoURL(p);
     }
     // apply when custom tag value is changed
-    applyTplVarValue() {
+    
+    applyTplVarValue(tvar: any) {
+       
        for (let i = 0; i < this.widgets.length; i++) {
            // put condition to not event send in.
            if (!this.widgets[i].settings.hasOwnProperty('useDBFilter') || this.widgets[i].settings.useDBFilter) {
@@ -775,31 +778,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
         }
     }
-    // when custom tag alias is changed, just update in widget if use
+    // this will do the insert or update the name/alias if the widget is eligible.
     updateTplAlias(payload: any) {
-        const vartag = payload.vartag;
-        const originVal = payload.originVal;
-        for (let i = 0; i < this.widgets.length; i++) {
-            const widget = this.widgets[i];
-            for (let j = 0; j < widget.queries.length; j++) {
-                const filters = widget.queries[j].filters;
-                const fIndex = filters.findIndex(f => f.tagk === vartag.tagk);
-                if (fIndex > -1) {
-                    if (filters[fIndex].customFilter) {
-                        const idx = filters[fIndex].customFilter.indexOf('[' + originVal + ']');
-                        if (idx > -1) {
-                            filters[fIndex].customFilter[idx] = '[' + vartag.alias + ']';
-                            // update the alias and state
-                            this.store.dispatch(new UpdateWidget({
-                                id: widget.id,
-                                needRequery: false,
-                                widget: widget
-                            }));
-                        }
-                    }
+        console.log('hill - updateTplAlias', payload);;
+        this.checkDbTagsLoaded().subscribe(loaded => {
+            for (let i = 0; i < this.widgets.length; i++) {
+                const widget = this.widgets[i];
+                // we will insert or modify based on insert flag
+                const isModify = this.dbService.applytDBFilterToWidget(widget, payload, this.dashboardTags.rawDbTags);
+                if (isModify) {
+                    this.store.dispatch(new UpdateWidget({
+                        id: widget.id,
+                        needRequery: false,
+                        widget: widget
+                    }));
                 }
             }
-        }
+        });
     }
 
     // to passing raw data to widget
@@ -816,7 +811,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
         });
     }
-    // get all dashboard tags
+    // get all dashboard tags, use to check eligible for when apply db filter 
+    // to widget.
     getDashboardTagKeys(reloadData: boolean = true) {
         this.isDbTagsLoaded = false;
         this.httpService.getTagKeysForQueries(this.widgets).subscribe((res: any) => {
@@ -843,8 +839,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
             });
     }
 
+    // check if DBTags is loaded or not, 
     checkDbTagsLoaded(): Observable<any> {
-        if (this.tplVariables.editTplVariables.length > 0) {
+        if (this.tplVariables.editTplVariables.tvars.length > 0) {
             if (!this.isDbTagsLoaded) {
                 return this.isDbTagsLoaded$;
             } else {
@@ -869,6 +866,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         let groupid = '';
         // make sure we modify the copy for tsdb query
         const payload = this.utilService.deepClone(message.payload);
+        console.log('hill - payload to apply tpl', payload);
         // tslint:disable-next-line:max-line-length
         // const groupby = payload.settings.multigraph ? payload.settings.multigraph.chart.filter(d=> d.key !== 'metric_group' && d.displayAs !== 'g').map(d => d.key) : [];
         const groupby = payload.settings.multigraph ?
