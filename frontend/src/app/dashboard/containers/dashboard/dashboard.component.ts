@@ -1045,6 +1045,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     setDateRange(e: any) {
+        this.isDBZoomed = false;
         this.store.dispatch(new UpdateDashboardTime({ start: e.startTimeDisplay, end: e.endTimeDisplay }));
     }
 
