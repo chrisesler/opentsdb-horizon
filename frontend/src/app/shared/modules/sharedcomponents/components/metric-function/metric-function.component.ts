@@ -19,6 +19,21 @@ export class MetricFunctionComponent implements OnInit {
   @Output() fxDel = new EventEmitter;
   inputVal: FormControl;
   isEdit: boolean = false;
+
+  // this is to ensure that the input does not have any covered values.
+  // makes width expand depending on length of label and value
+  // minimum is 200px
+  get controlWidth(): number {
+    if (this.inputVal && this.inputVal.value) {
+      const fxCallLen = this.fx.fxCall.length + 1;
+      const fxValLen = this.inputVal.value.length + 1;
+      const calcWidth = ((fxCallLen + fxValLen) * 8);
+
+      return (calcWidth > 200) ? calcWidth : 200;
+    }
+    return 200;
+  }
+
   constructor() { }
 
   ngOnInit() {
