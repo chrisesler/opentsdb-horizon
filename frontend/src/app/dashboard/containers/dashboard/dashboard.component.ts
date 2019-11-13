@@ -881,7 +881,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             if (payload.queries.length) {
                 const wType = payload.settings.component_type;
                 // override downsample to auto when the dashboard is zoomed
-                if ( message.id.indexOf('__EDIT__') === -1 && ( wType === 'HeatmapWidgetComponent' || wType === 'LinechartWidgetComponent' ) ) {
+                if ( this.isDBZoomed && message.id.indexOf('__EDIT__') === -1 && ( wType === 'HeatmapWidgetComponent' || wType === 'LinechartWidgetComponent' ) ) {
                     payload.settings.time.downsample.value = 'auto';
                 }
                 // should we modify the widget if using dashboard tag filter
