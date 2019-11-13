@@ -200,7 +200,60 @@ export class DashboardService {
     return eWidgets;
   }
 
-  // return widget custom tag info if this widget is eligible
+  // apply the customFilter to widget queries if it's eligible
+  // @widget: widget to modify
+  // @tplVar: the current tplVar to apply
+  // @rawDbTags: the information about widget available tags
+  applytDBFilterToWidget(widget: any, tplVar: any, rawDbTags: any) {
+    let isModify = false;
+    const wid = widget.id.indexOf('__EDIT__') !== -1 ? widget.id.replace('__EDIT__', '') : widget.id;
+    if (rawDbTags[wid]) {
+      for (let i = 0; i < widget.queries.length; i++) {
+        const query = widget.queries[i];
+        if (rawDbTags[wid].hasOwnProperty(query.id)) {
+          const fIndx = query.filters.findIndex(f => f.tagk === tplVar.vartag.tagk);
+          if (fIndx > -1) {
+            const currFilter = query.filters[fIndx];
+            // we do have this tag defined
+            if (tplVar.insert === 1) {
+              if (!currFilter.customFilter) {
+                currFilter.customFilter = ['[' + tplVar.vartag.alias + ']'];
+                isModify = true;
+              } else {
+                // only insert if they are not there
+                if (!currFilter.customFilter.includes('[' + tplVar.vartag.alias + ']')) {
+                  currFilter.customFilter.push('[' + tplVar.vartag.alias + ']');
+                  isModify = true;
+                }
+              }
+            } else {
+              // to do update alias name if only they are there.
+              if (currFilter.customFilter) {
+                const idx = currFilter.customFilter.indexOf(('[' + tplVar.originVal + ']'));
+                if (idx > -1) {
+                  currFilter.customFilter[idx] = '[' + tplVar.vartag.alias + ']';
+                  isModify = true;
+                }
+              }
+            }
+          } else {
+            // the filter is not yet defined
+            if (tplVar.insert === 1) {
+              const nFilter = {
+                tagk: tplVar.vartag.tagk,
+                customFilter: ['[' + tplVar.vartag.alias + ']'],
+                filter: [],
+                groupBy: false
+              };
+              query.filters.push(nFilter);
+              isModify = true;
+            }
+          }
+        }
+      }
+    }
+    return isModify;
+   }
   applyWidgetDBFilter(widget: any, tplVariables: any, rawDbTags: any) {
    let isModify = false;
    const wid = widget.id.indexOf('__EDIT__') !== -1 ? widget.id.replace('__EDIT__', '') : widget.id;
