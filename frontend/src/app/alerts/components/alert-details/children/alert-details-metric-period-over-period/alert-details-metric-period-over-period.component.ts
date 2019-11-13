@@ -140,9 +140,9 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
         if (control.value === '') {
           forbidden = false;
         } else if (thresholdToCompare.includes('bad')) { // compare warn value to bad threshold
-          forbidden = this.isValueLargerThanThreshold(thresholdToCompare, control.value);
+          forbidden = this.isValueLargerThanThreshold(thresholdToCompare, control.value, Number.MAX_SAFE_INTEGER);
         } else { // compare bad value to warn threshold
-          forbidden = !this.isValueLargerThanThreshold(thresholdToCompare, control.value);
+          forbidden = !this.isValueLargerThanThreshold(thresholdToCompare, control.value, -1);
         }
         return forbidden ? { 'forbiddenValue': { value: control.value } } : null;
     };
@@ -170,8 +170,9 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
     };
   }
 
-  isValueLargerThanThreshold(threshold: string, value: string): boolean {
-    return Number(value) > Number(this.config.singleMetric[threshold]);
+  isValueLargerThanThreshold(threshold: string, value: string, defaultValue: number): boolean {
+    const thresholdValue: number = this.config.singleMetric[threshold] === '' ? defaultValue :  Number(this.config.singleMetric[threshold]);
+    return Number(value) > thresholdValue;
   }
 
   atleastOneThresholdSet() {
