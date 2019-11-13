@@ -254,6 +254,7 @@ export class DashboardService {
     }
     return isModify;
    }
+   
   applyWidgetDBFilter(widget: any, tplVariables: any, rawDbTags: any) {
    let isModify = false;
    const wid = widget.id.indexOf('__EDIT__') !== -1 ? widget.id.replace('__EDIT__', '') : widget.id;
