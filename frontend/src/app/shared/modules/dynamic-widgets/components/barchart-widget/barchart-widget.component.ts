@@ -209,6 +209,11 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
             this.newSize$.next(newSize);
         });
     }
+
+    setTitle(title) {
+        this.widget.settings.title = title;
+    }
+
     requestData() {
         if (!this.isDataLoaded) {
             this.nQueryDataLoading = 1;
@@ -577,6 +582,16 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
         this.widget.queries[qindex].filters.splice(findex, 1);
     }
+
+    changeWidgetType(type) {
+        const wConfig = this.util.deepClone(this.widget);
+        wConfig.id = wConfig.id.replace('__EDIT__', '');
+         this.interCom.requestSend({
+             action: 'changeWidgetType',
+             id: wConfig.id,
+             payload: { wConfig: wConfig, newType: type }
+         });
+     }
 
     showError() {
         const dialogConf: MatDialogConfig = new MatDialogConfig();

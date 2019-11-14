@@ -283,6 +283,10 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
     }
   }
 
+  setTitle(title) {
+    this.widget.settings.title = title;
+  }
+
   isApplyTpl(): boolean {
     return (!this.widget.settings.hasOwnProperty('useDBFilter') || this.widget.settings.useDBFilter);
   }
@@ -537,6 +541,16 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
             payload: payload
         });
     }
+  }
+
+  changeWidgetType(type) {
+    const wConfig = this.util.deepClone(this.widget);
+    wConfig.id = wConfig.id.replace('__EDIT__', '');
+     this.interCom.requestSend({
+         action: 'changeWidgetType',
+         id: wConfig.id,
+         payload: { wConfig: wConfig, newType: type }
+     });
   }
 
   showError() {

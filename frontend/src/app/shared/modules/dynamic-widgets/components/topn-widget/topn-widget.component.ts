@@ -163,6 +163,10 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
         this.cdRef.detectChanges();
     }
 
+    setTitle(title) {
+        this.widget.settings.title = title;
+    }
+
     requestData() {
         if (!this.isDataLoaded) {
             this.nQueryDataLoading = 1;
@@ -396,6 +400,16 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
         if ( qindex !== -1 && hasSelectedMetric !== -1  ) {
             this.widget.queries[qindex].metrics[0].settings.visual.visible = true;
         }
+    }
+
+    changeWidgetType(type) {
+        const wConfig = this.util.deepClone(this.widget);
+        wConfig.id = wConfig.id.replace('__EDIT__', '');
+         this.interCom.requestSend({
+             action: 'changeWidgetType',
+             id: wConfig.id,
+             payload: { wConfig: wConfig, newType: type }
+         });
     }
 
     showError() {

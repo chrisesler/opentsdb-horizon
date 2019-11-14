@@ -501,7 +501,11 @@ export class DatatranformerService {
         let cIndex = 0;
         const results = queryData.results ? queryData.results : [];
         for ( let i = 0;  i < results.length; i++ ) {
-            const qids = this.REGDSID.exec(results[i].source.split(':')[1]);
+            const [source, mid ] = results[i].source.split(':');
+            if ( source !== 'summarizer') {
+                continue;
+            }
+            const qids = this.REGDSID.exec(mid);
             const qIndex = qids[1] ? parseInt(qids[1], 10) - 1 : 0;
             const mIndex =  this.util.getDSIndexToMetricIndex(widget.queries[qIndex], parseInt(qids[3], 10) - 1, qids[2] );
             const gConfig = widget.queries[qIndex] ? widget.queries[qIndex] : null;
@@ -603,7 +607,10 @@ export class DatatranformerService {
 
         let cIndex = 0;
         for ( let i = 0; i < results.length; i++ ) {
-            const mid = results[i].source.split(':')[1];
+            const [source, mid ] = results[i].source.split(':');
+            if ( source !== 'summarizer') {
+                continue;
+            }
             const qids = this.REGDSID.exec(mid);
             const qIndex = qids[1] ? parseInt(qids[1], 10) - 1 : 0;
             const mIndex =  this.util.getDSIndexToMetricIndex(widget.queries[qIndex], parseInt(qids[3], 10) - 1, qids[2] );
@@ -642,7 +649,10 @@ export class DatatranformerService {
         const results = queryData.results ? queryData.results : [];
 
         for ( let i = 0; i < results.length; i++ ) {
-            const mid = results[i].source.split(':')[1];
+            const [source, mid ] = results[i].source.split(':');
+            if ( source !== 'summarizer') {
+                continue;
+            }
             const qids = this.REGDSID.exec(mid);
             const qIndex = qids[1] ? parseInt(qids[1], 10) - 1 : 0;
             const mIndex =  this.util.getDSIndexToMetricIndex(widget.queries[qIndex], parseInt(qids[3], 10) - 1, qids[2] );

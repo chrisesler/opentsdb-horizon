@@ -375,6 +375,9 @@ export class UtilsService {
         if (data) {
             for (let i = 0; data && i < data.length; i++) {
                 const [source, mid] = data[i].source.split(':'); // example: summarizer:q1_m2, summarizer:m2
+                if ( source !== 'summarizer' ) {
+                    continue;
+                }
                 if (mid === tsdbId) {
                     metric = data[i].data[0];
                     break;

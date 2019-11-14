@@ -154,18 +154,8 @@ export class DBSettingsState {
     updateDashboardTimeZone(ctx: StateContext<DBSettingsModel>, { zone }: UpdateDashboardTimeZone) {
         const state = ctx.getState();
         const time = {...state.time};
-        const startUnix = this.dateUtilsService.timeToMoment(time.start, time.zone).unix();
-        const endUnix = this.dateUtilsService.timeToMoment(time.end, time.zone).unix();
         time.zone = zone;
-
-        // if not relative time, use timestamps to generate full time
-        if (!this.dateUtilsService.relativeTimeToMoment(time.start) && time.start.toLowerCase() !== 'now') {
-            time.start = this.dateUtilsService.timestampToTime(startUnix.toString(), time.zone);
-        }
-        if (!this.dateUtilsService.relativeTimeToMoment(time.end) && time.end.toLowerCase() !== 'now') {
-            time.end = this.dateUtilsService.timestampToTime(endUnix.toString(), time.zone);
-        }
-        ctx.patchState({...state, time: time });
+        ctx.patchState({ time: time });
         // console.log('** SETTING DASHBOARD TIME ZONE', ctx.getState());
     }
 

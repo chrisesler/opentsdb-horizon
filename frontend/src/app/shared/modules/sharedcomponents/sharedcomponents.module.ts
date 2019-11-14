@@ -65,6 +65,7 @@ import { WidgetConfigEventsComponent } from './components/widget-config-events/w
 import { EventListComponent } from './components/event-list/event-list.component';
 import { WidgetConfigMultigraphComponent } from './components/widget-config-multigraph/widget-config-multigraph.component';
 import { TimeSelectorComponent } from './components/time-selector/time-selector.component';
+import { GraphTypeComponent } from './components/graph-type/graph-type.component';
 
 @NgModule({
     imports: [
@@ -126,7 +127,8 @@ import { TimeSelectorComponent } from './components/time-selector/time-selector.
         WidgetConfigEventsComponent,
         EventListComponent,
         WidgetConfigMultigraphComponent,
-        TimeSelectorComponent
+        TimeSelectorComponent,
+        GraphTypeComponent
     ],
     exports: [
         SearchMetricsDialogComponentV0,
@@ -170,7 +172,8 @@ import { TimeSelectorComponent } from './components/time-selector/time-selector.
         WidgetConfigEventsComponent,
         EventListComponent,
         WidgetConfigMultigraphComponent,
-        TimeSelectorComponent
+        TimeSelectorComponent,
+        GraphTypeComponent
     ],
     entryComponents: [
         SearchMetricsDialogComponentV0,

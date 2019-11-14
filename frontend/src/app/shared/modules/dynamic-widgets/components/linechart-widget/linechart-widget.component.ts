@@ -205,7 +205,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             switch (message.action) {
                 case 'TimeChanged':
                     this.options.isCustomZoomed = false;
-                    delete this.options.dateWindow;
                     this.refreshData();
                     break;
                 case 'reQueryData':
@@ -214,22 +213,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 case 'TimezoneChanged':
                     this.setTimezone(message.payload.zone);
                     this.options = { ...this.options };
+                    this.cdRef.markForCheck();
                     break;
                 case 'ZoomDateRange':
-                    const downsample = this.widget.settings.time.downsample.value;
                     this.options.isCustomZoomed = message.payload.date.isZoomed;
-                    // requery data if auto is set, otherwise set/unset the dateWindow option to zoom/unzoon
-                    if ( downsample === 'auto' ) {
-                        this.refreshData();
-                    } else {
-                        if ( message.payload.date.start !== null ) {
-                            this.options.dateWindow = [message.payload.date.start * 1000, message.payload.date.end * 1000];
-                        } else {
-                            delete this.options.dateWindow;
-                        }
-                        this.options = {...this.options};
-                        this.cdRef.markForCheck();
-                    }
+                    this.refreshData();
                     break;
                 case 'tsLegendOptionsChange':
                     this.tsLegendOptions = message.payload;
@@ -401,6 +389,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 environment.debugLevel.toUpperCase() === 'INFO') {
                                     this.debugData = rawdata.log; // debug log
                             }
+                            console.log("graphData", this.graphData)
                             // we should not call setLegendDiv here as it's taken care in getUpdatedWidgetConfig
                             this.setLegendDiv();
                             if (!this.multigraphEnabled) {
@@ -639,6 +628,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
+    setTitle(title) {
+        this.widget.settings.title = title;
+    }
+
     isApplyTpl(): boolean {
         return (!this.widget.settings.hasOwnProperty('useDBFilter') || this.widget.settings.useDBFilter);
     }
@@ -683,7 +676,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             if (this.widgetTitle) {
                 titleSize = this.widgetTitle.nativeElement.getBoundingClientRect();
             }
-            padding = 8; // 8px top and bottom
+            padding = 15; // 8px top and bottom
             nHeight = newSize.height - heightOffset - titleSize.height - (padding * 2);
 
             if (this.widget.settings.visual.showEvents) {  // give room for events
@@ -1300,6 +1293,16 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     deleteQueryFilter(qid, findex) {
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
         this.widget.queries[qindex].filters.splice(findex, 1);
+    }
+
+    changeWidgetType(type) {
+       const wConfig = this.utilService.deepClone(this.widget);
+       wConfig.id = wConfig.id.replace('__EDIT__', '');
+        this.interCom.requestSend({
+            action: 'changeWidgetType',
+            id: wConfig.id,
+            payload: { wConfig: wConfig, newType: type }
+        });
     }
 
     showError() {

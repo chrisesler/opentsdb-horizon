@@ -14,7 +14,7 @@ $widgets-common-config: (
     tab-width: initial,
     action-bar-height: 30px,
     output-radius: 4px,
-    widget-output-height: 300px,
+    widget-output-height: 270px,
     edit-toolbar-height: 50px,
     edit-toolbar-border-width: 2px
 );
@@ -79,7 +79,7 @@ $widgets-common-config: (
         }
 
         .widget-controls-container {
-            padding-top: $edit-view-padding;
+            // padding-top: $edit-view-padding;
 
             .widget-actions {
                 flex: 1 1 $action-bar-height;
@@ -352,7 +352,7 @@ $widgets-common-config: (
         }
 
         .widget-output-container {
-            padding: 0 $edit-view-padding;
+            padding: 15px $edit-view-padding;
             max-height: $widget-output-height;
 
             .widget-title {
