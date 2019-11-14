@@ -436,11 +436,6 @@
                 .mat-form-field {
                     margin-left: 16px;
                 }
-
-                .info-hint {
-                    margin-left: 8px;
-                }
-                
             }
         }
 
@@ -515,11 +510,6 @@
                     display: flex;
                 }
             }
-
-            .info-hint {
-                margin-left: 8px;
-            }
-
         }
 
         .info-hint {
@@ -527,6 +517,7 @@
             display: inline-flex;
             align-items: center;
             font-size: 10px;
+            margin-left: 8px;
 
             .mat-icon {
                 font-size: 16px;

@@ -86,6 +86,7 @@ setVisualization( vconfigs ) {
   closeViewEditMode() {
     this.interCom.requestSend({
         action: 'closeViewEditMode',
+        id: this.widget.id,
         payload: 'dashboard'
     });
   }

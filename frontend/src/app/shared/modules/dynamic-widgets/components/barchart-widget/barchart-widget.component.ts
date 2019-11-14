@@ -631,7 +631,8 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     closeViewEditMode() {
         this.interCom.requestSend(<IMessage>{
             action: 'closeViewEditMode',
-            payload: 'dashboard'
+            id: this.widget.id,
+            payload: 'dashboard',
         });
     }
 
