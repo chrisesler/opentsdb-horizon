@@ -106,6 +106,7 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
     closeViewEditMode() {
         this.interCom.requestSend({
             action: 'closeViewEditMode',
+            id: this.widget.id,
             payload: 'dashboard'
         });
     }

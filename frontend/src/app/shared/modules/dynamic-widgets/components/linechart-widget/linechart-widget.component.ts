@@ -1349,6 +1349,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     closeViewEditMode() {
         this.interCom.requestSend({
             action: 'closeViewEditMode',
+            id: this.widget.id,
             payload: 'dashboard'
         });
     }
