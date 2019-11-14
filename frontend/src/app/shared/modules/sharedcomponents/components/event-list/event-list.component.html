@@ -48,3 +48,12 @@
         </ng-container>
     </mat-accordion>
 </div>
+
+<div class="gif-spinner" *ngIf="loading">
+    <img src="/assets/spinner-26x26.gif" />
+</div>
+
+<div *ngIf="(!events || events.length === 0) && !loading">
+    No events.
+</div>
+

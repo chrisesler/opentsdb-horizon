@@ -33,6 +33,7 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
     timezone: string;
     previewEventsCount = 10;
     eventsCount = 100;
+    loading: boolean = false;
 
     // state control
     isDataRefreshRequired = false;
@@ -44,6 +45,7 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
         this.getEvents();
 
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
+            console.log(message);
 
             switch (message.action) {
                 case 'TimeChanged':
@@ -60,6 +62,7 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
                         this.getEvents();
                         break;
                     case 'updatedEvents':
+                        this.loading = false;
                         this.events = message.payload.events;
                         this.timezone = message.payload.time.zone;
                         this.startTime = this.dateUtil.timeToMoment(message.payload.time.start, this.timezone).unix() * 1000;
@@ -78,11 +81,13 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     getEvents() {
+        console.log('getting events', this.widget.eventQueries);
         this.interCom.requestSend({
             id: this.widget.id,
             action: 'getEventData',
             payload: {eventQueries: this.widget.eventQueries, limit: this.editMode ? this.previewEventsCount : this.eventsCount}
         });
+        // this.loading = true;
     }
 
     getTitle() {
@@ -130,6 +135,7 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
       deepClone.eventQueries[0].search = search;
       this.widget.eventQueries = [... deepClone.eventQueries];
       this.getEvents();
+      this.loading = true;
     }
 
     setEventQueryNamespace(namespace: string) {
@@ -138,5 +144,6 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
       deepClone.eventQueries[0].namespace = namespace;
       this.widget.eventQueries = [... deepClone.eventQueries];
       this.getEvents();
+      this.loading = true;
     }
 }

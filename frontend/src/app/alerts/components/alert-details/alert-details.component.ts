@@ -126,6 +126,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     size: any = {
         height: 180
     };
+    loadingEvents = false;
 
     recipients = {'slack' : [{'name': 'yamas_dev'}], 'oc': [{'name': 'oc red'}]};
 
