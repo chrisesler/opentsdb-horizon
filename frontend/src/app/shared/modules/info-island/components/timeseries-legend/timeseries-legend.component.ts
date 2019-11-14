@@ -38,7 +38,7 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
   currentWidgetType: string = '';
 
   options: any = {
-    trackMouse: false,
+    trackMouse: true,
     open: false
   };
   data: any;
@@ -152,6 +152,7 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
             this.multigraph = message.payload.multigraph;
             this.currentWidgetQueries = this.utilsService.deepClone(message.payload.queries);
             this.data = this.utilsService.deepClone(message.payload.tickData);
+            this.logger.log('DATA', this.data);
             this.setTableColumns();
             this.setTableData();
 
