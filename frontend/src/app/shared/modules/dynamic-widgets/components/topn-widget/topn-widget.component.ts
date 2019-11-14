@@ -450,6 +450,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     closeViewEditMode() {
         this.interCom.requestSend(<IMessage>{
             action: 'closeViewEditMode',
+            id: this.widget.id,
             payload: 'dashboard'
         });
     }

@@ -593,6 +593,7 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
   closeViewEditMode() {
       this.interCom.requestSend({
           action: 'closeViewEditMode',
+          id: this.widget.id,
           payload: 'dashboard'
       });
   }
