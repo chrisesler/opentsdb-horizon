@@ -1,6 +1,6 @@
 <mat-card class="alert-configuration-wrapper mat-elevation-z0" [formGroup]="alertForm">
     <mat-card-content>
-        <div class="preview-wrapper"  #graphOutput  [ngClass]="{'is-visible': (data && data.type === 'simple' && data.threshold.subType !== 'periodOverPeriod') || data.type === 'event'}">
+        <div class="preview-wrapper"  #graphOutput  [ngClass]="{'is-visible': data && data.type === 'event' || (data.type === 'simple' && data.threshold && data.threshold.subType !== 'periodOverPeriod')}">
             <div class="graph-wrapper">
                 <div class="graph-output" >
                     <div #dygraph class="chart"
@@ -22,7 +22,7 @@
             </event-list>
         </div>
 
-        <div [ngClass]="{'invisible': data && data.type === 'simple' && data.threshold && data.threshold.subType !== 'periodOverPeriod'}">
+        <div *ngIf="data && data.type === 'simple' && data.threshold && data.threshold.subType === 'periodOverPeriod'">
             <alert-details-metric-period-over-period-preview
                 [chartData]="chartData"
                 [size]="size"
@@ -409,7 +409,7 @@
                             <div class="form-group alert-notify-when">
                                 <div class="form-label"><strong>Notify</strong> when state transitions from</div>
                                 <div class="form-control-wrap">
-                                        <mat-selection-list *ngIf="data && data.threshold && data.threshold.subType !== 'periodOverPeriod'" class="notify-when-options" formControlName="transitionsToNotify">
+                                        <mat-selection-list *ngIf="data && data.type === 'healthcheck' || data.type === 'event' || (data.type === 'simple' && data.threshold && data.threshold.subType !== 'periodOverPeriod')" class="notify-when-options" formControlName="transitionsToNotify">
                                             <mat-list-option value="goodToBad" [disabled]="thresholdControls[thresholdType].controls.badThreshold.value === null">Good to Bad</mat-list-option>
                                             <mat-list-option value="warnToBad" [disabled]="thresholdControls[thresholdType].controls.badThreshold.value === null || thresholdControls[thresholdType].controls.warnThreshold.value === null">Warn to Bad</mat-list-option>
                                             <mat-list-option value="warnToGood" [disabled]="thresholdControls[thresholdType].controls.warnThreshold.value === null">Warn to Good</mat-list-option>
