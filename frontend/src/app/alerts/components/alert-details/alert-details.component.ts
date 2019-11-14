@@ -126,7 +126,6 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     size: any = {
         height: 180
     };
-    loadingEvents = false;
 
     recipients = {'slack' : [{'name': 'yamas_dev'}], 'oc': [{'name': 'oc red'}]};
 
@@ -1330,6 +1329,10 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     }
 
     /** Events */
+
+    loadingEvents() {
+        return this.nQueryDataLoading > 0;
+    }
 
     removeNotificationLabelValue(i: number) {
         const control = <FormArray>this.notificationLabelValues;

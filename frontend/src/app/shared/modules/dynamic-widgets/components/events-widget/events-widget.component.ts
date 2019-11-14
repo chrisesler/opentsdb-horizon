@@ -31,7 +31,7 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
     startTime: number;
     endTime: number;
     timezone: string;
-    previewEventsCount = 10;
+    previewEventsCount = 100;
     eventsCount = 100;
     loading: boolean = false;
 
@@ -45,8 +45,6 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
         this.getEvents();
 
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
-            console.log(message);
-
             switch (message.action) {
                 case 'TimeChanged':
                 case 'reQueryData':
@@ -81,13 +79,11 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     getEvents() {
-        console.log('getting events', this.widget.eventQueries);
         this.interCom.requestSend({
             id: this.widget.id,
             action: 'getEventData',
             payload: {eventQueries: this.widget.eventQueries, limit: this.editMode ? this.previewEventsCount : this.eventsCount}
         });
-        // this.loading = true;
     }
 
     getTitle() {
