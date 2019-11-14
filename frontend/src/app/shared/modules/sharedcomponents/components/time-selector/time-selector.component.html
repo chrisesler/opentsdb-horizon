@@ -9,7 +9,7 @@
 </button>
 
 <mat-menu #menu="matMenu" class="cdk-time-menu">
-  <button *ngFor="let preset of presetIntervalSizes" mat-menu-item (click)="selectedPreset(preset)">{{secondsToLabel(preset)}}</button>
+  <button *ngFor="let preset of presets" mat-menu-item (click)="selectedPreset(preset)">{{secondsToLabel(preset)}}</button>
   <div mat-menu-item class="cdk-custom-time" (click)="$event.stopPropagation();">
     <mat-form-field class="has-right-items">
       <mat-label>Custom Time</mat-label>
@@ -18,7 +18,9 @@
         (keyup.enter)="customTimeEntered()"
         (blur)="customTime.focus()"
         (click)="$event.stopPropagation();">
-      <mat-hint *ngIf="inputVal.errors">Try 6min, 5h, 4d, etc.</mat-hint>
+      <mat-hint *ngIf="inputVal.errors && inputVal.errors.forbiddenName">Try 6min, 5h, 4d, etc.</mat-hint>
+      <mat-hint *ngIf="inputVal.errors && inputVal.errors.tooLarge"> Max time: {{secondsToLabel(maxSeconds)}}</mat-hint>
+      <mat-hint *ngIf="inputVal.errors && inputVal.errors.tooSmall"> Min time: {{secondsToLabel(minSeconds)}}</mat-hint>
     </mat-form-field>
   </div>
 </mat-menu>

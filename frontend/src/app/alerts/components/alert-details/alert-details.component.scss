@@ -8,6 +8,10 @@
         max-width: 100%;
         overflow: hidden;
 
+        .invisible {
+            display: none;
+        }
+
         // top level wrapper - basically .mat-card
         .alert-configuration-wrapper {
             border-radius: 0;
