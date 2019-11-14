@@ -95,15 +95,14 @@ export class WidgetsRawdataState {
 
     @Action(SetQueryDataByGroup)
     setQueryDataByGroup(ctx: StateContext<RawDataModel>, { payload }: SetQueryDataByGroup) {
-        const curState = ctx.getState();
-        const state = this.utils.deepClone(curState);
+        let state = ctx.getState();
         const qid = payload.wid;
-        if (!state.data[payload.wid]) {
-            state.data[payload.wid] = {};
-        }
-        state.data[payload.wid] = payload.data !== undefined ? payload.data : { error: payload.error };
-        state.lastModifiedWidget = { wid: payload.wid};
-        ctx.setState(state);
+        const wdata = {};
+        wdata[payload.wid] = payload.data !== undefined ? payload.data : { error: payload.error };
+
+        const data = Object.assign({}, state.data, wdata );
+        const lastModifiedWidget = { wid: payload.wid};
+        ctx.patchState({ data: data, lastModifiedWidget: lastModifiedWidget });
         if ( this.subs[qid]) {
             this.subs[qid].unsubscribe();
         }

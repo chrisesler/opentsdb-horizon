@@ -245,7 +245,7 @@
             }
 
             td.mat-cell {
-                font-size: 12px;
+                font-size: 16px;
 
                 @each $item in $status-labels {
                     &.cdk-column-counts-#{$item} {
@@ -852,7 +852,7 @@
         }
 
         .group-label-chip {
-            border: 1px solid rgba(0,0,0,0.1);
+            // border: 1px solid rgba(0,0,0,0.1);
             background: rgba(0,0,0,0.08);
             color: rgba(0,0,0,0.5);
         }
@@ -927,7 +927,7 @@
 
             .cdk-column-contacts {
                 .contact-icon-strip {
-                    background-color: rgba($brand-color, .15);
+                    //background-color: rgba($brand-color, .15);
                     color: $brand-color;
                 }
             }
