@@ -1,0 +1,38 @@
+<div class="headers">
+  <span>
+    Query Preview
+  </span>
+
+  <span>
+    Threshold Preview
+  </span>
+</div>
+
+<div class="graphs">
+  <div class="graph-output">
+      <div #dygraph class="chart"
+        dygraphsChart
+        [chartType]="'line'"
+        [data]="chartData"
+        [size]="{'width': size.width/2 - 25, 'height': size.height - 10}"
+        [options]="options"
+        (lastTimeseriesHighlighted)="timeSeriesClicked($event)"
+        (zoomed)="handleZoomQuery($event)">
+      </div>
+    </div>
+    
+    <div class="graph-output" *ngIf="thresholdData && thresholdData.ts">
+      <div #dygraph class="chart"
+        dygraphsChart
+        [chartType]="'line'"
+        [data]="thresholdData"
+        [size]="{'width': size.width/2 - 25, 'height': size.height - 10}"
+        [options]="thresholdOptions"
+        (zoomed)="handleZoomThreshold($event)">
+      </div>
+    </div>
+
+    <div *ngIf="!thresholdData.ts">
+      <-- Click a line for Threshold Preview
+    </div>
+</div>

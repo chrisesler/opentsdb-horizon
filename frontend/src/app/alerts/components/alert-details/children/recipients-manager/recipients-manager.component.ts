@@ -15,7 +15,7 @@ import { Observable, Subscription } from 'rxjs';
     // tslint:disable-next-line:component-selector
     selector: 'recipients-manager',
     templateUrl: './recipients-manager.component.html',
-    styleUrls: ['./recipients-manager.component.scss']
+    styleUrls: []
 })
 
 export class AlertConfigurationContactsComponent implements OnInit, OnChanges, OnDestroy {
