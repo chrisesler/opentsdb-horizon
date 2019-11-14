@@ -24,7 +24,6 @@ import {
     GetQueryDataByGroup,
     SetQueryDataByGroup,
     ClearQueryData,
-    CopyWidgetData,
     ClearWidgetsData
 } from '../../state/widgets-data.state';
 import { ClientSizeState, UpdateGridsterUnitSize } from '../../state/clientsize.state';
@@ -173,6 +172,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     dbid: string; // passing dashboard id
     wid: string; // passing widget id
     rerender: any = { 'reload': false }; // -> make gridster re-render correctly
+    wData: any = {};
     widgets: any[] = [];
     // tplVariables: any[];
     tplVariables: any = { editTplVariables: [], viewTplVariables: []};
@@ -235,6 +235,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         // handle route for dashboardModule
         this.subscription.add(this.activatedRoute.url.subscribe(url => {
             this.widgets = [];
+            this.wData = {};
             this.meta = {};
             this.isDbTagsLoaded = false;
             this.variablePanelMode = { view: true };
@@ -260,7 +261,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.subscription.add(this.interCom.requestListen().subscribe((message: IMessage) => {
             switch (message.action) {
                 case 'getWidgetCachedData':
-                    const widgetCachedData = this.store.selectSnapshot(WidgetsRawdataState.getWidgetRawdataByID(message.id));
+                    const widgetCachedData = this.wData[message.id];
                     let hasQueryError = false;
                     if ( widgetCachedData && widgetCachedData['error'] !== undefined) {
                         hasQueryError = true;
@@ -276,7 +277,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'setDashboardEditMode':
                     // copy the widget data to editing widget
                     if (message.id) {
-                        this.store.dispatch(new CopyWidgetData(message.id, '__EDIT__' + message.id));
+                        this.wData['__EDIT__' + message.id] = this.wData[message.id];
                     }
                     // when click on view/edit mode, update db setting state of the mode
                     // need to setTimeout for next tick to change the mode
@@ -317,11 +318,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'changeWidgetType':
                     const [newConfig, needRefresh] = this.wdService.convertToNewType(message.payload.newType, message.payload.wConfig);
                     if ( needRefresh ) {
-                        this.store.dispatch(new ClearQueryData({ wid: '__EDIT__' + message.id , triggerChange: false }));
+                        delete this.wData['__EDIT__' + message.id];
                     }
                     this.mWidget = newConfig;
                     break;
                 case 'closeViewEditMode':
+                    delete this.wData[message.id];
                     this.store.dispatch(new UpdateMode(message.payload));
                     this.rerender = { 'reload': true };
                     break;
@@ -599,8 +601,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }));
 
         this.subscription.add(this.dbTime$.subscribe(t => {
-
-            const timeZoneChanged = (this.dbTime && this.dbTime.zone !== t.zone);
+            const timeZoneChanged = ((this.isDBZoomed && this.dbTime.zone !== t.zone) || this.dbTime.start === t.start && this.dbTime.end === t.end && this.dbTime.zone !== t.zone );
             if (timeZoneChanged ) {
                 this.dbTime.zone = t.zone;
             } else {
@@ -653,12 +654,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
             let error = null;
             let grawdata = {};
             if (result !== undefined) {
-                if (result.rawdata !== undefined && !result.rawdata.error) {
-                    grawdata = this.utilService.deepClone(result.rawdata);
-                } else if (result.rawdata !== undefined) {
-                    error = result.rawdata.error;
+                const wid = result.wid;
+                const wdata = Object.assign({}, result);
+                this.wData[wid] = wdata;
+                if (wdata.data !== undefined && !wdata.data.error) {
+                    grawdata = wdata.data;
+                } else if (wdata.data !== undefined) {
+                    error = wdata.data.error;
                 }
-                this.updateWidgetGroup(result.wid, grawdata, error);
+                this.updateWidgetGroup(wid, grawdata, error);
             }
         }));
 

@@ -594,6 +594,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     closeViewEditMode() {
         this.interCom.requestSend({
             action: 'closeViewEditMode',
+            id: this.widget.id,
             payload: 'dashboard'
         });
     }
