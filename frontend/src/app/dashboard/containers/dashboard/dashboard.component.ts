@@ -600,7 +600,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.subscription.add(this.dbTime$.subscribe(t => {
 
-            const timeZoneChanged = (this.dbTime && this.dbTime.zone !== t.zone);
+            const timeZoneChanged = (Object.keys(this.dbTime).length && this.dbTime.zone !== t.zone);
             if (timeZoneChanged ) {
                 this.dbTime.zone = t.zone;
             } else {
