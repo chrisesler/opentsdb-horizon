@@ -33,7 +33,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
 
     @Input() query: any;
     @Input() options: any;
-    @Input() tplVariables: any[] = [];
+    @Input() tplVariables: any;
     @Output() filterOutput = new EventEmitter();
     @ViewChild('tagValueSearchInput') tagValueSearchInput: ElementRef;
     @ViewChild('tagSearchInput') tagSearchInput: ElementRef;
@@ -69,7 +69,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.tplVariables = this.tplVariables || [];
+        this.tplVariables = this.tplVariables || {};
         this.namespace = this.query.namespace;
         this.metrics = this.query.metrics;
         this.filters = this.query.filters;
@@ -183,7 +183,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
                         this.tagValueSub.unsubscribe();
                     }
                     // any var template match with selected tag
-                    const tplVars = this.tplVariables.filter(v => v.tagk === this.selectedTag);
+                    const tplVars = this.tplVariables.tvars.filter(v => v.tagk === this.selectedTag);
                     this.tagValueSub = this.httpService.getTagValuesByNamespace(query, this.options.metaSource)
                         .subscribe(res => {
                             // append tpl vars to the top of the list of value
