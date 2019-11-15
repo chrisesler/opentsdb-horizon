@@ -656,7 +656,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             if (result !== undefined) {
                 const wid = result.wid;
                 const wdata = Object.assign({}, result);
-                this.wData[wid] = wdata;
+                this.wData[wid] = wdata.data;
                 if (wdata.data !== undefined && !wdata.data.error) {
                     grawdata = wdata.data;
                 } else if (wdata.data !== undefined) {
