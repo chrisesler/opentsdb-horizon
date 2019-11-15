@@ -335,7 +335,9 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 value: config.downsample,
                 aggregators: config.aggregators,
                 customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
-                customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
+                customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit,
+                minInterval: config.minInterval,
+                reportingInterval: config.reportingInterval
             }
         };
     }

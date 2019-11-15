@@ -1330,6 +1330,10 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
 
     /** Events */
 
+    loadingEvents() {
+        return this.nQueryDataLoading > 0;
+    }
+
     removeNotificationLabelValue(i: number) {
         const control = <FormArray>this.notificationLabelValues;
         control.removeAt(i);

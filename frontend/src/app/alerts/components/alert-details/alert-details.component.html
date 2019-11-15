@@ -18,7 +18,7 @@
                     <mat-icon>error</mat-icon>
                 </div>
             </div>
-            <event-list [events]="events" [timezone]="'local'" [startTime]="startTime" [endTime]="endTime" style="overflow: scroll">
+            <event-list [events]="events" [timezone]="'local'" [startTime]="startTime" [endTime]="endTime" style="overflow: scroll" [loading]="loadingEvents()">
             </event-list>
         </div>
 
@@ -867,11 +867,20 @@
                                     </div>
                                 </div>
                                     
-                                <div class="show-advanced-threshold-toggle is-open" *ngIf="data.threshold.isNagEnabled">
+                                <div class="show-advanced-threshold-toggle" [ngClass]="{'is-open': showThresholdAdvanced}">
+                                        <div class="toggle-wrap">
+                                            <a class="toggle-action" (click)="showThresholdAdvanced = !showThresholdAdvanced;">
+                                                <mat-icon fontSet="denali" [fontIcon]="showThresholdAdvanced ? 'd-arrowhead-up' : 'd-arrowhead-down'"></mat-icon>
+                                                <span>{{showThresholdAdvanced ? 'Hide' : 'Show'}} advanced options</span>
+                                            </a>
+                                        </div>
+                                </div>
+                                <div *ngIf="showThresholdAdvanced">
                                     <div class="form-group alert-nag-interval">
                                         <div class="form-label vertical-center"><strong>Nag interval</strong></div>
                                         <div class="nag-interval-item">
                                             <span>
+                                                {{data.threshold.nagInterval === '0' ? 'none' : ''}}
                                                 {{data.threshold.nagInterval === '300' ? '5 min' : ''}}
                                                 {{data.threshold.nagInterval === '600' ? '10 min' : ''}}
                                                 {{data.threshold.nagInterval === '900' ? '15 min' : ''}}

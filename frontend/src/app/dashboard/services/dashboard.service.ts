@@ -50,7 +50,9 @@ export class DashboardService {
                 value: 'auto',
                 aggregator: 'avg',
                 customValue: '',
-                customUnit: ''
+                customUnit: '',
+                minInterval: '',
+                reportingInterval: ''
             }
         }
     },
