@@ -37,14 +37,30 @@
                 <mat-checkbox formControlName="multiple">Mutiple</mat-checkbox>-->
             </div> 
         </div>
+        
     </div>
     <div class="column">
-        <div class="config-control override-relative-time-controls">
+        <div class="config-control min-interval-controls">
+            <label class="label">Minimum Interval</label>
+            <div class="form-field-group">
+                <mat-form-field appearance="fill">
+                    <input matInput placeholder="5m" formControlName="minInterval">
+                </mat-form-field>
+            </div>
+        </div>
+        <div class="config-control reporting-interval-controls">
+            <label class="label">Reporting Interval</label>
+            <div class="form-field-group">
+                <mat-form-field appearance="fill">
+                    <input matInput placeholder="10s" formControlName="reportingInterval">
+                </mat-form-field>
+            </div>
+        </div>
+        <!--<div class="config-control override-relative-time-controls">
             <label class="label">Overide Relative Time</label>
             <div class="form-field-group">
                 <mat-form-field appearance="fill">
                     <input matInput placeholder="Last: 1hr" formControlName="overrideRelativeTime">
-                    <!--<mat-hint>Hint</mat-hint>-->
                 </mat-form-field>
             </div>
         </div>
@@ -53,9 +69,8 @@
             <div class="form-field-group">
                 <mat-form-field appearance="fill">
                     <input matInput placeholder="Last: 1hr" formControlName="shiftTime">
-                    <!--<mat-hint>Hint</mat-hint>-->
                 </mat-form-field>
             </div>
-        </div>
+        </div>-->
     </div>
 </form>

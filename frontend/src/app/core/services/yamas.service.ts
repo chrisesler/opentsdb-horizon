@@ -653,6 +653,8 @@ export class YamasService {
             interval: dsValue, // summary ? '0all' : dsValue,
             runAll: false, // summary ? true : false,
             fill: true,
+            minInterval: dsSetting.minInterval,
+            reportingInterval: dsSetting.reportingInterval,
             interpolatorConfigs: [
                 {
                     dataType: 'numeric',
