@@ -803,7 +803,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 value: config.downsample,
                 aggregators: config.aggregators,
                 customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
-                customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
+                customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit,
+                minInterval: config.minInterval,
+                reportingInterval: config.reportingInterval
             }
         };
     }
