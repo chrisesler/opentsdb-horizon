@@ -55,6 +55,9 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
     customDownsampleValue: any = 10;
     customDownsampleUnit: any = 'm';
 
+    minInterval: any;
+    reportingInterval: any;
+
     overrideRelativeTime: any;
     timeShift: any;
     multipleAggregators = false;
@@ -210,8 +213,10 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
     constructor(private fb: FormBuilder) { }
 
     ngOnInit() {
-        this.createForm();
+        this.minInterval = this.widget.settings.time.downsample.minInterval;
+        this.reportingInterval = this.widget.settings.time.downsample.reportingInterval;
         this.selectedAggregators = this.widget.settings.time.downsample.aggregators || this.selectedAggregators;
+        this.createForm();
     }
 
     ngAfterViewInit() {
@@ -235,6 +240,8 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
             aggregators:
                 new FormControl(this.selectedAggregators),
             multiple: new FormControl( { value: this.widget.settings.time.downsample.multiple || this.multipleAggregators } ),
+            minInterval: new FormControl(this.widget.settings.time.minInterval || this.minInterval),
+            reportingInterval: new FormControl(this.widget.settings.time.reportingInterval || this.reportingInterval),
             overrideRelativeTime: 
                 new FormControl(this.widget.settings.time.overrideRelativeTime),
             shiftTime:
