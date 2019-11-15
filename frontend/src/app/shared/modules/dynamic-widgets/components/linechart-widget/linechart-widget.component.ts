@@ -161,8 +161,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     eventsWidth: number;
     startTime: number;
     endTime: number;
-    previewEventsCount = 10;
+    previewEventsCount = 100;
     eventsCount = 10000;
+    eventsLoading: boolean = false;
 
     // behaviors that get passed to island legend
     private _buckets: BehaviorSubject<any[]> = new BehaviorSubject([]);
@@ -424,6 +425,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         this.cdRef.detectChanges();
                         break;
                     case 'updatedEvents':
+                        this.eventsLoading = false;
                         this.events = message.payload.events;
                         this.cdRef.detectChanges();
                         break;
@@ -987,6 +989,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
     getEvents() {
         if (this.widget.settings.visual.showEvents && !this.multigraphEnabled) {
+            this.eventsLoading = true;
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'getEventData',

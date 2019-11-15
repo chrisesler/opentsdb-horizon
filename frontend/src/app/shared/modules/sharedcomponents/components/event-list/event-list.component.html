@@ -1,3 +1,7 @@
+<div class="gif-spinner" *ngIf="loading">
+    <img src="/assets/spinner-26x26.gif" />
+</div>
+
 <div class="event-stream-list" *ngIf="events">
     <mat-accordion class="event-accordion" displayMode="flat" multi="true" #eventAccordion>
         <ng-container *ngFor="let event of slicedList(); let i = index">
@@ -47,4 +51,8 @@
             </mat-expansion-panel>
         </ng-container>
     </mat-accordion>
+</div>
+
+<div class="no-events-message" *ngIf="(!events || events.length === 0) && !loading">
+    No events.
 </div>

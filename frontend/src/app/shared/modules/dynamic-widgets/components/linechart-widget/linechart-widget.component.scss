@@ -189,6 +189,10 @@
             }
         }
 
+        .events {
+            max-height: 500px;
+        }
+
         .events-overlay {
             padding-left: 50px;
             padding-top: 6px;
@@ -198,6 +202,7 @@
         }
 
         .events-config {
+            max-height: 200px;
             display: flex;
             flex-direction: column;
             padding: 10px;
