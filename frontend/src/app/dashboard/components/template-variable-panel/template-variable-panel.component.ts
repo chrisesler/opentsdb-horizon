@@ -234,7 +234,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         }
         // if it's a different value from viewlist
         if (this.tplVariables.viewTplVariables.tvars[index].filter !== selControl.get('filter').value) {
-            this.updateViewTplVariables();
+            this.updateViewTplVariables(selControl.value);
         }
     }
 
@@ -362,7 +362,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
 
     selectVarValueOption(event: any, index: number) {
         if (this.tplVariables.viewTplVariables.tvars[index].filter !== event.option.value) {
-            this.updateViewTplVariables();
+            this.updateViewTplVariables(this.tplVariables.viewTplVariables.tvars[index]);
         }
     }
 
@@ -401,25 +401,17 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             }
         }
     }
-
-    updateViewTplVariables() {
+    // for the view tpl variables, we do not update state value, unless user save it.
+    updateViewTplVariables(vartag: any) {
         const varsList = [];
         for (let i = 0; i < this.listVariables.controls.length; i++) {
             varsList.push(this.listVariables.controls[i].value);
         }
         this.tplVariables.viewTplVariables.tvars = varsList;
-        // no need to update state since use just play with it.
-        /*
-        this.interCom.requestSend({
-            action: 'updateTemplateVariables',
-            payload: {
-                namespaces: this.selectedNamespaces,
-                tvars: varsList
-            }
-        });
-        */
+
         this.interCom.requestSend({
             action: 'ApplyTplVarValue',
+            payload: vartag
         });
     }
 
