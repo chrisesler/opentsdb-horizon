@@ -719,10 +719,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.urlOverrideService.applyParamstoURL(p);
     }
     // apply when custom tag value is changed
-    
+    // should only trigger widgets that are affected by this change.  
     applyTplVarValue(tvar: any) {
+       // update url params
+       const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables.tvars : this.tplVariables.editTplVariables.tvars;
+       this.updateURLParams(tplVars);
        
        for (let i = 0; i < this.widgets.length; i++) {
+            const queries = this.widgets[i].queries;
+            for (let j = 0; j < queries.length; j++) {
+                const idx = queries[j].filters.findIndex(f => f.customFilter && f.customFilter.includes('[' + tvar.alias + ']'));            
+                if (idx > -1) {
+                    this.handleQueryPayload({
+                        id: this.widgets[i].id,
+                        payload: this.widgets[i]
+                    });
+                    break;
+                }
+            }
+       }
+       /*for (let i = 0; i < this.widgets.length; i++) {
            // put condition to not event send in.
            if (!this.widgets[i].settings.hasOwnProperty('useDBFilter') || this.widgets[i].settings.useDBFilter) {
                this.handleQueryPayload({id: this.widgets[i].id, payload: this.widgets[i]});
@@ -732,6 +748,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                });
            }
        }
+       */
     }
     // when delete a dashboard custom tag
     removeCustomTagFilter(payload: any) {
@@ -780,13 +797,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     // this will do the insert or update the name/alias if the widget is eligible.
     updateTplAlias(payload: any) {
-        console.log('hill - updateTplAlias', payload);;
+        console.log('hill - updateTplAlias', payload);
         this.checkDbTagsLoaded().subscribe(loaded => {
             for (let i = 0; i < this.widgets.length; i++) {
                 const widget = this.widgets[i];
                 // we will insert or modify based on insert flag
                 const isModify = this.dbService.applytDBFilterToWidget(widget, payload, this.dashboardTags.rawDbTags);
                 if (isModify) {
+                    console.log('hill - widget state update', widget);
                     this.store.dispatch(new UpdateWidget({
                         id: widget.id,
                         needRequery: false,
@@ -866,21 +884,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
         let groupid = '';
         // make sure we modify the copy for tsdb query
         const payload = this.utilService.deepClone(message.payload);
-        console.log('hill - payload to apply tpl', payload);
         // tslint:disable-next-line:max-line-length
         // const groupby = payload.settings.multigraph ? payload.settings.multigraph.chart.filter(d=> d.key !== 'metric_group' && d.displayAs !== 'g').map(d => d.key) : [];
         const groupby = payload.settings.multigraph ?
             payload.settings.multigraph.chart.filter(d=> d.key !== 'metric_group').map(d => d.key) : [];
         const dt = this.getDashboardDateRange();
-        const subs = this.checkDbTagsLoaded().subscribe(loaded => {
+        // const subs = this.checkDbTagsLoaded().subscribe(loaded => {
             if (payload.queries.length) {
                 // should we modify the widget if using dashboard tag filter
-                const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables : this.tplVariables.editTplVariables;
+                const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables.tvars : this.tplVariables.editTplVariables.tvars;
+                console.log('hill - tplVars', tplVars);
+                /*
                 if ((!payload.settings.hasOwnProperty('useDBFilter') || payload.settings.useDBFilter)
                     && tplVars.length > 0) {
                     // modify query if needed
                     this.dbService.applyWidgetDBFilter(payload, tplVars, this.dashboardTags.rawDbTags);
-                }
+                } */
                 // sending each group to get data.
                 const queries = {};
                 for (let i = 0; i < payload.queries.length; i++) {
@@ -889,10 +908,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     if (query.namespace && query.metrics.length) {
                         // filter only visible metrics, disable it now since it will break the expression
                         // query = this.dbService.filterMetrics(query);
-                        // here we need to resolve template variables to override or insert
-                        if (query.filters.findIndex(f =>
-                            f.customFilter !== undefined || f.dynamicFilter !== undefined) > -1) {
-                            query = this.dbService.resolveTplVar(query, tplVars);
+                        // here we need to resolve template variables
+                        if (tplVars.length > 0) {
+                            console.log('hill - check condition', query.filters.findIndex(f => f.customFilter !== undefined));
+                            if (query.filters.findIndex(f => f.customFilter !== undefined) > -1) {
+                                query = this.dbService.resolveTplVar(query, tplVars);
+                            }
                         }
                         // override the multigraph groupby config
                         for ( let j = 0; j < query.metrics.length; j++ ) {
@@ -930,10 +951,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.store.dispatch(new ClearQueryData({ wid: message.id }));
             }
             // very important to unsubscribe
-            if (subs) {
-                subs.unsubscribe();
-            }
-        });
+            //if (subs) {
+            //    subs.unsubscribe();
+            //}
+        //});
     }
 
     handleEventQueryPayload(message: any) {
