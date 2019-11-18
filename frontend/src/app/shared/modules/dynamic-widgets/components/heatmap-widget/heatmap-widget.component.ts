@@ -222,7 +222,7 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
             this.needRequery = true; // set flag to requery if apply to dashboard
             break;
         case 'SetVisualization':
-            this.setVisualization(message.payload.data);
+            this.setVisualization(message.payload.gIndex, message.payload.data);
             this.refreshData(false);
             break;
         case 'SetUnit':
@@ -337,9 +337,9 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
     }
   }
 
-  setVisualization( mconfigs ) {
+  setVisualization( qIndex, mconfigs ) {
     mconfigs.forEach( (config, i) => {
-        this.widget.queries[0].metrics[i].settings.visual = { ...this.widget.queries[0].metrics[i].settings.visual, ...config };
+        this.widget.queries[qIndex].metrics[i].settings.visual = { ...this.widget.queries[qIndex].metrics[i].settings.visual, ...config };
     });
   }
 
