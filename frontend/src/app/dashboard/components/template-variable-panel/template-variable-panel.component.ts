@@ -45,20 +45,20 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     trackingSub: any = {};
     selectedNamespaces: any[] = [];
     tagKeysByNamespaces: string[] = [];
-    constructor (
+    constructor(
         private fb: FormBuilder,
         private interCom: IntercomService,
         private dbService: DashboardService,
         private utils: UtilsService,
-        private httpService: HttpService ) {
-            // predefine there
-            this.listForm = this.fb.group({
-                listVariables: this.fb.array([])
-            });
-            this.editForm = this.fb.group({
-                formTplVariables: this.fb.array([])
-            });
-        }
+        private httpService: HttpService) {
+        // predefine there
+        this.listForm = this.fb.group({
+            listVariables: this.fb.array([])
+        });
+        this.editForm = this.fb.group({
+            formTplVariables: this.fb.array([])
+        });
+    }
 
     ngOnInit() {
         console.log('hill - init tplVariabels', this.tplVariables);
@@ -115,7 +115,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
 
                 const query = {
                     namespaces: this.selectedNamespaces,
-                    tag: { key: selControl.get('tagk').value, value: val}
+                    tag: { key: selControl.get('tagk').value, value: val }
                 };
                 this.httpService.getTagValues(query).subscribe(
                     results => {
@@ -150,7 +150,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         this.initializeTplVariables(this.tplVariables.editTplVariables.tvars);
         // after reload the tplVariables state and if they are not the same as
         // viewTplVariables, we need to requery, since they are exactly same order, we can do JSON string check
-        
+
         // handle this later for view modify and editing, comment out for now
         /* if (JSON.stringify(this.tplVariables.editTplVariables.tvars) !== JSON.stringify(this.tplVariables.viewTplVariables.tvars)) {
             this.interCom.requestSend({
@@ -199,10 +199,20 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         }
     }
 
+    // to resturn the last filter mode to use for new one.
+    getLastFilterMode(): string {
+        let retString = 'auto';
+        if (this.formTplVariables.controls.length > 0) {
+            const lastFilter = this.formTplVariables.controls[this.formTplVariables.controls.length -1];
+            retString = lastFilter.get('mode').value;
+        }
+        return retString;
+    }
+
     // dirty flag to determine if the tag is insert or replace in auto mode
     // dirty = 1 means to do insert
     addVariableTemplate(data?: any) {
-        data = (data) ? data : { applied: 0, isNew: 1 };
+        data = (data) ? data : { mode: this.getLastFilterMode(), applied: 0, isNew: 1 };
         console.log('hill - data to add to form before mod', data);
         const varData = {
             tagk: new FormControl((data.tagk) ? data.tagk : '', [Validators.required]),
@@ -228,9 +238,9 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         const val = selControl.get('filter').value;
         const idx = this.filteredValueOptions[index].findIndex(item => item && item.toLowerCase() === val.toLowerCase());
         if (idx === -1) {
-           selControl.get('filter').setValue('');
+            selControl.get('filter').setValue('');
         } else {
-           selControl.get('filter').setValue(this.filteredValueOptions[index][idx]);
+            selControl.get('filter').setValue(this.filteredValueOptions[index][idx]);
         }
         // if it's a different value from viewlist
         if (this.tplVariables.viewTplVariables.tvars[index].filter !== selControl.get('filter').value) {
@@ -283,8 +293,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                         selControl.get('isNew').setValue(0, { emitEvent: false });
                         this.interCom.requestSend({
                             action: 'UpdateTplAlias',
-                            payload: { 
-                                vartag: selControl.value, 
+                            payload: {
+                                vartag: selControl.value,
                                 originVal: startVal,
                                 insert: insert
                             }
@@ -326,9 +336,9 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         if (cname === 'filter') {
             const idx = this.filteredValueOptions[index].findIndex(item => item && item.toLowerCase() === val.toLowerCase());
             if (idx === -1) {
-               selControl.get('filter').setValue('', { emitEvent: false });
+                selControl.get('filter').setValue('', { emitEvent: false });
             } else {
-               selControl.get('filter').setValue(this.filteredValueOptions[index][idx], { emitEvent: false });
+                selControl.get('filter').setValue(this.filteredValueOptions[index][idx], { emitEvent: false });
             }
             if (this.tplVariables.editTplVariables.tvars[index].filter !== selControl.get('filter').value) {
                 this.updateState(selControl);
@@ -374,7 +384,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             // remove this tag out of widget if manually add in.
             this.interCom.requestSend({
                 action: 'RemoveCustomTagFilter',
-                payload: {  vartag: removedItem.value }
+                payload: { vartag: removedItem.value }
             });
             this.updateState(removedItem);
         }
@@ -430,12 +440,12 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             // tslint:disable-next-line: max-line-length
             inputWidth = (!filter || filter.length === 0) ? minSize : (this.utils.calculateTextWidth(filter, fontSize, fontFace) + 40) + 'px';
             return inputWidth;
-        // prefix only (alias)
+            // prefix only (alias)
         } else if (options && options.prefixOnly && options.prefixOnly === true) {
             // tslint:disable-next-line: max-line-length
-            prefixWidth = (!alias || alias.length === 0 ) ? minSize : (this.utils.calculateTextWidth(alias, fontSize, fontFace) + 40) + 'px';
+            prefixWidth = (!alias || alias.length === 0) ? minSize : (this.utils.calculateTextWidth(alias, fontSize, fontFace) + 40) + 'px';
             return prefixWidth;
-        // else, calculate both
+            // else, calculate both
         } else {
             // tslint:disable-next-line: radix
             minSize = parseInt(minSize);
@@ -447,22 +457,35 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     addFilterToAll(index: any) {
-      // add filter to all
+        // add filter to all
     }
 
     removeFilterFromAll(index: any) {
-      // remove filter from all
+        // remove filter from all
     }
 
-    switchFilterMode(mode: string, index: any) {
-      // console.log('EDIT FORM', this.editForm);
-      const control = <FormArray>this.editForm.controls['formTplVariables'];
-      const controlItem = control.at(index);
-      controlItem.get('mode').setValue(mode);
+    switchFilterMode(mode: string, index: number) {
+        const selControl = this.getSelectedControl(index);
+        selControl.get('mode').setValue(mode);
+
+        if (mode === 'auto') {
+            // when mode is from manual to auto, we will reapply all of them
+            this.interCom.requestSend({
+                action: 'UpdateTplAlias',
+                payload: {
+                    vartag: selControl.value,
+                    originVal: '',
+                    insert: 1
+                }
+            });            
+            this.updateState(selControl, true);
+        } else { // set to manual mode
+            this.updateState(selControl, false);
+        }
     }
 
     addNamespace(namespace) {
-        if ( !this.selectedNamespaces.includes(namespace) ) {
+        if (!this.selectedNamespaces.includes(namespace)) {
             this.selectedNamespaces.push(namespace);
             this.getTagkeysByNamespaces(this.selectedNamespaces);
         }
@@ -470,7 +493,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
 
     removeNamespace(namespace) {
         const index = this.selectedNamespaces.indexOf(namespace);
-        if ( !this.dbNamespaces.includes(namespace) && index !== -1 ) {
+        if (!this.dbNamespaces.includes(namespace) && index !== -1) {
             this.selectedNamespaces.splice(index, 1);
             this.getTagkeysByNamespaces(this.selectedNamespaces);
         }
