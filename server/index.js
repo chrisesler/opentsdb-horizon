@@ -56,7 +56,7 @@ app.use(function(err, req, res, next) {
   res.send(err.message);
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1d' }));
 
 // for now, we need to get the better regex and re-organize the api url
 app.get(/^\/(d|main|a)(.*)/, function (req, res) {
