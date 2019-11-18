@@ -232,7 +232,6 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 this.options = {...this.options};
                 break;
             case 'SetVisualization':
-                console.log("SetVisualization", message);
                 this.setVisualization(message.payload.gIndex, message.payload.data);
                 this.refreshData(false);
                 break;
