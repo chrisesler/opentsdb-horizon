@@ -232,7 +232,7 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 this.options = {...this.options};
                 break;
             case 'SetVisualization':
-                this.setVisualization(message.payload.data);
+                this.setVisualization(message.payload.gIndex, message.payload.data);
                 this.refreshData(false);
                 break;
             case 'SetSorting':
@@ -307,9 +307,10 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
         }
     }
 
-    setVisualization( mconfigs ) {
+    setVisualization( qIndex, mconfigs ) {
         mconfigs.forEach( (config, i) => {
-            this.widget.queries[0].metrics[i].settings.visual = { ...this.widget.queries[0].metrics[i].settings.visual, ...config };
+            // tslint:disable-next-line:max-line-length
+            this.widget.queries[qIndex].metrics[i].settings.visual = { ...this.widget.queries[qIndex].metrics[i].settings.visual, ...config };
         });
     }
 
