@@ -29,11 +29,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
 
     @Input() tplVariables: any;
     @Input() mode: any;
-    @Input() dbTagKeys: any; // all available tags and widget tags from dashboard
-    @Input() dbNamespaces: string[] = [];
     @Input() widgets: any[];
     @Output() modeChange: EventEmitter<any> = new EventEmitter<any>();
-    @Output() variableChanges: EventEmitter<any> = new EventEmitter<any>();
 
     editForm: FormGroup;
     listForm: FormGroup;
@@ -45,6 +42,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     trackingSub: any = {};
     selectedNamespaces: any[] = [];
     tagKeysByNamespaces: string[] = [];
+    dbNamespaces: string[] = [];
     constructor(
         private fb: FormBuilder,
         private interCom: IntercomService,
@@ -60,9 +58,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         });
     }
 
-    ngOnInit() {
-        console.log('hill - init tplVariabels', this.tplVariables);
-    }
+    ngOnInit() { }
 
     ngOnChanges(changes: SimpleChanges) {
         console.log('hill - tpl component changes', changes, this.mode.view);
@@ -78,17 +74,22 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             this.initListFormGroup();
         } else if (changes.mode && !changes.mode.firstChange && !changes.mode.currentValue.view) {
             console.log('hill - call edit mode', this.tplVariables.editTplVariables);
-            this.initEditFormGroup();
+            // call to get dashboard namespaces
+            this.dbNamespaces = this.dbService.getNamespacesFromWidgets(this.widgets);
+            // update editTplVariables
+            for (let i = 0; i < this.dbNamespaces.length; i++) {
+                if (!this.tplVariables.editTplVariables.namespaces.includes(this.dbNamespaces[i])) {
+                    this.tplVariables.editTplVariables.namespaces.push(this.dbNamespaces[i])
+                }
+            }    
             // we need to get all tagkeys by namespace once first time only
             // and first assign to selectedNamespaces
             if (this.tplVariables.editTplVariables.namespaces.length > 0 && this.tagKeysByNamespaces.length === 0) {
                 this.getTagkeysByNamespaces(this.tplVariables.editTplVariables.namespaces);
                 this.selectedNamespaces = this.tplVariables.editTplVariables.namespaces;
             }
+            this.initEditFormGroup();
         }
-        /* if ( changes.dbNamespaces && changes.dbNamespaces.currentValue ) {
-            this.selectedNamespaces = this.utils.deepClone(this.dbNamespaces);
-        } */
     }
     doEdit() {
         this.modeChange.emit({ view: false });
@@ -258,7 +259,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                         debounceTime(300),
                         map(val => {
                             const filterVal = val.toString().toLowerCase();
-                            // return this.dbTagKeys.tags.filter(key => key.toLowerCase().includes(filterVal));
                             return this.tagKeysByNamespaces.filter(key => key.toLocaleLowerCase().includes(filterVal));
                         })
                     );

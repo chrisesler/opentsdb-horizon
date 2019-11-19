@@ -316,6 +316,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     }
                     break;
                 case 'closeViewEditMode':
+                    // set the tpl filter panel to view mode, if they are from edit mode
                     this.store.dispatch(new UpdateMode(message.payload));
                     this.rerender = { 'reload': true };
                     break;
@@ -633,13 +634,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.utilService.setTabTitle(this.meta.title);
             }
         }));
-        this.subscription.add(this.tplVariables$.subscribe(tvars => {
+        this.subscription.add(this.tplVariables$.subscribe(tpl => {
             // whenever tplVariables$ trigger, we save to view too.
-            console.log('hill - tvars once the state is updated', tvars);
-            if (tvars) {
+            console.log('hill - tvars once the state is updated', tpl);
+            if (tpl) {
                 this.tplVariables = {...this.tplVariables,
-                    editTplVariables: this.utilService.deepClone(tvars),
-                    viewTplVariables: this.utilService.deepClone(tvars)
+                    editTplVariables: this.utilService.deepClone(tpl),
+                    viewTplVariables: this.utilService.deepClone(tpl)
                 };
             }
             console.log('hill - updated this.tplVariables', this.tplVariables);
@@ -871,11 +872,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     changeVarPanelMode(mode: any) {
+        // hill do we need this anymore
         if ( !mode.view ) {
-            this.dashboardNamespaces = this.dbService.getNamespacesFromWidgets(this.widgets);
-            if ( !this.isDbTagsLoaded ) {
-                this.getDashboardTagKeys();
-            }
+            // this.dashboardNamespaces = this.dbService.getNamespacesFromWidgets(this.widgets);
+            // if ( !this.isDbTagsLoaded ) {
+            //     this.getDashboardTagKeys();
+            // }
         }
         this.variablePanelMode = {...mode};
     }
