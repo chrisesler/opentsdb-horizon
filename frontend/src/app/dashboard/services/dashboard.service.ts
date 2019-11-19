@@ -23,7 +23,10 @@ export class DashboardService {
             namespace: '',
             isPersonal: false,
         },
-        tplVariables: []
+        tplVariables: {
+          namespaces: [],
+          tvars: []
+        }
     },
     widgets: [
     ]
@@ -283,6 +286,7 @@ export class DashboardService {
   }
 
   resolveTplVar(query: any, tplVariables: any[]) {
+    console.log('hill - resolve query', query, tplVariables);
     for (let i = 0; i < query.filters.length; i++) {
       const qFilter = query.filters[i];
       // they do have custom filter mean static filter
@@ -297,7 +301,8 @@ export class DashboardService {
             }
           }
         }
-      } else if (qFilter.dynamicFilter && qFilter.dynamicFilter.length > 0) {
+      } 
+      /* else if (qFilter.dynamicFilter && qFilter.dynamicFilter.length > 0) {
         for (let j = 0; j < qFilter.dynamicFilter.length; j++) {
           const hasNot = qFilter.dynamicFilter[j][0] === '!';
           const alias = qFilter.dynamicFilter[j].substring(hasNot ? 2 : 1, qFilter.dynamicFilter[j].length - 1);
@@ -308,7 +313,7 @@ export class DashboardService {
             }
           }
         }
-      }
+      }*/
     }
     // clean out empty filter
     query.filters = query.filters.filter(f => f.filter.length > 0);
