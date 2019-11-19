@@ -161,8 +161,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     eventsWidth: number;
     startTime: number;
     endTime: number;
-    previewEventsCount = 10;
+    previewEventsCount = 100;
     eventsCount = 10000;
+    eventsLoading: boolean = false;
 
     // behaviors that get passed to island legend
     private _buckets: BehaviorSubject<any[]> = new BehaviorSubject([]);
@@ -205,7 +206,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             switch (message.action) {
                 case 'TimeChanged':
                     this.options.isCustomZoomed = false;
-                    delete this.options.dateWindow;
                     this.refreshData();
                     break;
                 case 'reQueryData':
@@ -214,22 +214,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 case 'TimezoneChanged':
                     this.setTimezone(message.payload.zone);
                     this.options = { ...this.options };
+                    this.cdRef.markForCheck();
                     break;
                 case 'ZoomDateRange':
-                    const downsample = this.widget.settings.time.downsample.value;
                     this.options.isCustomZoomed = message.payload.date.isZoomed;
-                    // requery data if auto is set, otherwise set/unset the dateWindow option to zoom/unzoon
-                    if ( downsample === 'auto' ) {
-                        this.refreshData();
-                    } else {
-                        if ( message.payload.date.start !== null ) {
-                            this.options.dateWindow = [message.payload.date.start * 1000, message.payload.date.end * 1000];
-                        } else {
-                            delete this.options.dateWindow;
-                        }
-                        this.options = {...this.options};
-                        this.cdRef.markForCheck();
-                    }
+                    this.refreshData();
                     break;
                 case 'tsLegendOptionsChange':
                     this.tsLegendOptions = message.payload;
@@ -342,7 +331,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 if (rowKeys.length * colKeys.length > maxGraphs) {
                                     if (colKeys.length < maxGraphs) {
                                         numOfRows = Math.ceil(maxGraphs / colKeys.length);
-                                    } 
+                                    }
                                     // fill up
                                     for (let i = 0; i < numOfRows; i++) {
                                         for (let j = 0; j < maxCols; j++) {
@@ -401,6 +390,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 environment.debugLevel.toUpperCase() === 'INFO') {
                                     this.debugData = rawdata.log; // debug log
                             }
+                            console.log("graphData", this.graphData)
                             // we should not call setLegendDiv here as it's taken care in getUpdatedWidgetConfig
                             this.setLegendDiv();
                             if (!this.multigraphEnabled) {
@@ -415,7 +405,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 // this is for initial load before scroll event on widget
                                 this.applyMultiLazyLoad();
                             });
-                            
+
                         }
                         break;
                     case 'getUpdatedWidgetConfig':
@@ -435,6 +425,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         this.cdRef.detectChanges();
                         break;
                     case 'updatedEvents':
+                        this.eventsLoading = false;
                         this.events = message.payload.events;
                         this.cdRef.detectChanges();
                         break;
@@ -639,6 +630,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
+    setTitle(title) {
+        this.widget.settings.title = title;
+    }
+
     isApplyTpl(): boolean {
         return (!this.widget.settings.hasOwnProperty('useDBFilter') || this.widget.settings.useDBFilter);
     }
@@ -668,7 +663,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         if (legendSettings.display &&
             (legendSettings.position === 'left' ||
                 legendSettings.position === 'right')) {
-            widthOffset = 10 + labelLen * 6.5 + 60 * legendColumns;
+            widthOffset = 45 + labelLen * 6.5 + 60 * legendColumns;
         }
 
         if (legendSettings.display &&
@@ -683,7 +678,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             if (this.widgetTitle) {
                 titleSize = this.widgetTitle.nativeElement.getBoundingClientRect();
             }
-            padding = 8; // 8px top and bottom
+            padding = 15; // 8px top and bottom
             nHeight = newSize.height - heightOffset - titleSize.height - (padding * 2);
 
             if (this.widget.settings.visual.showEvents) {  // give room for events
@@ -808,7 +803,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 value: config.downsample,
                 aggregators: config.aggregators,
                 customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
-                customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
+                customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit,
+                minInterval: config.minInterval,
+                reportingInterval: config.reportingInterval
             }
         };
     }
@@ -994,6 +991,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
     getEvents() {
         if (this.widget.settings.visual.showEvents && !this.multigraphEnabled) {
+            this.eventsLoading = true;
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'getEventData',
@@ -1302,6 +1300,16 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         this.widget.queries[qindex].filters.splice(findex, 1);
     }
 
+    changeWidgetType(type) {
+       const wConfig = this.utilService.deepClone(this.widget);
+       wConfig.id = wConfig.id.replace('__EDIT__', '');
+        this.interCom.requestSend({
+            action: 'changeWidgetType',
+            id: wConfig.id,
+            payload: { wConfig: wConfig, newType: type }
+        });
+    }
+
     showError() {
         const parentPos = this.elRef.nativeElement.getBoundingClientRect();
         const dialogConf: MatDialogConfig = new MatDialogConfig();
@@ -1343,6 +1351,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     closeViewEditMode() {
         this.interCom.requestSend({
             action: 'closeViewEditMode',
+            id: this.widget.id,
             payload: 'dashboard'
         });
     }
@@ -1476,7 +1485,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         let temp = {};
         const parentElem = this.widgetOutputElement;
         this.graphdivs.filter( elem => {
-            if (this.inWidgetViewport(parentElem, elem)) {           
+            if (this.inWidgetViewport(parentElem, elem)) {
                 const [y,x] = elem.nativeElement.id.split('|');
                 if (temp[y] === undefined) {
                     temp[y] = {};
@@ -1496,12 +1505,12 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         const graphcell = elem.nativeElement.closest('.graph-cell');
         const cBounding = graphcell.getBoundingClientRect();
         const inwvp: any = {};
-        
+
         const cTopLeft = { x: cBounding.left, y: cBounding.top };
         const cTopRight = { x: cBounding.right, y: cBounding.top };
         const cBottomLeft = { x: cBounding.left, y: cBounding.bottom };
         const cBottomRight = { x: cBounding.right, y: cBounding.bottom };
-        
+
         inwvp.topLeft = this.isIn(pBounding, cTopLeft);
         inwvp.topRight = this.isIn(pBounding, cTopRight);
         inwvp.bottomLeft = this.isIn(pBounding, cBottomLeft);
@@ -1511,7 +1520,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     };
 
     private isIn(pBounding:any, cCord: any) {
-        return cCord.x > pBounding.left && 
+        return cCord.x > pBounding.left &&
                 cCord.x < pBounding.right &&
                 cCord.y > pBounding.top &&
                 cCord.y < pBounding.bottom;

@@ -386,6 +386,9 @@ export class UtilsService {
         if (data) {
             for (let i = 0; data && i < data.length; i++) {
                 const [source, mid] = data[i].source.split(':'); // example: summarizer:q1_m2, summarizer:m2
+                if ( source !== 'summarizer' ) {
+                    continue;
+                }
                 if (mid === tsdbId) {
                     metric = data[i].data[0];
                     break;
@@ -736,7 +739,8 @@ export class UtilsService {
             .replace(/&gt;/g, ">")
             .replace(/&nbsp;/g, " ")
             .replace(/&quot/g, "\"")
-            .replace(/&apos;/g,"\'");
+            .replace(/&apos;/g,"\'")
+            .replace(/amp;/g,"");
 
   }
 
@@ -755,4 +759,54 @@ export class UtilsService {
       return false;
   }
 
+    addTransitions(arr: any[], transitions: any[]) {
+        for (const transition of transitions) {
+            this.addTransition(arr, transition);
+        }
+    }
+
+    removeTransitions(arr: any[], transitions: any[]) {
+        for (const transition of transitions) {
+            this.removeTransition(arr, transition);
+        }
+    }
+
+    addTransition(arr, transition) {
+        let transitionExists = false;
+        for (let i = 0; i < arr.length; i++) {
+            if (arr[i] === transition) {
+                transitionExists = true;
+                return;
+            }
+        }
+        if (!transitionExists) {
+            arr.push(transition);
+        }
+    }
+
+    removeTransition(arr, transition) {
+        for (let i = 0; i < arr.length; i++) {
+            if (arr[i] === transition) {
+              arr = arr.splice(i, 1);
+            }
+        }
+    }
+
+    getExpressionLabel(qindex, mindex, queries) {
+        const label = 'q' + (qindex + 1) + '.e';
+        let eIndex = -1;
+        for ( let i = 0; i <= mindex && i < queries[qindex].metrics.length; i++ ) {
+            if ( queries[qindex].metrics[i].expression ) {
+                eIndex++;
+            }
+        }
+        return label + (eIndex + 1);
+    }
+
+    getMetricDropdownValue(queries, qindex, mid) {
+        const REGDSID = /q?(\d+)?_?(m|e)(\d+).*/;
+        const qids = REGDSID.exec(mid);
+        const mIndex =  this.getDSIndexToMetricIndex(queries[qindex], parseInt(qids[3], 10) - 1, qids[2] );
+        return qindex + ':' + mIndex;
+    }
 }

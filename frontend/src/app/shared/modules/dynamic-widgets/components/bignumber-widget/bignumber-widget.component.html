@@ -1,14 +1,4 @@
 <div class="widget-output-container" fxLayout="column">
-    <div class="widget-title" *ngIf="editMode" fxLayout="row" fxFlex="1 1 30px">
-        <!--<span fxFlex="1 1 100%">{{widget.settings.title}}</span>-->
-        <span class="flex-spacer"></span>
-        <span>
-            <button mat-button color="primary" class="close-edit-view-btn" (click)="closeViewEditMode()">
-                <mat-icon fontSet="denali" fontIcon="d-close"></mat-icon>
-            </button>
-        </span>
-    </div>
-
     <canvas #myCanvas width="0" height="0"></canvas>
     <div class="widget-output" #widgetoutput>
         <div class="widget-container">
@@ -17,7 +7,7 @@
                 [style.color]="textColor"
                 [style.font-size]="fontSizePercent + '%'"
                 [ngClass]= "{'edit-flex' : editMode}">
-    
+
                 <div class="content-container">
                     <div class="metric-container">
                         <div *ngIf="widget.settings.visual.prefix"
@@ -32,8 +22,8 @@
                                 'large':    widget.settings.visual.prefixSize=='l'
                                 }">{{ shortenString(widget.settings.visual.prefix, maxLabelLength) | uppercase }}</div>
                         </div>
-                        
-                        <div *ngIf="bigNumber.unitPos === 0" 
+
+                        <div *ngIf="bigNumber.unitPos === 0"
                                 class='left-unit unit' [ngClass]="{
                                 'top':     widget.settings.visual.unitAlignment=='top',
                                 'middle':  widget.settings.visual.unitAlignment=='middle',
@@ -45,11 +35,11 @@
                                 'large':   widget.settings.visual.unitSize=='l'
                                 }">{{ shortenString(bigNumber.unit, maxLabelLength) }}</div>
                         </div>
-    
+
                         <div class="big-number" *ngIf="bigNumber.num !== undefined">{{ bigNumber.num + bigNumber.postfix }}</div>
                         <div class="big-number" *ngIf="bigNumber.num === undefined">{{noDataText}}</div>
-    
-                        <div *ngIf="bigNumber.unitPos === 1" 
+
+                        <div *ngIf="bigNumber.unitPos === 1"
                                 class='right-unit unit' [ngClass]="{
                                 'top':     widget.settings.visual.unitAlignment=='top',
                                 'middle':  widget.settings.visual.unitAlignment=='middle',
@@ -84,7 +74,10 @@
                 </div>
             </div>
 
-            <div class="loading-spinner size-s color-primary" *ngIf="nQueryDataLoading > 0"></div>
+            <!--<div class="loading-spinner size-s color-primary" *ngIf="nQueryDataLoading > 0"></div>-->
+            <div class="gif-spinner" *ngIf="nQueryDataLoading > 0">
+                <img src="/assets/spinner-26x26.gif" />
+            </div>
             <div class="error" *ngIf="error" (click)="showError()">
                 <mat-icon>error</mat-icon>
             </div>
@@ -111,6 +104,10 @@
 </div>
 
 <div class="widget-controls-container" *ngIf="editMode">
+    <div class="widget-title" fxLayout="row" fxFlex="1 1 30px">
+            <span class="flex-spacer"></span>
+            <graph-type (change)="changeWidgetType($event)" selected="BignumberWidgetComponent"></graph-type>
+    </div>
     <!-- tabs with config content -->
     <mat-tab-group class="widget-configs" selectedIndex="0" color="primary" [@.disabled]="'true'">
         <mat-tab label="Queries" class="test">

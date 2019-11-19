@@ -7,7 +7,7 @@ interface IQuery {
     type: string;
     metric: any;
     fetchLast: boolean;
-    source: any;
+    sourceId: any;
     timeShiftInterval?: string;
 }
 
@@ -167,7 +167,7 @@ export class YamasService {
                 type: 'MetricLiteral',
                 metric:  this.queries[qindex].namespace + '.' + this.queries[qindex].metrics[mindex].name
             },
-            source: environment.tsdbSource ? environment.tsdbSource : null,
+            sourceId: environment.tsdbSource ? environment.tsdbSource : null,
             fetchLast: false,
         };
 
@@ -287,10 +287,12 @@ export class YamasService {
     }
 
     handleRateFunction(qindex, index, subGraph, funs, i) {
+        const rates = funs[i].val.split(',');
         var func = {
             'id': this.generateNodeId('q' + qindex + '_m' + index + '-rate', subGraph),
             'type': 'rate',
-            'interval': funs[i].val,
+            'interval': rates[0],
+            'dataInterval': rates.length > 1 ? rates[1] : null,
             'counter': false,
             'dropResets': false,
             'deltaOnly': false,
@@ -651,6 +653,8 @@ export class YamasService {
             interval: dsValue, // summary ? '0all' : dsValue,
             runAll: false, // summary ? true : false,
             fill: true,
+            minInterval: dsSetting.minInterval,
+            reportingInterval: dsSetting.reportingInterval,
             interpolatorConfigs: [
                 {
                     dataType: 'numeric',

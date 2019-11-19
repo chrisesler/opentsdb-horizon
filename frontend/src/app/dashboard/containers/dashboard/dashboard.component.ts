@@ -12,6 +12,7 @@ import { AuthState } from '../../../shared/state/auth.state';
 import { skip } from 'rxjs/operators';
 import { Observable, Subscription, of, Subject } from 'rxjs';
 import { UtilsService } from '../../../core/services/utils.service';
+import { WidgetService } from '../../../core/services/widget.service';
 import { DateUtilsService } from '../../../core/services/dateutils.service';
 import { DBState, LoadDashboard, SaveDashboard, DeleteDashboardSuccess, DeleteDashboardFail, SetDashboardStatus } from '../../state/dashboard.state';
 import { LoadUserNamespaces, LoadUserFolderData, UserSettingsState } from '../../state/user.settings.state';
@@ -23,7 +24,6 @@ import {
     GetQueryDataByGroup,
     SetQueryDataByGroup,
     ClearQueryData,
-    CopyWidgetData,
     ClearWidgetsData
 } from '../../state/widgets-data.state';
 import { ClientSizeState, UpdateGridsterUnitSize } from '../../state/clientsize.state';
@@ -165,12 +165,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // other variables
     dbSettings: any;
     dbTime: any = {};
+    isDBZoomed = false;
     meta: any = {};
     // variables: any;
     dbTags: any;
     dbid: string; // passing dashboard id
     wid: string; // passing widget id
     rerender: any = { 'reload': false }; // -> make gridster re-render correctly
+    wData: any = {};
     widgets: any[] = [];
     // tplVariables: any[];
     tplVariables: any = { editTplVariables: [], viewTplVariables: []};
@@ -178,6 +180,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     userNamespaces: any = [];
     viewEditMode = false;
     newWidget: any; // setup new widget based on type from top bar
+    mWidget: any; // change the widget type
     searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
     dashboardDeleteDialog: MatDialogRef<DashboardDeleteDialogComponent> | null;
     activeMediaQuery = '';
@@ -221,6 +224,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         private elRef: ElementRef,
         private logger: LoggerService,
         private httpService: HttpService,
+        private wdService: WidgetService,
         private dbfsUtils: DbfsUtilsService,
         private urlOverrideService: URLOverrideService
     ) { }
@@ -232,6 +236,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         // handle route for dashboardModule
         this.subscription.add(this.activatedRoute.url.subscribe(url => {
             this.widgets = [];
+            this.wData = {};
             this.meta = {};
             this.isDbTagsLoaded = false;
             this.variablePanelMode = { view: true };
@@ -257,17 +262,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.subscription.add(this.interCom.requestListen().subscribe((message: IMessage) => {
             switch (message.action) {
                 case 'getWidgetCachedData':
-                    const widgetCachedData = this.store.selectSnapshot(WidgetsRawdataState.getWidgetRawdataByID(message.id));
+                    const widgetCachedData = this.wData[message.id];
                     let hasQueryError = false;
-                    if (widgetCachedData) {
-                        for (const qid in widgetCachedData) {
-                            if (!widgetCachedData[qid] || widgetCachedData[qid]['error'] !== undefined) {
-                                hasQueryError = true;
-                            }
-                        }
+                    if ( widgetCachedData && widgetCachedData['error'] !== undefined) {
+                        hasQueryError = true;
                     }
                     // requery if cachedData has error or data not fetched yet
-                    if (!widgetCachedData || hasQueryError) {
+                    if (!widgetCachedData || Object.keys(widgetCachedData).length === 0 || hasQueryError) {
                         this.handleQueryPayload(message);
                     } else {
                         this.updateWidgetGroup(message.id, widgetCachedData);
@@ -277,7 +278,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'setDashboardEditMode':
                     // copy the widget data to editing widget
                     if (message.id) {
-                        this.store.dispatch(new CopyWidgetData(message.id, '__EDIT__' + message.id));
+                        this.wData['__EDIT__' + message.id] = this.wData[message.id];
                     }
                     // when click on view/edit mode, update db setting state of the mode
                     // need to setTimeout for next tick to change the mode
@@ -315,8 +316,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         }, 100);
                     }
                     break;
+                case 'changeWidgetType':
+                    const [newConfig, needRefresh] = this.wdService.convertToNewType(message.payload.newType, message.payload.wConfig);
+                    if ( needRefresh ) {
+                        delete this.wData['__EDIT__' + message.id];
+                    }
+                    this.mWidget = newConfig;
+                    break;
                 case 'closeViewEditMode':
                     // set the tpl filter panel to view mode, if they are from edit mode
+                    delete this.wData[message.id];
                     this.store.dispatch(new UpdateMode(message.payload));
                     this.rerender = { 'reload': true };
                     break;
@@ -349,9 +358,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         mIndex = 0;
                         this.store.dispatch(new UpdateWidgets(this.widgets));
                     } else {
-                        // check the component type is PlaceholderWidgetComponent.
-                        // If yes, it needs to be replaced with new component
-                        if (this.widgets[mIndex].settings.component_type === 'PlaceholderWidgetComponent') {
+                        // check the component type of updated widget config.
+                        // it needs to be replaced with new component
+                        if (this.widgets[mIndex].settings.component_type !== message.payload.widget.settings.component_type ) {
                             this.widgets[mIndex] = message.payload.widget;
                             // change name to fist metric if name is not change
                             if (message.payload.widget.settings.component_type !== 'MarkdownWidgetComponent' &&
@@ -433,28 +442,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.store.dispatch(new LoadUserFolderData());
                     break;
                 case 'SetZoomDateRange':
+                    // while zooming in, update the local var
+                    // reset from state when zoom out happens
                     if ( message.payload.isZoomed ) {
+                        this.isDBZoomed = true;
                         // tslint:disable:max-line-length
                         message.payload.start = message.payload.start !== -1 ? message.payload.start : this.dateUtil.timeToMoment(this.dbTime.start, this.dbTime.zone).unix();
                         message.payload.end = message.payload.end !== -1 ? message.payload.end : this.dateUtil.timeToMoment(this.dbTime.end, this.dbTime.zone).unix();
                         this.dbTime.start = this.dateUtil.timestampToTime(message.payload.start, this.dbTime.zone);
                         this.dbTime.end = this.dateUtil.timestampToTime(message.payload.end, this.dbTime.zone);
-                        message.payload = this.dbTime;
-                        this.store.dispatch(new UpdateDashboardTimeOnZoom({start: this.dbTime.start, end: this.dbTime.end}));
                     }  else { // zoomed out
+                        this.isDBZoomed = false;
                         const dbSettings = this.store.selectSnapshot(DBSettingsState);
-                        this.dbTime = this.utilService.hasInitialZoomTimeSet(dbSettings.initialZoomTime) ? {...dbSettings.initialZoomTime} : {...dbSettings.time};
-                        console.log('***', this.dbTime);
-                        message.payload = this.dbTime;
-                        this.store.dispatch(new UpdateDashboardTimeOnZoomOut());
+                        this.dbTime = {...dbSettings.time};
                     }
 
                     this.interCom.responsePut({
                         action: 'ZoomDateRange',
                         payload: { zoomingWid: message.id, date: message.payload }
                     });
-                    this.updateURLParams(message.payload);
-
+                    this.updateURLParams(this.dbTime);
                     break;
                 default:
                     break;
@@ -491,6 +498,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 // this.widgetTagLoaded = false;
                 // need to carry new loaded dashboard id from confdb
                 this.dbid = db.id;
+                this.isDBZoomed = false;
                 this.store.dispatch(new LoadDashboardSettings(db.content.settings)).subscribe(() => {
                     // update WidgetsState after settings state sucessfully loaded
                     this.store.dispatch(new UpdateWidgets(db.content.widgets));
@@ -598,9 +606,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }));
 
         this.subscription.add(this.dbTime$.subscribe(t => {
-
-            const timeZoneChanged = (this.dbTime && this.dbTime.zone !== t.zone);
-            this.dbTime = {...t};
+            const timeZoneChanged = ((this.isDBZoomed && this.dbTime.zone !== t.zone) || this.dbTime.start === t.start && this.dbTime.end === t.end && this.dbTime.zone !== t.zone );
+            if (timeZoneChanged ) {
+                this.dbTime.zone = t.zone;
+            } else {
+                this.isDBZoomed = false;
+                this.dbTime = {...t};
+            }
 
             // do not intercom if widgets are still loading
             if (!this.widgets.length) {
@@ -618,7 +630,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     payload: t
                 });
             }
-            this.updateURLParams(t);
+            this.updateURLParams(this.dbTime);
         }));
 
         this.subscription.add(this.dbSettings$.subscribe(settings => {
@@ -649,12 +661,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
             let error = null;
             let grawdata = {};
             if (result !== undefined) {
-                if (result.rawdata !== undefined && !result.rawdata.error) {
-                    grawdata = this.utilService.deepClone(result.rawdata);
-                } else if (result.rawdata !== undefined) {
-                    error = result.rawdata.error;
+                const wid = result.wid;
+                const wdata = Object.assign({}, result);
+                this.wData[wid] = wdata.data;
+                if (wdata.data !== undefined && !wdata.data.error) {
+                    grawdata = wdata.data;
+                } else if (wdata.data !== undefined) {
+                    error = wdata.data.error;
                 }
-                this.updateWidgetGroup(result.wid, grawdata, error);
+                this.updateWidgetGroup(wid, grawdata, error);
             }
         }));
 
@@ -893,6 +908,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const dt = this.getDashboardDateRange();
         // const subs = this.checkDbTagsLoaded().subscribe(loaded => {
             if (payload.queries.length) {
+                const wType = payload.settings.component_type;
+                // override downsample to auto when the dashboard is zoomed
+                if ( this.isDBZoomed && message.id.indexOf('__EDIT__') === -1 && ( wType === 'HeatmapWidgetComponent' || wType === 'LinechartWidgetComponent' ) ) {
+                    payload.settings.time.downsample.value = 'auto';
+                }
                 // should we modify the widget if using dashboard tag filter
                 const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables.tvars : this.tplVariables.editTplVariables.tvars;
                 console.log('hill - tplVars', tplVars);
@@ -950,7 +970,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.store.dispatch(new SetQueryDataByGroup(gquery));
                 }
             } else {
-                this.store.dispatch(new ClearQueryData({ wid: message.id }));
+                this.store.dispatch(new ClearQueryData({ wid: message.id , triggerChange: true }));
             }
             // very important to unsubscribe
             //if (subs) {
@@ -1058,6 +1078,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     setDateRange(e: any) {
+        this.isDBZoomed = false;
         this.store.dispatch(new UpdateDashboardTime({ start: e.startTimeDisplay, end: e.endTimeDisplay }));
     }
 
@@ -1066,6 +1087,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     setTimezone(e: any) {
+        // we change the local dbTime when zooming, so update the zone of local var
+        if ( this.isDBZoomed ) {
+            this.dbTime.start = this.dateUtil.timestampToTime(this.dateUtil.timeToMoment(this.dbTime.start, this.dbTime.zone).unix().toString(), e);
+            this.dbTime.end = this.dateUtil.timestampToTime(this.dateUtil.timeToMoment(this.dbTime.end, this.dbTime.zone).unix().toString(), e);
+        }
         this.store.dispatch(new UpdateDashboardTimeZone(e));
     }
 

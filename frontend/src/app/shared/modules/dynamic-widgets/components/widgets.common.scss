@@ -14,7 +14,7 @@ $widgets-common-config: (
     tab-width: initial,
     action-bar-height: 30px,
     output-radius: 4px,
-    widget-output-height: 300px,
+    widget-output-height: 270px,
     edit-toolbar-height: 50px,
     edit-toolbar-border-width: 2px
 );
@@ -31,7 +31,7 @@ $widgets-common-config: (
     .widget-panel-content {
         @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), body-1);
         padding-top: 21px;
-        
+
         .widget-config {
             padding: 0 $default-padding;
         }
@@ -40,11 +40,11 @@ $widgets-common-config: (
         .widget-output {
             padding: 0 $default-padding;
         }
-        
+
         .widget-actions {
             padding: $default-padding $edit-view-padding;
         }
-        
+
         .widget-panel-content,
         .widget-controls-container {
             flex: 1 1 100%;
@@ -53,14 +53,14 @@ $widgets-common-config: (
             align-items: stretch;
             justify-content: flex-start;
         }
-        
+
         .widget-output-container {
             flex: 1 1 100%;
             display: flex;
             flex-direction: column;
             height: 100%;
             // overflow: hidden; hiding the chart tooltip
-        
+
             .widget-title {
                 @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), subheading-2);
                 flex: 1 1 $action-bar-height;
@@ -72,32 +72,32 @@ $widgets-common-config: (
                     font-size: 12px;
                 }
             }
-        
+
             .widget-output {
                 flex: 1 1 100%;
             }
         }
-        
+
         .widget-controls-container {
-            padding-top: $edit-view-padding;
+            // padding-top: $edit-view-padding;
 
             .widget-actions {
                 flex: 1 1 $action-bar-height;
             }
-        } 
-        
+        }
+
         // mat-tab-group
         .widget-configs {
             flex: 1 1 100%;
             margin: 12px;
-        
+
             .mat-tab-body-wrapper {
                 flex: 1 1 100%;
                 display: flex;
                 flex-direction: column;
                 overflow: hidden auto;
             }
-        
+
             .mat-tab-header {
                 //padding: 0 $edit-view-padding;
                 padding: 0;
@@ -136,7 +136,7 @@ $widgets-common-config: (
                     bottom: calc(100% - 2px);
                 }
             }
-        
+
             .mat-tab-body-content {
                 //padding: $default-padding $edit-view-padding;
                 //padding-top: $default-padding;
@@ -146,8 +146,8 @@ $widgets-common-config: (
             }
 
             // NOTE: The actual config tab content styles are located under sharedcomponents module
-        } 
-        
+        }
+
         // save/cancel buttons
         .widget-actions {
             .mat-raised-button:not(:last-child) {
@@ -258,7 +258,7 @@ $widgets-common-config: (
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                
+
                 span {
                     font-family: mat-font-family(map-get($app-fontface-config, mono));
                     font-size: 10px;
@@ -289,7 +289,7 @@ $widgets-common-config: (
                 }
             }
 
-        }        
+        }
     }
 
     .widget-output.multigraph-enabled {
@@ -352,9 +352,9 @@ $widgets-common-config: (
         }
 
         .widget-output-container {
-            padding: 0 $edit-view-padding;
+            padding: 15px $edit-view-padding;
             max-height: $widget-output-height;
-    
+
             .widget-title {
                 margin-top: $default-padding / 2;
                 margin-bottom: $default-padding / 2;
@@ -388,20 +388,20 @@ $widgets-common-config: (
     // multigraph
     $mg-background: #E6EDED;
     $mg-text: #606060;
-    
+
     .edit-view-container.is-active {
         .widget-output-container {
-            
+
             .widget-output {
                 background-color: map-get($background, card);
             }
         }
     }
-    
+
     .widget-panel-content {
 
         .widget-configs {
-        
+
             .mat-tab-label:not(.mat-tab-disabled):not(.mat-tab-label-active):focus {
                 background-color: transparent;
             }

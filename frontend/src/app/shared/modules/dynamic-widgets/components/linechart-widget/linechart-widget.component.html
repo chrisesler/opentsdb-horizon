@@ -1,12 +1,4 @@
 <div class="widget-output-container" #widgetOutputContainer fxLayout="column">
-    <div class="widget-title" #widgetTitle *ngIf="editMode" fxLayout="row" fxFlex="1 0 30px">
-        <span fxFlex="1 1 100%">{{ widget.settings.title }}</span>
-        <span>
-            <button mat-button color="primary" class="close-edit-view-btn" (click)="closeViewEditMode()">
-                <mat-icon fontSet="denali" fontIcon="d-close"></mat-icon>
-            </button>
-        </span>
-    </div>
     <div class="widget-output" #widgetoutput
         [ngClass]="{
             'multigraph-enabled': multigraphEnabled,
@@ -44,7 +36,7 @@
                         <!-- graph loop -->
                         <ng-container *ngFor="let xKey of getGraphDataObjectKeys(graphData[yKey]); let j = index;">
                             <div class="graph-cell graph-cell-{{i}}-{{j}}"
-                                [ngClass]="{'ts-legend-focus': (!multigraphEnabled) ? legendFocus : (legendFocus && (legendFocus.y === yKey && legendFocus.x === xKey))}" 
+                                [ngClass]="{'ts-legend-focus': (!multigraphEnabled) ? legendFocus : (legendFocus && (legendFocus.y === yKey && legendFocus.x === xKey))}"
                                 [style.width.px]="(!multigraphEnabled) ? size.width + legendWidth : size.width"
                                 [style.height.px]="(!multigraphEnabled) ? size.height + legendHeight : (multigraphEnabled && multigraphMode === 'freeflow') ? size.height + 15 : size.height"
                                 [style.maxWidth]="(multigraphEnabled && multigraphMode === 'freeflow') ? size.width + 'px' : 'initial'">
@@ -74,19 +66,19 @@
                                     </div>
                                     <!--<div class="dygraph-legend" #graphLegend [attr.id]="'graphlegend-' + i + '-' + j"></div>-->
                                     <div class="events-overlay" [hidden]="!widget.settings.visual.showEvents" *ngIf="!multigraphEnabled">
-                                        <event-timeline 
-                                        [startTime]="startTime" 
-                                        [endTime]="endTime" 
-                                        [width]="eventsWidth" 
+                                        <event-timeline
+                                        [startTime]="startTime"
+                                        [endTime]="endTime"
+                                        [width]="eventsWidth"
                                         [events]="events"
                                         [toolTipHeightFromTop]="size.height"
-                                        [timezone] = "options.labelsUTC ? 'utc' : 'local'" 
+                                        [timezone] = "options.labelsUTC ? 'utc' : 'local'"
                                         (canvasClicked)="updatedShowEventStream(true)"
                                         (bucketClicked)="bucketClickedAtIndex($event)"
                                         (newBuckets)="newBuckets($event)"></event-timeline>
                                     </div>
                                 </div>
-                    
+
                                 <div class="graph-legend"
                                     [style.minWidth]="legendWidth"
                                     [style.height]="legendHeight"
@@ -121,7 +113,10 @@
             </div>
         </div>
 
-        <div class="loading-spinner size-s color-primary" *ngIf="nQueryDataLoading > 0"></div>
+        <!--<div class="loading-spinner size-s color-primary" *ngIf="nQueryDataLoading > 0"></div>-->
+        <div class="gif-spinner" *ngIf="nQueryDataLoading > 0">
+            <img src="/assets/spinner-26x26.gif" />
+        </div>
         <div class="error" *ngIf="error" (click)="showError()">
             <mat-icon>error</mat-icon>
         </div>
@@ -137,6 +132,17 @@
 
 <!-- NOTE: This needs to move to other component -->
 <div class="widget-controls-container" *ngIf="editMode">
+    <div class="widget-title">
+        <span fxFlex="1 1 100%">
+            <inline-editable class="navbar-item" 
+            [fieldValue]="widget.settings.title"
+            [minLength]="3"
+            [maxLength]="100"
+            (updatedValue)="setTitle($event)">
+        </inline-editable>
+        </span>
+        <graph-type (change)="changeWidgetType($event)" selected="LinechartWidgetComponent"></graph-type>
+    </div>
     <!-- tabs with config content -->
     <mat-tab-group class="widget-configs" color="primary" [@.disabled]="'true'">
         <mat-tab label="Queries" class="test">
@@ -184,11 +190,11 @@
                 </ng-template>
         </mat-tab>
         <mat-tab label="Events" class="events" [disabled]="editQueryId">
-                <ng-template matTabContent class="events">
+                <ng-template matTabContent>
                     <div class="events-config" *ngIf="!multigraphEnabled">
                         <widget-config-events [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-events>
                         <div *ngIf="widget.settings.visual.showEvents" class="event-result-title"> Preview </div>
-                        <event-list *ngIf="widget.settings.visual.showEvents" class="events-list" [events]="events" [timezone]="timezone" [startTime]="startTime" [endTime]="endTime" [previewLimit]="previewEventsCount">
+                        <event-list *ngIf="widget.settings.visual.showEvents" class="events-list" [events]="events" [timezone]="timezone" [startTime]="startTime" [endTime]="endTime" [previewLimit]="previewEventsCount" [loading]="eventsLoading">
                         </event-list>
                     </div>
 

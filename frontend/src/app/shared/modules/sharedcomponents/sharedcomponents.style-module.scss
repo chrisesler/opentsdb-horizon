@@ -47,6 +47,7 @@
 @import 'components/event-timeline/event-timeline.component';
 @import 'components/event-list/event-list.component';
 @import 'components/time-selector/time-selector.component';
+@import 'components/graph-type/graph-type.component';
 
 
 // widget common FIRST
@@ -64,6 +65,7 @@
 @import 'components/widget-config-legend-big-number/widget-config-legend-big-number.component';
 @import 'components/widget-config-events/widget-config-events.component';
 @import 'components/widget-config-multigraph/widget-config-multigraph.component';
+
 
 // [ STEP 2 ] - ADD COMPONENT'S BASE MIXINS (aka structure)
 @mixin sharedcomponents-module-core() {
@@ -98,6 +100,7 @@
     @include event-timeline-component-base();
     @include event-list-component-base();
     @include time-selector-component-base();
+    @include graph-type-component-base();
 
     // WIDGET CONFIG ITEMS
     @include widget-config-common-base();
@@ -148,6 +151,7 @@
     @include event-timeline-component-theme($theme-config);
     @include event-list-component-theme($theme-config);
     @include time-selector-component-theme($theme-config);
+    @include graph-type-component-theme($theme-config);
 
     // WIDGET CONFIG ITEMS
     @include widget-config-common-theme($theme-config);

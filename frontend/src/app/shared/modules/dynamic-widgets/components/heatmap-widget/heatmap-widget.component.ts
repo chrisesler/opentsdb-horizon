@@ -222,7 +222,7 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
             this.needRequery = true; // set flag to requery if apply to dashboard
             break;
         case 'SetVisualization':
-            this.setVisualization(message.payload.data);
+            this.setVisualization(message.payload.gIndex, message.payload.data);
             this.refreshData(false);
             break;
         case 'SetUnit':
@@ -283,6 +283,10 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
     }
   }
 
+  setTitle(title) {
+    this.widget.settings.title = title;
+  }
+
   isApplyTpl(): boolean {
     return (!this.widget.settings.hasOwnProperty('useDBFilter') || this.widget.settings.useDBFilter);
   }
@@ -299,7 +303,9 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
               value: config.downsample,
               aggregators: config.aggregators,
               customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
-              customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
+              customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit,
+              minInterval: config.minInterval,
+              reportingInterval: config.reportingInterval
           }
       };
   }
@@ -331,9 +337,9 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
     }
   }
 
-  setVisualization( mconfigs ) {
+  setVisualization( qIndex, mconfigs ) {
     mconfigs.forEach( (config, i) => {
-        this.widget.queries[0].metrics[i].settings.visual = { ...this.widget.queries[0].metrics[i].settings.visual, ...config };
+        this.widget.queries[qIndex].metrics[i].settings.visual = { ...this.widget.queries[qIndex].metrics[i].settings.visual, ...config };
     });
   }
 
@@ -539,6 +545,16 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
     }
   }
 
+  changeWidgetType(type) {
+    const wConfig = this.util.deepClone(this.widget);
+    wConfig.id = wConfig.id.replace('__EDIT__', '');
+     this.interCom.requestSend({
+         action: 'changeWidgetType',
+         id: wConfig.id,
+         payload: { wConfig: wConfig, newType: type }
+     });
+  }
+
   showError() {
       const parentPos = this.elRef.nativeElement.getBoundingClientRect();
       const dialogConf: MatDialogConfig = new MatDialogConfig();
@@ -579,6 +595,7 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
   closeViewEditMode() {
       this.interCom.requestSend({
           action: 'closeViewEditMode',
+          id: this.widget.id,
           payload: 'dashboard'
       });
   }

@@ -22,7 +22,8 @@
             flex: 1 1 0;
             overflow: scroll;
 
-            .loading-spinner {
+            .loading-spinner,
+            .gif-spinner {
                 position: absolute;
                 left: 5px;
                 bottom: 5px;
@@ -41,7 +42,7 @@
                     font-size: 16px;
                     color: rgb(216, 216, 215);
                 }
-            }    
+            }
             .error{
                 position: absolute;
                 left: 0px;
@@ -64,15 +65,15 @@
 
             /* tooltip */
             .tooltip{
-                background: #eee; 
-                box-shadow: 0 0 5px #999999;                                    
-                color: #333;                                                    
-                display: none;                                                  
-                font-size: 12px;                                                
-                padding: 5px;                                                  
-                position: absolute;                                             
-                min-width: 100px;                                                    
-                z-index: 10; 
+                background: #eee;
+                box-shadow: 0 0 5px #999999;
+                color: #333;
+                display: none;
+                font-size: 12px;
+                padding: 5px;
+                position: absolute;
+                min-width: 100px;
+                z-index: 10;
                 top:10px;
                 left: 10px;
             }
@@ -90,7 +91,7 @@
                 fill: #dff0ff;
                 cursor: pointer;
             }
-            
+
             .axisLabel {
             }
 
@@ -104,7 +105,7 @@
                 fill: none;
                 display: none;
             }
-            
+
             .label {
                 cursor: pointer;
                 fill: #333;

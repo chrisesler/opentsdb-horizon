@@ -521,7 +521,9 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                 value: config.downsample,
                 aggregators: config.aggregators,
                 customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
-                customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
+                customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit,
+                minInterval: config.minInterval,
+                reportingInterval: config.reportingInterval
             }
         };
         this.refreshData();
@@ -545,6 +547,16 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         }
     }
 
+    changeWidgetType(type) {
+        const wConfig = this.util.deepClone(this.widget);
+        wConfig.id = wConfig.id.replace('__EDIT__', '');
+         this.interCom.requestSend({
+             action: 'changeWidgetType',
+             id: wConfig.id,
+             payload: { wConfig: wConfig, newType: type }
+         });
+    }
+    
     showError() {
         // console.log('%cErrorDialog', 'background: purple; color: white;', this.error);
         const dialogConf: MatDialogConfig = new MatDialogConfig();
@@ -584,6 +596,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     closeViewEditMode() {
         this.interCom.requestSend({
             action: 'closeViewEditMode',
+            id: this.widget.id,
             payload: 'dashboard'
         });
     }
@@ -691,6 +704,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         if (this.listenSub) {
             this.listenSub.unsubscribe();
         }
+        this.newSizeSub.unsubscribe();
         this.doRefreshDataSub.unsubscribe();
     }
 

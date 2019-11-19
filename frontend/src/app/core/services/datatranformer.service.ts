@@ -408,7 +408,7 @@ export class DatatranformerService {
 
             const timeSpecification = queryResults.timeSpecification;
             const n = queryResults.data.length;
-            const color = vConfig.color === 'auto' ? autoColors[cIndex++] : vConfig.color;
+            const color = vConfig.color === 'auto' || !vConfig.color ? autoColors[cIndex++] : vConfig.color;
             options.heatmap.nseries = n;
             options.heatmap.color = color;
             for ( let j = 0; j < n; j ++ ) {
@@ -501,7 +501,11 @@ export class DatatranformerService {
         let cIndex = 0;
         const results = queryData.results ? queryData.results : [];
         for ( let i = 0;  i < results.length; i++ ) {
-            const qids = this.REGDSID.exec(results[i].source.split(':')[1]);
+            const [source, mid ] = results[i].source.split(':');
+            if ( source !== 'summarizer') {
+                continue;
+            }
+            const qids = this.REGDSID.exec(mid);
             const qIndex = qids[1] ? parseInt(qids[1], 10) - 1 : 0;
             const mIndex =  this.util.getDSIndexToMetricIndex(widget.queries[qIndex], parseInt(qids[3], 10) - 1, qids[2] );
             const gConfig = widget.queries[qIndex] ? widget.queries[qIndex] : null;
@@ -510,7 +514,7 @@ export class DatatranformerService {
                 continue;
             }
             const n = results[i].data.length;
-            const color = mConfig.settings.visual.color === 'auto' ? autoColors[cIndex++] : mConfig.settings.visual.color;
+            const color = mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color ? autoColors[cIndex++] : mConfig.settings.visual.color;
             const colors = n === 1 ? [color] :  this.util.getColors( wdQueryStats.nVisibleMetrics === 1 && (mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color) ? null : color , n ) ;
             for ( let j = 0;  j < n; j++ ) {
                 const summarizer = this.getSummarizerOption(widget, qIndex, mIndex);
@@ -603,7 +607,10 @@ export class DatatranformerService {
 
         let cIndex = 0;
         for ( let i = 0; i < results.length; i++ ) {
-            const mid = results[i].source.split(':')[1];
+            const [source, mid ] = results[i].source.split(':');
+            if ( source !== 'summarizer') {
+                continue;
+            }
             const qids = this.REGDSID.exec(mid);
             const qIndex = qids[1] ? parseInt(qids[1], 10) - 1 : 0;
             const mIndex =  this.util.getDSIndexToMetricIndex(widget.queries[qIndex], parseInt(qids[3], 10) - 1, qids[2] );
@@ -614,10 +621,10 @@ export class DatatranformerService {
             }
 
             const n = results[i].data.length;
-            const color = mConfig.settings.visual.color === 'auto' ? autoColors[cIndex++]: mConfig.settings.visual.color;
+            const color = mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color ? autoColors[cIndex++]: mConfig.settings.visual.color;
             const colors = n === 1 ? [color] :  this.util.getColors( wdQueryStats.nVisibleMetrics  === 1 && ( mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color ) ? null: color , n ) ;
             for ( let j = 0; j < n; j++ ) {
-                const summarizer = this.getSummarizerOption(widget, 0, mIndex);
+                const summarizer = this.getSummarizerOption(widget, qIndex, mIndex);
                 const aggs = results[i].data[j].NumericSummaryType.aggregations;
                 const tags = results[i].data[j].tags;
                 const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
@@ -642,7 +649,10 @@ export class DatatranformerService {
         const results = queryData.results ? queryData.results : [];
 
         for ( let i = 0; i < results.length; i++ ) {
-            const mid = results[i].source.split(':')[1];
+            const [source, mid ] = results[i].source.split(':');
+            if ( source !== 'summarizer') {
+                continue;
+            }
             const qids = this.REGDSID.exec(mid);
             const qIndex = qids[1] ? parseInt(qids[1], 10) - 1 : 0;
             const mIndex =  this.util.getDSIndexToMetricIndex(widget.queries[qIndex], parseInt(qids[3], 10) - 1, qids[2] );

@@ -8,9 +8,9 @@ import { Actions, ofActionDispatched } from '@ngxs/store';
 
 export interface RawDataModel {
     lastModifiedWidget: {
-        wid: string
+        wid: string,
+        data: any
     };
-    data: any;
 }
 
 // action
@@ -23,11 +23,6 @@ export class GetQueryDataByGroup {
 export class SetQueryDataByGroup {
     public static type = '[Rawdata] Set Query Data By Group';
     constructor(public readonly payload: any) {}
-}
-
-export class CopyWidgetData {
-    static readonly type = '[Dashboard] Copy Widget Data';
-    constructor(public wid: string, public cpid: string) {}
 }
 
 export class ClearQueryData {
@@ -46,9 +41,9 @@ export class ClearWidgetsData {
     name: 'Rawdata',
     defaults: {
         lastModifiedWidget: {
-            wid: ''
+            wid: '',
+            data: {}
         },
-        data: {}
     }
 })
 
@@ -61,14 +56,9 @@ export class WidgetsRawdataState {
                 private utils: UtilsService,
                 private dataTransformer: DatatranformerService ) {}
 
-    static getWidgetRawdataByID(id: string) {
-        return createSelector([WidgetsRawdataState], (state: RawDataModel) => {
-            return state.data[id];
-        });
-      }
 
     @Selector() static getLastModifiedWidgetRawdataByGroup (state: RawDataModel) {
-        return {rawdata: state.data[state.lastModifiedWidget.wid], ...state.lastModifiedWidget};
+        return state.lastModifiedWidget;
     }
 
     @Action(GetQueryDataByGroup)
@@ -95,39 +85,22 @@ export class WidgetsRawdataState {
 
     @Action(SetQueryDataByGroup)
     setQueryDataByGroup(ctx: StateContext<RawDataModel>, { payload }: SetQueryDataByGroup) {
-        const curState = ctx.getState();
-        const state = this.utils.deepClone(curState);
         const qid = payload.wid;
-        if (!state.data[payload.wid]) {
-            state.data[payload.wid] = {};
-        }
-        state.data[payload.wid] = payload.data !== undefined ? payload.data : { error: payload.error };
-        state.lastModifiedWidget = { wid: payload.wid};
-        ctx.setState(state);
+        const wdata = payload.data !== undefined ? payload.data : { error: payload.error };
+
+        const lastModifiedWidget = { wid: payload.wid, data: wdata };
+        ctx.patchState({  lastModifiedWidget: lastModifiedWidget });
         if ( this.subs[qid]) {
             this.subs[qid].unsubscribe();
         }
         this.queryObserver = null;
     }
 
-    @Action(CopyWidgetData)
-    copyWidgetData(ctx: StateContext<RawDataModel>, { wid: wid, cpid: cpid }: CopyWidgetData) {
-        const curState = ctx.getState();
-        const state = this.utils.deepClone(curState);
-        const data = state.data;
-        if ( state.data[wid] ) {
-            data[cpid] = JSON.parse(JSON.stringify(state.data[wid]));
-        }
-        ctx.patchState({ data: data, lastModifiedWidget: { wid: null} });
-    }
 
     @Action(ClearQueryData)
     clearQueryData(ctx: StateContext<RawDataModel>, { payload }: ClearQueryData) {
-        const curState = ctx.getState();
-        const state = this.utils.deepClone(curState);
-        state.data[payload.wid] = {};
-        state.lastModifiedWidget = { wid: payload.wid};
-        ctx.setState({...state});
+        const lastModifiedWidget = { wid: payload.wid, data: {} };
+        ctx.patchState({  lastModifiedWidget: lastModifiedWidget });
     }
 
     @Action(ClearWidgetsData)
@@ -137,6 +110,6 @@ export class WidgetsRawdataState {
                 this.subs[k].unsubscribe();
             }
         }
-        ctx.setState({data: {}, lastModifiedWidget: { wid: null } });
+        ctx.patchState({ lastModifiedWidget: { wid: null, data: {} } });
     }
 }

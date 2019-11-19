@@ -10,7 +10,7 @@
             (reflow)="gridsterFlow($event)"
             [draggableOptions]="{ handlerClass: 'panel-heading' }">
 
-            <ngx-gridster-item #itemComp class="gridster-item" id="{{widget.id}}"
+            <ngx-gridster-item #itemComp class="gridster-item prevent-animation" id="{{widget.id}}"
                 *ngFor="let widget of widgets; let idx = index; trackBy: trackByWidget"
                 [(x)]="widget.gridPos.x"
                 [(y)]="widget.gridPos.y"

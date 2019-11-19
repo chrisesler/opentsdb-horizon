@@ -209,6 +209,11 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
             this.newSize$.next(newSize);
         });
     }
+
+    setTitle(title) {
+        this.widget.settings.title = title;
+    }
+
     requestData() {
         if (!this.isDataLoaded) {
             this.nQueryDataLoading = 1;
@@ -427,7 +432,9 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                                                 value: config.downsample,
                                                 aggregators: config.aggregators,
                                                 customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
-                                                customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
+                                                customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit,
+                                                minInterval: config.minInterval,
+                                                reportingInterval: config.reportingInterval
                                             }
                                         };
     }
@@ -578,6 +585,16 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         this.widget.queries[qindex].filters.splice(findex, 1);
     }
 
+    changeWidgetType(type) {
+        const wConfig = this.util.deepClone(this.widget);
+        wConfig.id = wConfig.id.replace('__EDIT__', '');
+         this.interCom.requestSend({
+             action: 'changeWidgetType',
+             id: wConfig.id,
+             payload: { wConfig: wConfig, newType: type }
+         });
+     }
+
     showError() {
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         const offsetHeight = 60;
@@ -616,7 +633,8 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     closeViewEditMode() {
         this.interCom.requestSend(<IMessage>{
             action: 'closeViewEditMode',
-            payload: 'dashboard'
+            id: this.widget.id,
+            payload: 'dashboard',
         });
     }
 

@@ -213,12 +213,12 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
                 {
                     label: 'Total Using Base Interval - Second',
                     fxCall: 'TotalUsingBaseInterval',
-                    val: '1s'
+                    val: '1s,10s'
                 },
                 {
                     label: 'Total Using Base Interval - Minute',
                     fxCall: 'TotalUsingBaseInterval',
-                    val: '1m'
+                    val: '1m,1m'
                 }
             ]
         },
@@ -312,8 +312,8 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
     FunctionOptions: any = {
         'TotalUsingBaseInterval': {
-            errorMessage: 'Possible values: 1s, 1m, 1h, etc.',
-            regexValidator: /^\d+[smhd]$/i
+            errorMessage: 'Pair of comma separated durations, e.g. "1s,1m"',
+            regexValidator: /^\d+[smhd],*(\d+[smhd]){0,1}$/i
         },
         'RateOfChange' : {
             errorMessage: null,

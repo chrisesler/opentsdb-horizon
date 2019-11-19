@@ -172,6 +172,10 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
         });
     }
 
+    setTitle(title) {
+        this.widget.settings.title = title;
+    }
+
     setSize(newSize) {
         const maxRadius = Math.min(newSize.width, newSize.height);
         let legendWidth = newSize.width - maxRadius;
@@ -228,7 +232,7 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 this.options = {...this.options};
                 break;
             case 'SetVisualization':
-                this.setVisualization(message.payload.data);
+                this.setVisualization(message.payload.gIndex, message.payload.data);
                 this.refreshData(false);
                 break;
             case 'SetSorting':
@@ -303,9 +307,10 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
         }
     }
 
-    setVisualization( mconfigs ) {
+    setVisualization( qIndex, mconfigs ) {
         mconfigs.forEach( (config, i) => {
-            this.widget.queries[0].metrics[i].settings.visual = { ...this.widget.queries[0].metrics[i].settings.visual, ...config };
+            // tslint:disable-next-line:max-line-length
+            this.widget.queries[qIndex].metrics[i].settings.visual = { ...this.widget.queries[qIndex].metrics[i].settings.visual, ...config };
         });
     }
 
@@ -331,7 +336,9 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 value: config.downsample,
                 aggregators: config.aggregators,
                 customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
-                customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
+                customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit,
+                minInterval: config.minInterval,
+                reportingInterval: config.reportingInterval
             }
         };
     }
@@ -388,6 +395,16 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
         this.widget.queries.splice(qindex, 1);
     }
 
+    changeWidgetType(type) {
+        const wConfig = this.util.deepClone(this.widget);
+        wConfig.id = wConfig.id.replace('__EDIT__', '');
+         this.interCom.requestSend({
+             action: 'changeWidgetType',
+             id: wConfig.id,
+             payload: { wConfig: wConfig, newType: type }
+         });
+    }
+
     showError() {
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         const offsetHeight = 60;
@@ -426,6 +443,7 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     closeViewEditMode() {
         this.interCom.requestSend(<IMessage>{
             action: 'closeViewEditMode',
+            id: this.widget.id,
             payload: 'dashboard'
         });
     }
