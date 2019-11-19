@@ -18,7 +18,8 @@
                     <mat-icon>error</mat-icon>
                 </div>
             </div>
-            <event-list [events]="events" [timezone]="'local'" [startTime]="startTime" [endTime]="endTime" style="overflow: scroll" [loading]="loadingEvents()">
+            <event-list *ngIf="data && data.type === 'event'"
+                [events]="events" [timezone]="'local'" [startTime]="startTime" [endTime]="endTime" style="overflow: scroll" [loading]="loadingEvents()">
             </event-list>
         </div>
 
@@ -127,8 +128,7 @@
                                     (configChange)="periodOverPeriodChanged($event)"
                                     [config]= "periodOverPeriodConfig">
                                 </alert-details-metric-period-over-period>
-
-                                <span *ngIf="data && data.threshold && data.threshold.subType === 'singleMetric'">
+                                <span *ngIf="data && data.type === 'simple'">
                                     <div class="form-group sliding-window" formGroupName="singleMetric">
                                             <div class="form-label vertical-center"><strong>Sliding Window</strong></div>
                                             <!-- sentence-like form -->
