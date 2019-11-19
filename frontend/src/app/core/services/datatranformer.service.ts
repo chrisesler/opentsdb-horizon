@@ -624,7 +624,7 @@ export class DatatranformerService {
             const color = mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color ? autoColors[cIndex++]: mConfig.settings.visual.color;
             const colors = n === 1 ? [color] :  this.util.getColors( wdQueryStats.nVisibleMetrics  === 1 && ( mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color ) ? null: color , n ) ;
             for ( let j = 0; j < n; j++ ) {
-                const summarizer = this.getSummarizerOption(widget, 0, mIndex);
+                const summarizer = this.getSummarizerOption(widget, qIndex, mIndex);
                 const aggs = results[i].data[j].NumericSummaryType.aggregations;
                 const tags = results[i].data[j].tags;
                 const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
