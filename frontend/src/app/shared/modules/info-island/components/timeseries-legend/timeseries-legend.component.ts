@@ -369,14 +369,17 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
       if (regex.test(item.series.tags.metric)) {
         if (item.series.label === item.series.tags.metric) {
           // need to lookup from widget
-          // get query and metric index from regex
-          const regMatch = regex.exec(item.series.tags.metric);
-          // regMatch.groups.queryIndex === query index
-          const qIndex = regMatch[1];
-          // regMatch.groups.metricIndex === metric index
-          const mIndex = regMatch[2];
+          // get query and metric index from label (should be something like 'Q1:e1')
+          const regMatch = item.series.label.toLowerCase().split(':');
+          const qIndex = regMatch[0].substring(1); // get everything but the 'q'
+          const mIndex = regMatch[1].substring(1); // get everything but the 'e'
+
           // TODO: need to get expression from widget queries
-          if (this.currentWidgetQueries[qIndex] && this.currentWidgetQueries[qIndex].metrics[mIndex] && this.currentWidgetQueries[qIndex].metrics[mIndex].expression) {
+          if (
+              this.currentWidgetQueries[qIndex] &&
+              this.currentWidgetQueries[qIndex].metrics[mIndex] &&
+              this.currentWidgetQueries[qIndex].metrics[mIndex].expression
+          ) {
             value = this.currentWidgetQueries[qIndex].metrics[mIndex].originalExpression;
           } else {
             // fallback to label
