@@ -1220,16 +1220,16 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                     this.thresholdSingleMetricControls.metricId.setErrors({ 'required': true });
                 }
 
-                if (this.data.threshold.subType === 'singleMetric') {
-                    this.validateSingleMetricThresholds(this.alertForm['controls'].threshold);
-                    if ( !this.alertForm['controls'].notification.get('transitionsToNotify').value.length ) {
-                        this.alertForm['controls'].notification.get('transitionsToNotify').setErrors({ 'required': true });
-                    }
-                } else { // period-over-period
+                if (this.data.threshold.subType === 'periodOverPeriod') {
                     if (this.periodOverPeriodForm.anyErrors) {
                         this.alertForm['controls'].threshold.get('singleMetric').setErrors({ 'isInvalid': true });
                     }
                     if ( this.periodOverPeriodTransitionsSelected.length === 0) {
+                        this.alertForm['controls'].notification.get('transitionsToNotify').setErrors({ 'required': true });
+                    }
+                } else {  // singleMetric
+                    this.validateSingleMetricThresholds(this.alertForm['controls'].threshold);
+                    if ( !this.alertForm['controls'].notification.get('transitionsToNotify').value.length ) {
                         this.alertForm['controls'].notification.get('transitionsToNotify').setErrors({ 'required': true });
                     }
                 }
