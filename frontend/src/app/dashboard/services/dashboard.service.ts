@@ -291,7 +291,7 @@ export class DashboardService {
     console.log('hill - resolve query', query, tplVariables);
     for (let i = 0; i < query.filters.length; i++) {
       const qFilter = query.filters[i];
-      // they do have custom filter mean static filter
+      // they do have custom filter
       if (qFilter.customFilter && qFilter.customFilter.length > 0) {
         for (let j = 0; j < qFilter.customFilter.length; j++) {
           const hasNot = qFilter.customFilter[j][0] === '!';
@@ -304,20 +304,8 @@ export class DashboardService {
           }
         }
       } 
-      /* else if (qFilter.dynamicFilter && qFilter.dynamicFilter.length > 0) {
-        for (let j = 0; j < qFilter.dynamicFilter.length; j++) {
-          const hasNot = qFilter.dynamicFilter[j][0] === '!';
-          const alias = qFilter.dynamicFilter[j].substring(hasNot ? 2 : 1, qFilter.dynamicFilter[j].length - 1);
-          const tplIdx = tplVariables.findIndex(tpl => tpl.alias === alias);
-          if (tplIdx > -1) {
-            if (tplVariables[tplIdx].filter !== '' && qFilter.filter.indexOf(tplVariables[tplIdx].filter) === -1) {
-              qFilter.filter.push( hasNot ? '!' + tplVariables[tplIdx].filter : tplVariables[tplIdx].filter );
-            }
-          }
-        }
-      }*/
     }
-    // clean out empty filter
+    // clean out empty filter, since they might have db filter but not set value yet.
     query.filters = query.filters.filter(f => f.filter.length > 0);
     return query;
   }
