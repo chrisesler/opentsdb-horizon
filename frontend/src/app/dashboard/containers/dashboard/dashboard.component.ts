@@ -785,10 +785,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
                             if (filters[fIndex].filter.length === 0) {
                                 filters.splice(fIndex, 1);
                             }
-                            // requery if the remove custom tag has value
+                            // requery if the remove custom tag has value, and only if the custom filter has value
                             this.store.dispatch(new UpdateWidget({
                                 id: widget.id,
-                                needRequery: true,
+                                needRequery: vartag.filter.trim() !== '' ? true : false,
                                 widget: widget
                             }));
                         }
