@@ -291,6 +291,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 for (let i = 0; i < tplFormGroups.length; i++) {
                     if (i === index) { // value is changed of its own
                         selControl.get('isNew').setValue(0, { emitEvent: false });
+                        this.updateState(selControl, false);
+                        // run after state update
                         this.interCom.requestSend({
                             action: 'UpdateTplAlias',
                             payload: {
@@ -299,7 +301,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                                 insert: insert
                             }
                         });
-                        this.updateState(selControl, false);
                         continue;
                     }
                     const rowControl = tplFormGroups[i]['controls'];
@@ -309,11 +310,12 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                     } else {
                         tplFormGroups[i]['controls']['alias'].setErrors(null);
                         selControl.get('isNew').setValue(0, { emitEvent: false });
+                        this.updateState(selControl, false);
+                        // make sure exec after updating dashboard state.
                         this.interCom.requestSend({
                             action: 'UpdateTplAlias',
                             payload: { vartag: selControl.value, originVal: startVal, insert: insert }
                         });
-                        this.updateState(selControl, false);
                     }
                 }
             }
@@ -386,7 +388,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 action: 'RemoveCustomTagFilter',
                 payload: { vartag: removedItem.value }
             });
-            this.updateState(removedItem);
+            // we already trigger all widget update to requery from RemoveCustomTagFilter
+            this.updateState(removedItem, false);
         }
     }
     done() {

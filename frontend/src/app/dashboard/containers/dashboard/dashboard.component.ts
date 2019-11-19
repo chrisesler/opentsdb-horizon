@@ -591,9 +591,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 }
 
                 // only get dashboard tag key when they already set it up.
-                if (this.tplVariables.editTplVariables.length > 0 && !this.isDbTagsLoaded) {
-                    this.getDashboardTagKeys();
-                }
+                //if (this.tplVariables.editTplVariables.length > 0 && !this.isDbTagsLoaded) {
+                //    this.getDashboardTagKeys();
+                //}
                 // check to see if we can display variable template panel or not
                 // comment this out, since we now do allow user to set the dashboard tag filters
                 // even without any metrics
@@ -766,7 +766,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
        }
        */
     }
-    // when delete a dashboard custom tag
+    // when delete a dashboard custom tag, we need to remove them out of 
+    // widget if added before, and run query for widget that get affected.
     removeCustomTagFilter(payload: any) {
         const vartag = payload.vartag;
         for (let i = 0; i < this.widgets.length; i++) {
@@ -779,35 +780,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         const cFilterIndex = filters[fIndex].customFilter.indexOf('[' + vartag.alias + ']');
                         if (cFilterIndex > -1) {
                             filters[fIndex].customFilter.splice(cFilterIndex, 1);
+                            // after remove and of this filter does not have filter value before
+                            // then we remove it out.
+                            if (filters[fIndex].filter.length === 0) {
+                                filters.splice(fIndex, 1);
+                            }
                             // requery if the remove custom tag has value
                             this.store.dispatch(new UpdateWidget({
                                 id: widget.id,
-                                needRequery: false,
+                                needRequery: true,
                                 widget: widget
                             }));
                         }
 
                     }
                 }
-            }
-        }
-        // if they remove everything, then make sure we clean once it's lock before.
-        if (this.tplVariables.editTplVariables.length === 0) {
-            let flag = false;
-            for (let i = 0; i < this.widgets.length; i++) {
-                const widget = this.widgets[i];
-                if (widget.settings.hasOwnProperty('useDBFilter') && !widget.settings.useDBFilter) {
-                    widget.settings.useDBFilter = true;
-                    flag = true;
-                    // let the widget know to update it lock
-                    this.interCom.responsePut({
-                        id: widget.id,
-                        action: 'ResetUseDBFilter'
-                    });
-                }
-            }
-            if (flag) {
-                this.store.dispatch(new UpdateWidgets(this.widgets));
             }
         }
     }
@@ -818,6 +805,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             for (let i = 0; i < this.widgets.length; i++) {
                 const widget = this.widgets[i];
                 // we will insert or modify based on insert flag
+                console.log('hill - this.dashboardTags', this.dashboardTags);
                 const isModify = this.dbService.applytDBFilterToWidget(widget, payload, this.dashboardTags.rawDbTags);
                 if (isModify) {
                     console.log('hill - widget state update', widget);
@@ -848,6 +836,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // get all dashboard tags, use to check eligible for when apply db filter 
     // to widget.
     getDashboardTagKeys(reloadData: boolean = true) {
+        console.log('hill - call getDashboardTagKeys');
         this.isDbTagsLoaded = false;
         this.httpService.getTagKeysForQueries(this.widgets).subscribe((res: any) => {
             this.dashboardTags = { rawDbTags: {}, totalQueries: 0, tags: [] };
@@ -875,8 +864,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // check if DBTags is loaded or not, 
     checkDbTagsLoaded(): Observable<any> {
+        console.log('hill - to check this edittpl', this.tplVariables.editTplVariables);
         if (this.tplVariables.editTplVariables.tvars.length > 0) {
             if (!this.isDbTagsLoaded) {
+                this.getDashboardTagKeys();
                 return this.isDbTagsLoaded$;
             } else {
                 return of(true);
@@ -932,7 +923,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         // query = this.dbService.filterMetrics(query);
                         // here we need to resolve template variables
                         if (tplVars.length > 0) {
-                            console.log('hill - check condition', query.filters.findIndex(f => f.customFilter !== undefined));
                             if (query.filters.findIndex(f => f.customFilter !== undefined) > -1) {
                                 query = this.dbService.resolveTplVar(query, tplVars);
                             }
