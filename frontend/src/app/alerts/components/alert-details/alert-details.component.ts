@@ -378,6 +378,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         const bad = data.threshold.singleMetric.badThreshold !== undefined ? data.threshold.singleMetric.badThreshold : null;
         const warn = data.threshold.singleMetric.warnThreshold !== undefined ? data.threshold.singleMetric.warnThreshold : null;
         const recover = data.threshold.singleMetric.recoveryThreshold !== undefined ? data.threshold.singleMetric.recoveryThreshold : null;
+        const notifyOnMissing = data.threshold.notifyOnMissing ? data.threshold.notifyOnMissing.toString() : 'false';
         this.alertForm = this.fb.group({
             name: data.name || 'Untitled Alert',
             type: data.type || 'simple',
@@ -388,8 +389,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             threshold: this.fb.group({
                 subType: data.threshold.subType || 'singleMetric',
                 nagInterval: data.threshold.nagInterval || '0',
-                notifyOnMissing: data.threshold.notifyOnMissing ? data.threshold.notifyOnMissing.toString() : 'false',
-                autoRecoveryInterval: data.threshold.autoRecoveryInterval || null,
+                notifyOnMissing: notifyOnMissing,
+                autoRecoveryInterval: data.threshold.autoRecoveryInterval || 'null',
                 delayEvaluation: data.threshold.delayEvaluation || 0,
                 singleMetric: this.fb.group({
                     queryIndex: data.threshold.singleMetric.queryIndex || -1 ,
@@ -511,13 +512,14 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         // tslint:disable-next-line: max-line-length
         this.subscription.add(<Subscription>this.alertForm.controls['threshold']['controls']['notifyOnMissing'].valueChanges.subscribe(val => {
             if ( val === 'true' ) {
-                this.alertForm.controls['threshold']['controls']['autoRecoveryInterval'].setValue(null);
+                this.alertForm.controls['threshold']['controls']['autoRecoveryInterval'].setValue('null');
                 this.alertForm.controls['threshold']['controls']['autoRecoveryInterval'].disable();
             } else {
-                this.alertForm.controls['threshold']['controls']['autoRecoveryInterval'].enable()
+                this.alertForm.controls['threshold']['controls']['autoRecoveryInterval'].enable();
             }
         }));
 
+        this.alertForm['controls'].threshold.get('notifyOnMissing').setValue( notifyOnMissing, { emitEvent: true});
         if (!this.data.threshold) {
             this.data.threshold = {};
         }
@@ -1335,7 +1337,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 dsId = subNodes[ subNodes.length - 1 ].id;
                 data.threshold.singleMetric.metricId =  dsId;
                 data.threshold.isNagEnabled = data.threshold.nagInterval !== '0' ? true : false;
-                data.threshold.autoRecoveryInterval = data.threshold.autoRecoveryInterval || null;
+                // tslint:disable-next-line: max-line-length
+                data.threshold.autoRecoveryInterval = data.threshold.autoRecoveryInterval !== 'null' ? data.threshold.autoRecoveryInterval : null;
                 // tslint:disable-next-line: max-line-length
                 data.threshold.singleMetric.requiresFullWindow = data.threshold.singleMetric.timeSampler === 'all_of_the_times' ? data.threshold.singleMetric.requiresFullWindow : false;
                 // tslint:disable-next-line: max-line-length
