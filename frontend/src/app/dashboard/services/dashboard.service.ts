@@ -230,65 +230,7 @@ export class DashboardService {
     return isModify;
    }
 
-  applyWidgetDBFilter(widget: any, tplVariables: any, rawDbTags: any) {
-   let isModify = false;
-   const wid = widget.id.indexOf('__EDIT__') !== -1 ? widget.id.replace('__EDIT__', '') : widget.id;
-   const eWidget = {};
-    for (let i = 0; i < tplVariables.length; i++) {
-      const vartag = tplVariables[i];
-      if (rawDbTags[wid]) {
-        const eqid = {};
-        for (const qid in rawDbTags[wid]) {
-          if (rawDbTags[wid].hasOwnProperty(qid)) {
-            if (rawDbTags[wid][qid].includes(vartag.tagk)) {
-              eqid[qid] = true;
-            }
-          }
-        }
-        if (Object.keys(eqid).length > 0) {
-          eWidget[vartag.alias] = eqid;
-        }
-      }
-    }
-    // mcolo: abc: true, cdf: true --> for query id
-    for (const alias of Object.keys(eWidget)) {
-        const tplIdx = tplVariables.findIndex(tpl => tpl.alias === alias);
-        const vartag = tplVariables[tplIdx];
-        // when user set custom tag to empty, we need to requery to origin config
-        if (vartag.filter === '') { isModify = true; continue; }
-        for (let i = 0; i < widget.queries.length; i++) {
-          const query = widget.queries[i];
-          if (eWidget[alias].hasOwnProperty(query.id)) {
-            // see if it has filter of this tag
-            const fIdx = query.filters.findIndex(f => f.tagk === vartag.tagk);
-            if (fIdx > -1) {
-              const currFilter = query.filters[fIdx];
-              // if they manually define this [alias] in customFilter then we don't
-              // modify it since it's static mode
-              if (!currFilter.customFilter || currFilter.customFilter.length === 0) {
-                currFilter.filter = [];
-                currFilter.dynamicFilter ?
-                  currFilter.dynamicFilter.push('[' + alias + ']') : currFilter.dynamicFilter = ['[' + alias + ']'];
-                isModify = true;
-              }
-            } else {
-              const nfilter = {
-                tagk: vartag.tagk,
-                filter: [],
-                groupBy: false,
-                dynamicFilter: ['[' + alias + ']']
-              };
-              query.filters.push(nfilter);
-              isModify = true;
-            }
-          }
-        }
-    }
-    return isModify ? widget : undefined;
-  }
-
   resolveTplVar(query: any, tplVariables: any[]) {
-    console.log('hill - resolve query', query, tplVariables);
     for (let i = 0; i < query.filters.length; i++) {
       const qFilter = query.filters[i];
       // they do have custom filter
