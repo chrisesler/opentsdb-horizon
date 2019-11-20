@@ -115,7 +115,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             ).subscribe(val => {
 
                 const query = {
-                    namespaces: this.selectedNamespaces,
+                    namespaces: this.mode.view ? this.tplVariables.viewTplVariables.namespaces : this.tplVariables.editTplVariables.namespaces,
                     tag: { key: selControl.get('tagk').value, value: val }
                 };
                 this.httpService.getTagValues(query).subscribe(
