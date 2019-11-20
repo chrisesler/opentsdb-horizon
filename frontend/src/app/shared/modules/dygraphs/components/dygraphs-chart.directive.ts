@@ -355,6 +355,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
             labelsDiv.style.left = (event.offsetX + xOffset) + 'px';
             labelsDiv.style.top = (event.offsetY + yOffset) + 'px';
         };
+
         if (!changes) {
             return;
         } else {
@@ -394,7 +395,27 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                     };
 
                     if (this.timeseriesLegend) {
-                        this.options.clickCallback = clickCallback;
+                        //this.options.clickCallback = clickCallback;
+                        // TODO: need to detect double click and NOT open the island
+
+                        let clickCount = 0;
+                        const handleSingleDoubleClick = function(e, x, points) {
+                          if (!clickCount) {
+                            setTimeout(() => {
+                              if (clickCount > 1) {
+                                // double click
+                              } else {
+                                // single click
+                                clickCallback.call(this, e, x, points);
+                              }
+                              clickCount = 0;
+                            }, 400); // 400 ms click delay
+                          }
+                          clickCount += 1;
+                        };
+
+                        this.options.clickCallback = handleSingleDoubleClick;
+
                     }
                 } else if (this.chartType === 'heatmap') {
                     this.options.interactionModel = {
