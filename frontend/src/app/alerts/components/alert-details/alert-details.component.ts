@@ -280,7 +280,10 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 this.doEventQuery(list);
             })
         );
-
+        if ( this.data.id ) {
+            this.data.createdTime = this.dateUtil.timestampToTime((this.data.createdTime / 1000).toString(), 'local');
+            this.data.updatedTime = this.dateUtil.timestampToTime((this.data.updatedTime / 1000 ).toString(), 'local');
+        }
         switch ( this.data.type ) {
             case 'simple':
                 this.thresholdType = 'singleMetric';
@@ -386,6 +389,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 subType: data.threshold.subType || 'singleMetric',
                 nagInterval: data.threshold.nagInterval || '0',
                 notifyOnMissing: data.threshold.notifyOnMissing ? data.threshold.notifyOnMissing.toString() : 'false',
+                autoRecoveryInterval: data.threshold.autoRecoveryInterval || null,
                 delayEvaluation: data.threshold.delayEvaluation || 0,
                 singleMetric: this.fb.group({
                     queryIndex: data.threshold.singleMetric.queryIndex || -1 ,
@@ -394,6 +398,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                     metricId: [ data.threshold.singleMetric.metricId ? this.utils.getMetricDropdownValue(data.queries.raw, data.threshold.singleMetric.queryIndex, data.threshold.singleMetric.metricId) : ''],
                     badThreshold:  bad,
                     warnThreshold: warn,
+                    requiresFullWindow: data.threshold.singleMetric.requiresFullWindow || false,
+                    reportingInterval: data.threshold.singleMetric.reportingInterval || null,
                     recoveryThreshold: recover,
                     recoveryType: data.threshold.singleMetric.recoveryType || 'minimum',
                     // tslint:disable-next-line:max-line-length
@@ -500,6 +506,16 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         // tslint:disable-next-line: max-line-length
         this.subscription.add(<Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['metricId'].valueChanges.subscribe(val => {
             this.metricIdChanged(val);
+        }));
+
+        // tslint:disable-next-line: max-line-length
+        this.subscription.add(<Subscription>this.alertForm.controls['threshold']['controls']['notifyOnMissing'].valueChanges.subscribe(val => {
+            if ( val === 'true' ) {
+                this.alertForm.controls['threshold']['controls']['autoRecoveryInterval'].setValue(null);
+                this.alertForm.controls['threshold']['controls']['autoRecoveryInterval'].disable();
+            } else {
+                this.alertForm.controls['threshold']['controls']['autoRecoveryInterval'].enable()
+            }
         }));
 
         if (!this.data.threshold) {
@@ -695,6 +711,14 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         }
     }
 
+    toggleInfectiousNan(checked) {
+        for ( let i = 0; i < this.queries.length; i++ ) {
+            this.queries[i].settings.infectiousNan = checked;
+        }
+        this.reloadData();
+        console.log("toggleInfectiousNan", this.queries);
+    }
+
     getNewQueryConfig() {
         const query: any = {
             id: this.utils.generateId(6, this.utils.getIDs(this.queries)),
@@ -789,15 +813,22 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         const badStateCntrl = this.thresholdSingleMetricControls['badThreshold'];
         const warningStateCntrl = this.thresholdSingleMetricControls['warnThreshold'];
         const recoveryStateCntrl = this.thresholdSingleMetricControls['recoveryThreshold'];
+        const reportingIntervalCntrl = this.thresholdSingleMetricControls['reportingInterval'];
+        const requiresFullWindowCntrl = this.thresholdSingleMetricControls['requiresFullWindow'];
 
         const recoveryMode = this.thresholdRecoveryType;
         const bad = badStateCntrl.value;
         const warning = warningStateCntrl.value;
         const recovery = recoveryStateCntrl.value;
         const operator = this.alertForm.get('threshold').get('singleMetric').get('comparisonOperator').value;
+        const timeSampler = this.thresholdSingleMetricControls['timeSampler'].value;
 
         if ( this.alertForm.touched && badStateCntrl.value === null && warningStateCntrl.value === null ) {
             this.alertForm['controls'].threshold.setErrors({ 'required': true });
+        }
+
+        if ( timeSampler === 'all_of_the_times' && requiresFullWindowCntrl.value === true && reportingIntervalCntrl.value === null ) {
+            this.thresholdSingleMetricControls['reportingInterval'].setErrors({ 'required': true });
         }
 
         // validate the warning value
@@ -1303,9 +1334,13 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 let dsId = this.utils.getDSId( this.utils.arrayToObject(this.queries), qindex, mindex);
                 const subNodes = tsdbQuery[0].executionGraph.filter(d => d.id.indexOf(dsId) === 0 );
                 dsId = subNodes[ subNodes.length - 1 ].id;
-                // tslint:disable-next-line: max-line-length
                 data.threshold.singleMetric.metricId =  dsId;
                 data.threshold.isNagEnabled = data.threshold.nagInterval !== '0' ? true : false;
+                data.threshold.autoRecoveryInterval = data.threshold.autoRecoveryInterval || null;
+                // tslint:disable-next-line: max-line-length
+                data.threshold.singleMetric.requiresFullWindow = data.threshold.singleMetric.timeSampler === 'all_of_the_times' ? data.threshold.singleMetric.requiresFullWindow : false;
+                // tslint:disable-next-line: max-line-length
+                data.threshold.singleMetric.reportingInterval = data.threshold.singleMetric.requiresFullWindow === true ? data.threshold.singleMetric.reportingInterval : null;
                 break;
             case 'healthcheck':
                 data.threshold.missingDataInterval = data.threshold.notifyOnMissing === 'true' ? data.threshold.missingDataInterval : null;
