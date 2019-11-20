@@ -503,7 +503,7 @@ export class YamasService {
                 fillPolicy: 'NAN',
                 realFillPolicy: 'NONE'
             }],
-            infectiousNan: false,
+            infectiousNan: this.queries[qindex].settings.infectiousNan ? true : false,
             substituteMissing: true,
             variableInterpolators: {},
             sources: sources
