@@ -354,14 +354,16 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         const selControl = this.getSelectedControl(index);
         // if control is valid and the key is different
         if (selControl.valid && event.option.value !== this.prevSelectedTagk) {
-            // const flag = selControl.get('filter').value !== '' ? true : false;
+            const prevValue = selControl.get('filter').value;
             selControl.get('filter').setValue('');
             // remove this tag out of widget if any
             this.interCom.requestSend({
                 action: 'RemoveCustomTagFilter',
                 payload: {
-                    vartag: { tagk: this.prevSelectedTagk, alias: selControl.get('alias').value },
-                    tplIndex: index
+                    vartag: { tagk: this.prevSelectedTagk, 
+                              alias: selControl.get('alias').value,
+                              filter: prevValue
+                            }
                 }
             });
             this.updateState(selControl);

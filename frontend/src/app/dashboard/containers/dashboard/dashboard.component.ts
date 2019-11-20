@@ -782,7 +782,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                             filters[fIndex].customFilter.splice(cFilterIndex, 1);
                             // after remove and of this filter does not have filter value before
                             // then we remove it out.
-                            if (filters[fIndex].filter.length === 0) {
+                            if (filters[fIndex].filter.length === 0 && filters[fIndex].customFilter.length === 0) {
                                 filters.splice(fIndex, 1);
                             }
                             // requery if the remove custom tag has value, and only if the custom filter has value
