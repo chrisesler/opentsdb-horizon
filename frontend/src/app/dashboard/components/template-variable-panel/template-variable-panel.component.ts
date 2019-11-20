@@ -149,10 +149,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         this.filteredValueOptions = [];
         this.editForm.controls['formTplVariables'] = this.fb.array([]);
         this.initializeTplVariables(this.tplVariables.editTplVariables.tvars);
-        // after reload the tplVariables state and if they are not the same as
-        // viewTplVariables, we need to requery, since they are exactly same order, we can do JSON string check
 
-        // handle this later for view modify and editing, comment out for now
+        // we dont deal with this way any more, carry over but if user save, it will save
         /* if (JSON.stringify(this.tplVariables.editTplVariables.tvars) !== JSON.stringify(this.tplVariables.viewTplVariables.tvars)) {
             this.interCom.requestSend({
                 action: 'ApplyTplVarValue',
@@ -285,7 +283,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     private validateAlias(val: string, index: number, selControl: any, startVal: string) {
         console.log('hill validate this, ', selControl.value, index);
         if (val.trim() !== '') {
-            const insert = selControl.get('isNew').value;
+            let insert = 0;
+            if (selControl.get('mode').value === 'auto') {
+                insert = selControl.get('isNew').value;
+            }
             const tplFormGroups = this.editForm.controls['formTplVariables']['controls'];
             if (tplFormGroups.length > 0) {
                 for (let i = 0; i < tplFormGroups.length; i++) {
