@@ -96,13 +96,4 @@ export class InlineEditableComponent implements OnInit, OnChanges {
       this.resetFormField();
     }
   }
-
-  @HostListener('document:click', ['$event'])
-  clickOutsideComponent(event) {
-    if (this.isEditView) {
-      if (!this.eRef.nativeElement.contains(event.target)) {
-        this.save();
-      }
-    }
-  }
 }
