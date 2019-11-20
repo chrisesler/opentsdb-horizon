@@ -716,7 +716,6 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             this.queries[i].settings.infectiousNan = checked;
         }
         this.reloadData();
-        console.log("toggleInfectiousNan", this.queries);
     }
 
     getNewQueryConfig() {
