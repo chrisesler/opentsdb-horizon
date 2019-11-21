@@ -58,10 +58,17 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         });
     }
 
-    ngOnInit() { }
+    ngOnInit() {}
+
+    // to set reset these variable, will be call from dashboard component. 
+    reset() {
+        this.dbNamespaces = [];
+        this.selectedNamespaces = [];
+        this.tagKeysByNamespaces = [];
+    }
 
     ngOnChanges(changes: SimpleChanges) {
-        console.log('hill - tpl component changes', changes, this.mode.view);
+        console.log('hill - tpl component changes', changes);
         if (changes.tplVariables && changes.tplVariables.currentValue.editTplVariables.tvars.length > 0) {
             if (this.mode.view) {
                 this.initListFormGroup();
@@ -72,8 +79,16 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             // copy edit -> view list
             this.tplVariables.viewTplVariables = this.tplVariables.editTplVariables;
             this.initListFormGroup();
-        } else if (changes.mode && !changes.mode.firstChange && !changes.mode.currentValue.view) {
-            console.log('hill - call edit mode', this.tplVariables.editTplVariables);
+        } else if (changes.mode && !changes.mode.firstChange && !changes.mode.currentValue.view) { 
+            // we need to get all tagkeys by namespace once first time only
+            // and first assign to selectedNamespaces
+            if (this.tplVariables.editTplVariables.namespaces.length > 0 && this.tagKeysByNamespaces.length === 0) {
+                this.getTagkeysByNamespaces(this.tplVariables.editTplVariables.namespaces);
+                this.selectedNamespaces = this.tplVariables.editTplVariables.namespaces;
+            }
+            this.tplVariables.editTplVariables.namespaces.sort(this.utils.sortAlphaNum);
+            this.initEditFormGroup();
+        } else if (changes.widgets) {
             // call to get dashboard namespaces
             this.dbNamespaces = this.dbService.getNamespacesFromWidgets(this.widgets);
             // update editTplVariables
@@ -81,14 +96,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 if (!this.tplVariables.editTplVariables.namespaces.includes(this.dbNamespaces[i])) {
                     this.tplVariables.editTplVariables.namespaces.push(this.dbNamespaces[i])
                 }
-            }    
-            // we need to get all tagkeys by namespace once first time only
-            // and first assign to selectedNamespaces
-            if (this.tplVariables.editTplVariables.namespaces.length > 0 && this.tagKeysByNamespaces.length === 0) {
-                this.getTagkeysByNamespaces(this.tplVariables.editTplVariables.namespaces);
-                this.selectedNamespaces = this.tplVariables.editTplVariables.namespaces;
-            }
-            this.initEditFormGroup();
+            } 
         }
     }
     doEdit() {
@@ -132,7 +140,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         this.filteredValueOptions = [];
         this.listForm.controls['listVariables'] = this.fb.array([]);
         this.tplVariables.viewTplVariables.tvars.forEach((data, index) => {
-            console.log('hill - init form  data', data);
             const vardata = {
                 tagk: new FormControl((data.tagk) ? data.tagk : '', []),
                 alias: new FormControl((data.alias) ? data.alias : '', []),
@@ -145,7 +152,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     initEditFormGroup() {
-        console.log('hill - init call edit form', this.tplVariables.editTplVariables.tvars);
         this.filteredValueOptions = [];
         this.editForm.controls['formTplVariables'] = this.fb.array([]);
         this.initializeTplVariables(this.tplVariables.editTplVariables.tvars);
@@ -212,7 +218,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     // dirty = 1 means to do insert
     addVariableTemplate(data?: any) {
         data = (data) ? data : { mode: this.getLastFilterMode(), applied: 0, isNew: 1 };
-        console.log('hill - data to add to form before mod', data);
         const varData = {
             tagk: new FormControl((data.tagk) ? data.tagk : '', [Validators.required]),
             alias: new FormControl((data.alias) ? data.alias : '', [Validators.required]),
@@ -223,7 +228,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         };
 
         const control = <FormArray>this.editForm.controls['formTplVariables'];
-        console.log('hill - each data push to form', varData);
         control.push(this.fb.group(varData));
     }
 
@@ -235,7 +239,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         const control = <FormArray>this.listForm.controls['listVariables'];
         const selControl = control.at(index);
         const val = selControl.get('filter').value;
-        const idx = this.filteredValueOptions[index].findIndex(item => item && item.toLowerCase() === val.toLowerCase());
+        const idx = this.filteredValueOptions[index].findIndex(item => item && item === val);
         if (idx === -1) {
             selControl.get('filter').setValue('');
         } else {
@@ -256,8 +260,11 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                         startWith(''),
                         debounceTime(300),
                         map(val => {
-                            const filterVal = val.toString().toLowerCase();
-                            return this.tagKeysByNamespaces.filter(key => key.toLocaleLowerCase().includes(filterVal));
+                            // turn off lowercase
+                            // const filterVal = val.toString().toLowerCase();
+                            // return this.tagKeysByNamespaces.filter(key => key.toLowerCase().includes(filterVal));
+                            const filterVal = val.toString();
+                            return this.tagKeysByNamespaces.filter(key => key.includes(filterVal));
                         })
                     );
                 break;
@@ -281,7 +288,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
 
     // since alias/name has to be unique with db filters
     private validateAlias(val: string, index: number, selControl: any, startVal: string) {
-        console.log('hill validate this, ', selControl.value, index);
         if (val.trim() !== '') {
             let insert = 0;
             if (selControl.get('mode').value === 'auto') {
@@ -299,7 +305,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                             payload: {
                                 vartag: selControl.value,
                                 originVal: startVal,
-                                insert: insert
+                                insert: insert,
+                                index: index
                             }
                         });
                         continue;
@@ -315,7 +322,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                         // make sure exec after updating dashboard state.
                         this.interCom.requestSend({
                             action: 'UpdateTplAlias',
-                            payload: { vartag: selControl.value, originVal: startVal, insert: insert }
+                            payload: { vartag: selControl.value, originVal: startVal, insert: insert, index: i }
                         });
                     }
                 }
@@ -324,7 +331,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     onInputBlur(cname: string, index: number) {
-        console.log('hill - inputblur', cname, index);
         const selControl = this.getSelectedControl(index);
         const val = selControl['controls'][cname].value;
         // when user type in and click select and if value is not valid, reset
@@ -337,7 +343,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             }
         }
         if (cname === 'filter') {
-            const idx = this.filteredValueOptions[index].findIndex(item => item && item.toLowerCase() === val.toLowerCase());
+            // const idx = this.filteredValueOptions[index].findIndex(item => item && item.toLowerCase() === val.toLowerCase());
+            const idx = this.filteredKeyOptions[index].findIndex(item => item && item === val) || -1;
             if (idx === -1) {
                 selControl.get('filter').setValue('', { emitEvent: false });
             } else {
@@ -481,7 +488,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 payload: {
                     vartag: selControl.value,
                     originVal: '',
-                    insert: 1
+                    insert: 1,
+                    index: index
                 }
             });            
             this.updateState(selControl, true);
@@ -501,14 +509,18 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         const index = this.selectedNamespaces.indexOf(namespace);
         if (!this.dbNamespaces.includes(namespace) && index !== -1) {
             this.selectedNamespaces.splice(index, 1);
-            this.getTagkeysByNamespaces(this.selectedNamespaces);
+            if (this.selectedNamespaces.length > 0) {
+                this.getTagkeysByNamespaces(this.selectedNamespaces);
+            } else {
+                this.tagKeysByNamespaces = [];
+                this.updateTplVariableState([], []);
+            }
         }
     }
 
     getTagkeysByNamespaces(namespaces) {
         this.httpService.getTagKeys({ namespaces }).subscribe((res: string[]) => {
             this.tagKeysByNamespaces = res;
-            console.log('hill - all tagkeys', this.tagKeysByNamespaces);
         });
     }
 
