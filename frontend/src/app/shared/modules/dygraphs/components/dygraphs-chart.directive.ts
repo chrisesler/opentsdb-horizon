@@ -400,7 +400,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
 
                         let clickCount = 0;
                         const handleSingleDoubleClick = function(e, x, points) {
-                          if (!clickCount) {
+                          if (clickCount === 0) {
                             setTimeout(() => {
                               if (clickCount > 1) {
                                 // double click
