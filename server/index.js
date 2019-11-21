@@ -56,6 +56,7 @@ app.use(function(err, req, res, next) {
   res.send(err.message);
 });
 
+app.use('/assets', express.static(path.join(__dirname, 'public/assets'), { maxAge: '1d' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // for now, we need to get the better regex and re-organize the api url

@@ -38,7 +38,7 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
   currentWidgetType: string = '';
 
   options: any = {
-    trackMouse: false,
+    trackMouse: true,
     open: false
   };
   data: any;

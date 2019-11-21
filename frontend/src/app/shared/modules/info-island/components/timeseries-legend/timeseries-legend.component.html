@@ -2,6 +2,8 @@
     <mat-toolbar-row class="detail-brief">
         <span>Total Series: showing {{visibleDataCount}} of {{data.series.length}}</span>
         <span class="flex-spacer"></span>
+        <span class="detail-when">{{data.when}}</span>
+        <span class="flex-spacer"></span>
         <span>Sort by {{sortActiveText}} {{(sort && sort.direction === 'asc') ? 'ascending' : 'descending'}}</span>
     </mat-toolbar-row>
 </mat-toolbar>

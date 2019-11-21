@@ -13,7 +13,10 @@
                     </div>
                     <div class="dygraph-legend" #graphLegend></div>
                 </div>
-                <div class="loading-spinner size-s color-primary" *ngIf="nQueryDataLoading > 0"></div>
+                <!--<div class="loading-spinner size-s color-primary" *ngIf="nQueryDataLoading > 0"></div>-->
+                <div class="gif-spinner" *ngIf="nQueryDataLoading > 0">
+                    <img src="/assets/spinner-26x26.gif" />
+                </div>
                 <div class="error" *ngIf="error" (click)="showError()">
                     <mat-icon>error</mat-icon>
                 </div>
@@ -33,7 +36,7 @@
             </alert-details-metric-period-over-period-preview>
         </div>
 
-        <!-- 
+        <!--
         [****    EDIT MODE    ****]
         -->
         <div *ngIf="!readOnly && (data.type === 'simple' || data.type === 'healthcheck') " class="controls-wrapper">
@@ -41,7 +44,7 @@
                 <div class="toolbar-item alert-name-detail">
                     <span class="namespace">Namespace: {{data.namespace}}</span>
                     <div class="alert-name">
-                        <inline-editable class="navbar-item" 
+                        <inline-editable class="navbar-item"
                             [fieldValue]="data.name"
                             [minLength]="3"
                             [maxLength]="100"
@@ -74,11 +77,11 @@
                                         enableMultipleQueries: data.type === 'simple',
                                         enableMetric: data.type === 'simple',
                                         toggleMetric: false,
-                                        toggleQuery: false, 
-                                        cloneQuery: data.type === 'simple', 
+                                        toggleQuery: false,
+                                        cloneQuery: data.type === 'simple',
                                         deleteQuery: data.type === 'simple',
-                                        enableExplicitTagMatch: data.type === 'simple'}" 
-                                    (queryOutput)="updateQuery($event);"></query-editor-proto> 
+                                        enableExplicitTagMatch: data.type === 'simple'}"
+                                    (queryOutput)="updateQuery($event);"></query-editor-proto>
                             </div>
                         </div>
                         <div class="query-metric-row" *ngIf="queries.length && queries[0].metrics.length">
@@ -89,7 +92,7 @@
                         </div>
                     </div>
                     <div class="step-section threshold-section" *ngIf="data.type === 'simple'"  formGroupName="threshold" [ngClass]="{'is-visible': data.id || queries && queries[0] && queries[0].metrics.length > 0}">
-                    
+
                         <div class="step-section-label">
                             <span class="step-section-label-text">2. Threshold</span>
                         </div>
@@ -104,7 +107,7 @@
                                     </mat-radio-group>
                                     <mat-hint *ngIf="data && data.threshold && data.threshold.subType === 'singleMetric'">One metric with one or more static thresholds.</mat-hint>
                                     <mat-hint *ngIf="data && data.threshold && data.threshold.subType === 'periodOverPeriod'">One metric with bottom & top bounds from the average across N period lookbacks.</mat-hint>
-                                </div>                                
+                                </div>
                             </div>
 
                         <span>
@@ -191,7 +194,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="form-group bad-threshold-setting" formGroupName="singleMetric">
                                             <div class="form-label"><span class="indicator-square is-bad"></span> <strong>Bad state</strong> when metric is {{alertStateDirection}}</div>
                                             <div class="form-control-wrap auto-width">
@@ -200,7 +203,7 @@
                                                 </mat-form-field>
                                                 <mat-error *ngIf="alertForm['controls'].threshold.errors && alertForm['controls'].threshold.errors.required">Bad or Warning state should not be empty</mat-error>
                                             </div>
-        
+
                                         </div>
                                         <div class="form-group warning-threshold-setting" formGroupName="singleMetric">
                                             <div class="form-label"><span class="indicator-square is-warning"></span> <strong>Warning state</strong> when metric is {{alertStateDirection}}</div>
@@ -211,13 +214,13 @@
                                                 <mat-error *ngIf="thresholdSingleMetricControls['warnThreshold'].errors && thresholdSingleMetricControls['warnThreshold'].errors.invalid">Warning state value should be {{ alertStateDirection=== 'above' ? 'less' : 'greater'}} than the Bad state value</mat-error>
                                             </div>
                                         </div>
-                                                
-        
+
+
                                         <div class="form-group recovery-threshold-setting" formGroupName="singleMetric">
                                             <div class="form-label"><span class="indicator-square is-good"></span> <strong>Alert will recover</strong> when metric is {{recoveryStateDirection}}</div>
                                             <div class="recovery-options">
                                                 <div class="recovery-option">
-                                                    <mat-radio-button 
+                                                    <mat-radio-button
                                                         name="recoveryType"
                                                         value="minimum"
                                                         [checked]="thresholdRecoveryType === 'minimum'"
@@ -238,11 +241,11 @@
                                                     </mat-form-field>
                                                     <mat-error *ngIf="thresholdSingleMetricControls.recoveryThreshold.errors && thresholdSingleMetricControls.recoveryThreshold.errors.required">Recovery should not be empty</mat-error>
                                                     <mat-error *ngIf="thresholdSingleMetricControls.recoveryThreshold.errors && thresholdSingleMetricControls.recoveryThreshold.errors.invalid">Recovery state value should be {{ alertStateDirection.indexOf('above') === 0 ? 'less' : 'greater'}} than the {{ thresholdSingleMetricControls.warnThreshold.value ? 'Warning' : 'Bad' }} state value</mat-error>
-        
+
                                                 </div>
                                             </div>
                                         </div>
-                                            
+
                                         <div class="show-advanced-threshold-toggle" [ngClass]="{'is-open': showThresholdAdvanced}">
                                             <div class="toggle-wrap">
                                                 <a class="toggle-action" (click)="showThresholdAdvanced = !showThresholdAdvanced;">
@@ -250,7 +253,7 @@
                                                     <span>{{showThresholdAdvanced ? 'Hide' : 'Show'}} advanced options</span>
                                                 </a>
                                             </div>
-        
+
                                             <div class="form-group alert-nag-interval">
                                                 <div class="form-label vertical-center"><strong>Nag interval</strong></div>
                                                 <div class="nag-interval-item">
@@ -412,8 +415,8 @@
                                     </mat-form-field>
                                 </div>
                             </div>
-                            
-                                    
+
+
                             <div class="show-advanced-threshold-toggle" [ngClass]="{'is-open': showThresholdAdvanced}">
                                     <div class="toggle-wrap">
                                         <a class="toggle-action" (click)="showThresholdAdvanced = !showThresholdAdvanced;">
@@ -494,14 +497,14 @@
                             <div class="form-group alert-recipients">
                                 <div class="form-label vertical-center"><strong>Alert recipients</strong></div>
                                 <div class="form-control-wrap">
-                                    <recipients-manager (updatedAlertRecipients)="alertRecipientsUpdate($event)" 
+                                    <recipients-manager (updatedAlertRecipients)="alertRecipientsUpdate($event)"
                                         [namespace]="data.namespace"
                                         [selectedAlertRecipients]="notificationRecipients.value"
                                         [formHasError]="notificationRecipients.errors && notificationRecipients.errors.required"></recipients-manager>
                                     <mat-error *ngIf="notificationRecipients.errors && notificationRecipients.errors.required">Please select the recipients</mat-error>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group alert-message">
                                 <div class="form-label vertical-center"><strong>Alert message</strong></div>
                                 <div class="message-subject-body">
@@ -514,7 +517,7 @@
                                         <textarea matInput autocomplete="off" formControlName="body" placeholder="Enter a message"></textarea>
                                     </mat-form-field>
                                     <mat-error *ngIf="alertForm['controls'].notification.get('body').errors && alertForm['controls'].notification.get('body').errors.required">Please enter the message</mat-error>
-                                </div>   
+                                </div>
                             </div>
 
                             <div class="form-group alert-labels">
@@ -568,7 +571,7 @@
                                         <mat-radio-group formControlName="opsgeniePriority">
                                             <mat-radio-button *ngFor="let option of opsGeniePriorityOptions" value="{{option.value}}">{{option.label}}</mat-radio-button>
                                         </mat-radio-group>
-                                    </div>                                
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -589,7 +592,7 @@
                 <div class="toolbar-item alert-name-detail">
                     <span class="namespace">Namespace: {{data.namespace}}</span>
                     <div class="alert-name">
-                        <inline-editable class="navbar-item" 
+                        <inline-editable class="navbar-item"
                             [fieldValue]="data.name"
                             [minLength]="3"
                             [maxLength]="100"
@@ -609,9 +612,9 @@
                         <div class="form-group namespace">
                             <div class="form-label vertical-center"><strong>Namespace</strong></div>
                             <div class="form-control-wrap">
-                                <namespace-autocomplete [value]="alertForm.get('queries').get('eventdb')['controls'][0].get('namespace').value" 
+                                <namespace-autocomplete [value]="alertForm.get('queries').get('eventdb')['controls'][0].get('namespace').value"
                                     [options]="{metaSource: 'aurastatus'}"
-                                    (nschange)="saveNamespace($event)" 
+                                    (nschange)="saveNamespace($event)"
                                     (blur)="cancelSaveNamespace($event)">
                                 </namespace-autocomplete>
                                 <mat-error *ngIf="alertForm.get('queries').get('eventdb')['controls'][0].get('namespace').errors && alertForm.get('queries').get('eventdb')['controls'][0].get('namespace').errors.required">Please select the namespace</mat-error>
@@ -649,7 +652,7 @@
                                     <span>per</span>
                                 </div>
                                 <div class="sentence-item">
-                                    <dropdown-metric-tags 
+                                    <dropdown-metric-tags
                                         [selected]="alertForm.get('queries').get('eventdb')['controls'][0].get('groupBy').value"
                                         [tags]="tags"
                                         [all]="false"
@@ -691,14 +694,14 @@
                         <div class="form-group alert-recipients">
                             <div class="form-label vertical-center"><strong>Alert recipients</strong></div>
                             <div class="form-control-wrap">
-                                <recipients-manager (updatedAlertRecipients)="alertRecipientsUpdate($event)" 
+                                <recipients-manager (updatedAlertRecipients)="alertRecipientsUpdate($event)"
                                     [namespace]="data.namespace"
                                     [selectedAlertRecipients]="notificationRecipients.value"
                                     [formHasError]="notificationRecipients.errors && notificationRecipients.errors.required"></recipients-manager>
                                 <mat-error *ngIf="notificationRecipients.errors && notificationRecipients.errors.required">Please select the recipients</mat-error>
                             </div>
                         </div>
-                        
+
                         <div class="form-group alert-message">
                             <div class="form-label vertical-center"><strong>Alert message</strong></div>
                             <div class="message-subject-body">
@@ -711,7 +714,7 @@
                                     <textarea matInput autocomplete="off" formControlName="body" placeholder="Enter a message"></textarea>
                                 </mat-form-field>
                                 <mat-error *ngIf="alertForm['controls'].notification.get('body').errors && alertForm['controls'].notification.get('body').errors.required">Please enter the message</mat-error>
-                            </div>   
+                            </div>
                         </div>
 
                         <div class="oc-specific-fields" *ngIf="notificationRecipientsValue && notificationRecipientsValue.oc">
@@ -731,7 +734,7 @@
                                     <mat-radio-group formControlName="ocSeverity">
                                         <mat-radio-button *ngFor="let option of ocSeverityOptions" value="{{option.value}}">{{option.label}}</mat-radio-button>
                                     </mat-radio-group>
-                                </div>                                
+                                </div>
                             </div>
                         </div>
                         <div class="ops-genie-specific-fields" *ngIf="notificationRecipientsValue && notificationRecipientsValue.opsgenie">
@@ -745,7 +748,7 @@
                                     <mat-radio-group formControlName="opsgeniePriority">
                                         <mat-radio-button *ngFor="let option of opsGeniePriorityOptions" value="{{option.value}}">{{option.label}}</mat-radio-button>
                                     </mat-radio-group>
-                                </div>                                
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -759,8 +762,8 @@
                 </div>
             </div>
         </div>
-        
-        <!-- 
+
+        <!--
         [****    READ ONLY MODE    ****]
         -->
         <div *ngIf="readOnly" class="controls-wrapper read-only-mode">
@@ -801,18 +804,18 @@
                         </div>
                         <div class="step-section-content">
                             <!-- this might change to radio buttons -->
-                            
+
                             <div class="form-group select-threshold-type">
                                 <div class="form-label vertical-center"><strong>Threshold type</strong></div>
                                 <div class="threshold-type-options">
                                     {{data.threshold.subType === 'singleMetric' ? 'Single' : ''}}
                                     {{data.threshold.subType === 'composite' ? 'Composite' : ''}}
                                     {{data.threshold.subType === 'periodOverPeriod' ? 'Period / Period' : ''}}
-                                </div>                                
+                                </div>
                             </div>
 
                             <!-- select query -->
-                            
+
                             <div class="form-group select-query">
                                 <div class="form-label vertical-center"><strong>Selected Metric</strong></div>
                                 <div class="form-control-wrap auto-width">
@@ -907,15 +910,15 @@
                                         {{data.threshold.singleMetric.badThreshold}}
                                     </div>
                                 </div>
-    
+
                                 <div class="form-group warning-threshold-setting" *ngIf="data.threshold.singleMetric.warnThreshold!==null">
                                     <div class="form-label"><span class="indicator-square is-warning"></span> <strong>Warning state</strong> when metric is {{alertStateDirection}}</div>
                                     <div class="form-control-wrap auto-width">
                                         {{data.threshold.singleMetric.warnThreshold}}
                                     </div>
                                 </div>
-                                        
-    
+
+
                                 <div class="form-group recovery-threshold-setting">
                                     <div class="form-label"><span class="indicator-square is-good"></span> <strong>Alert will recover</strong> when metric is {{recoveryStateDirection}}</div>
                                     <div class="recovery-options">
@@ -932,7 +935,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                    
+
                                 <div class="show-advanced-threshold-toggle" [ngClass]="{'is-open': showThresholdAdvanced}">
                                         <div class="toggle-wrap">
                                             <a class="toggle-action" (click)="showThresholdAdvanced = !showThresholdAdvanced;">
@@ -1004,34 +1007,34 @@
                         </div>
                         <div class="step-section-content">
                             <!-- this might change to radio buttons -->
-                            
+
                             <div class="form-group select-threshold-type" *ngIf="data.threshold.healthCheck.badThreshold">
                                 <div class="form-label vertical-center"><span class="indicator-square is-bad"></span> <strong>Bad alert </strong> after</div>
                                 <div class="form-control-wrap auto-width">
                                         {{data.threshold.healthCheck.badThreshold}}
                                     </div>
-                                    <div>&nbsp;BAD results</div>                                
+                                    <div>&nbsp;BAD results</div>
                             </div>
                             <div class="form-group select-threshold-type" *ngIf="data.threshold.healthCheck.warnThreshold">
                                     <div class="form-label vertical-center"><span class="indicator-square is-warning"></span> <strong>Warning alert </strong> after</div>
                                     <div class="form-control-wrap auto-width">
                                             {{data.threshold.healthCheck.warnThreshold}}
                                         </div>
-                                        <div>&nbsp;WARN results</div>                                
+                                        <div>&nbsp;WARN results</div>
                             </div>
                             <div class="form-group select-threshold-type">
                                     <div class="form-label vertical-center"><span class="indicator-square is-good"></span> <strong>Recover alert </strong> after</div>
                                     <div class="form-control-wrap auto-width">
                                             {{data.threshold.healthCheck.recoveryThreshold}}
                                         </div>
-                                        <div>&nbsp;OK results</div>                                
+                                        <div>&nbsp;OK results</div>
                             </div>
                             <div class="form-group select-threshold-type" *ngIf="data.threshold.healthCheck.unknownThreshold">
                                     <div class="form-label vertical-center"><span class="indicator-square is-unknown"></span> <strong>Unknown alert </strong> after</div>
                                     <div class="form-control-wrap auto-width">
                                             {{data.threshold.healthCheck.unknownThreshold}}
                                         </div>
-                                        <div>&nbsp;Unknown results</div>                                
+                                        <div>&nbsp;Unknown results</div>
                             </div>
                             <div class="form-group missing-data">
                                     <div class="form-label vertical-center"><strong>Missing data </strong></div>
@@ -1084,14 +1087,14 @@
                             <span class="step-section-label-text">1. Conditions</span>
                         </div>
                         <div class="step-section-content">
-                            
+
                             <div class="form-group namespace">
                                 <div class="form-label vertical-center"><strong>Namespace</strong></div>
-                                <div>{{data.queries.eventdb[0].namespace}}</div>                                
+                                <div>{{data.queries.eventdb[0].namespace}}</div>
                             </div>
                             <div class="form-group namespace">
                                     <div class="form-label vertical-center"><strong>Filter</strong></div>
-                                    <div>{{data.queries.eventdb[0].filter}}</div>                                
+                                    <div>{{data.queries.eventdb[0].filter}}</div>
                             </div>
 
                             <div class="form-group sliding-window">
@@ -1131,7 +1134,7 @@
                                     </ng-container>
                                 </div>
                                 <div class="form-control-wrap" *ngIf="data && data.threshold && data.threshold.subType === 'periodOverPeriod'">
-                                    <alert-details-transitions 
+                                    <alert-details-transitions
                                         [readMode]="'true'"
                                         [showWarn]="'true'"
                                         [enabledTransitions]="periodOverPeriodTransitionsEnabled"
@@ -1161,7 +1164,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group alert-message">
                                 <div class="form-label vertical-center"><strong>Alert message</strong></div>
                                 <div class="message-subject-body">
@@ -1172,7 +1175,7 @@
                                         <div><strong>Body:</strong></div>
                                         <div>{{data.notification.body || 'NULL'}}</div>
                                     </div>
-                                </div>   
+                                </div>
                             </div>
 
                             <div class="form-group alert-labels" *ngIf="data.labels && data.labels.length > 0">
@@ -1190,7 +1193,7 @@
                                     <div class="form-label vertical-center"><strong>OC Severity</strong></div>
                                     <div class="severity-type-options">
                                         <span>{{data.notification.ocSeverity}}</span>
-                                    </div>                                
+                                    </div>
                                 </div>
                             </div>
                             <div class="ops-genie-specific-fields" *ngIf="notificationRecipientsValue && notificationRecipientsValue.opsgenie">
@@ -1199,7 +1202,7 @@
                                     <div class="form-label vertical-center"><strong>OpsGenie Priority</strong></div>
                                     <div class="priority-type-options">
                                         <span>{{data.notification.opsgeniePriority}}</span>
-                                    </div>                                
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1211,7 +1214,7 @@
                         </div>
                     </div>
                 </div>
-            </div>       
+            </div>
         </div>
     </mat-card-content>
     <mat-card-actions *ngIf="!readOnly">
@@ -1223,7 +1226,7 @@
     </mat-card-actions>
 </mat-card>
 
-<!-- Simple display only view of the query items 
+<!-- Simple display only view of the query items
 This simulates the output of the query editor - minus a few events and buttons
 -->
 <ng-template #queryDisplay let-query="query" let-label="label">
@@ -1239,7 +1242,7 @@ This simulates the output of the query editor - minus a few events and buttons
                 <span class="namespace-value">
                     {{ query.namespace }}
                 </span>
-            </div>                               
+            </div>
             <span class="flex-spacer"></span>
         </mat-toolbar>
         <div class="metric-wrapper">
@@ -1331,7 +1334,7 @@ This simulates the output of the query editor - minus a few events and buttons
                                     </div>
                                 </div>
                             </div>
-        
+
                             <!-- custom function loop -->
                             <div class="metric-row-data custom-function" *ngFor="let fx of data.metric.functions">
                                 <div class="custom-function-wrapper" style="cursor: default;">
@@ -1348,32 +1351,32 @@ This simulates the output of the query editor - minus a few events and buttons
 
                     <!-- main headers [hidden by css] -->
                     <tr mat-header-row *matHeaderRowDef="metricTableDisplayColumns"></tr>
-        
+
                     <!-- DEFAULT DATA ROW -->
                     <tr mat-row
                         *matRowDef="let row; columns: metricTableDisplayColumns;"
                         class="metric-query-item"
                         [ngClass]="{'metric-type': row.type === 'metric', 'expression-type': row.type === 'expression'}"></tr>
-                    
+
                 </table>
             </div>
         </div>
     </div>
-</ng-template> 
-<ng-template #alertDateTimeNavbarItemTmpl> 
+</ng-template>
+<ng-template #alertDateTimeNavbarItemTmpl>
         <div class="navbar-item">
                 <span class="dashboard-name">Alerts Management</span>
             </div>
-        
-            <span class="flex-spacer"></span> 
+
+            <span class="flex-spacer"></span>
 <div class="navbar-item" *ngIf="data.type === 'simple' || data.type === 'event'">
-        <time-picker class="navbar-item nav-date-time-picker" 
-            (newChange)="handleTimePickerChanges($event)" 
-            [timezone]="'local'" 
-            [startTime]="startTime" 
+        <time-picker class="navbar-item nav-date-time-picker"
+            (newChange)="handleTimePickerChanges($event)"
+            [timezone]="'local'"
+            [startTime]="startTime"
             [endTime]="endTime"
             [config]="{enableSync: false, enableRefresh: false}"
             [xPosition]="menuXAlignValue">
         </time-picker>
-    </div>  
-</ng-template>      
+    </div>
+</ng-template>
