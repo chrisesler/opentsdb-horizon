@@ -55,6 +55,7 @@ import { DbfsUtilsService } from '../../../app-shell/services/dbfs-utils.service
 import { EventsState, GetEvents } from '../../../dashboard/state/events.state';
 import { URLOverrideService } from '../../services/urlOverride.service';
 import * as deepEqual from 'fast-deep-equal';
+import { TemplateVariablePanelComponent } from '../../components/template-variable-panel/template-variable-panel.component';
 
 @Component({
     selector: 'app-dashboard',
@@ -86,6 +87,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(NavigatorState.getDrawerOpen) drawerOpen$: Observable<any>;
     @Select(EventsState.GetEvents) events$: Observable<any>;
 
+    @ViewChild('tplVariablePanel') tplVariablePanel : TemplateVariablePanelComponent;
     // available widgets menu trigger
     @ViewChild('availableWidgetsMenuTrigger', { read: MatMenuTrigger }) availableWidgetsMenuTrigger: MatMenuTrigger;
 
@@ -241,6 +243,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.isDbTagsLoaded = false;
             this.variablePanelMode = { view: true };
             this.store.dispatch(new ClearWidgetsData());
+            this.tplVariablePanel.reset();
             if (url.length === 1 && url[0].path === '_new_') {
                 this.dbid = '_new_';
                 this.store.dispatch(new LoadDashboard(this.dbid));
@@ -410,7 +413,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.store.dispatch(new UpdateVariables(message.payload));
                     break;
                 case 'ApplyTplVarValue':
-                    console.log('hill - this passing tag to ApplyTplVarValue', message.payload);
                     this.applyTplVarValue(message.payload);
                     break;
                 case 'UpdateTplAlias':
@@ -601,8 +603,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
         }));
 
+        // initial from state mode is undefine.
         this.subscription.add(this.dashboardMode$.subscribe(mode => {
-            this.viewEditMode = mode === 'dashboard' ? false : true;
+            this.viewEditMode = !mode || mode === 'dashboard' ? false : true;
         }));
 
         this.subscription.add(this.dbTime$.subscribe(t => {
@@ -648,14 +651,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }));
         this.subscription.add(this.tplVariables$.subscribe(tpl => {
             // whenever tplVariables$ trigger, we save to view too.
-            console.log('hill - tvars once the state is updated', tpl);
+            console.log('hill - tplVariables$', tpl);
             if (tpl) {
                 this.tplVariables = {...this.tplVariables,
                     editTplVariables: this.utilService.deepClone(tpl),
                     viewTplVariables: this.utilService.deepClone(tpl)
                 };
             }
-            console.log('hill - updated this.tplVariables', this.tplVariables);
         }));
         this.subscription.add(this.widgetGroupRawData$.subscribe(result => {
             let error = null;
@@ -802,12 +804,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     updateTplAlias(payload: any) {
         console.log('hill - updateTplAlias', payload);
         this.checkDbTagsLoaded().subscribe(loaded => {
+            let applied = 0;
             for (let i = 0; i < this.widgets.length; i++) {
                 const widget = this.widgets[i];
                 // we will insert or modify based on insert flag
-                console.log('hill - this.dashboardTags', this.dashboardTags);
                 const isModify = this.dbService.applytDBFilterToWidget(widget, payload, this.dashboardTags.rawDbTags);
                 if (isModify) {
+                    applied = applied + 1;
                     console.log('hill - widget state update', widget);
                     this.store.dispatch(new UpdateWidget({
                         id: widget.id,
@@ -816,6 +819,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     }));
                 }
             }
+            console.log('hill - tplVariables to update', this.tplVariables, applied);
+            this.tplVariables.editTplVariables.tvars[payload.index].applied = applied;
+            this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
         });
     }
 
@@ -836,7 +842,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // get all dashboard tags, use to check eligible for when apply db filter 
     // to widget.
     getDashboardTagKeys(reloadData: boolean = true) {
-        console.log('hill - call getDashboardTagKeys');
         this.isDbTagsLoaded = false;
         this.httpService.getTagKeysForQueries(this.widgets).subscribe((res: any) => {
             this.dashboardTags = { rawDbTags: {}, totalQueries: 0, tags: [] };
@@ -864,7 +869,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // check if DBTags is loaded or not, 
     checkDbTagsLoaded(): Observable<any> {
-        console.log('hill - to check this edittpl', this.tplVariables.editTplVariables);
         if (this.tplVariables.editTplVariables.tvars.length > 0) {
             if (!this.isDbTagsLoaded) {
                 this.getDashboardTagKeys();
@@ -878,13 +882,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     changeVarPanelMode(mode: any) {
-        // hill do we need this anymore
-        if ( !mode.view ) {
-            // this.dashboardNamespaces = this.dbService.getNamespacesFromWidgets(this.widgets);
-            // if ( !this.isDbTagsLoaded ) {
-            //     this.getDashboardTagKeys();
-            // }
-        }
         this.variablePanelMode = {...mode};
     }
     // dispatch payload query by group
@@ -906,13 +903,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 }
                 // should we modify the widget if using dashboard tag filter
                 const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables.tvars : this.tplVariables.editTplVariables.tvars;
-                console.log('hill - tplVars', tplVars);
-                /*
-                if ((!payload.settings.hasOwnProperty('useDBFilter') || payload.settings.useDBFilter)
-                    && tplVars.length > 0) {
-                    // modify query if needed
-                    this.dbService.applyWidgetDBFilter(payload, tplVars, this.dashboardTags.rawDbTags);
-                } */
                 // sending each group to get data.
                 const queries = {};
                 for (let i = 0; i < payload.queries.length; i++) {
