@@ -134,7 +134,7 @@
                                     (configChange)="periodOverPeriodChanged($event)"
                                     [config]= "periodOverPeriodConfig">
                                 </alert-details-metric-period-over-period>
-                                <span *ngIf="data && data.type === 'simple'">
+                                <span *ngIf="data && data.type === 'simple' && data.threshold.subType !== 'periodOverPeriod'">
                                     <div class="form-group sliding-window" formGroupName="singleMetric">
                                             <div class="form-label vertical-center"><strong>Sliding Window</strong></div>
                                             <div>

@@ -18,15 +18,12 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
   @Input() queries: any[];
   @Input() viewMode: boolean;
   @Input() config: any;
-
   @Output() configChange = new EventEmitter();
 
   showThresholdAdvanced = false; // toggle in threshold form
   slidingWindowPresets = [60, 300, 600, 900, 3600, 3600 * 6, 3600 * 24];
   periodPresets = [3600, 3600 * 24, 3600 * 24 * 7];
   maxSlidingWindow = 3600 * 24; // 1 day
-
-  thresholdChanged = false;
 
   // form control
   lookbacks = new FormControl('');
@@ -107,9 +104,17 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
     return placeholder;
   }
   updateConfig(prop, val) {
+    let thresholdChanged = false;
+    let requeryData = false;
+
     if (prop === 'badUpperThreshold' || prop === 'warnUpperThreshold' || prop === 'badLowerThreshold' || prop === 'warnLowerThreshold') {
-      this.thresholdChanged = true;
+      thresholdChanged = true;
     }
+
+    if (prop === 'lookbacks' || prop === 'highestOutliersToRemove' || prop === 'lowestOutliersToRemove' || prop === 'slidingWindow' || prop === 'period') {
+      requeryData = true;
+    }
+
     if (prop === 'delayEvaluation') {
       this.config[prop] = val;
     } else {
@@ -119,8 +124,7 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
     this.updateValidators();
 
     if (!this.anyErrors) {
-      this.configChange.emit({ thresholdChanged: this.thresholdChanged, config: {...this.config}});
-      this.thresholdChanged = false;
+      this.configChange.emit({ thresholdChanged, requeryData, config: {...this.config}});
     }
   }
 

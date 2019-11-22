@@ -330,6 +330,9 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         if (periodOverPeriodConfig.thresholdChanged) {
             this.determineEnabledTransitions(periodOverPeriodConfig.config.singleMetric);
         }
+        if (periodOverPeriodConfig.requeryData) {
+            this.reloadData();
+        }
         this.periodOverPeriodConfig = {... periodOverPeriodConfig.config};
     }
 

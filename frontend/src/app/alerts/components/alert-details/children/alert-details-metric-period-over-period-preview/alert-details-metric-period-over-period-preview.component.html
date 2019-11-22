@@ -36,3 +36,9 @@
       <-- Click a line for Threshold Preview
     </div>
 </div>
+
+<div class="gif-spinner" *ngIf="nQueryDataLoading">
+  <img src="/assets/spinner-26x26.gif" />
+</div>
+
+<div class="gif-spinner-placeholder" *ngIf="!nQueryDataLoading"></div>

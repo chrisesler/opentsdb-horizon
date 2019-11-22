@@ -1,4 +1,6 @@
 import { Component, OnInit, Input, HostBinding, OnChanges, SimpleChanges } from '@angular/core';
+import { of } from 'rxjs';
+// tslint:disable:max-line-length
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -146,16 +148,27 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
     const baseOption = {...selectedTimeSeriesOption};
 
     series[1] = {...selectedTimeSeriesOption};
-    series[2] = this.setLabelAndColor(baseOption, 'Expected Value', '#000000');
-    series[3] = this.setLabelAndColor(baseOption, 'Upper Bad Threshold', '#ff0000');
-    series[4] = this.setLabelAndColor(baseOption, 'Upper Warning Threshold', '#ffa500');
-    series[5] = this.setLabelAndColor(baseOption, 'Lower Warning Threshold', '#ffa500');
-    series[6] = this.setLabelAndColor(baseOption, 'Lower Bad Threshold', '#ff0000');
+    series[2] = this.setLabelAndColor(baseOption, 'Expected Value', '#000000', 'light');
+    series[3] = this.setLabelAndColor(baseOption, 'Upper Bad Threshold', '#ff0000', 'dashed');
+    series[4] = this.setLabelAndColor(baseOption, 'Upper Warning Threshold', '#ffa500', 'dashed');
+    series[5] = this.setLabelAndColor(baseOption, 'Lower Warning Threshold', '#ffa500', 'dashed');
+    series[6] = this.setLabelAndColor(baseOption, 'Lower Bad Threshold', '#ff0000', 'dashed');
     return series;
   }
 
-  setLabelAndColor(option, label: string, color: string) {
+  setLabelAndColor(option, label: string, color: string, style: string = '') {
     const optionCopy = {...option};
+
+    if (style === 'light') {
+      optionCopy.strokePattern = [1, 3];
+    }
+    if (style === 'dashed') {
+      optionCopy.strokePattern = [4, 4];
+    }
+    if (style === 'dotted') {
+      optionCopy.strokePattern = [2, 3];
+    }
+
     optionCopy.tags = {metric: label};
     optionCopy.label = label;
     optionCopy.metric = label;
@@ -174,11 +187,11 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
 
     for (const serie of _series) {
       if (originalSeries[serie].metric.endsWith('prediction')) {
-        visibilityHash[originalSeries[serie].metric] = true;
-        visibility.push(true);
-      } else {
         visibilityHash[originalSeries[serie].metric] = false;
         visibility.push(false);
+      } else {
+        visibilityHash[originalSeries[serie].metric] = true;
+        visibility.push(true);
       }
     }
     observedOptions.visibility = visibility;
@@ -187,11 +200,10 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
     return observedOptions;
   }
 
-  getThresholdData(allTimeSeries, timeSeriesIndex) {
+  getThresholdData(allTimeSeries, timeSeriesIndex: number) {
     const data = [];
-    const selectedTimeseries: any[] = this.getSelectedTimeSeries(allTimeSeries, timeSeriesIndex);
-    const expectedTimeSeries: any[] = this.getExpectedTimeSeries(selectedTimeseries);
-    // tslint:disable:max-line-length
+    const selectedTimeseries: any[] = this.getTimeSeriesFromIndex(allTimeSeries, timeSeriesIndex);
+    const expectedTimeSeries: any[] = this.getExpectedTimeSeries(allTimeSeries, timeSeriesIndex, this.options);
     const upperBadTimeSeries: any[] = this.getThresholdTimeSeries(expectedTimeSeries, parseFloat(this.thresholdConfig.singleMetric.badUpperThreshold), this.thresholdConfig.singleMetric.upperThresholdType, 'above');
     const upperWarningTimeSeries: any[] = this.getThresholdTimeSeries(expectedTimeSeries, parseFloat(this.thresholdConfig.singleMetric.warnUpperThreshold), this.thresholdConfig.singleMetric.upperThresholdType, 'above');
     const lowerWarningTimeSeries: any[] = this.getThresholdTimeSeries(expectedTimeSeries, parseFloat(this.thresholdConfig.singleMetric.warnLowerThreshold), this.thresholdConfig.singleMetric.lowerThresholdType, 'below');
@@ -215,7 +227,7 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
     return {ts: data};
   }
 
-  getSelectedTimeSeries(timeseries, timeseriesIndex) {
+  getTimeSeriesFromIndex(timeseries, timeseriesIndex: number) {
     const extractedTimeSeries: any[] = [];
     for (const timePoints of timeseries) {
       extractedTimeSeries.push(timePoints[timeseriesIndex]);
@@ -223,26 +235,26 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
     return extractedTimeSeries;
   }
 
-  getExpectedTimeSeries(timeseries) {
-    const expectedValues = [];
-    const expectedValue = this.getMockExpectedValue(timeseries); // todo - remove
-    for (const timePoints of timeseries) {
-      expectedValues.push(expectedValue);
-    }
-    return expectedValues;
-  }
-
-  // todo - remove
-  getMockExpectedValue(timeseries) {
-    let summ = 0;
-    let count = 0;
-    for (const timePoints of timeseries) {
-      if (!Number.isNaN(timePoints)) {
-        summ = summ + timePoints;
-        count++;
+  getExpectedTimeSeries(allTimeSeries, timeseriesIndex: number, options) {
+    // get metric name from index
+    let metricName = '';
+    const _series = Object.keys(options.series);
+    for (const serie of _series) {
+      if (parseInt(serie, 10) === timeseriesIndex) {
+        metricName = options.series[serie].metric;
+        break;
       }
     }
-    return summ / count;
+
+    // get index of prediction metric name
+    let predictedIndex = -1;
+    for (const serie of _series) {
+      if (options.series[serie].metric === metricName + '.prediction') {
+        predictedIndex = parseInt(serie, 10);
+        break;
+      }
+    }
+    return this.getTimeSeriesFromIndex(allTimeSeries, predictedIndex);
   }
 
   getThresholdTimeSeries(timeseries: number[], thresholdValue: number, thresholdType: string, thresholdDirection: string): number[] {

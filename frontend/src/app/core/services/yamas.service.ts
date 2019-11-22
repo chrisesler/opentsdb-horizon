@@ -83,13 +83,13 @@ export class YamasService {
                         const groupByQuery = this.getQueryGroupBy(this.queries[i].metrics[j].tagAggregator, this.queries[i].metrics[j].groupByTags, [dsId], groupbyId);
                         subGraph.push(groupByQuery);
 
-                        if (periodOverPeriodEnabled) {
+                        if (periodOverPeriodEnabled) { // set egads nodes and outputIds
                             const slidingWindowQuery = this.getPeriodOverPeriodSlidingWindowConfig(periodOverPeriod, groupbyId);
                             const periodOverPeriodQuery = this.getPeriodOverPeriod(periodOverPeriod, q, downSampleQuery, groupByQuery, slidingWindowQuery, time.start, groupbyId, q.id);
                             subGraph.push(slidingWindowQuery);
                             subGraph.push(periodOverPeriodQuery);
                             outputIds.push(periodOverPeriodQuery.id);
-                        } else { // normal query
+                        } else { // normal query - set outputIds
                             const outputId = subGraph[subGraph.length - 1].id;
                             outputIds.push(outputId);
 
@@ -104,13 +104,6 @@ export class YamasService {
                         }
 
                         this.metricSubGraphs.set(q.id, subGraph);
-
-                        // const outputId = periodOverPeriodEnabled ? subGraph[subGraph.length - 3].id : subGraph[subGraph.length - 1].id;
-                        // outputIds.push(outputId);
-
-                        // if (this.queries[i].metrics[j].summarizer) { // build for summarizer (which works with topN)
-                        //     outputIdToSummarizer[outputId] = this.queries[i].metrics[j].summarizer;
-                        // }
                     }
                 }
 
@@ -179,8 +172,6 @@ export class YamasService {
             serdesConfigsFilter = ['summarizer'];
         } else if (!periodOverPeriodEnabled) {
             serdesConfigsFilter.concat(['summarizer']);
-        } else { // testing only
-            serdesConfigsFilter = [serdesConfigsFilter[1]];
         }
 
         this.transformedQuery.serdesConfigs = [{
