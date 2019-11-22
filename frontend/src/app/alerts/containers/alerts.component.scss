@@ -1,6 +1,6 @@
 @mixin alerts-container-component-base() {
 
-    $status-labels: ('bad', 'warn', 'good', 'snoozed');
+    $status-labels: ('bad', 'warn', 'good', 'unknown', 'missing', 'snoozed');
 
     $header-chip-size: 8px;
 
@@ -273,6 +273,8 @@
             .cdk-column-counts-bad,
             .cdk-column-counts-warn,
             .cdk-column-counts-good,
+            .cdk-column-counts-unknown,
+            .cdk-column-counts-missing,
             .cdk-column-counts-snoozed,
             .cdk-column-sparkline {
                 width: 1%;
@@ -281,12 +283,17 @@
             .cdk-column-counts-bad,
             .cdk-column-counts-warn,
             .cdk-column-counts-good,
+            .cdk-column-counts-unknown,
+            .cdk-column-counts-missing,
             .cdk-column-counts-snoozed {
                 text-align: right;
 
                 // need to pad it a bit with margin to offset the sort arrow, and line it up with header text
                 .count-amount {
                     margin-right: 24px;
+                    cursor: pointer;
+                    color: #0366d6;
+                    text-decoration: none;
                 }
             }
 
@@ -844,6 +851,12 @@
 
             &.is-good::before {
                 background-color: map-get($status, success);
+            }
+            &.is-unknown::before {
+                background-color: map-get($denali-grey, 400);
+            }
+            &.is-missing::before {
+                background-color: map-get($denali-blue, 400);
             }
 
             &.is-snoozed::before {

@@ -146,43 +146,46 @@
                             <td mat-cell *matCellDef="let element"> {{formatAlertTimeModified(element)}} </td>
                         </ng-container>
 
-                        <!-- QUESTION: Do we need this status counts code any more? -->
                         <ng-container matColumnDef="counts.bad">
                             <th mat-header-cell *matHeaderCellDef mat-sort-header>
                                 <span class="header-chip is-error">Bad</span>
                             </th>
                             <td mat-cell *matCellDef="let element">
-                                <span class="count-amount"><!--{{element.counts.bad > 0 ? element.counts.bad : '-'}}-->-</span>
+                                <a class="count-amount" (click)="showAuraDialog(element.id, { status: 1 })"> {{ element.counts.bad }}</a>
                             </td>
                         </ng-container>
 
-                        <!-- QUESTION: Do we need this status counts code any more? -->
                         <ng-container matColumnDef="counts.warn">
                             <th mat-header-cell *matHeaderCellDef mat-sort-header>
                                 <span class="header-chip is-warning">Warn</span>
                             </th>
                             <td mat-cell *matCellDef="let element">
-                                <span class="count-amount"><!--{{element.counts.warn > 0 ? element.counts.warn : '-'}} -->-</span>
+                                <a class="count-amount" (click)="showAuraDialog(element.id, { status: 2 } )">{{ element.counts.warn }}</a>
                             </td>
                         </ng-container>
 
-                        <!-- QUESTION: Do we need this status counts code any more? -->
                         <ng-container matColumnDef="counts.good">
                             <th mat-header-cell *matHeaderCellDef mat-sort-header>
                                 <span class="header-chip is-good">Good</span>
                             </th>
                             <td mat-cell *matCellDef="let element">
-                                <span class="count-amount"><!--{{element.counts.good > 0 ? element.counts.good : '-'}} -->-</span>
+                                <a class="count-amount" (click)="showAuraDialog(element.id, { status: 0 } )">{{ element.counts.good }}</a>
                             </td>
                         </ng-container>
-
-                        <!-- QUESTION: Do we need this status counts code any more? -->
-                        <ng-container matColumnDef="counts.snoozed">
+                        <ng-container matColumnDef="counts.unknown">
                             <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                                <span class="header-chip is-snoozed">Snoozed</span>
+                                <span class="header-chip is-unknown">Unknown</span>
                             </th>
                             <td mat-cell *matCellDef="let element">
-                                <span class="count-amount"><!--{{element.counts.snoozed > 0 ? element.counts.snoozed : '-'}}-->-</span>
+                                <a class="count-amount" (click)="showAuraDialog(element.id, { status: 3 } )">{{ element.counts.unknown }}</a>
+                            </td>
+                        </ng-container>
+                        <ng-container matColumnDef="counts.missing">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                                <span class="header-chip is-missing">Missing</span>
+                            </th>
+                            <td mat-cell *matCellDef="let element">
+                                <a class="count-amount" (click)="showAuraDialog(element.id, { status: 3 } )">{{ element.counts.missing }}</a>
                             </td>
                         </ng-container>
 

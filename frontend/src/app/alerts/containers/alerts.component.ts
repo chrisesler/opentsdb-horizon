@@ -19,14 +19,16 @@ import {
     MatSort,
     MatDialog,
     MatDialogRef,
+    MatDialogConfig,
     MatSnackBar,
     MatInput
 } from '@angular/material';
 
 
 import { Observable, Subscription, Subject } from 'rxjs';
-import {  delayWhen, filter, skip, distinctUntilChanged } from 'rxjs/operators';
+import {  delayWhen, filter, skip, distinctUntilChanged, finalize } from 'rxjs/operators';
 import { HttpService } from '../../core/http/http.service';
+import { environment } from '../../../environments/environment';
 
 import { Select, Store } from '@ngxs/store';
 
@@ -55,6 +57,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { RecipientType } from '../components/alert-details/children/recipients-manager/models';
 
 import { CdkService } from '../../core/services/cdk.service';
+import { AuraDialogComponent } from '../../shared/modules/sharedcomponents/components/aura-dialog/aura-dialog.component';
 
 import * as _moment from 'moment';
 import { TemplatePortal } from '@angular/cdk/portal';
@@ -123,10 +126,11 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
         'alertGroupingRules',
         'contacts',
         'modified',
-        // 'counts.bad',
-        // 'counts.warn',
-        // 'counts.good',
-        // 'counts.snoozed',
+        'counts.bad',
+        'counts.warn',
+        'counts.good',
+        'counts.unknown',
+        'counts.missing'
         // 'sparkline' // hidden for now
     ];
 
@@ -212,6 +216,7 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
     // tslint:disable-next-line:no-inferrable-types
     namespaceDropMenuOpen: boolean = false;
     configLoaded$  = new Subject();
+    auraUrl = environment.auraUI + '/#/aura/newquery';
 
     error: any = false;
 
@@ -220,6 +225,7 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     // portal placeholders
     alertspageNavbarPortal: TemplatePortal;
+    auraDialog: MatDialogRef<AuraDialogComponent> | null;
 
     constructor(
         private store: Store,
@@ -867,6 +873,29 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     contactMenuEsc($event: any) {
         // console.log('contactMenuEsc', $event);
+    }
+
+    showAuraDialog(alertId, filters ) {
+        const dialogConf: MatDialogConfig = new MatDialogConfig();
+        // dialogConf.width = '50%';
+        dialogConf.minWidth = '1200px';
+        dialogConf.height = '500px';
+        dialogConf.backdropClass = 'aura-dialog-backdrop';
+        dialogConf.panelClass = 'aura-dialog-panel';
+        let url = this.auraUrl + '?namespace=' + this.selectedNamespace + '&tags=alertId:' + alertId + '&type=1';
+        if ( filters.status !== undefined ) {
+            url += '&status=' + filters.status;
+        }
+        if ( filters.snoozed !== undefined ) {
+            url += '&snoozed=1';
+        }
+        dialogConf.data = { src: url};
+        if ( !this.auraDialog ) {
+            this.auraDialog = this.dialog.open(AuraDialogComponent, dialogConf);
+            this.auraDialog.afterClosed().subscribe(() => {
+                this.auraDialog = undefined;
+            } );
+        }
     }
 
     ngAfterViewChecked() {
