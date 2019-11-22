@@ -15,7 +15,7 @@
         [chartType]="'line'"
         [data]="chartData"
         [size]="{'width': size.width/2 - 25, 'height': size.height - 10}"
-        [options]="options"
+        [options]="observedOptions"
         (lastTimeseriesHighlighted)="timeSeriesClicked($event)"
         (zoomed)="handleZoomQuery($event)">
       </div>

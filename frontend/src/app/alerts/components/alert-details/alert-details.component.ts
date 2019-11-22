@@ -1082,8 +1082,13 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             }
         }
 
+        let periodOverPeriod = {};
+        if (Object.keys(this.periodOverPeriodConfig).length ) {
+            periodOverPeriod = this.periodOverPeriodConfig.singleMetric;
+        }
+
         if ( Object.keys(queries).length ) {
-            const query = this.queryService.buildQuery( settings, time, queries);
+            const query = this.queryService.buildQuery(settings, time, queries, periodOverPeriod);
             this.getYamasData({query: query});
         } else {
             this.nQueryDataLoading = 0;
@@ -1326,8 +1331,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                     const dataThresholdCopy = {...data.threshold};
                     data.notification.transitionsToNotify = [...this.periodOverPeriodTransitionsSelected];
                     data.threshold = {...this.periodOverPeriodConfig};
-                    data.threshold.singleMetric.metricId = dataThresholdCopy.singleMetric.metricId;
-                    data.threshold.singleMetric.queryIndex = dataThresholdCopy.singleMetric.queryIndex;
+                    data.threshold.periodOverPeriod.metricId = dataThresholdCopy.singleMetric.metricId;
+                    data.threshold.periodOverPeriod.queryIndex = dataThresholdCopy.singleMetric.queryIndex;
                 }
                 data.queries = { raw: this.queries, tsdb: this.getTsdbQuery()};
                 const [qindex, mindex] = data.threshold.singleMetric.metricId.split(':');

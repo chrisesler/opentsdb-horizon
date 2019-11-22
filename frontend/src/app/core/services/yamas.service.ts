@@ -1,3 +1,4 @@
+// tslint:disable:max-line-length
 import { Injectable } from '@angular/core';
 import { UtilsService } from './utils.service';
 import { environment } from '../../../environments/environment';
@@ -26,7 +27,7 @@ export class YamasService {
     queries: any = [];
     downsample: any;
     time: any;
-    transformedQuery:any;
+    transformedQuery: any;
     // used to map the sub graphs for use in expressions so we can link to the final
     // function in the list.
     metricSubGraphs: any = new Map();
@@ -34,7 +35,12 @@ export class YamasService {
 
     constructor( private utils: UtilsService ) { }
 
-    buildQuery( time, queries, downsample: any = {} , summaryOnly= false, sorting) {
+    buildQuery( time, queries, downsample: any = {} , summaryOnly= false, sorting, periodOverPeriod) {
+
+        let periodOverPeriodEnabled = false;
+        if (periodOverPeriod && Object.keys(periodOverPeriod).length > 0) {
+            periodOverPeriodEnabled = true;
+        }
 
         this.downsample = {...downsample};
         this.time = time;
@@ -69,23 +75,42 @@ export class YamasService {
                             hasCommonFilter = true;
                             q.filterId = filterId;
                         }
-                        
-                        let dsId = q.id + '_downsample';
-                        subGraph.push(this.getQueryDownSample(downsample, this.downsample.aggregator, dsId, [q.id]));
+                        const dsId = q.id + '_downsample';
+                        const downSampleQuery = this.getQueryDownSample(downsample, this.downsample.aggregator, dsId, [q.id]);
+                        subGraph.push(downSampleQuery);
 
                         const groupbyId = q.id + '_groupby';
-                        subGraph.push(this.getQueryGroupBy(this.queries[i].metrics[j].tagAggregator, this.queries[i].metrics[j].groupByTags, [dsId], groupbyId));
+                        const groupByQuery = this.getQueryGroupBy(this.queries[i].metrics[j].tagAggregator, this.queries[i].metrics[j].groupByTags, [dsId], groupbyId);
+                        subGraph.push(groupByQuery);
+
+                        if (periodOverPeriodEnabled) {
+                            const slidingWindowQuery = this.getPeriodOverPeriodSlidingWindowConfig(periodOverPeriod, groupbyId);
+                            const periodOverPeriodQuery = this.getPeriodOverPeriod(periodOverPeriod, q, downSampleQuery, groupByQuery, slidingWindowQuery, time.start, groupbyId, q.id);
+                            subGraph.push(slidingWindowQuery);
+                            subGraph.push(periodOverPeriodQuery);
+                            outputIds.push(periodOverPeriodQuery.id);
+                        } else { // normal query
+                            const outputId = subGraph[subGraph.length - 1].id;
+                            outputIds.push(outputId);
+
+                            if (this.queries[i].metrics[j].summarizer) { // build for summarizer (which works with topN)
+                                outputIdToSummarizer[outputId] = this.queries[i].metrics[j].summarizer;
+                            }
+                        }
+
                         this.getFunctionQueries(i, j, subGraph);
-                        for (let node of subGraph) {
+                        for (const node of subGraph) {
                             this.transformedQuery.executionGraph.push(node);
                         }
-                        this.metricSubGraphs.set(q.id, subGraph);
-                        const outputId = subGraph[subGraph.length - 1].id;
-                        outputIds.push(outputId);
 
-                        if (this.queries[i].metrics[j].summarizer) { // build for summarizer (which works with topN)
-                            outputIdToSummarizer[outputId] = this.queries[i].metrics[j].summarizer;
-                        }
+                        this.metricSubGraphs.set(q.id, subGraph);
+
+                        // const outputId = periodOverPeriodEnabled ? subGraph[subGraph.length - 3].id : subGraph[subGraph.length - 1].id;
+                        // outputIds.push(outputId);
+
+                        // if (this.queries[i].metrics[j].summarizer) { // build for summarizer (which works with topN)
+                        //     outputIdToSummarizer[outputId] = this.queries[i].metrics[j].summarizer;
+                        // }
                     }
                 }
 
@@ -138,21 +163,32 @@ export class YamasService {
         const summarizerIds = [];
         for (const id of outputIds) {
             if (sorting && sorting.order && sorting.limit && outputIdToSummarizer[id]) { // must be sorting and metric has summarizer picked
-                // tslint:disable-next-line:max-line-length
                 this.transformedQuery.executionGraph.push(this.getTopN(sorting.order, sorting.limit, id, outputIdToSummarizer[id]));
                 summarizerIds.push(this.topnPrefix + id);
             } else {
                 summarizerIds.push(id);
             }
         }
-        this.transformedQuery.executionGraph.push(this.getQuerySummarizer(summarizerIds));
+
+        if (!periodOverPeriodEnabled) {
+            this.transformedQuery.executionGraph.push(this.getQuerySummarizer(summarizerIds));
+        }
+
+        let serdesConfigsFilter = [... outputIds];
+        if (summaryOnly) {
+            serdesConfigsFilter = ['summarizer'];
+        } else if (!periodOverPeriodEnabled) {
+            serdesConfigsFilter.concat(['summarizer']);
+        } else { // testing only
+            serdesConfigsFilter = [serdesConfigsFilter[1]];
+        }
 
         this.transformedQuery.serdesConfigs = [{
             id: 'JsonV3QuerySerdes',
-            filter: summaryOnly ? ['summarizer'] : outputIds.concat(['summarizer']) // outputIds : outputIds.concat(['summarizer'])
+            filter: serdesConfigsFilter
         }];
         this.transformedQuery.logLevel = environment.debugLevel.toUpperCase();
-        this.transformedQuery.cacheMode = environment.tsdbCacheMode ? 
+        this.transformedQuery.cacheMode = environment.tsdbCacheMode ?
             environment.tsdbCacheMode.toUpperCase() : null;
         console.log('tsdb query', JSON.stringify(this.transformedQuery));
         return this.transformedQuery;
@@ -199,7 +235,7 @@ export class YamasService {
     getFilterQuery(qindex, mindex = -1) {
         const filters = this.queries[qindex].filters ? this.transformFilters(this.queries[qindex].filters) : [];
         const groupByTags = this.queries[qindex].metrics[mindex] ? this.queries[qindex].metrics[mindex].groupByTags : [];
-        let filter:any = {
+        let filter: any = {
                         filter : {
                             type: 'Chain',
                             op: 'AND',
@@ -219,6 +255,78 @@ export class YamasService {
         return filter;
     }
 
+    getPeriodOverPeriodSlidingWindowConfig(periodOverPeriodConfig, ds_id: string) {
+        const slidingWindowConfig = {
+            'id': 'egads-sliding-window-' + ds_id ,
+            'type': 'MovingAverage',
+            'sources': [
+                ds_id
+            ],
+            'samples': 0,
+            'interval': periodOverPeriodConfig.slidingWindow + 's',
+            'alpha': 0.0,
+            'median': false,
+            'weighted': periodOverPeriodConfig.algorithm === 'ewma',
+            'exponential': periodOverPeriodConfig.algorithm === 'ewma',
+            'averageInitial': true,
+            'infectiousNan': false
+        };
+        return slidingWindowConfig;
+    }
+
+    getPeriodOverPeriod(periodOverPeriodConfig, metricQuery, downSampleQuery, groupByQuery, slidingWindowQuery, startTime: string, groupById: string, qId: string) {
+        const executionGraph = [
+            metricQuery,
+            downSampleQuery,
+            groupByQuery,
+            slidingWindowQuery
+        ];
+
+        const baselineQuery = {
+            start: startTime,
+            filters: [],
+            mode: 'SINGLE',
+            timezone: null,
+            cacheMode: null,
+            executionGraph: executionGraph,
+            serdesConfigs: [],
+            logLevel: 'ERROR',
+            traceEnabled: false,
+            debugEnabled: false,
+            warnEnabled: false
+        };
+
+        const egadsConfig = {
+            'id': 'egads-' + qId,
+            'type': 'OlympicScoring',
+            'sources': [
+              'egads-sliding-window-' + groupById
+            ],
+            'mode': 'CONFIG',
+            'baselineQuery': baselineQuery,
+            'baselinePeriod': periodOverPeriodConfig.period + 's',
+            'baselineNumPeriods': parseInt(periodOverPeriodConfig.lookbacks, 10),
+            'baselineAggregator': 'avg',
+            'excludeMax': parseInt(periodOverPeriodConfig.highestOutlierToRemove, 10),
+            'excludeMin': parseInt(periodOverPeriodConfig.lowestOutliersToRemove, 10),
+            'upperThreshold': parseInt(periodOverPeriodConfig.badUpperThreshold, 10),
+            'upperIsScalar': periodOverPeriodConfig.upperThresholdType === 'value',
+            'lowerThreshold': parseInt(periodOverPeriodConfig.badLowerThreshold, 10),
+            'lowerIsScalar': periodOverPeriodConfig.lowerThresholdType === 'value',
+            'serializeObserved': true,
+            'serializeThresholds': false,
+            'interpolatorConfigs': [
+                {
+                'fillPolicy': 'nan',
+                'realFillPolicy': 'PREFER_NEXT',
+                'dataType': 'net.opentsdb.data.types.numeric.NumericType'
+                }
+            ]
+        };
+
+        return egadsConfig;
+    }
+
     addTagGroupByFilters( filter, groupByTags ) {
         const gFilters = [];
     }
@@ -229,7 +337,7 @@ export class YamasService {
     }
 
     /**
-     * Appends nodes to, inserts nodes in or modifies the sub graph with functions 
+     * Appends nodes to, inserts nodes in or modifies the sub graph with functions
      * where appropriate. Note the caller will serialize the last entry in this
      * sub graph.
      * @param qindex The query index.
@@ -259,6 +367,7 @@ export class YamasService {
                     this.handleSmoothingFunction(parseInt(qindex, 10) + 1, index + 1, subGraph, funs, i);
                     break;
                 case 'Rollup':
+                    // tslint:disable-next-line:prefer-const
                     let [ aggregator, ds ] = funs[i].val.split(',').map(d => d.trim());
                     if ( aggregator ) {
                         ds = ds || 'auto';
@@ -288,7 +397,7 @@ export class YamasService {
 
     handleRateFunction(qindex, index, subGraph, funs, i) {
         const rates = funs[i].val.split(',');
-        var func = {
+        let func = {
             'id': this.generateNodeId('q' + qindex + '_m' + index + '-rate', subGraph),
             'type': 'rate',
             'interval': rates[0],
@@ -331,10 +440,10 @@ export class YamasService {
                 if (subGraph[subGraph.length - 1].type.toLowerCase() !== 'expression') {
                     const dsIdx = this.findNode('downsample', subGraph);
                     if (dsIdx < 0) {
-                        console.error("Couldn't find a downsample node?? " + JSON.stringify(subGraph));
+                        console.error('Couldn\'t find a downsample node?? ' + JSON.stringify(subGraph));
                         return;
-                    } else if (subGraph[1].type == "rate") {
-                        console.error("Already have a counter to rate.");
+                    } else if (subGraph[1].type === 'rate') {
+                        console.error('Already have a counter to rate.');
                     } else {
                         // NOTE: Assumes that 0 is the time series source,
                         // 1 is the downsampler, and anything after is g roup by or functions, etc.
@@ -370,7 +479,7 @@ export class YamasService {
             'exponential': true, // TODO if we add WMA only
             'median': false,
             'sources': [ subGraph[subGraph.length - 1].id ]
-        }
+        };
         switch ( funs[i].fxCall ) {
             case 'EWMA':
                 const parts = funs[i].val.split(',');
@@ -382,7 +491,7 @@ export class YamasService {
                         func.samples = parts[0];
                     }
                     func.alpha = parts[1];
-                } else if (parts.length == 1) {
+                } else if (parts.length === 1) {
                     if (interval_pattern.test(parts[0])) {
                         func.interval = parts[0];
                     } else {
@@ -444,7 +553,7 @@ export class YamasService {
      */
     generateNodeId(id, subGraph) {
         var idx = 0;
-        const pattern = new RegExp(id + "_(\\d+)");
+        const pattern = new RegExp(id + '_(\\d+)');
         for (let node of subGraph) {
             if (node.id === id) {
                 // exact match
@@ -459,7 +568,7 @@ export class YamasService {
             }
         }
         if (idx > 0) {
-            return id + "_" + idx;
+            return id + '_' + idx;
         }
         return id;
     }

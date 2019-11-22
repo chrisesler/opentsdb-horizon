@@ -11,10 +11,21 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
 
   constructor() { }
 
-  @Input() chartData;
+  @Input('chartData')
+  set chartData(value: any) {
+    this._chartData = value;
+    if (this.options && this.options.series) {
+      this.observedOptions = {...this.getObservedOptions()};
+    }
+  }
+  get chartData(): any {
+    return this._chartData;
+  }
+
   @Input() size;
   @Input() nQueryDataLoading;
   @Input() options;
+
   @Input('thresholdConfig')
   set thresholdConfig(value: any) {
     this._thresholdConfig = value;
@@ -27,8 +38,10 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
     return this._thresholdConfig;
   }
 
+  _chartData: any = {};
   _thresholdConfig: any = {};
   thresholdData: any = {};
+  observedOptions: any = {};
   thresholdOptions: any = {};
   timeseriesIndex = -1;
 
@@ -149,6 +162,29 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
     optionCopy.hash = label;
     optionCopy.color = color;
     return optionCopy;
+  }
+
+  getObservedOptions() {
+    const observedOptions = {... this.options};
+    const visibilityHash = {};
+    const visibility = [];
+
+    const originalSeries = {...this.options.series};
+    const _series = Object.keys(originalSeries);
+
+    for (const serie of _series) {
+      if (originalSeries[serie].metric.endsWith('prediction')) {
+        visibilityHash[originalSeries[serie].metric] = true;
+        visibility.push(true);
+      } else {
+        visibilityHash[originalSeries[serie].metric] = false;
+        visibility.push(false);
+      }
+    }
+    observedOptions.visibility = visibility;
+    observedOptions.visibilityHash = visibilityHash;
+
+    return observedOptions;
   }
 
   getThresholdData(allTimeSeries, timeSeriesIndex) {
