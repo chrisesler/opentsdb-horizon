@@ -326,17 +326,22 @@ export class YamasService {
                 func.counter = true;
                 func.dropResets = true;
                 func.deltaOnly = false;
-                // run before group by so we group the rates, but only if the previous
+                // run before downsampling by so we downsample and group the rates, but only if the previous
                 // node wasn't an expression.
                 if (subGraph[subGraph.length - 1].type.toLowerCase() !== 'expression') {
                     const dsIdx = this.findNode('downsample', subGraph);
                     if (dsIdx < 0) {
                         console.error("Couldn't find a downsample node?? " + JSON.stringify(subGraph));
+                        return;
+                    } else if (subGraph[1].type == "rate") {
+                        console.error("Already have a counter to rate.");
                     } else {
-                        func.sources[0] = subGraph[dsIdx].id;
-                        this.replaceNodeSource(subGraph[dsIdx].id, func.id, subGraph);
+                        // NOTE: Assumes that 0 is the time series source,
+                        // 1 is the downsampler, and anything after is g roup by or functions, etc.
+                        func.sources[0] = subGraph[0].id;
+                        subGraph[1].sources[0] = func.id;
                         // insert it
-                        subGraph.splice(subGraph[dsIdx] + 1, 0, func);
+                        subGraph.splice(1, 0, func);
                     }
                     func = null;
                 }
