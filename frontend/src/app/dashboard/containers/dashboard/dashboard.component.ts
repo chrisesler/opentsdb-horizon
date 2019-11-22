@@ -802,7 +802,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     // this will do the insert or update the name/alias if the widget is eligible.
     updateTplAlias(payload: any) {
-        console.log('hill - updateTplAlias', payload);
+        console.log('hill - updateTplAlias call', payload);
         this.checkDbTagsLoaded().subscribe(loaded => {
             let applied = 0;
             for (let i = 0; i < this.widgets.length; i++) {
@@ -810,8 +810,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 // we will insert or modify based on insert flag
                 const isModify = this.dbService.applytDBFilterToWidget(widget, payload, this.dashboardTags.rawDbTags);
                 if (isModify) {
-                    applied = applied + 1;
-                    console.log('hill - widget state update', widget);
+                    if (payload.insert === 1) {
+                        applied = applied + 1;
+                    }
                     this.store.dispatch(new UpdateWidget({
                         id: widget.id,
                         needRequery: false,
@@ -819,8 +820,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     }));
                 }
             }
-            console.log('hill - tplVariables to update', this.tplVariables, applied);
-            this.tplVariables.editTplVariables.tvars[payload.index].applied = applied;
+            for (let i = 0; i < this.tplVariables.editTplVariables.tvars.length; i++) {
+                const tvar = this.tplVariables.editTplVariables.tvars[i];
+                if (tvar.alias === payload.vartag.alias) {
+                    tvar.applied = applied;
+                    break;
+                }
+            }
             this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
         });
     }

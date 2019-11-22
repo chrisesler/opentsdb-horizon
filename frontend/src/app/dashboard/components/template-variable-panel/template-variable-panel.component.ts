@@ -288,41 +288,42 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
 
     // since alias/name has to be unique with db filters
     private validateAlias(val: string, index: number, selControl: any, startVal: string) {
+        // debugger;
         if (val.trim() !== '') {
-            let insert = 0;
-            if (selControl.get('mode').value === 'auto') {
-                insert = selControl.get('isNew').value;
-            }
             const tplFormGroups = this.editForm.controls['formTplVariables']['controls'];
             if (tplFormGroups.length > 0) {
                 for (let i = 0; i < tplFormGroups.length; i++) {
+                    const rowControl = tplFormGroups[i];
+                    console.log('hill - rowControl', rowControl, rowControl.getRawValue(), rowControl.get('alias').value);
+                    let insert = 0;
+                    if (rowControl.get('mode').value === 'auto') {
+                        insert = rowControl.get('isNew').value;
+                    }
                     if (i === index) { // value is changed of its own
-                        selControl.get('isNew').setValue(0, { emitEvent: false });
-                        this.updateState(selControl, false);
+                        rowControl.get('isNew').setValue(0, { emitEvent: false });
+                        this.updateState(rowControl, false);
                         // run after state update
                         this.interCom.requestSend({
                             action: 'UpdateTplAlias',
                             payload: {
-                                vartag: selControl.value,
+                                vartag: rowControl.getRawValue(),
                                 originVal: startVal,
-                                insert: insert,
-                                index: index
+                                insert: insert
                             }
                         });
                         continue;
                     }
-                    const rowControl = tplFormGroups[i]['controls'];
-                    if (val.trim() === rowControl['alias'].value.trim()) {
+                    if (val.trim() === rowControl.get('alias').value.trim()) {
                         tplFormGroups[index].controls['alias'].setErrors({ 'unique': true });
                         tplFormGroups[i].controls['alias'].setErrors({ 'unique': true });
                     } else {
                         tplFormGroups[i]['controls']['alias'].setErrors(null);
-                        selControl.get('isNew').setValue(0, { emitEvent: false });
-                        this.updateState(selControl, false);
+                        rowControl.get('isNew').setValue(0, { emitEvent: false });
+                        this.updateState(rowControl, false);
                         // make sure exec after updating dashboard state.
                         this.interCom.requestSend({
                             action: 'UpdateTplAlias',
-                            payload: { vartag: selControl.value, originVal: startVal, insert: insert, index: i }
+                            payload: { vartag: rowControl.getRawValue(), originVal: startVal, insert: insert}
                         });
                     }
                 }
