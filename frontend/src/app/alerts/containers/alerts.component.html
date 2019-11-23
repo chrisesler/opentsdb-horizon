@@ -146,46 +146,51 @@
                             <td mat-cell *matCellDef="let element"> {{formatAlertTimeModified(element)}} </td>
                         </ng-container>
 
-                        <ng-container matColumnDef="counts.bad">
+                        <ng-container matColumnDef="bad">
                             <th mat-header-cell *matHeaderCellDef mat-sort-header>
                                 <span class="header-chip is-error">Bad</span>
                             </th>
                             <td mat-cell *matCellDef="let element">
-                                <a class="count-amount" (click)="showAuraDialog(element.id, { status: 1 })"> {{ element.counts.bad }}</a>
+                                <span class="count-empty" *ngIf="!element.bad">-</span>
+                                <a *ngIf="element.bad" class="count-amount" (click)="showAuraDialog(element.id, { status: 1 })"> {{ element.bad }}</a>
                             </td>
                         </ng-container>
 
-                        <ng-container matColumnDef="counts.warn">
+                        <ng-container matColumnDef="warn">
                             <th mat-header-cell *matHeaderCellDef mat-sort-header>
                                 <span class="header-chip is-warning">Warn</span>
                             </th>
                             <td mat-cell *matCellDef="let element">
-                                <a class="count-amount" (click)="showAuraDialog(element.id, { status: 2 } )">{{ element.counts.warn }}</a>
+                                <span class="count-empty" *ngIf="!element.warn">-</span>
+                                <a *ngIf="element.warn" class="count-amount" (click)="showAuraDialog(element.id, { status: 2 } )">{{ element.warn }}</a>
                             </td>
                         </ng-container>
 
-                        <ng-container matColumnDef="counts.good">
+                        <ng-container matColumnDef="good">
                             <th mat-header-cell *matHeaderCellDef mat-sort-header>
                                 <span class="header-chip is-good">Good</span>
                             </th>
                             <td mat-cell *matCellDef="let element">
-                                <a class="count-amount" (click)="showAuraDialog(element.id, { status: 0 } )">{{ element.counts.good }}</a>
+                                <span class="count-empty" *ngIf="!element.good">-</span>
+                                <a *ngIf="element.good" class="count-amount" (click)="showAuraDialog(element.id, { status: 0 } )">{{ element.good }}</a>
                             </td>
                         </ng-container>
-                        <ng-container matColumnDef="counts.unknown">
+                        <ng-container matColumnDef="unknown">
                             <th mat-header-cell *matHeaderCellDef mat-sort-header>
                                 <span class="header-chip is-unknown">Unknown</span>
                             </th>
                             <td mat-cell *matCellDef="let element">
-                                <a class="count-amount" (click)="showAuraDialog(element.id, { status: 3 } )">{{ element.counts.unknown }}</a>
+                                <span class="count-empty" *ngIf="!element.unknown">-</span>
+                                <a *ngIf="element.unknown" class="count-amount" (click)="showAuraDialog(element.id, { status: 3 } )">{{ element.unknown }}</a>
                             </td>
                         </ng-container>
-                        <ng-container matColumnDef="counts.missing">
+                        <ng-container matColumnDef="missing">
                             <th mat-header-cell *matHeaderCellDef mat-sort-header>
                                 <span class="header-chip is-missing">Missing</span>
                             </th>
                             <td mat-cell *matCellDef="let element">
-                                <a class="count-amount" (click)="showAuraDialog(element.id, { status: 3 } )">{{ element.counts.missing }}</a>
+                                <span class="count-empty" *ngIf="!element.missing">-</span>
+                                <a *ngIf="element.missing" class="count-amount" (click)="showAuraDialog(element.id, { status: 4 } )">{{ element.missing }}</a>
                             </td>
                         </ng-container>
 

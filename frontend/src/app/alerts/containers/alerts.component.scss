@@ -248,7 +248,7 @@
                 font-size: 16px;
 
                 @each $item in $status-labels {
-                    &.cdk-column-counts-#{$item} {
+                    &.cdk-column-#{$item} {
                         text-align: right;
                     }
                 }
@@ -270,33 +270,41 @@
                 }
             }
             .cdk-column-select,
-            .cdk-column-counts-bad,
-            .cdk-column-counts-warn,
-            .cdk-column-counts-good,
-            .cdk-column-counts-unknown,
-            .cdk-column-counts-missing,
-            .cdk-column-counts-snoozed,
+            .cdk-column-bad,
+            .cdk-column-warn,
+            .cdk-column-good,
+            .cdk-column-unknown,
+            .cdk-column-missing,
+            .cdk-column-snoozed,
             .cdk-column-sparkline {
                 width: 1%;
             }
 
-            .cdk-column-counts-bad,
-            .cdk-column-counts-warn,
-            .cdk-column-counts-good,
-            .cdk-column-counts-unknown,
-            .cdk-column-counts-missing,
-            .cdk-column-counts-snoozed {
+            .cdk-column-bad,
+            .cdk-column-warn,
+            .cdk-column-good,
+            .cdk-column-unknown,
+            .cdk-column-missing,
+            .cdk-column-snoozed {
                 text-align: right;
 
+                .count-empty {
+                    margin-right: 24px;
+                }
                 // need to pad it a bit with margin to offset the sort arrow, and line it up with header text
                 .count-amount {
                     margin-right: 24px;
+                    padding: 2px;
                     cursor: pointer;
-                    color: #0366d6;
+                    color: #ffffff;
                     text-decoration: none;
+                    border-radius: 4px;
+                    font-size: 12px;
+                    padding: 3px 6px;
+                    outline: none;
                 }
             }
-
+            
             .cdk-column-sparkline {
                 text-align: right;
 
@@ -495,7 +503,7 @@
                 vertical-align: text-top;
 
                 @each $item in $status-labels {
-                    &.cdk-column-counts-#{$item} {
+                    &.cdk-column-#{$item} {
                         text-align: right;
                     }
                 }
@@ -927,6 +935,36 @@
                         border-bottom-left-radius: 0;
                         border-bottom-right-radius: 0;
                     }
+                }
+            }
+
+            .cdk-column-good {
+                .count-amount {
+                    background-color: map-get($status, success);
+                }
+            }
+
+            .cdk-column-bad {
+                .count-amount {
+                    background-color: map-get($status, error);
+                }
+            }
+
+            .cdk-column-warn {
+                .count-amount {
+                    background-color: map-get($status, warning);
+                }
+            }
+
+            .cdk-column-unknown {
+                .count-amount {
+                    background-color: map-get($denali-grey, 400);
+                }
+            }
+
+            .cdk-column-missing {
+                .count-amount {
+                    background-color: map-get($denali-blue, 400);
                 }
             }
 

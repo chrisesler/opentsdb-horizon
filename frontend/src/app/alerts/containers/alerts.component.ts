@@ -121,16 +121,16 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
     alertsDataSource; // dynamically gets reassigned after new alerts state is subscribed
     displayedColumns: string[] = [
         'select',
+        'bad',
+        'warn',
+        'good',
+        'unknown',
+        'missing',
         'name',
         'type',
         'alertGroupingRules',
         'contacts',
-        'modified',
-        'counts.bad',
-        'counts.warn',
-        'counts.good',
-        'counts.unknown',
-        'counts.missing'
+        'modified'
         // 'sparkline' // hidden for now
     ];
 
@@ -882,7 +882,7 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
         dialogConf.height = '500px';
         dialogConf.backdropClass = 'aura-dialog-backdrop';
         dialogConf.panelClass = 'aura-dialog-panel';
-        let url = this.auraUrl + '?namespace=' + this.selectedNamespace + '&tags=alertId:' + alertId + '&type=1';
+        let url = this.auraUrl + '?namespace=' + this.selectedNamespace + '&tags=_alert_id:' + alertId + '&type=1';
         if ( filters.status !== undefined ) {
             url += '&status=' + filters.status;
         }

@@ -2,12 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, throwError, forkJoin, BehaviorSubject } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { MetaService } from '../services/meta.service';
 import { YamasService } from '../services/yamas.service';
 import { UtilsService } from '../services/utils.service';
 import { LoggerService } from '../services/logger.service';
-import { InternalDispatchedActionResults } from '@ngxs/store/src/internal/dispatcher';
 
 @Injectable({
     providedIn: 'root'
@@ -424,7 +423,7 @@ export class HttpService {
                         for ( let i = 0; i < res[0].length; i++ ) {
                             const alertId = res[0][i].id;
                             const counts = alertCounts[alertId] ? alertCounts[alertId] : {};
-                            res[0][i].counts = { ...defCounts,  ...counts };
+                            res[0][i] = { ...res[0][i], ...defCounts,  ...counts };
                         }
                         return of(res[0]);
                     })
