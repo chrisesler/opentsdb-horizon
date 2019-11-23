@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, throwError, forkJoin, BehaviorSubject } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { catchError, map, tap } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { MetaService } from '../services/meta.service';
 import { YamasService } from '../services/yamas.service';
 import { UtilsService } from '../services/utils.service';
@@ -396,8 +396,38 @@ export class HttpService {
         const headers = new HttpHeaders({
             'Content-Type': 'application/json',
           });
+
+        const statusQuery = this.yamasService.buildStatusQuery(options);
         const apiUrl = environment.configdb + '/namespace/' + options.namespace + '/alert';
-        return this.http.get(apiUrl, { headers, withCredentials: true });
+        const statusApiUrl = environment.tsdb_hosts[Math.floor(Math.random() * (environment.tsdb_hosts.length - 1))] + '/api/query/graph';
+            return forkJoin([
+                    this.http.get(apiUrl, { headers, withCredentials: true })
+                            .pipe(catchError(error => of( { error : error } ) )),
+                    this.http.post(statusApiUrl, statusQuery, { headers, withCredentials: true })
+                            .pipe(catchError(error => of( { error : error } ) ))
+                ]).pipe(
+                    switchMap( (res: any) => {
+                        if ( res[0].error ) {
+                            return throwError(res[0].error);
+                        }
+                        const alertCounts = {};
+                        if ( res[1].error === undefined && res[1].results ) {
+                            const sData = res[1].results[0].data;
+                            for ( let i = 0; i < sData.length; i++ ) {
+                                const alertId = parseInt(sData[i].tags._threshold_name, 10);
+                                alertCounts[alertId] = sData[i].summary;
+                            }
+                        }
+                        // set the status counts
+                        const defCounts = { bad: 0, warn: 0, good: 0, unknown: 0, missing: 0 };
+                        for ( let i = 0; i < res[0].length; i++ ) {
+                            const alertId = res[0][i].id;
+                            const counts = alertCounts[alertId] ? alertCounts[alertId] : {};
+                            res[0][i] = { ...res[0][i], ...defCounts,  ...counts };
+                        }
+                        return of(res[0]);
+                    })
+                );
     }
 
     deleteAlerts(namespace, payload): Observable<any> {

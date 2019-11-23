@@ -66,6 +66,7 @@ import { EventListComponent } from './components/event-list/event-list.component
 import { WidgetConfigMultigraphComponent } from './components/widget-config-multigraph/widget-config-multigraph.component';
 import { TimeSelectorComponent } from './components/time-selector/time-selector.component';
 import { GraphTypeComponent } from './components/graph-type/graph-type.component';
+import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.component';
 
 @NgModule({
     imports: [
@@ -128,7 +129,8 @@ import { GraphTypeComponent } from './components/graph-type/graph-type.component
         EventListComponent,
         WidgetConfigMultigraphComponent,
         TimeSelectorComponent,
-        GraphTypeComponent
+        GraphTypeComponent,
+        AuraDialogComponent
     ],
     exports: [
         SearchMetricsDialogComponentV0,
@@ -185,6 +187,7 @@ import { GraphTypeComponent } from './components/graph-type/graph-type.component
         NamespaceTagValuesComponent,
         MetricAutocompleteComponent,
         ErrorDialogComponent,
+        AuraDialogComponent,
         DebugDialogComponent
     ],
 })

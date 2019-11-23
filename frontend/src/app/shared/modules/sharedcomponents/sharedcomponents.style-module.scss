@@ -48,6 +48,7 @@
 @import 'components/event-list/event-list.component';
 @import 'components/time-selector/time-selector.component';
 @import 'components/graph-type/graph-type.component';
+@import 'components/aura-dialog/aura-dialog.component';
 
 
 // widget common FIRST
@@ -101,6 +102,7 @@
     @include event-list-component-base();
     @include time-selector-component-base();
     @include graph-type-component-base();
+    @include aura-dialog-component-base();
 
     // WIDGET CONFIG ITEMS
     @include widget-config-common-base();
@@ -152,6 +154,7 @@
     @include event-list-component-theme($theme-config);
     @include time-selector-component-theme($theme-config);
     @include graph-type-component-theme($theme-config);
+    @include aura-dialog-component-theme($theme-config);
 
     // WIDGET CONFIG ITEMS
     @include widget-config-common-theme($theme-config);
