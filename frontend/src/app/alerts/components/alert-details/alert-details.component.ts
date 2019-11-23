@@ -8,7 +8,8 @@ import {
     TemplateRef,
     AfterContentInit, EventEmitter,
     Output,
-    Input
+    Input,
+    ChangeDetectorRef
 } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators, FormsModule, NgForm } from '@angular/forms';
 import { ElementQueries, ResizeSensor} from 'css-element-queries';
@@ -258,7 +259,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         private elRef: ElementRef,
         public dialog: MatDialog,
         private interCom: IntercomService,
-        private alertConverter: AlertConverterService
+        private alertConverter: AlertConverterService,
+        private cdRef: ChangeDetectorRef
     ) {
         // this.data = dialogData;
         if (this.data.name) {
@@ -328,7 +330,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
 
     periodOverPeriodChanged(periodOverPeriodConfig) {
         if (periodOverPeriodConfig.thresholdChanged) {
-            this.determineEnabledTransitions(periodOverPeriodConfig.config.singleMetric);
+            this.determineEnabledTransitions(periodOverPeriodConfig.config.periodOverPeriod);
         }
         if (periodOverPeriodConfig.requeryData) {
             this.reloadData();
@@ -1086,12 +1088,13 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         }
 
         let periodOverPeriod = {};
-        if (Object.keys(this.periodOverPeriodConfig).length ) {
-            periodOverPeriod = this.periodOverPeriodConfig.singleMetric;
+        if (Object.keys(this.periodOverPeriodConfig).length && this.data.threshold.subType === 'periodOverPeriod') {
+            periodOverPeriod = this.periodOverPeriodConfig.periodOverPeriod;
         }
 
         if ( Object.keys(queries).length ) {
             const query = this.queryService.buildQuery(settings, time, queries, periodOverPeriod);
+            this.cdRef.detectChanges();
             this.getYamasData({query: query});
         } else {
             this.nQueryDataLoading = 0;
@@ -1250,6 +1253,9 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
 
     metricSubTypeChanged(e) {
         this.data.threshold.subType = e.value;
+        if (e.value === 'singleMetric' || (e.value === 'periodOverPeriod' && Object.keys(this.periodOverPeriodConfig).length > 0)) {
+            this.reloadData();
+        }
     }
 
     validate() {

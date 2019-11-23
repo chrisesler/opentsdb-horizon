@@ -9,7 +9,7 @@
 </div>
 
 <div class="graphs">
-  <div class="graph-output">
+  <div class="graph-output query-preview" *ngIf="!nQueryDataLoading">
       <div #dygraph class="chart"
         dygraphsChart
         [chartType]="'line'"
@@ -21,7 +21,7 @@
       </div>
     </div>
     
-    <div class="graph-output" *ngIf="thresholdData && thresholdData.ts">
+    <div class="graph-output threshold-preview" *ngIf="thresholdData && thresholdData.ts && !nQueryDataLoading && timeseriesIndex !== -1">
       <div #dygraph class="chart"
         dygraphsChart
         [chartType]="'line'"
@@ -32,13 +32,31 @@
       </div>
     </div>
 
-    <div *ngIf="!thresholdData.ts">
-      <-- Click a line for Threshold Preview
+    <div *ngIf="nQueryDataLoading" class="preview-placeholder">
+      <span>
+        Fetching query...
+      </span>
+      <span>
+        <div class="gif-spinner">
+          <img src="/assets/spinner-26x26.gif" />
+        </div>
+      </span>
+
+    </div>
+
+    <!-- <div *ngIf="nQueryDataLoading">
+        <span>
+          Fetching query...
+        </span>
+        <span>
+          <div class="gif-spinner">
+            <img src="/assets/spinner-26x26.gif" />
+          </div>
+        </span>
+  
+      </div> -->
+
+    <div *ngIf="timeseriesIndex === -1 && !nQueryDataLoading">
+      ← Please click a line
     </div>
 </div>
-
-<div class="gif-spinner" *ngIf="nQueryDataLoading">
-  <img src="/assets/spinner-26x26.gif" />
-</div>
-
-<div class="gif-spinner-placeholder" *ngIf="!nQueryDataLoading"></div>

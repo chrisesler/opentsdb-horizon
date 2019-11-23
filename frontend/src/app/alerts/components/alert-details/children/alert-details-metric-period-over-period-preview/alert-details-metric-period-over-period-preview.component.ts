@@ -24,14 +24,22 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
     return this._chartData;
   }
 
+  @Input('nQueryDataLoading')
+  set nQueryDataLoading(value: any) {
+    this._nQueryDataLoading = value;
+  }
+
+  get nQueryDataLoading(): any {
+    return this._nQueryDataLoading;
+  }
+
   @Input() size;
-  @Input() nQueryDataLoading;
   @Input() options;
 
   @Input('thresholdConfig')
   set thresholdConfig(value: any) {
     this._thresholdConfig = value;
-    if (this.timeseriesIndex >= 0 && this.thresholdConfig && this.thresholdConfig.singleMetric && this.thresholdData) {
+    if (this.timeseriesIndex >= 0 && this.thresholdConfig && this.thresholdConfig.periodOverPeriod && this.thresholdData) {
       this.thresholdData = this.getThresholdData(this.chartData.ts, this.timeseriesIndex);
     }
   }
@@ -42,7 +50,9 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
 
   _chartData: any = {};
   _thresholdConfig: any = {};
+  _nQueryDataLoading: number = 0;
   thresholdData: any = {};
+  observedData: any = {};
   observedOptions: any = {};
   thresholdOptions: any = {};
   timeseriesIndex = -1;
@@ -59,12 +69,11 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
     if (changes.chartData && changes.nQueryDataLoading && changes.nQueryDataLoading.currentValue === 0 && this.timeseriesIndex !== -1) {
       this.chartDataZoomedOut = {};
       this.thresholdDataZoomedOut = {};
-      this.reloadPreview();
     } else if (changes.chartData) { // selected metric changed
       this.thresholdData = {};
       this.timeseriesIndex = -1;
     }
-
+    this.reloadPreview();
   }
 
   extractZoomedTimeseries(zConfig, data) {
@@ -124,7 +133,12 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
   }
 
   reloadPreview() {
-    this.timeSeriesClicked({timeSeries: this.timeseriesIndex.toString()});
+    // if chartData has only 1 line and prediction, select it
+    if (this.chartData && this.chartData.ts && this.chartData.ts[0] && this.chartData.ts[0].length === 3) {
+      this.timeSeriesClicked({timeSeries: this.options.series[1].metric.endsWith(!'prediction') ? '1' : '2'});
+    } else {
+      this.timeSeriesClicked({timeSeries: this.timeseriesIndex.toString()});
+    }
   }
 
   timeSeriesClicked(e) {
@@ -148,7 +162,7 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
     const baseOption = {...selectedTimeSeriesOption};
 
     series[1] = {...selectedTimeSeriesOption};
-    series[2] = this.setLabelAndColor(baseOption, 'Expected Value', '#000000', 'light');
+    series[2] = this.setLabelAndColor(baseOption, 'Expected Value', '#000000');
     series[3] = this.setLabelAndColor(baseOption, 'Upper Bad Threshold', '#ff0000', 'dashed');
     series[4] = this.setLabelAndColor(baseOption, 'Upper Warning Threshold', '#ffa500', 'dashed');
     series[5] = this.setLabelAndColor(baseOption, 'Lower Warning Threshold', '#ffa500', 'dashed');
@@ -177,7 +191,7 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
     return optionCopy;
   }
 
-  getObservedOptions() {
+  getObservedOptions(allDisabled = false) {
     const observedOptions = {... this.options};
     const visibilityHash = {};
     const visibility = [];
@@ -186,12 +200,17 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
     const _series = Object.keys(originalSeries);
 
     for (const serie of _series) {
-      if (originalSeries[serie].metric.endsWith('prediction')) {
+      if (allDisabled) {
         visibilityHash[originalSeries[serie].metric] = false;
         visibility.push(false);
-      } else {
-        visibilityHash[originalSeries[serie].metric] = true;
-        visibility.push(true);
+      } else { // filter out the predictions
+        if (originalSeries[serie].metric.endsWith('prediction')) {
+          visibilityHash[originalSeries[serie].metric] = false;
+          visibility.push(false);
+        } else {
+          visibilityHash[originalSeries[serie].metric] = true;
+          visibility.push(true);
+        }
       }
     }
     observedOptions.visibility = visibility;
@@ -202,27 +221,29 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
 
   getThresholdData(allTimeSeries, timeSeriesIndex: number) {
     const data = [];
-    const selectedTimeseries: any[] = this.getTimeSeriesFromIndex(allTimeSeries, timeSeriesIndex);
-    const expectedTimeSeries: any[] = this.getExpectedTimeSeries(allTimeSeries, timeSeriesIndex, this.options);
-    const upperBadTimeSeries: any[] = this.getThresholdTimeSeries(expectedTimeSeries, parseFloat(this.thresholdConfig.singleMetric.badUpperThreshold), this.thresholdConfig.singleMetric.upperThresholdType, 'above');
-    const upperWarningTimeSeries: any[] = this.getThresholdTimeSeries(expectedTimeSeries, parseFloat(this.thresholdConfig.singleMetric.warnUpperThreshold), this.thresholdConfig.singleMetric.upperThresholdType, 'above');
-    const lowerWarningTimeSeries: any[] = this.getThresholdTimeSeries(expectedTimeSeries, parseFloat(this.thresholdConfig.singleMetric.warnLowerThreshold), this.thresholdConfig.singleMetric.lowerThresholdType, 'below');
-    const lowerBadTimeSeries: any[] = this.getThresholdTimeSeries(expectedTimeSeries, parseFloat(this.thresholdConfig.singleMetric.badLowerThreshold), this.thresholdConfig.singleMetric.lowerThresholdType, 'below');
+    if (this.thresholdConfig && this.thresholdConfig.periodOverPeriod) {
+      const selectedTimeseries: any[] = this.getTimeSeriesFromIndex(allTimeSeries, timeSeriesIndex);
+      const expectedTimeSeries: any[] = this.getExpectedTimeSeries(allTimeSeries, timeSeriesIndex, this.options);
+      const upperBadTimeSeries: any[] = this.getThresholdTimeSeries(expectedTimeSeries, parseFloat(this.thresholdConfig.periodOverPeriod.badUpperThreshold), this.thresholdConfig.periodOverPeriod.upperThresholdType, 'above');
+      const upperWarningTimeSeries: any[] = this.getThresholdTimeSeries(expectedTimeSeries, parseFloat(this.thresholdConfig.periodOverPeriod.warnUpperThreshold), this.thresholdConfig.periodOverPeriod.upperThresholdType, 'above');
+      const lowerWarningTimeSeries: any[] = this.getThresholdTimeSeries(expectedTimeSeries, parseFloat(this.thresholdConfig.periodOverPeriod.warnLowerThreshold), this.thresholdConfig.periodOverPeriod.lowerThresholdType, 'below');
+      const lowerBadTimeSeries: any[] = this.getThresholdTimeSeries(expectedTimeSeries, parseFloat(this.thresholdConfig.periodOverPeriod.badLowerThreshold), this.thresholdConfig.periodOverPeriod.lowerThresholdType, 'below');
 
-    let index = 0;
-    for (const timePoints of allTimeSeries) {
-      const timePointsArray = [];
-      // add time, selected ts, expected ts, and threshold ts
-      timePointsArray.push(timePoints[0]);
-      timePointsArray.push(selectedTimeseries[index]);
-      timePointsArray.push(expectedTimeSeries[index]);
-      timePointsArray.push(upperBadTimeSeries[index]);
-      timePointsArray.push(upperWarningTimeSeries[index]);
-      timePointsArray.push(lowerWarningTimeSeries[index]);
-      timePointsArray.push(lowerBadTimeSeries[index]);
+      let index = 0;
+      for (const timePoints of allTimeSeries) {
+        const timePointsArray = [];
+        // add time, selected ts, expected ts, and threshold ts
+        timePointsArray.push(timePoints[0]);
+        timePointsArray.push(selectedTimeseries[index]);
+        timePointsArray.push(expectedTimeSeries[index]);
+        timePointsArray.push(upperBadTimeSeries[index]);
+        timePointsArray.push(upperWarningTimeSeries[index]);
+        timePointsArray.push(lowerWarningTimeSeries[index]);
+        timePointsArray.push(lowerBadTimeSeries[index]);
 
-      data.push(timePointsArray);
-      index++;
+        data.push(timePointsArray);
+        index++;
+      }
     }
     return {ts: data};
   }
