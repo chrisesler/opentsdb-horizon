@@ -26,7 +26,7 @@ import {
 
 
 import { Observable, Subscription, Subject } from 'rxjs';
-import {  delayWhen, filter, skip, distinctUntilChanged, finalize } from 'rxjs/operators';
+import {  delayWhen, filter, skip, distinctUntilChanged } from 'rxjs/operators';
 import { HttpService } from '../../core/http/http.service';
 import { environment } from '../../../environments/environment';
 
