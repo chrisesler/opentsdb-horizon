@@ -32,6 +32,7 @@ export class YamasService {
     // function in the list.
     metricSubGraphs: any = new Map();
     topnPrefix = 'topn-';
+    egadsSlidingWindowPrefix = 'egads-sliding-window-';
 
     constructor( private utils: UtilsService ) { }
 
@@ -83,11 +84,20 @@ export class YamasService {
                         const groupByQuery = this.getQueryGroupBy(this.queries[i].metrics[j].tagAggregator, this.queries[i].metrics[j].groupByTags, [dsId], groupbyId);
                         subGraph.push(groupByQuery);
 
+                        let lastId = '';
+                        this.getFunctionQueries(i, j, subGraph);
+                        for (const node of subGraph) {
+                            lastId = node.id;
+                            this.transformedQuery.executionGraph.push(node);
+                        }
+
                         if (periodOverPeriodEnabled) { // set egads nodes and outputIds
-                            const slidingWindowQuery = this.getPeriodOverPeriodSlidingWindowConfig(periodOverPeriod, groupbyId);
-                            const periodOverPeriodQuery = this.getPeriodOverPeriod(periodOverPeriod, q, downSampleQuery, groupByQuery, slidingWindowQuery, time.start, groupbyId, q.id);
+                            const slidingWindowQuery = this.getPeriodOverPeriodSlidingWindowConfig(periodOverPeriod, lastId, q.id);
+                            const periodOverPeriodQuery = this.getPeriodOverPeriod(periodOverPeriod, subGraph, time.start, q.id);
+
                             subGraph.push(slidingWindowQuery);
-                            subGraph.push(periodOverPeriodQuery);
+                            this.transformedQuery.executionGraph.push(slidingWindowQuery);
+                            this.transformedQuery.executionGraph.push(periodOverPeriodQuery);
                             outputIds.push(periodOverPeriodQuery.id);
                         } else { // normal query - set outputIds
                             const outputId = subGraph[subGraph.length - 1].id;
@@ -96,11 +106,6 @@ export class YamasService {
                             if (this.queries[i].metrics[j].summarizer) { // build for summarizer (which works with topN)
                                 outputIdToSummarizer[outputId] = this.queries[i].metrics[j].summarizer;
                             }
-                        }
-
-                        this.getFunctionQueries(i, j, subGraph);
-                        for (const node of subGraph) {
-                            this.transformedQuery.executionGraph.push(node);
                         }
 
                         this.metricSubGraphs.set(q.id, subGraph);
@@ -134,11 +139,23 @@ export class YamasService {
                             this.transformedQuery.executionGraph.push(node);
                         }
                         this.metricSubGraphs.set(q.id, subGraph);
-                        const outputId = subGraph[subGraph.length - 1].id;
-                        outputIds.push(outputId);
 
-                        if (this.queries[i].metrics[j].summarizer) { // build for summarizer (which works with topN)
-                            outputIdToSummarizer[outputId] = this.queries[i].metrics[j].summarizer;
+                        if (periodOverPeriodEnabled) { // set egads nodes and outputIds
+                            const groubByNode = q.sources[0];
+                            const nodesExceptSlidingWindow = this.getNodes(groubByNode, this.metricSubGraphs);
+                            const eId = q.id;
+
+                            const slidingWindowQuery = this.getPeriodOverPeriodSlidingWindowConfig(periodOverPeriod, eId, eId);
+                            const periodOverPeriodQuery = this.getPeriodOverPeriod(periodOverPeriod, nodesExceptSlidingWindow.concat(q).concat(slidingWindowQuery) , time.start, q.id);
+                            this.transformedQuery.executionGraph.push(slidingWindowQuery);
+                            this.transformedQuery.executionGraph.push(periodOverPeriodQuery);
+                            outputIds.push(periodOverPeriodQuery.id);
+                        } else {
+                            const outputId = subGraph[subGraph.length - 1].id;
+                            outputIds.push(outputId);
+                            if (this.queries[i].metrics[j].summarizer) { // build for summarizer (which works with topN)
+                                outputIdToSummarizer[outputId] = this.queries[i].metrics[j].summarizer;
+                            }
                         }
                     }
                 }
@@ -146,11 +163,20 @@ export class YamasService {
         }
 
         // replace the sourceid with sourceid of the function definition of metric/expression
-        for ( let i = 0; i < expNodes.length; i++ ) {
-            expNodes[i].sources = expNodes[i].sources.map(d => {
-                                                                const subGraph = this.metricSubGraphs.get(d);
-                                                                return subGraph[subGraph.length - 1].id;
-                                                            });
+        if (periodOverPeriodEnabled) {
+            for ( let i = 0; i < expNodes.length; i++ ) {
+                expNodes[i].sources = expNodes[i].sources.map(d => {
+                                                                    const subGraph = this.metricSubGraphs.get(d);
+                                                                    return subGraph[subGraph.length - 2].id;
+                                                                });
+            }
+        } else {
+            for ( let i = 0; i < expNodes.length; i++ ) {
+                expNodes[i].sources = expNodes[i].sources.map(d => {
+                                                                    const subGraph = this.metricSubGraphs.get(d);
+                                                                    return subGraph[subGraph.length - 1].id;
+                                                                });
+            }
         }
 
         const summarizerIds = [];
@@ -183,6 +209,17 @@ export class YamasService {
             environment.tsdbCacheMode.toUpperCase() : null;
         console.log('tsdb query', JSON.stringify(this.transformedQuery));
         return this.transformedQuery;
+    }
+
+    getNodes(graphName, mapGraph): any[] {
+        const nodes: any[] = [];
+
+        for (const node of mapGraph.get(graphName)) {
+            if (!node.id.startsWith(this.egadsSlidingWindowPrefix + graphName)) {
+                nodes.push(node);
+            }
+        }
+        return nodes;
     }
 
     getMetricQuery(qindex, mindex) {
@@ -246,12 +283,12 @@ export class YamasService {
         return filter;
     }
 
-    getPeriodOverPeriodSlidingWindowConfig(periodOverPeriodConfig, ds_id: string) {
+    getPeriodOverPeriodSlidingWindowConfig(periodOverPeriodConfig, last_source: string, metric_id: string) {
         const slidingWindowConfig = {
-            'id': 'egads-sliding-window-' + ds_id ,
+            'id': this.egadsSlidingWindowPrefix + metric_id ,
             'type': 'MovingAverage',
             'sources': [
-                ds_id
+                last_source
             ],
             'samples': 0,
             'interval': periodOverPeriodConfig.slidingWindow + 's',
@@ -265,13 +302,8 @@ export class YamasService {
         return slidingWindowConfig;
     }
 
-    getPeriodOverPeriod(periodOverPeriodConfig, metricQuery, downSampleQuery, groupByQuery, slidingWindowQuery, startTime: string, groupById: string, qId: string) {
-        const executionGraph = [
-            metricQuery,
-            downSampleQuery,
-            groupByQuery,
-            slidingWindowQuery
-        ];
+    getPeriodOverPeriod(periodOverPeriodConfig, subgraph: any [], startTime: string, qId: string) {
+        const executionGraph = subgraph;
 
         const baselineQuery = {
             start: startTime,
@@ -291,7 +323,7 @@ export class YamasService {
             'id': 'egads-' + qId,
             'type': 'OlympicScoring',
             'sources': [
-              'egads-sliding-window-' + groupById
+                this.egadsSlidingWindowPrefix + qId
             ],
             'mode': 'CONFIG',
             'baselineQuery': baselineQuery,

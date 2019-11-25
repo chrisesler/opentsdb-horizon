@@ -204,7 +204,7 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
         visibilityHash[originalSeries[serie].metric] = false;
         visibility.push(false);
       } else { // filter out the predictions
-        if (originalSeries[serie].metric.endsWith('prediction')) {
+        if (originalSeries[serie].metric.endsWith('prediction') || originalSeries[serie].tags['_anomalyModel'] === 'OlympicScoring') {
           visibilityHash[originalSeries[serie].metric] = false;
           visibility.push(false);
         } else {
@@ -275,6 +275,17 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
         break;
       }
     }
+
+    // expressions have different naming convention
+    if (predictedIndex === -1) {
+      for (const serie of _series) {
+        if (options.series[serie].metric === metricName && options.series[serie].tags['_anomalyModel'] === 'OlympicScoring') {
+          predictedIndex = parseInt(serie, 10);
+          break;
+        }
+      }
+    }
+
     return this.getTimeSeriesFromIndex(allTimeSeries, predictedIndex);
   }
 

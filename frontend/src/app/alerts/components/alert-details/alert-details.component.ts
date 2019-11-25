@@ -363,7 +363,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
 
     setupForm(data = null) {
         if (data && data.threshold && data.threshold.subType === 'periodOverPeriod') {
-            this.determineEnabledTransitions(data.threshold.singleMetric);
+            this.determineEnabledTransitions(data.threshold.periodOverPeriod);
             this.periodOverPeriodTransitionsSelected = [...data.notification.transitionsToNotify];
             this.periodOverPeriodConfig = {...data.threshold};
         }
