@@ -414,7 +414,7 @@ export class HttpService {
                         if ( res[1].error === undefined && res[1].results ) {
                             const sData = res[1].results[0].data;
                             for ( let i = 0; i < sData.length; i++ ) {
-                                const alertId = parseInt(sData[i].tags._threshold_name, 10);
+                                const alertId = parseInt(sData[i].tags._alert_id, 10);
                                 alertCounts[alertId] = sData[i].summary;
                             }
                         }

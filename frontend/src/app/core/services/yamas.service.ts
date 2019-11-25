@@ -764,7 +764,7 @@ export class YamasService {
                     {
                       'type': 'FieldLiteralOr',
                       'key': 'groupBy',
-                      'filter': '_threshold_name'
+                      'filter': '_alert_id'
                     },
                     {
                       'type': 'FieldLiteralOr',
