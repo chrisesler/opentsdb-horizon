@@ -7,8 +7,6 @@ var utils = require('./lib/utils');
 var authUtil = require('./middlewares/auth-utils');
 var expressOkta = require('express-okta-oath');
 
-var search = require('./routes/search');
-var tsdb = require('./routes/tsdb');
 var index = require('./routes/index');
 
 var app = express();
@@ -67,8 +65,6 @@ app.get(/^\/(d|main|a)(.*)/, function (req, res) {
 
 // routing
 app.use('/', index);
-app.use('/tsdb', tsdb);
-app.use('/search', search);
 
 
 module.exports = app;
