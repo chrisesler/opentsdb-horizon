@@ -25,9 +25,10 @@ import {
     DbfsLoadResources
 } from '../state';
 import {
-    UpdateNavigatorSideNav,
-    ResetNavigator
+    UpdateNavigatorSideNav
 } from '../state/navigator.state';
+
+// import { LoggerService } from '../../core/services/logger.service';
 
 @Component({
     selector: 'app-shell',
@@ -73,26 +74,30 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
         error: 'd-stop-warning-solid',
         success: 'd-check-circle',
         warning: 'd-warning-solid'
-    }
+    };
 
+    // first load flag
+    // tslint:disable-next-line: no-inferrable-types
+    private firstLoad: boolean = true;
 
     constructor(
         private interCom: IntercomService,
         private store: Store,
-        private router: Router
+        private router: Router,
+        // private logger: LoggerService
     ) {
-      // prefetch the navigator first data
-      this.store.dispatch(new DbfsLoadResources());
+        // prefetch the navigator first data
+        this.store.dispatch(new DbfsLoadResources());
     }
 
     ngOnInit() {
-        this.subscription.add(this.mediaQuery$.subscribe( currentMediaQuery => {
+        this.subscription.add(this.mediaQuery$.subscribe(currentMediaQuery => {
             // console.log('[SUB] currentMediaQuery', currentMediaQuery);
             this.activeMediaQuery = currentMediaQuery;
-            this.store.dispatch(new SetSideNavOpen(( currentMediaQuery !== 'xs')));
+            this.store.dispatch(new SetSideNavOpen((currentMediaQuery !== 'xs')));
         }));
 
-        this.subscription.add(this.userProfile$.subscribe( data => {
+        this.subscription.add(this.userProfile$.subscribe(data => {
             // console.log('[SUB] User Profile', data);
             this.userProfile = data;
 
@@ -101,12 +106,12 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
             }
         }));
 
-        this.subscription.add(this.currentApp$.subscribe( app => {
+        this.subscription.add(this.currentApp$.subscribe(app => {
             // console.log('[SUB] currentApp', app);
             this.activeNavSection = app;
         }));
 
-        this.subscription.add(this.sideNavOpen$.subscribe( isOpen => {
+        this.subscription.add(this.sideNavOpen$.subscribe(isOpen => {
             // console.log('[SUB] sidenavopen', isOpen);
             this.sideNavOpen = isOpen;
         }));
@@ -134,10 +139,34 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
 
     ngOnChanges(changes: SimpleChanges) {
         // when then path is changes
-        // if (changes.fullUrlPath && changes.fullUrlPath.currentValue) {
+        if (changes.fullUrlPath && changes.fullUrlPath.currentValue) {
             // now do whatever with this full path
-            // console.log('new url path', changes.fullUrlPath.currentValue);
-        // }
+            // this.logger.ng('new url path', changes.fullUrlPath.currentValue);
+            const pathParts = changes.fullUrlPath.currentValue.split('/');
+            pathParts.shift();
+            // this.logger.ng('PATH PARTS', { changes, pathParts});
+            const activeNav: any = { section : ''};
+            switch (pathParts[0]) {
+                case 'a':
+                    // alerts
+                    activeNav.section = 'alerts';
+                    break;
+                case 'd':
+                    // dashboards
+                    activeNav.section = 'dashboard';
+                    break;
+                default:
+                    // default is dashboard
+                    activeNav.section = 'main';
+                    break;
+            }
+
+            if (this.firstLoad) {
+                this.activeNavSection = activeNav.section;
+                this.store.dispatch(new UpdateNavigatorSideNav({ mode: this.drawerMode, currentApp: this.activeNavSection }));
+                this.firstLoad = false;
+            }
+        }
     }
 
     ngOnDestroy() {
@@ -193,7 +222,7 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
                     break;
             }
         }
-        this.store.dispatch(new UpdateNavigatorSideNav({mode: this.drawerMode, currentApp: this.activeNavSection}));
+        this.store.dispatch(new UpdateNavigatorSideNav({ mode: this.drawerMode, currentApp: this.activeNavSection }));
     }
 
     closeNavigator() {
@@ -222,7 +251,7 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
                 // this.drawerMode = (this.drawerMode === 'side') ? 'over' : 'side';
                 this.drawerMode = 'side';
             }
-            this.store.dispatch(new UpdateNavigatorSideNav({mode: this.drawerMode, currentApp: this.activeNavSection}));
+            this.store.dispatch(new UpdateNavigatorSideNav({ mode: this.drawerMode, currentApp: this.activeNavSection }));
         }
     }
 
@@ -231,7 +260,7 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
         if (this.activeMediaQuery === 'xs') {
             if (this.drawer.opened) {
                 // console.log('%cOPENED', 'color: white; background: red; padding: 20px;');
-                this.store.dispatch(new UpdateNavigatorSideNav({mode: this.drawerMode, currentApp: ''}));
+                this.store.dispatch(new UpdateNavigatorSideNav({ mode: this.drawerMode, currentApp: '' }));
                 this.closeNavigator();
                 this.sideNav.resetActiveNav();
             } else {
