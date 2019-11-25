@@ -741,4 +741,54 @@ export class YamasService {
         return this.transformedQuery;
     }
 
+    buildStatusQuery( query ) {
+        const statusQuery = {
+            'start': '1h-ago',
+            'executionGraph': [
+              {
+                'id': 'status1',
+                'namespace': query.namespace,
+                'type': 'TimeSeriesDataSource',
+                'types': [
+                  'status'
+                ],
+                'fetchLast': true,
+                'filterId': 'f1'
+              }
+            ],
+            'filters': [
+              {
+                'id': 'f1',
+                'filter': {
+                  'filters': [
+                    {
+                      'type': 'FieldLiteralOr',
+                      'key': 'groupBy',
+                      'filter': '_alert_id'
+                    },
+                    {
+                      'type': 'FieldLiteralOr',
+                      'key': 'statusType',
+                      'filter': 'alert'
+                    },
+                    {
+                      'type': 'FieldLiteralOr',
+                      'key': 'showSummary',
+                      'filter': 'true'
+                    },
+                    {
+                      'type': 'FieldLiteralOr',
+                      'key': 'showDetails',
+                      'filter': 'false'
+                    }
+                  ],
+                  'op': 'AND',
+                  'type': 'Chain'
+                }
+              }
+            ]
+          };
+        return statusQuery;
+    }
+
 }
