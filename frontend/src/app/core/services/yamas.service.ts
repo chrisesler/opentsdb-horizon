@@ -780,7 +780,12 @@ export class YamasService {
                       'type': 'FieldLiteralOr',
                       'key': 'showDetails',
                       'filter': 'false'
-                    }
+                    },
+                    {
+                        'type': 'FieldLiteralOr',
+                        'key': 'limit',
+                        'filter': '-1'
+                     }
                   ],
                   'op': 'AND',
                   'type': 'Chain'
