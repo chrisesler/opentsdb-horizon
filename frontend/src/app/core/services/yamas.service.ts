@@ -34,7 +34,7 @@ export class YamasService {
 
     constructor( private utils: UtilsService ) { }
 
-    buildQuery( time, queries, downsample: any = {} , summaryOnly= false, sorting) {
+    buildQuery( time, queries, downsample: any = {} , summaryOnly= false, sorting, options) {
 
         this.downsample = {...downsample};
         this.time = time;
@@ -48,6 +48,12 @@ export class YamasService {
         this.metricSubGraphs = new Map();
         const outputIds = [];
         const outputIdToSummarizer = new Map();
+        const outputSourceIds = options.sources ? options.sources : [];
+        let querySources = [];
+        for ( let i = 0; i < outputSourceIds.length; i++ ) {
+            const [qindex, mindex] = this.utils.getMetricIndexFromId(outputSourceIds[i], this.queries);
+            this.getMetricSources(qindex, mindex, querySources);
+        }
 
         // add metric definitions
         for ( const i in this.queries ) {
@@ -58,8 +64,8 @@ export class YamasService {
                 this.downsample.aggregator = this.downsample.aggregators ? this.downsample.aggregators[0] : 'avg';
 
                 for (let j = 0; j < this.queries[i].metrics.length; j++) {
-
-                    if ( !this.queries[i].metrics[j].expression ) {
+                    const id = this.queries[i].metrics[j].id;
+                    if ( !this.queries[i].metrics[j].expression && (!querySources.length || querySources.includes(id) ) ) {
                         const q: any = this.getMetricQuery(i, j);
                         const subGraph = [ q ];
                         if ( this.queries[i].metrics[j].groupByTags && this.queries[i].metrics[j].groupByTags.length && !this.checkTagsExistInFilter(i, this.queries[i].metrics[j].groupByTags) ) {
@@ -69,7 +75,7 @@ export class YamasService {
                             hasCommonFilter = true;
                             q.filterId = filterId;
                         }
-                        
+
                         let dsId = q.id + '_downsample';
                         subGraph.push(this.getQueryDownSample(downsample, this.downsample.aggregator, dsId, [q.id]));
 
@@ -81,7 +87,9 @@ export class YamasService {
                         }
                         this.metricSubGraphs.set(q.id, subGraph);
                         const outputId = subGraph[subGraph.length - 1].id;
-                        outputIds.push(outputId);
+                        if (!outputSourceIds.length || outputSourceIds.includes(id) ) {
+                            outputIds.push(outputId);
+                        }
 
                         if (this.queries[i].metrics[j].summarizer) { // build for summarizer (which works with topN)
                             outputIdToSummarizer[outputId] = this.queries[i].metrics[j].summarizer;
@@ -106,8 +114,8 @@ export class YamasService {
         for ( const i in this.queries ) {
             if ( this.queries[i]) {
                 for (let j = 0; j < this.queries[i].metrics.length; j++) {
-
-                    if ( this.queries[i].metrics[j].expression ) {
+                    const id = this.queries[i].metrics[j].id;
+                    if ( this.queries[i].metrics[j].expression && (!querySources.length || querySources.includes(id) ) ) {
                         const q = this.getExpressionQuery(i, j);
                         expNodes.push(q);
                         const subGraph = [ q ];
@@ -117,7 +125,9 @@ export class YamasService {
                         }
                         this.metricSubGraphs.set(q.id, subGraph);
                         const outputId = subGraph[subGraph.length - 1].id;
-                        outputIds.push(outputId);
+                        if (!outputSourceIds.length || outputSourceIds.includes(id) ) {
+                            outputIds.push(outputId);
+                        }
 
                         if (this.queries[i].metrics[j].summarizer) { // build for summarizer (which works with topN)
                             outputIdToSummarizer[outputId] = this.queries[i].metrics[j].summarizer;
@@ -794,6 +804,26 @@ export class YamasService {
             ]
           };
         return statusQuery;
+    }
+
+    getMetricSources(qindex, mindex, sources) {
+        const config = this.queries[qindex].metrics[mindex];
+        sources.push(config.id);
+        const expression = config.expression;
+        if (expression !== undefined ) {
+            const re = new RegExp(/\{\{(.+?)\}\}/, 'g');
+            let matches = [];
+            while (matches = re.exec(expression)) {
+                const id = matches[1];
+                const [ newQIndex, newMIndex ] = this.utils.getMetricIndexFromId(id, this.queries);
+                const newConfig = this.queries[newQIndex].metrics[newMIndex];
+                if ( newConfig.expression ) {
+                    this.getMetricSources(newQIndex, newMIndex, sources);
+                } else {
+                    sources.push(newConfig.id);
+                }
+            }
+        }
     }
 
 }
