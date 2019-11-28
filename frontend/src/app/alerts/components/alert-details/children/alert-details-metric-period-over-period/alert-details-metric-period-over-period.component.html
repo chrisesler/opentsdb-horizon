@@ -7,7 +7,7 @@
       <span class="window-size">
             <time-selector [presets]="slidingWindowPresets"
             [maxSeconds]="maxSlidingWindow"
-            [timeInSeconds]="config.singleMetric.slidingWindow"
+            [timeInSeconds]="config.periodOverPeriod.slidingWindow"
             (newTimeInSeconds)="updateConfig('slidingWindow', $event)"
             [isViewMode]="viewMode"></time-selector>
       </span>
@@ -18,7 +18,7 @@
     <div class="form-label vertical-center"><strong>Period</strong></div>
     <div class="form-control-wrap auto-width">
       <time-selector [presets]="periodPresets"
-        [timeInSeconds]="config.singleMetric.period"
+        [timeInSeconds]="config.periodOverPeriod.period"
         (newTimeInSeconds)="updateConfig('period', $event)"
         [isViewMode]="viewMode"> </time-selector>
     </div>
@@ -31,14 +31,14 @@
 <div class="form-group lookbacks" >
   <div class="form-label vertical-center"><strong>Number of Lookbacks</strong></div>
   <div *ngIf="viewMode">
-    {{config.singleMetric.lookbacks}}
+    {{config.periodOverPeriod.lookbacks}}
   </div>
   <input matInput class="lookbacks-input" *ngIf="!viewMode"
     [ngClass]="{'blue-background': !viewMode}"
     [formControl]="lookbacks"
     required
     type="number" min="1" max="10"
-    [value]="config.singleMetric.lookbacks"
+    [value]="config.periodOverPeriod.lookbacks"
     (change)="updateConfig('lookbacks', $event.target.value)">
     <mat-error *ngIf="lookbacks.errors && (lookbacks.dirty || lookbacks.touched)">
         Number of lookbacks required. Min = 1, Max = 10.
@@ -59,10 +59,10 @@
             [readonly]="viewMode"
             [formControl]="badUpperThreshold"
             type="number" min="0"
-            [value]="config.singleMetric.badUpperThreshold"
+            [value]="config.periodOverPeriod.badUpperThreshold"
             (change)="updateConfig('badUpperThreshold', $event.target.value)">
-            <span class="type" *ngIf="config.singleMetric.upperThresholdType === 'percent'">%</span>
-            <span class="type" *ngIf="config.singleMetric.upperThresholdType !== 'percent'">#</span>
+            <span class="type" *ngIf="config.periodOverPeriod.upperThresholdType === 'percent'">%</span>
+            <span class="type" *ngIf="config.periodOverPeriod.upperThresholdType !== 'percent'">#</span>
         </span>
 
         <span class="threshold-title warning-title">
@@ -74,16 +74,16 @@
             [readonly]="viewMode"
             [formControl]="warnUpperThreshold"
             type="number" min="0"
-            [value]="config.singleMetric.warnUpperThreshold"
+            [value]="config.periodOverPeriod.warnUpperThreshold"
             (change)="updateConfig('warnUpperThreshold', $event.target.value)">
-            <span class="type" *ngIf="config.singleMetric.upperThresholdType === 'percent'">%</span>
-            <span class="type" *ngIf="config.singleMetric.upperThresholdType !== 'percent'">#</span>
+            <span class="type" *ngIf="config.periodOverPeriod.upperThresholdType === 'percent'">%</span>
+            <span class="type" *ngIf="config.periodOverPeriod.upperThresholdType !== 'percent'">#</span>
         </span>
 
         <span class="threshold-type" *ngIf="!viewMode">
             <mat-button-toggle-group name="upperThresholdType"
                 (change)="updateConfig('upperThresholdType', $event.value)"
-                [value]="config.singleMetric.upperThresholdType">
+                [value]="config.periodOverPeriod.upperThresholdType">
                 <mat-button-toggle value="value">#</mat-button-toggle>
                 <mat-button-toggle value="percent">%</mat-button-toggle>
             </mat-button-toggle-group>
@@ -114,10 +114,10 @@
                 [readonly]="viewMode"
                 [formControl]="badLowerThreshold"
                 type="number" min="0"
-                [value]="config.singleMetric.badLowerThreshold"
+                [value]="config.periodOverPeriod.badLowerThreshold"
                 (change)="updateConfig('badLowerThreshold', $event.target.value)">
-            <span class="type" *ngIf="config.singleMetric.lowerThresholdType === 'percent'">%</span>
-            <span class="type" *ngIf="config.singleMetric.lowerThresholdType !== 'percent'">#</span>
+            <span class="type" *ngIf="config.periodOverPeriod.lowerThresholdType === 'percent'">%</span>
+            <span class="type" *ngIf="config.periodOverPeriod.lowerThresholdType !== 'percent'">#</span>
         </span>
 
         <span class="threshold-title warning-title">
@@ -129,16 +129,16 @@
                 [readonly]="viewMode"
                 [formControl]="warnLowerThreshold"
                 type="number" min="0"
-                [value]="config.singleMetric.warnLowerThreshold"
+                [value]="config.periodOverPeriod.warnLowerThreshold"
                 (change)="updateConfig('warnLowerThreshold', $event.target.value)">
-            <span class="type" *ngIf="config.singleMetric.lowerThresholdType === 'percent'">%</span>
-            <span class="type" *ngIf="config.singleMetric.lowerThresholdType !== 'percent'">#</span>
+            <span class="type" *ngIf="config.periodOverPeriod.lowerThresholdType === 'percent'">%</span>
+            <span class="type" *ngIf="config.periodOverPeriod.lowerThresholdType !== 'percent'">#</span>
         </span>
 
         <span class="threshold-type" *ngIf="!viewMode"> 
             <mat-button-toggle-group name="lowerThresholdType"
                 (change)="updateConfig('lowerThresholdType', $event.value)"
-                [value]="config.singleMetric.lowerThresholdType">
+                [value]="config.periodOverPeriod.lowerThresholdType">
                 <mat-button-toggle value="value">#</mat-button-toggle>
                 <mat-button-toggle value="percent">%</mat-button-toggle>
             </mat-button-toggle-group>
@@ -180,7 +180,7 @@
                     [readonly]="viewMode"
                     [formControl]="highestOutliersToRemove"
                     type="number" min="0"
-                    [value]="config.singleMetric.highestOutliersToRemove"
+                    [value]="config.periodOverPeriod.highestOutliersToRemove"
                     (change)="updateConfig('highestOutliersToRemove', $event.target.value)">
             </span>
 
@@ -190,7 +190,7 @@
                     [readonly]="viewMode"
                     [formControl]="lowestOutliersToRemove"
                     type="number" min="0"
-                    [value]="config.singleMetric.lowestOutliersToRemove"
+                    [value]="config.periodOverPeriod.lowestOutliersToRemove"
                     (change)="updateConfig('lowestOutliersToRemove', $event.target.value)">
             </span>
         </span>
@@ -209,7 +209,7 @@
             [readonly]="viewMode"
             type="number" onkeypress="return event.charCode >= 48" autocomplete="off" 
             [placeholder]="getDelayEvalutionPlaceholder()"
-            [value]="config.singleMetric.delayEvaluation"
+            [value]="config.periodOverPeriod.delayEvaluation"
             (change)="updateConfig('delayEvaluation', $event.target.value)">
         </span>
         <mat-hint class="info-hint">mins</mat-hint>

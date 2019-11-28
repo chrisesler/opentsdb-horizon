@@ -629,6 +629,11 @@
 
             .mat-card-content {
                 background-color: map-get($background, background);
+
+                 // white background for alert preview
+                 >.ng-star-inserted {
+                    background: white;
+                }
             }
 
             .mat-card-actions {
