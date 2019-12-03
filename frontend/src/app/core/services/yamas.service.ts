@@ -93,6 +93,8 @@ export class YamasService {
 
                         if (periodOverPeriodEnabled) { // set egads nodes and outputIds
                             const slidingWindowQuery = this.getPeriodOverPeriodSlidingWindowConfig(periodOverPeriod, lastId, q.id);
+
+                            // todo: insert common filters into PoP query
                             const periodOverPeriodQuery = this.getPeriodOverPeriod(periodOverPeriod, subGraph, time.start, q.id);
 
                             subGraph.push(slidingWindowQuery);
@@ -196,7 +198,7 @@ export class YamasService {
         if (summaryOnly) {
             serdesConfigsFilter = ['summarizer'];
         } else if (!periodOverPeriodEnabled) {
-            serdesConfigsFilter.concat(['summarizer']);
+            serdesConfigsFilter.push('summarizer');
         }
 
         this.transformedQuery.serdesConfigs = [{
