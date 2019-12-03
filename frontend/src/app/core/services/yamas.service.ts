@@ -141,8 +141,7 @@ export class YamasService {
                         this.metricSubGraphs.set(q.id, subGraph);
 
                         if (periodOverPeriodEnabled) { // set egads nodes and outputIds
-                            const groubByNode = q.sources[0];
-                            const nodesExceptSlidingWindow = this.getNodes(groubByNode, this.metricSubGraphs);
+                            const nodesExceptSlidingWindow = this.getNodes(q.sources, this.metricSubGraphs);
                             const eId = q.id;
 
                             const slidingWindowQuery = this.getPeriodOverPeriodSlidingWindowConfig(periodOverPeriod, eId, eId);
@@ -211,12 +210,13 @@ export class YamasService {
         return this.transformedQuery;
     }
 
-    getNodes(graphName, mapGraph): any[] {
+    getNodes(graphNames: any[], mapGraph): any[] {
         const nodes: any[] = [];
-
-        for (const node of mapGraph.get(graphName)) {
-            if (!node.id.startsWith(this.egadsSlidingWindowPrefix + graphName)) {
-                nodes.push(node);
+        for (const graphName of graphNames) {
+            for (const node of mapGraph.get(graphName)) {
+                if (!node.id.startsWith(this.egadsSlidingWindowPrefix + graphName)) {
+                    nodes.push(node);
+                }
             }
         }
         return nodes;
