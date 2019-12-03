@@ -19,8 +19,18 @@
         </div>
         <div class="control-item alert-filter-input">
             <mat-form-field appearance="fill" floatLabel="never">
-                <input matInput placeholder="Filter alerts" *ngIf="list === 'alerts'" autocomplete="off" (keydown)="applyAlertDataFilter($event.target.value)" #alertFilterInput>
-                <input matInput placeholder="Filter snooze" *ngIf="list === 'snooze'" autocomplete="off" (keydown)="applySnoozeDataFilter($event.target.value)" #snoozeFilterInput>
+                <input matInput placeholder="Filter alerts"
+                    *ngIf="list === 'alerts'"
+                    autocomplete="off"
+                    (keyup)="applyAlertDataFilter($event.target.value)"
+                    [value]="alertsFilterInputVal"
+                    #alertFilterInput>
+                <input matInput placeholder="Filter snooze"
+                    *ngIf="list === 'snooze'"
+                    autocomplete="off"
+                    (keyup)="applySnoozeDataFilter($event.target.value)"
+                    [value]="snoozeFilterInputVal"
+                    #snoozeFilterInput>
                 <mat-icon matSuffix fontSet="denali" fontIcon="d-search"></mat-icon>
             </mat-form-field>
         </div>
@@ -30,6 +40,10 @@
             <button mat-flat-button color="primary" *ngIf="list === 'snooze'" (click)="createSnooze()">Create snooze</button>
         </div>
         <span class="flex-spacer"></span>
+        <div class="control-item list-counts">
+            <span *ngIf="list === 'alerts'">Displaying {{alertsDataSource ? alertsDataSource.filteredData.length : '0'}} of {{alerts.length}}</span>
+            <span *ngIf="list === 'snooze'">Displaying {{snoozesDataSource ? snoozesDataSource.filteredData.length : '0'}} of {{snoozes.length}}</span>
+        </div>
     </div>
     <div *ngIf="error" class="error">
         {{ error.message }}
@@ -226,12 +240,15 @@
                         </ng-container>
 
                         <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" [ngClass]="{'is-batch-editing': selection.hasValue()}"></tr>
-                        <tr mat-row *matRowDef="let row; columns: displayedColumns;" [ngClass]="{'is-disabled': !row.enabled}"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;" [ngClass]="{'is-disabled': (row.enabled === undefined) ? true : !row.enabled}"></tr>
                     </table>
                     <div class="message" *ngIf="stateLoaded.alerts && alerts.length === 0">No alerts found</div>
                 </div>
             </div>
-            <mat-paginator [pageSizeOptions]="[25, 50, 100]" [showFirstLastButtons]="alerts.length > 25"></mat-paginator>
+            <!--<mat-paginator #alertsPaginator
+                (page)="paginatorPageChange($event)"
+                [pageSizeOptions]="[25, 50, 100]"
+                [showFirstLastButtons]="alerts.length > 25"></mat-paginator>-->
         </div>
     </div>
     <div *ngIf="list === 'snooze'" class="snooze-results" fxFlex="1 1 100%" fxLayout="column">
@@ -328,7 +345,10 @@
                 </table>
                 <div class="message" *ngIf="snoozes.length === 0">No snoozes found</div>
             </div>
-            <mat-paginator [pageSizeOptions]="[10, 20, 30]" showFirstLastButtons></mat-paginator>
+            <!--<mat-paginator #snoozePaginator
+                (page)="paginatorPageChange($event)"
+                [pageSizeOptions]="[10, 20, 30]"
+                showFirstLastButtons></mat-paginator>-->
         </div>
     </div>
 
@@ -344,7 +364,7 @@
     <mat-menu #namespaceMenu="matMenu" class="namespace-selector-cdk-menu submenu" [style.maxHeight.px]="500">
         <div class="filter-all-namespaces" (click)="$event.stopPropagation()">
             <mat-form-field appearance="fill" floatLabel="never">
-                <input matInput placeholder="Filter namespaces" autocomplete="off" (keydown)="applyAllNamespaceDataFilter($event.target.value, $event)" #allNamespaceFilterInput>
+                <input matInput placeholder="Filter namespaces" autocomplete="off" (keyup)="applyAllNamespaceDataFilter($event.target.value, $event)" #allNamespaceFilterInput>
                 <mat-icon matSuffix fontSet="denali" fontIcon="d-search"></mat-icon>
             </mat-form-field>
         </div>
