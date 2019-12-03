@@ -67,6 +67,8 @@ import { UtilsService } from '../../core/services/utils.service';
 import { SnoozeDetailsComponent } from '../components/snooze-details/snooze-details.component';
 const moment = _moment;
 
+
+
 @Component({
     selector: 'app-alerts',
     templateUrl: './alerts.component.html',
@@ -137,6 +139,7 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
         'modified'
         // 'sparkline' // hidden for now
     ];
+
 
     snoozesDataSource; // dynamically gets reassigned after new alerts state is subscribed
     snoozeDisplayedColumns: string[] = [
@@ -281,6 +284,7 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
                 // this.hasNamespaceWriteAccess = this.userNamespaces.find(d => d.name === this.selectedNamespace ) ? true : false;
                 this.stateLoaded.alerts = false;
                 this.stateLoaded.snooze = false;
+
                 this.loadAlertsSnooze(this.list === 'alerts' ? ['alerts'] : ['alerts', 'snooze']);
             } else {
                 this.hasNamespaceWriteAccess = false;
@@ -596,9 +600,15 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     loadAlertsSnooze(list) {
         if ( list.includes('alerts') ) {
+            if (this.alertsDataSource) {
+                this.alertsDataSource.data = [];
+            }
             this.store.dispatch(new LoadAlerts({namespace: this.selectedNamespace}));
         }
         if ( list.includes('snooze') ) {
+            if (this.snoozesDataSource) {
+                this.snoozesDataSource.data = [];
+            }
             this.store.dispatch(new LoadSnoozes({namespace: this.selectedNamespace}));
         }
     }
@@ -617,6 +627,7 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
         // this.alertsDataSource.paginator = this.paginator;
         this.alertsDataSource.filter = this.alertsFilterInputVal;
         this.alertsDataSource.sort = this.dataSourceSort;
+
     }
 
     setSnoozeTableDataSource() {

@@ -52,7 +52,7 @@
         <div class="alert-results-wrapper">
             <div class="alert-results-body has-scroller">
                 <div class="is-scroller">
-                    <table class="alerts-result-table" mat-table [dataSource]="alertsDataSource" matSort>
+                    <table class="alerts-result-table" mat-table [dataSource]="alertsDataSource" matSort matSortStart="desc">
                         <ng-container matColumnDef="select">
                             <th mat-header-cell *matHeaderCellDef>
                                 <mat-checkbox (change)="$event ? masterToggle() : null"
@@ -251,6 +251,7 @@
                         <tr mat-row *matRowDef="let row; columns: displayedColumns;" [ngClass]="{'is-disabled': (row.enabled === undefined) ? true : !row.enabled}"></tr>
                     </table>
                     <div class="message" *ngIf="stateLoaded.alerts && alerts.length === 0">No alerts found</div>
+                    <div class="message" *ngIf="!stateLoaded.alerts">Loading...</div>
                 </div>
             </div>
             <!--<mat-paginator #alertsPaginator
@@ -262,7 +263,7 @@
     <div *ngIf="list === 'snooze'" class="snooze-results" fxFlex="1 1 100%" fxLayout="column">
         <div class="snooze-results-wrapper">
             <div class="snooze-results-body">
-                <table class="snooze-results-table" mat-table [dataSource]="snoozesDataSource" matSort>
+                <table class="snooze-results-table" mat-table [dataSource]="snoozesDataSource" matSort matSortStart="desc">
                     <ng-container matColumnDef="select">
                         <th mat-header-cell *matHeaderCellDef>
                             <mat-checkbox (change)="$event ? masterToggle() : null"
@@ -351,7 +352,8 @@
                     <tr mat-header-row *matHeaderRowDef="snoozeDisplayedColumns; sticky: true" [ngClass]="{'is-batch-editing': selection.hasValue()}"></tr>
                     <tr mat-row *matRowDef="let row; columns: snoozeDisplayedColumns;"></tr>
                 </table>
-                <div class="message" *ngIf="snoozes.length === 0">No snoozes found</div>
+                <div class="message" *ngIf="stateLoaded.snooze && snoozes.length === 0">No snoozes found</div>
+                <div class="message" *ngIf="!stateLoaded.snooze">Loading...</div>
             </div>
             <!--<mat-paginator #snoozePaginator
                 (page)="paginatorPageChange($event)"
