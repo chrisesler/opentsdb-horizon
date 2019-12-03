@@ -103,7 +103,7 @@
                                     <mat-radio-group formControlName="subType" (change)="metricSubTypeChanged($event)">
                                         <mat-radio-button value="singleMetric">Simple</mat-radio-button>
                                         <!-- <mat-radio-button value="composite" disabled>Composite</mat-radio-button> -->
-                                        <mat-radio-button value="periodOverPeriod" disabled>Period / Period</mat-radio-button>
+                                        <mat-radio-button value="periodOverPeriod">Period / Period</mat-radio-button>
                                     </mat-radio-group>
                                     <mat-hint *ngIf="data && data.threshold && data.threshold.subType === 'singleMetric'">One metric with one or more static thresholds.</mat-hint>
                                     <mat-hint *ngIf="data && data.threshold && data.threshold.subType === 'periodOverPeriod'">One metric with bottom & top bounds from the average across N period lookbacks.</mat-hint>
@@ -134,7 +134,7 @@
                                     (configChange)="periodOverPeriodChanged($event)"
                                     [config]= "periodOverPeriodConfig">
                                 </alert-details-metric-period-over-period>
-                                <span *ngIf="data && data.type === 'simple'">
+                                <span *ngIf="data && data.type === 'simple' && data.threshold.subType !== 'periodOverPeriod'">
                                     <div class="form-group sliding-window" formGroupName="singleMetric">
                                             <div class="form-label vertical-center"><strong>Sliding Window</strong></div>
                                             <div>

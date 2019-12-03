@@ -8,7 +8,8 @@ import {
     TemplateRef,
     AfterContentInit, EventEmitter,
     Output,
-    Input
+    Input,
+    ChangeDetectorRef
 } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators, FormsModule, NgForm } from '@angular/forms';
 import { ElementQueries, ResizeSensor} from 'css-element-queries';
@@ -258,7 +259,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         private elRef: ElementRef,
         public dialog: MatDialog,
         private interCom: IntercomService,
-        private alertConverter: AlertConverterService
+        private alertConverter: AlertConverterService,
+        private cdRef: ChangeDetectorRef
     ) {
         // this.data = dialogData;
         if (this.data.name) {
@@ -328,7 +330,10 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
 
     periodOverPeriodChanged(periodOverPeriodConfig) {
         if (periodOverPeriodConfig.thresholdChanged) {
-            this.determineEnabledTransitions(periodOverPeriodConfig.config.singleMetric);
+            this.determineEnabledTransitions(periodOverPeriodConfig.config.periodOverPeriod);
+        }
+        if (periodOverPeriodConfig.requeryData) {
+            this.reloadData();
         }
         this.periodOverPeriodConfig = {... periodOverPeriodConfig.config};
     }
@@ -358,7 +363,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
 
     setupForm(data = null) {
         if (data && data.threshold && data.threshold.subType === 'periodOverPeriod') {
-            this.determineEnabledTransitions(data.threshold.singleMetric);
+            this.determineEnabledTransitions(data.threshold.periodOverPeriod);
             this.periodOverPeriodTransitionsSelected = [...data.notification.transitionsToNotify];
             this.periodOverPeriodConfig = {...data.threshold};
         }
@@ -1082,8 +1087,14 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             }
         }
 
+        let periodOverPeriod = {};
+        if (Object.keys(this.periodOverPeriodConfig).length && this.data.threshold.subType === 'periodOverPeriod') {
+            periodOverPeriod = this.periodOverPeriodConfig.periodOverPeriod;
+        }
+
         if ( Object.keys(queries).length ) {
-            const query = this.queryService.buildQuery( settings, time, queries);
+            const query = this.queryService.buildQuery(settings, time, queries, periodOverPeriod);
+            // this.cdRef.detectChanges();
             this.getYamasData({query: query});
         } else {
             this.nQueryDataLoading = 0;
@@ -1107,7 +1118,13 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             const query: any = JSON.parse(JSON.stringify(this.queries[i]));
             queries[i] = query;
         }
-        const q = this.queryService.buildQuery( settings, time, queries);
+
+        let periodOverPeriod = {};
+        if (Object.keys(this.periodOverPeriodConfig).length && this.data.threshold.subType === 'periodOverPeriod') {
+            periodOverPeriod = this.periodOverPeriodConfig.periodOverPeriod;
+        }
+
+        const q = this.queryService.buildQuery( settings, time, queries, periodOverPeriod);
         return [q];
     }
 
@@ -1242,6 +1259,9 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
 
     metricSubTypeChanged(e) {
         this.data.threshold.subType = e.value;
+        if (e.value === 'singleMetric' || (e.value === 'periodOverPeriod' && Object.keys(this.periodOverPeriodConfig).length > 0)) {
+            this.reloadData();
+        }
     }
 
     validate() {
@@ -1325,9 +1345,9 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 if (this.data.threshold.subType === 'periodOverPeriod') {
                     const dataThresholdCopy = {...data.threshold};
                     data.notification.transitionsToNotify = [...this.periodOverPeriodTransitionsSelected];
-                    data.threshold = {...this.periodOverPeriodConfig};
-                    data.threshold.singleMetric.metricId = dataThresholdCopy.singleMetric.metricId;
-                    data.threshold.singleMetric.queryIndex = dataThresholdCopy.singleMetric.queryIndex;
+                    data.threshold.periodOverPeriod = {...this.periodOverPeriodConfig.periodOverPeriod};
+                    data.threshold.periodOverPeriod.metricId = dataThresholdCopy.singleMetric.metricId;
+                    data.threshold.periodOverPeriod.queryIndex = dataThresholdCopy.singleMetric.queryIndex;
                 }
                 data.queries = { raw: this.queries, tsdb: this.getTsdbQuery()};
                 const [qindex, mindex] = data.threshold.singleMetric.metricId.split(':');
