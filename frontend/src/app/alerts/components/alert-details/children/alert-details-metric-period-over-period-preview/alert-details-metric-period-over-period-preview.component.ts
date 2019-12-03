@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, HostBinding, OnChanges, SimpleChanges } from '@angular/core';
-import { of } from 'rxjs';
+import * as deepEqual from 'fast-deep-equal';
 // tslint:disable:max-line-length
 
 @Component({
@@ -144,7 +144,6 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
   timeSeriesClicked(e) {
     this.timeseriesIndex = parseInt(e.timeSeries, 10);
     this.thresholdOptions = {...this.options};
-    // this.thresholdOptions.labels = ['x', e.timeSeries, 'observed', 'lowerBad', 'lowerWarning', 'upperWarning', 'upperBad'];
     this.thresholdOptions.labels = ['x', '1', '2', '3', '4', '5', '6'];
     this.thresholdOptions.thresholds = [];
     this.thresholdOptions.visibility = ['true', 'true', 'true', 'true', 'true', 'true', 'true'];
@@ -259,10 +258,14 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
   getExpectedTimeSeries(allTimeSeries, timeseriesIndex: number, options) {
     // get metric name from index
     let metricName = '';
+    let metricTags = {};
     const _series = Object.keys(options.series);
     for (const serie of _series) {
       if (parseInt(serie, 10) === timeseriesIndex) {
         metricName = options.series[serie].metric;
+        metricTags = options.series[serie].tags;
+        metricTags['metric'] = metricName + '.prediction';
+        metricTags['_anomalyModel'] = 'OlympicScoring';
         break;
       }
     }
@@ -270,7 +273,7 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
     // get index of prediction metric name
     let predictedIndex = -1;
     for (const serie of _series) {
-      if (options.series[serie].metric === metricName + '.prediction') {
+      if (deepEqual(options.series[serie].tags, metricTags) && parseInt(serie, 10) !== timeseriesIndex) {
         predictedIndex = parseInt(serie, 10);
         break;
       }
@@ -278,8 +281,9 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
 
     // expressions have different naming convention
     if (predictedIndex === -1) {
+      metricTags['metric'] = metricName;
       for (const serie of _series) {
-        if (options.series[serie].metric === metricName && options.series[serie].tags['_anomalyModel'] === 'OlympicScoring') {
+        if (deepEqual(options.series[serie].tags, metricTags) && parseInt(serie, 10) !== timeseriesIndex) {
           predictedIndex = parseInt(serie, 10);
           break;
         }
