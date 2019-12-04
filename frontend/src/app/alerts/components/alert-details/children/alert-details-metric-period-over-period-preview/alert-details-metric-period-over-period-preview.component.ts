@@ -263,7 +263,7 @@ export class AlertDetailsMetricPeriodOverPeriodPreviewComponent implements OnIni
     for (const serie of _series) {
       if (parseInt(serie, 10) === timeseriesIndex) {
         metricName = options.series[serie].metric;
-        metricTags = options.series[serie].tags;
+        metricTags = {... options.series[serie].tags};
         metricTags['metric'] = metricName + '.prediction';
         metricTags['_anomalyModel'] = 'OlympicScoring';
         break;
