@@ -40,10 +40,10 @@
             <button mat-flat-button color="primary" *ngIf="list === 'snooze'" (click)="createSnooze()">Create snooze</button>
         </div>
         <span class="flex-spacer"></span>
-        <!--<div class="control-item list-counts">
+        <div class="control-item list-counts">
             <span *ngIf="list === 'alerts'">Displaying {{alertsDataSource ? alertsDataSource.filteredData.length : '0'}} of {{alerts.length}}</span>
             <span *ngIf="list === 'snooze'">Displaying {{snoozesDataSource ? snoozesDataSource.filteredData.length : '0'}} of {{snoozes.length}}</span>
-        </div>-->
+        </div>
     </div>
     <div *ngIf="error" class="error">
         {{ error.message }}
