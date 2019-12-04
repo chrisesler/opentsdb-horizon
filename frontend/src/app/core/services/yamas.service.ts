@@ -214,9 +214,9 @@ export class YamasService {
 
     getNodes(graphNames: any[], mapGraph): any[] {
         const nodes: any[] = [];
-        for (const graphName of graphNames) {
-            for (const node of mapGraph.get(graphName)) {
-                if (!node.id.startsWith(this.egadsSlidingWindowPrefix + graphName)) {
+        for (const g of graphNames) {
+            for (const node of mapGraph.get(g)) {
+                if (!node.id.startsWith(this.egadsSlidingWindowPrefix + g)) {
                     nodes.push(node);
                 }
             }
