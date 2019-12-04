@@ -93,6 +93,8 @@ export class YamasService {
 
                         if (periodOverPeriodEnabled) { // set egads nodes and outputIds
                             const slidingWindowQuery = this.getPeriodOverPeriodSlidingWindowConfig(periodOverPeriod, lastId, q.id);
+
+                            // todo: insert common filters into PoP query
                             const periodOverPeriodQuery = this.getPeriodOverPeriod(periodOverPeriod, subGraph, time.start, q.id);
 
                             subGraph.push(slidingWindowQuery);
@@ -141,12 +143,11 @@ export class YamasService {
                         this.metricSubGraphs.set(q.id, subGraph);
 
                         if (periodOverPeriodEnabled) { // set egads nodes and outputIds
-                            const groubByNode = q.sources[0];
-                            const nodesExceptSlidingWindow = this.getNodes(groubByNode, this.metricSubGraphs);
+                            const nodesExceptSlidingWindow = this.getNodes(q.sources, this.metricSubGraphs);
                             const eId = q.id;
 
                             const slidingWindowQuery = this.getPeriodOverPeriodSlidingWindowConfig(periodOverPeriod, eId, eId);
-                            const periodOverPeriodQuery = this.getPeriodOverPeriod(periodOverPeriod, nodesExceptSlidingWindow.concat(q).concat(slidingWindowQuery) , time.start, q.id);
+                            const periodOverPeriodQuery = this.getPeriodOverPeriod(periodOverPeriod, nodesExceptSlidingWindow.concat(q).concat(slidingWindowQuery) , time.start, q.id, this.transformedQuery.filters);
                             this.transformedQuery.executionGraph.push(slidingWindowQuery);
                             this.transformedQuery.executionGraph.push(periodOverPeriodQuery);
                             outputIds.push(periodOverPeriodQuery.id);
@@ -197,7 +198,7 @@ export class YamasService {
         if (summaryOnly) {
             serdesConfigsFilter = ['summarizer'];
         } else if (!periodOverPeriodEnabled) {
-            serdesConfigsFilter.concat(['summarizer']);
+            serdesConfigsFilter.push('summarizer');
         }
 
         this.transformedQuery.serdesConfigs = [{
@@ -215,12 +216,13 @@ export class YamasService {
         return this.transformedQuery;
     }
 
-    getNodes(graphName, mapGraph): any[] {
+    getNodes(graphNames: any[], mapGraph): any[] {
         const nodes: any[] = [];
-
-        for (const node of mapGraph.get(graphName)) {
-            if (!node.id.startsWith(this.egadsSlidingWindowPrefix + graphName)) {
-                nodes.push(node);
+        for (const g of graphNames) {
+            for (const node of mapGraph.get(g)) {
+                if (!node.id.startsWith(this.egadsSlidingWindowPrefix + g)) {
+                    nodes.push(node);
+                }
             }
         }
         return nodes;
@@ -306,12 +308,12 @@ export class YamasService {
         return slidingWindowConfig;
     }
 
-    getPeriodOverPeriod(periodOverPeriodConfig, subgraph: any [], startTime: string, qId: string) {
+    getPeriodOverPeriod(periodOverPeriodConfig, subgraph: any [], startTime: string, qId: string, filters = []) {
         const executionGraph = subgraph;
 
         const baselineQuery = {
             start: startTime,
-            filters: [],
+            filters: filters,
             mode: 'SINGLE',
             timezone: null,
             cacheMode: null,

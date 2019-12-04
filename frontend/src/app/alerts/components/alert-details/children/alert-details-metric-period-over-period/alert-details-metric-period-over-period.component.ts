@@ -127,13 +127,13 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
   }
 
   updateValidators() {
-    this.lookbacks = new FormControl(this.config.periodOverPeriod['lookbacks'], [Validators.max(10), Validators.min(1), this.isIntegerValidator()]);
-    this.badUpperThreshold = new FormControl(this.config.periodOverPeriod['badUpperThreshold'],   [this.isIntegerValidator(), Validators.min(0), this.thresholdValidator('warnUpperThreshold')]);
-    this.warnUpperThreshold = new FormControl(this.config.periodOverPeriod['warnUpperThreshold'], [this.isIntegerValidator(), Validators.min(0), this.thresholdValidator('badUpperThreshold')]);
-    this.badLowerThreshold = new FormControl(this.config.periodOverPeriod['badLowerThreshold'],   [this.isIntegerValidator(), Validators.min(0), this.thresholdValidator('warnLowerThreshold')]);
-    this.warnLowerThreshold = new FormControl(this.config.periodOverPeriod['warnLowerThreshold'], [this.isIntegerValidator(), Validators.min(0), this.thresholdValidator('badLowerThreshold')]);
-    this.highestOutliersToRemove = new FormControl(this.config.periodOverPeriod['highestOutliersToRemove'], [this.isIntegerValidator(), Validators.min(0), this.outliersValidator()]);
-    this.lowestOutliersToRemove = new FormControl(this.config.periodOverPeriod['lowestOutliersToRemove'], [this.isIntegerValidator(), Validators.min(0), this.outliersValidator()]);
+    this.lookbacks = new FormControl(this.config.periodOverPeriod['lookbacks'], [Validators.max(10), Validators.min(1), this.positiveNumberValidator()]);
+    this.badUpperThreshold = new FormControl(this.config.periodOverPeriod['badUpperThreshold'],   [this.positiveNumberValidator(), this.thresholdValidator('warnUpperThreshold')]);
+    this.warnUpperThreshold = new FormControl(this.config.periodOverPeriod['warnUpperThreshold'], [this.positiveNumberValidator(), this.thresholdValidator('badUpperThreshold')]);
+    this.badLowerThreshold = new FormControl(this.config.periodOverPeriod['badLowerThreshold'],   [this.positiveNumberValidator(), this.thresholdValidator('warnLowerThreshold')]);
+    this.warnLowerThreshold = new FormControl(this.config.periodOverPeriod['warnLowerThreshold'], [this.positiveNumberValidator(), this.thresholdValidator('badLowerThreshold')]);
+    this.highestOutliersToRemove = new FormControl(this.config.periodOverPeriod['highestOutliersToRemove'], [this.positiveNumberValidator(), this.outliersValidator()]);
+    this.lowestOutliersToRemove = new FormControl(this.config.periodOverPeriod['lowestOutliersToRemove'], [this.positiveNumberValidator(), this.outliersValidator()]);
   }
 
   thresholdValidator(thresholdToCompare: string): ValidatorFn {
@@ -150,12 +150,17 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
     };
   }
 
-  isIntegerValidator(): ValidatorFn {
+  positiveNumberValidator(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
         let forbidden = false;
         if (control.value !== '') {
-          const re = /^\d+$/; // integer
+          const re = /^\d*\.?\d+$/; // number, interger or decimal
           forbidden = !re.test(control.value);
+
+          // number greater than 0
+          if (Number.parseFloat(control.value) <= 0) {
+            forbidden = true;
+          }
         }
         return forbidden ? { 'forbiddenValue': { value: control.value } } : null;
     };
@@ -174,7 +179,7 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
 
   isValueLargerThanThreshold(threshold: string, value: string, defaultValue: number): boolean {
     const thresholdValue: number = this.config.periodOverPeriod[threshold] === '' ? defaultValue :  Number(this.config.periodOverPeriod[threshold]);
-    return Number(value) > thresholdValue;
+    return Number(value) >= thresholdValue;
   }
 
   atleastOneThresholdSet() {
