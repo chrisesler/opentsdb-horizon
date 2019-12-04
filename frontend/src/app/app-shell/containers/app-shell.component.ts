@@ -204,6 +204,7 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
                     this.router.navigate(['a']);
                     break;
                 case 'dashboard':
+                case 'settings':
                 case 'metric-explorer':
                 case 'status':
                 case 'annotations':

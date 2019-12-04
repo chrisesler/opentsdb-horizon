@@ -37,6 +37,7 @@ import {
     DbfsComponent,
     DbfsMiniNavComponent
 } from './components/dbfs';
+import { SettingsPanelComponent } from './components/settings-panel/settings-panel.component';
 
 @NgModule({
     imports: [
@@ -65,7 +66,8 @@ import {
         NavigatorPanelItemElement,
         NavigatorSidenavComponent,
         DbfsComponent,
-        DbfsMiniNavComponent
+        DbfsMiniNavComponent,
+        SettingsPanelComponent
     ],
     providers: [
         AppShellService,
