@@ -79,8 +79,24 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
     @HostBinding('class.alerts-container-component') private _hostClass = true;
 
     // @ViewChild(MatPaginator) paginator: MatPaginator;
+    @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
+      if (paginator && this.list === 'alerts' && this.alertsDataSource) {
+        this.alertsDataSource.paginator = paginator;
+      }
+      if (paginator && this.list === 'snooze' && this.snoozesDataSource) {
+        this.snoozesDataSource.paginator = paginator;
+      }
+    }
 
-    @ViewChild(MatSort) dataSourceSort: MatSort;
+    // @ViewChild(MatSort) dataSourceSort: MatSort;
+    @ViewChild(MatSort) set dataSourceSort(sortor: MatSort) {
+      if (sortor && this.list === 'alerts' && this.alertsDataSource) {
+        this.alertsDataSource.sort = sortor;
+      }
+      if (sortor && this.list === 'snooze' && this.snoozesDataSource) {
+        this.snoozesDataSource.sort = sortor;
+      }
+    }
 
     @ViewChild('confirmDeleteDialog', { read: TemplateRef }) confirmDeleteDialogRef: TemplateRef<any>;
 
@@ -626,7 +642,7 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.alertsDataSource = new MatTableDataSource<AlertModel>(this.alerts);
         // this.alertsDataSource.paginator = this.paginator;
         this.alertsDataSource.filter = this.alertsFilterInputVal;
-        this.alertsDataSource.sort = this.dataSourceSort;
+        // this.alertsDataSource.sort = this.dataSourceSort;
 
     }
 
@@ -637,7 +653,7 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.snoozesDataSource = new MatTableDataSource<any>(this.snoozes);
         // this.snoozesDataSource.paginator = this.paginator;
         this.snoozesDataSource.filter = this.snoozeFilterInputVal;
-        this.snoozesDataSource.sort = this.dataSourceSort;
+        // this.snoozesDataSource.sort = this.dataSourceSort;
     }
 
     setAlertListMeta() {
@@ -907,6 +923,10 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
                 this.auraDialog = undefined;
             } );
         }
+    }
+
+    paginatorPageChange(event: any) {
+      this.logger.event('paginatorPageChange', event);
     }
 
     ngAfterViewChecked() {

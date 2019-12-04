@@ -40,10 +40,10 @@
             <button mat-flat-button color="primary" *ngIf="list === 'snooze'" (click)="createSnooze()">Create snooze</button>
         </div>
         <span class="flex-spacer"></span>
-        <div class="control-item list-counts">
+        <!--<div class="control-item list-counts">
             <span *ngIf="list === 'alerts'">Displaying {{alertsDataSource ? alertsDataSource.filteredData.length : '0'}} of {{alerts.length}}</span>
             <span *ngIf="list === 'snooze'">Displaying {{snoozesDataSource ? snoozesDataSource.filteredData.length : '0'}} of {{snoozes.length}}</span>
-        </div>
+        </div>-->
     </div>
     <div *ngIf="error" class="error">
         {{ error.message }}
@@ -140,11 +140,6 @@
                                 <span>Recipients</span>
                             </th>
                             <td mat-cell *matCellDef="let element">
-                                <!--<button mat-button color="primary" class="contacts-menu-trigger" [matMenuTriggerFor]="contactsMenu" [matMenuTriggerData]="{contacts: element.recipients}">
-                                    <mat-icon fontSet="denali" fontIcon="d-user-group"></mat-icon>
-                                    <span>{{element.contacts.length}}</span>
-                                </button>-->
-                                <!--<recipients-manager  [selectedAlertRecipients]="element.recipients"></recipients-manager>-->
                                 <ng-container *ngIf="getRecipientKeys(element).length > 0">
                                     <div class="contact-icon-strip" [matMenuTriggerFor]="contactsMenu" [matMenuTriggerData]="{element: element}">
                                         <mat-icon *ngFor="let contactType of getRecipientKeys(element)" [svgIcon]="contactType + '_contact'"></mat-icon>
@@ -208,45 +203,6 @@
                             </td>
                         </ng-container>
 
-                        <!-- QUESTION: Do we need this sparkline code any more? -->
-                        <ng-container matColumnDef="sparkline">
-                            <th mat-header-cell [ngClass]="{'menu-open': sparklineMenuOpen}" *matHeaderCellDef>
-                                <span>
-                                    <span>Past</span>
-                                    <button mat-button
-                                        class="sparkline-display-menu-trigger"
-                                        color="primary"
-                                        [matMenuTriggerFor]="sparklineDisplayMenu"
-                                        (menuOpened)="setSparklineMenuOpened(true)"
-                                        (menuClosed)="setSparklineMenuOpened(false)"
-                                        #sparklineDisplayDropMenuTrigger>
-                                        <span>{{sparklineDisplay.label}}</span>
-                                    </button>
-                                </span>
-                            </th>
-                            <td mat-cell *matCellDef="let element">
-                                <span class="sparkline-wrapper">[sparkline]</span>
-                            </td>
-                        </ng-container>
-
-                        <!-- QUESTION: Do we need these actions code any more? -->
-                        <ng-container matColumnDef="actions">
-                            <th mat-header-cell *matHeaderCellDef>
-                                <span>Actions</span>
-                            </th>
-                            <td mat-cell *matCellDef="let element">
-                                <button mat-icon-button color="primary">
-                                    <mat-icon fontSet="denali" fontIcon="d-pencil" (click)="editAlert(element)"></mat-icon>
-                                </button>
-                                <button mat-icon-button color="primary" (click)="toggleAlert(element)">
-                                    <mat-icon fontSet="denali" [fontIcon]="element.enabled ? 'd-notification-disable' : 'd-notification'"></mat-icon>
-                                </button>
-                                <button mat-icon-button color="primary" (click)="deleteAlert(element)">
-                                    <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
-                                </button>
-                            </td>
-                        </ng-container>
-
                         <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" [ngClass]="{'is-batch-editing': selection.hasValue()}"></tr>
                         <tr mat-row *matRowDef="let row; columns: displayedColumns;" [ngClass]="{'is-disabled': (row.enabled === undefined) ? true : !row.enabled}"></tr>
                     </table>
@@ -254,10 +210,10 @@
                     <div class="message" *ngIf="!stateLoaded.alerts">Loading...</div>
                 </div>
             </div>
-            <!--<mat-paginator #alertsPaginator
+            <mat-paginator #alertsPaginator
                 (page)="paginatorPageChange($event)"
                 [pageSizeOptions]="[25, 50, 100]"
-                [showFirstLastButtons]="alerts.length > 25"></mat-paginator>-->
+                [showFirstLastButtons]="alerts.length > 25"></mat-paginator>
         </div>
     </div>
     <div *ngIf="list === 'snooze'" class="snooze-results" fxFlex="1 1 100%" fxLayout="column">
@@ -300,14 +256,14 @@
                         <td mat-cell *matCellDef="let element">
                             <span class="alert-name">{{formatTime(element.endTime)}} </span>
                             <div class="edit-actions-wrapper" *ngIf="hasNamespaceWriteAccess">
-                                    <button mat-button color="primary" (click)="editSnooze(element)">
-                                        <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
-                                        <span>edit</span>
-                                    </button>
-                                    <button mat-button color="primary" (click)="deleteItem(element)">
-                                        <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
-                                        <span>Delete</span>
-                                    </button>
+                                <button mat-button color="primary" (click)="editSnooze(element)">
+                                    <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
+                                    <span>edit</span>
+                                </button>
+                                <button mat-button color="primary" (click)="deleteItem(element)">
+                                    <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
+                                    <span>Delete</span>
+                                </button>
                             </div>
                         </td>
                     </ng-container>
@@ -355,10 +311,10 @@
                 <div class="message" *ngIf="stateLoaded.snooze && snoozes.length === 0">No snoozes found</div>
                 <div class="message" *ngIf="!stateLoaded.snooze">Loading...</div>
             </div>
-            <!--<mat-paginator #snoozePaginator
+            <mat-paginator #snoozePaginator
                 (page)="paginatorPageChange($event)"
                 [pageSizeOptions]="[10, 20, 30]"
-                showFirstLastButtons></mat-paginator>-->
+                showFirstLastButtons></mat-paginator>
         </div>
     </div>
 
