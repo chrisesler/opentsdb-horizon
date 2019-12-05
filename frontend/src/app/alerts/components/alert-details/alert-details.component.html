@@ -613,7 +613,7 @@
                             <div class="form-label vertical-center"><strong>Namespace</strong></div>
                             <div class="form-control-wrap">
                                 <namespace-autocomplete [value]="alertForm.get('queries').get('eventdb')['controls'][0].get('namespace').value"
-                                    [options]="{metaSource: 'aurastatus'}"
+                                    [options]="{metaSource: ''}"
                                     (nschange)="saveNamespace($event)"
                                     (blur)="cancelSaveNamespace($event)">
                                 </namespace-autocomplete>
