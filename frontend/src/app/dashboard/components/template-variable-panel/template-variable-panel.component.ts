@@ -408,7 +408,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         }
     }
 
-    removeTemplateVariable(index: number) {
+    deleteTemplateVariable(index: number) {
         const control = <FormArray>this.editForm.controls['formTplVariables'];
         const removedItem = control.at(index);
         control.removeAt(index);
@@ -476,12 +476,24 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         }
     }
 
-    addFilterToAll(index: any) {
+    addFilterToAll(index: number) {
         // add filter to all
     }
 
-    removeFilterFromAll(index: any) {
+    removeFilterFromAll(index: number) {
         // remove filter from all
+        const control = <FormArray>this.editForm.controls['formTplVariables'];
+        const removeTvar = control.at(index);
+        if (removeTvar.valid) {
+            // remove this tag out of widget if there
+            this.interCom.requestSend({
+                action: 'RemoveCustomTagFilter',
+                payload: { vartag: removeTvar.value }
+            });
+            // we already trigger all widget update to requery from RemoveCustomTagFilter
+            removeTvar.get('applied').setValue(0);
+            this.updateState(removeTvar, false);
+        }
     }
 
     switchFilterMode(mode: string, index: number) {
