@@ -68,8 +68,9 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        console.log('hill - tpl component changes', changes);
+        console.log('hill - changes', changes);
         if (changes.tplVariables && changes.tplVariables.currentValue.editTplVariables.tvars.length > 0) {
+            console.log('hill - tplVariables changes', this.tplVariables);
             if (this.mode.view) {
                 this.initListFormGroup();
             } else {
@@ -77,7 +78,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             }
         } else if (changes.mode && !changes.mode.firstChange && changes.mode.currentValue.view) {
             // copy edit -> view list
-            this.tplVariables.viewTplVariables = this.tplVariables.editTplVariables;
+            console.log('hill - edit -> view mode', this.tplVariables);
+            this.tplVariables.viewTplVariables = this.utils.deepClone(this.tplVariables.editTplVariables);
             this.initListFormGroup();
         } else if (changes.mode && !changes.mode.firstChange && !changes.mode.currentValue.view) { 
             // we need to get all tagkeys by namespace once first time only
@@ -87,8 +89,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 this.selectedNamespaces = this.tplVariables.editTplVariables.namespaces;
             }
             this.tplVariables.editTplVariables.namespaces.sort(this.utils.sortAlphaNum);
+            console.log('hill - view -> edit mode', this.tplVariables);
             this.initEditFormGroup();
         } else if (changes.widgets) {
+            console.log('hill - widgets changes', this.widgets);
             // call to get dashboard namespaces
             this.dbNamespaces = this.dbService.getNamespacesFromWidgets(this.widgets);
             // update editTplVariables
@@ -144,7 +148,9 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 tagk: new FormControl((data.tagk) ? data.tagk : '', []),
                 alias: new FormControl((data.alias) ? data.alias : '', []),
                 filter: new FormControl((data.filter) ? data.filter : '', []),
-                mode: new FormControl((data.mode) ? data.mode : 'auto')
+                mode: new FormControl((data.mode) ? data.mode : 'auto'),
+                applied: data.applied,
+                isNew: data.isNew
             };
             const control = <FormArray>this.listForm.controls['listVariables'];
             control.push(this.fb.group(vardata));
@@ -156,13 +162,13 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         this.editForm.controls['formTplVariables'] = this.fb.array([]);
         this.initializeTplVariables(this.tplVariables.editTplVariables.tvars);
 
-        // we dont deal with this way any more, carry over but if user save, it will save
-        /* if (JSON.stringify(this.tplVariables.editTplVariables.tvars) !== JSON.stringify(this.tplVariables.viewTplVariables.tvars)) {
+        // when switching to edit mode, we use the edit form and value and requery of needed
+        if (JSON.stringify(this.tplVariables.editTplVariables.tvars) !== JSON.stringify(this.tplVariables.viewTplVariables.tvars)) {
             this.interCom.requestSend({
                 action: 'ApplyTplVarValue',
+                payload: this.tplVariables.editTplVariables.tvars
             });
-        } */
-
+        }
 
         // we sub to form status changes
         this.editForm.statusChanges.subscribe(status => {
@@ -247,7 +253,12 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         }
         // if it's a different value from viewlist
         if (this.tplVariables.viewTplVariables.tvars[index].filter !== selControl.get('filter').value) {
-            this.updateViewTplVariables(selControl.value);
+            console.log('hill - call for value to update view when blur');
+            this.tplVariables.viewTplVariables.tvars[index].filter = selControl.get('filter').value;
+            this.interCom.requestSend({
+                action: 'ApplyTplVarValue',
+                payload: [selControl.value]
+            });
         }
     }
 
@@ -301,6 +312,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                     }
                     if (i === index) { // value is changed of its own
                         rowControl.get('isNew').setValue(0, { emitEvent: false });
+                        // update state here before applied count can be determined
                         this.updateState(rowControl, false);
                         // run after state update
                         this.interCom.requestSend({
@@ -319,6 +331,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                     } else {
                         tplFormGroups[i]['controls']['alias'].setErrors(null);
                         rowControl.get('isNew').setValue(0, { emitEvent: false });
+                        // update state here before applied count
                         this.updateState(rowControl, false);
                         // make sure exec after updating dashboard state.
                         this.interCom.requestSend({
@@ -345,7 +358,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         }
         if (cname === 'filter') {
             // const idx = this.filteredValueOptions[index].findIndex(item => item && item.toLowerCase() === val.toLowerCase());
-            const idx = this.filteredKeyOptions[index].findIndex(item => item && item === val) || -1;
+            console.log('hill - this.filteredValueOptions', this.filteredValueOptions);
+            const idx = this.filteredValueOptions[index].findIndex(item => item && item === val) || -1;
             if (idx === -1) {
                 selControl.get('filter').setValue('', { emitEvent: false });
             } else {
@@ -385,7 +399,12 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
 
     selectVarValueOption(event: any, index: number) {
         if (this.tplVariables.viewTplVariables.tvars[index].filter !== event.option.value) {
-            this.updateViewTplVariables(this.tplVariables.viewTplVariables.tvars[index]);
+            this.tplVariables.viewTplVariables.tvars[index].filter = event.option.value;
+            console.log('hill - call for value to update view when select', this.tplVariables.viewTplVariables.tvars[index], this.tplVariables);
+            this.interCom.requestSend({
+                action: 'ApplyTplVarValue',
+                payload: [this.tplVariables.viewTplVariables.tvars[index]]
+            });
         }
     }
 
@@ -420,23 +439,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             if (reQuery) {
                 this.interCom.requestSend({
                     action: 'ApplyTplVarValue',
-                    payload: selControl.value
+                    payload: [selControl.value]
                 });
             }
         }
-    }
-    // for the view tpl variables, we do not update state value, unless user save it.
-    updateViewTplVariables(vartag: any) {
-        const varsList = [];
-        for (let i = 0; i < this.listVariables.controls.length; i++) {
-            varsList.push(this.listVariables.controls[i].value);
-        }
-        this.tplVariables.viewTplVariables.tvars = varsList;
-
-        this.interCom.requestSend({
-            action: 'ApplyTplVarValue',
-            payload: vartag
-        });
     }
 
     calculateVariableDisplayWidth(item: FormGroup, options: any) {

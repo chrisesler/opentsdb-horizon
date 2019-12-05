@@ -738,35 +738,45 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     // apply when custom tag value is changed
     // should only trigger widgets that are affected by this change.  
-    applyTplVarValue(tvar: any) {
-       // update url params
-       const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables.tvars : this.tplVariables.editTplVariables.tvars;
-       this.updateURLParams(tplVars);
-       
-       for (let i = 0; i < this.widgets.length; i++) {
+    applyTplVarValue(tvars: any[]) {
+        // update url params
+        const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables.tvars : this.tplVariables.editTplVariables.tvars;
+        this.updateURLParams(tplVars);
+        for (let i = 0; i < this.widgets.length; i++) {
             const queries = this.widgets[i].queries;
+            console.log('hill - query', queries);
             for (let j = 0; j < queries.length; j++) {
-                const idx = queries[j].filters.findIndex(f => f.customFilter && f.customFilter.includes('[' + tvar.alias + ']'));            
-                if (idx > -1) {
-                    this.handleQueryPayload({
-                        id: this.widgets[i].id,
-                        payload: this.widgets[i]
+                if (tvars.length === 1) {
+                    const idx = queries[j].filters.findIndex(f => f.customFilter && f.customFilter.includes('[' + tvars[0].alias + ']'));
+                    if (idx > -1) {
+                        this.handleQueryPayload({
+                            id: this.widgets[i].id,
+                            payload: this.widgets[i]
+                        });
+                        break;
+                    }
+                } else if (tvars.length > 1) {
+                    const tmp = queries[j].filters.filter(f => {
+                        // check to see if the custom tag is using in query and different
+                        // from the previous view mode. this is edit mode from view mode.
+                        for (let k = 0; k < tvars.length; k++) {
+                            const _idx = queries[j].filters.findIndex(f => f.customFilter && f.customFilter.includes('[' + tvars[k].alias + ']'));
+                            if (_idx > -1 && tvars[k].filter !== this.tplVariables.viewTplVariables.tvars[k].filter) {
+                                return true;
+                            }
+                        }
                     });
-                    break;
+                    if (tmp.length > 0) {
+                        this.handleQueryPayload({
+                            id: this.widgets[i].id,
+                            payload: this.widgets[i]
+                        });
+                        break;                     
+                    }
                 }
+
             }
-       }
-       /*for (let i = 0; i < this.widgets.length; i++) {
-           // put condition to not event send in.
-           if (!this.widgets[i].settings.hasOwnProperty('useDBFilter') || this.widgets[i].settings.useDBFilter) {
-               this.handleQueryPayload({id: this.widgets[i].id, payload: this.widgets[i]});
-               this.checkDbTagsLoaded().subscribe(loaded => {
-                   const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables : this.tplVariables.editTplVariables;
-                   this.updateURLParams({ tags: tplVars });
-               });
-           }
-       }
-       */
+        }
     }
     // when delete a dashboard custom tag, we need to remove them out of 
     // widget if added before, and run query for widget that get affected.
@@ -804,11 +814,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     updateTplAlias(payload: any) {
         console.log('hill - updateTplAlias call', payload);
         this.checkDbTagsLoaded().subscribe(loaded => {
+            console.log('hill - dashboardtagkey', this.dashboardTags.rawDbTags);
             let applied = 0;
             for (let i = 0; i < this.widgets.length; i++) {
                 const widget = this.widgets[i];
                 // we will insert or modify based on insert flag
                 const isModify = this.dbService.applytDBFilterToWidget(widget, payload, this.dashboardTags.rawDbTags);
+                console.log('hill - isModify', isModify);
                 if (isModify) {
                     if (payload.insert === 1) {
                         applied = applied + 1;
@@ -848,6 +860,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // get all dashboard tags, use to check eligible for when apply db filter 
     // to widget.
     getDashboardTagKeys(reloadData: boolean = true) {
+        console.log('hill - CALL GET DASHBOARD TAG');
         this.isDbTagsLoaded = false;
         this.httpService.getTagKeysForQueries(this.widgets).subscribe((res: any) => {
             this.dashboardTags = { rawDbTags: {}, totalQueries: 0, tags: [] };
