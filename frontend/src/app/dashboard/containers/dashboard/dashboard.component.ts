@@ -827,14 +827,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     }
                     this.store.dispatch(new UpdateWidget({
                         id: widget.id,
-                        needRequery: false,
+                        needRequery: payload.vartag.filter !== '' ? true : false, 
                         widget: widget
                     }));
                 }
             }
             for (let i = 0; i < this.tplVariables.editTplVariables.tvars.length; i++) {
                 const tvar = this.tplVariables.editTplVariables.tvars[i];
-                if (tvar.alias === payload.vartag.alias) {
+                if (tvar.alias === payload.vartag.alias && payload.vartag.applied < applied) {
                     tvar.applied = applied;
                     break;
                 }

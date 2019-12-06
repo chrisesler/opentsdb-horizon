@@ -478,6 +478,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
 
     addFilterToAll(index: number) {
         // add filter to all
+        this.switchFilterMode('auto', index, false);
     }
 
     removeFilterFromAll(index: number) {
@@ -496,10 +497,14 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         }
     }
 
-    switchFilterMode(mode: string, index: number) {
+    switchFilterMode(mode: string, index: number, updateMode: boolean = true) {
+        console.log('hill - switchmode ', mode);
         const selControl = this.getSelectedControl(index);
-        selControl.get('mode').setValue(mode);
-
+        if (updateMode) {
+            selControl.get('mode').setValue(mode);
+        }
+        // quickly to update the mode.
+        this.updateState(selControl, false);
         if (mode === 'auto') {
             // when mode is from manual to auto, we will reapply all of them
             this.interCom.requestSend({
@@ -507,11 +512,9 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 payload: {
                     vartag: selControl.value,
                     originVal: '',
-                    insert: 1,
-                    index: index
+                    insert: 1
                 }
             });            
-            this.updateState(selControl, true);
         } else { // set to manual mode
             this.updateState(selControl, false);
         }
