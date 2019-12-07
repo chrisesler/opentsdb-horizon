@@ -21,6 +21,8 @@ import { MatTableDataSource } from '@angular/material/table';
 import { LoggerService } from '../../../../../core/services/logger.service';
 import { environment } from '../../../../../../environments/environment';
 import { InfoIslandService } from '../../../info-island/services/info-island.service';
+import { ThemeService } from '../../../../../app-shell/services/theme.service';
+import { rgb } from 'd3';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -81,6 +83,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         strokeWidth: 1,
         strokeBorderWidth: this.isStackedGraph ? 0 : 0,
         highlightSeriesBackgroundAlpha: 0.5,
+        highlightSeriesBackgroundColor: 'rgb(255, 255, 255)',
         isZoomedIgnoreProgrammaticZoom: true,
         hideOverlayOnMouseOut: true,
         isCustomZoomed: false,
@@ -181,7 +184,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         private unit: UnitConverterService,
         private logger: LoggerService,
         private multiService: MultigraphService,
-        private iiService: InfoIslandService
+        private iiService: InfoIslandService,
+        private themeService: ThemeService
     ) { }
 
     ngOnInit() {
@@ -195,6 +199,16 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                     this.refreshData();
                 }
             });
+
+        this.subscription.add(this.themeService.getThemeType().subscribe( themeType => {
+            this.logger.log('THEME TYPE', { themeType });
+
+            this.options = {...this.options,
+                //highlightSeriesBackgroundAlpha: (themeType === 'light') ? 0.5 : 0.8,
+                highlightSeriesBackgroundColor: (themeType === 'light') ? 'rgb(255,255,255)' : 'rgb(60,75,90)'
+            };
+            this.cdRef.markForCheck();
+        }));
 
         // subscribe to event stream
         this.subscription.add(this._buckets.pipe().subscribe( buckets => {

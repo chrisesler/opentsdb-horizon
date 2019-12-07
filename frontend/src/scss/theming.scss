@@ -1,11 +1,11 @@
-/** 
+/**
  * YAMAS - HORIZON THEMING
  */
 
 
 $base-font-size: 10px;
 
-// IMPORT MATERIAL THEMING SUPPORT 
+// IMPORT MATERIAL THEMING SUPPORT
 @import '~@angular/material/theming';
 
 // Typography
@@ -38,7 +38,7 @@ $app-available-typefaces: (
 // import denali icons
 @import 'denali-icons';
 
-// right now 
+// right now
 $app-fontface-config: (
     mono: generate-material-compatible-typography-config(map-get($app-available-typefaces, ubuntu-mono)),
     sans: generate-material-compatible-typography-config(map-get($app-available-typefaces, ubuntu-sans))

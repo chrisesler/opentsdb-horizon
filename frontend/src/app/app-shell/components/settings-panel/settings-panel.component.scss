@@ -1,3 +1,5 @@
+@import './children/settings-theme/settings-theme.component';
+
 @mixin settings-panel-component-base() {
 
     $navbar-height: map-get($navbar-config, 'navbar-height');
@@ -71,7 +73,17 @@
                 height: $navbar-height;
             }
         }
+
+        .settings-panel {
+            flex: 1;
+
+            .is-scroller {
+                padding: 16px;
+            }
+        }
     }
+
+    @include settings-theme-component-base();
 }
 
 @mixin settings-panel-component-theme($theme-config) {
@@ -105,4 +117,6 @@
     .settings-navigator {
 
     }
+
+    @include settings-theme-component-theme($theme-config);
 }

@@ -6,9 +6,12 @@ import {
     ViewChild,
     Input,
     OnChanges,
-    SimpleChanges
+    SimpleChanges,
+    Inject
 } from '@angular/core';
 import { Router } from '@angular/router';
+import { DOCUMENT } from '@angular/common';
+
 import { Store, Select } from '@ngxs/store';
 import { Observable, Subscription } from 'rxjs';
 
@@ -27,13 +30,13 @@ import {
 import {
     UpdateNavigatorSideNav
 } from '../state/navigator.state';
+import { ThemeService } from '../services/theme.service';
 
-// import { LoggerService } from '../../core/services/logger.service';
+import { LoggerService } from '../../core/services/logger.service';
 
 @Component({
     selector: 'app-shell',
-    templateUrl: './app-shell.component.html',
-    styleUrls: []
+    templateUrl: './app-shell.component.html'
 })
 export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
 
@@ -84,13 +87,21 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
         private interCom: IntercomService,
         private store: Store,
         private router: Router,
-        // private logger: LoggerService
+        private themeService: ThemeService,
+        private logger: LoggerService,
+        @Inject(DOCUMENT) private document: any
     ) {
         // prefetch the navigator first data
         this.store.dispatch(new DbfsLoadResources());
     }
 
     ngOnInit() {
+
+        this.subscription.add(this.themeService.getActiveTheme().subscribe( theme => {
+            this.logger.log('LS THEME', { theme });
+            this.setAppTheme(theme);
+        }));
+
         this.subscription.add(this.mediaQuery$.subscribe(currentMediaQuery => {
             // console.log('[SUB] currentMediaQuery', currentMediaQuery);
             this.activeMediaQuery = currentMediaQuery;
@@ -269,6 +280,12 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
                 this.sideNavOpen = !this.sideNavOpen;
             }
         }
+    }
+
+
+    /* APP THEME */
+    private setAppTheme(theme: string) {
+        this.document.body.setAttribute('theme', theme);
     }
 
 }

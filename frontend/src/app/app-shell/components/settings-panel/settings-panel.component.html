@@ -11,8 +11,17 @@
         </div>
     </mat-toolbar-row>
 </mat-toolbar>
-<navigator-panel #navPanel>
-    <ng-container *navigatorPanelItem>
-        Settings panel
-    </ng-container>
-</navigator-panel>
+<div class="settings-panel has-scroller">
+    <div class="is-scroller">
+        <!--<mat-card>
+            <mat-card-header>
+                <mat-card-title>Horizon Theme</mat-card-title>
+                <mat-card-subtitle>Changes the colors of Horizon UI</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+                <theme-picker></theme-picker>
+            </mat-card-content>
+        </mat-card>-->
+        <settings-theme></settings-theme>
+    </div>
+</div>
