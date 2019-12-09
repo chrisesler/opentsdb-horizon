@@ -31,9 +31,7 @@ import {
 } from './components/donut-widget';
 
 import {
-    BarchartWidgetComponent,
-    StackedBarchartWidgetComponent,
-    DropdownStacksComponent
+    BarchartWidgetComponent
 } from './components/barchart-widget';
 
 import { StatusWidgetComponent } from './components/status-widget/status-widget.component';
@@ -67,7 +65,6 @@ import { EventsWidgetComponent } from './components/events-widget/events-widget.
         PlaceholderWidgetComponent,
         LinechartWidgetComponent,
         BarchartWidgetComponent,
-        StackedBarchartWidgetComponent,
         DeveloperWidgetComponent,
         BignumberWidgetComponent,
         BignumberVisualAppearanceComponent,
@@ -89,11 +86,9 @@ import { EventsWidgetComponent } from './components/events-widget/events-widget.
         TopnWidgetComponent,
         StatusWidgetComponent,
         BarchartWidgetComponent,
-        StackedBarchartWidgetComponent,
         DonutchartLegendComponent,
         DonutchartConfigMetricQueriesComponent,
         BignumberConfigMetricQueriesComponent,
-        DropdownStacksComponent,
         MarkdownWidgetComponent,
         MarkdownWidgetVisualAppearanceComponent,
         TopnWidgetComponent,
@@ -105,7 +100,6 @@ import { EventsWidgetComponent } from './components/events-widget/events-widget.
         LinechartWidgetComponent,
         HeatmapWidgetComponent,
         BarchartWidgetComponent,
-        StackedBarchartWidgetComponent,
         DeveloperWidgetComponent,
         BignumberWidgetComponent,
         DonutWidgetComponent,

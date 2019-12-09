@@ -4,7 +4,6 @@ import {
     LinechartWidgetComponent,
     HeatmapWidgetComponent,
     BarchartWidgetComponent,
-    StackedBarchartWidgetComponent,
     DonutWidgetComponent,
     TopnWidgetComponent,
     DeveloperWidgetComponent,
@@ -27,8 +26,6 @@ export class WidgetService {
                 return HeatmapWidgetComponent;
             case 'BarchartWidgetComponent':
                 return BarchartWidgetComponent;
-            case 'StackedBarchartWidgetComponent':
-                return StackedBarchartWidgetComponent;
             case 'DonutWidgetComponent':
                 return DonutWidgetComponent;
             case 'TopnWidgetComponent':

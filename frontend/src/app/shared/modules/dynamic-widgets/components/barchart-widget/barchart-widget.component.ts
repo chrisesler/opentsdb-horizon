@@ -659,9 +659,3 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         this.doRefreshDataSub.unsubscribe();
     }
 }
-
-export class StackedBarchartWidgetComponent extends BarchartWidgetComponent  {
-    @Input() editMode: boolean;
-    @Input() widget: WidgetModel;
-    isStackedGraph = true;
-}
