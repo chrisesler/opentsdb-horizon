@@ -38,6 +38,7 @@ export interface IDygraphOptions {
     stackedGraphNaNFill?: string;
     hightlightCircleSize?: number;
     highlightSeriesBackgroundAlpha?: number,
+    highlightSeriesBackgroundColor?: string,
     strokeWidth?: number;
     strokeBorderWidth: number;
     axisLineWidth?: number;

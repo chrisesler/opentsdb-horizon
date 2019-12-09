@@ -112,7 +112,7 @@ export class D3BarChartDirective implements OnInit, OnChanges {
       // calculate the max label length and remove
       svg.append("text").attr("class", "axisLabel")
         .text(longText)
-        .each(function () { console.log("longtext2"); yAxisWidth = this.getBBox().width; labelHeight = Math.floor(this.getBBox().height); })
+        .each(function () { yAxisWidth = this.getBBox().width; labelHeight = Math.floor(this.getBBox().height); })
         .remove();
       const fontSize = barHeight >= labelHeight ? '1em' : barHeight * 0.75 + 'px'; //y.bandwidth()  * 0.4 + "px";
       const chartAreawidth = this.size.width - yAxisWidth - margin.left - margin.right;

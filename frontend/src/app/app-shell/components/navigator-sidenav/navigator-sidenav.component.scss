@@ -20,7 +20,7 @@
         .nav-label {
             display: none;
         }
-        
+
         // inside the navlist
         .app-home-link {
             min-width: auto;
@@ -35,7 +35,7 @@
             //margin: 0 4px 3px 0;
             vertical-align: middle;
             max-width: initial;
-            
+
         }
 
         .mat-toolbar {
@@ -63,7 +63,7 @@
             }
         }
 
-        
+
     }
 }
 
@@ -91,6 +91,8 @@
 
     $sn-active: map-get($navbar-config, sn-active);
 
+    $nav-item-bg: if($is-dark, lighten(map-get($background, card), 10%), map-get($background, card));
+
     .app-navigator-sidenav {
         background-color: $sn-light;
 
@@ -100,7 +102,7 @@
 
             &.is-active {
                 //background-color: $sn-dark;
-                background-color: map-get($background, card);
+                background-color: $nav-item-bg;
                 color: $sn-light-text;
                 //box-shadow: inset 3px 0 0 $sn-active;
                 box-shadow: inset 0 -1px 0 0 $sn-seperator, inset 0 1px 0 0 $sn-seperator;

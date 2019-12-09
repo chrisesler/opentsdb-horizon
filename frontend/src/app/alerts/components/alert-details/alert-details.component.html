@@ -120,7 +120,7 @@
                                             <mat-select placeholder="Select Metric" formControlName="metricId" disableOptionCentering>
                                                 <mat-option>None</mat-option>
                                                 <mat-optgroup  *ngFor="let query of queries; let qindex=index" label="Q{{qindex + 1}}">
-                                                    <mat-option *ngFor="let metric of query.metrics; let mindex = index" [value]="qindex + ':' + mindex">{{ metric.name || utils.getExpressionLabel(qindex, mindex, queries)}}</mat-option>
+                                                    <mat-option *ngFor="let metric of query.metrics; let mindex = index" [value]="metric.id">{{ metric.name || utils.getExpressionLabel(qindex, mindex, queries)}}</mat-option>
                                                 </mat-optgroup>
                                             </mat-select>
                                         </mat-form-field>

@@ -19,16 +19,16 @@
         </div>
         <div class="tooltip"></div>
         <div class="apply-tpl-status">
-                <mat-icon fontSet="denali" matTooltip="Dashboard tag filters disabled!"
-                     fontIcon="d-lock-close-solid" *ngIf="!isApplyTpl()"></mat-icon>
-            </div>
+            <mat-icon fontSet="denali" matTooltip="Dashboard tag filters disabled!"
+                    fontIcon="d-lock-close-solid" *ngIf="!isApplyTpl()"></mat-icon>
+        </div>
     </div>
 </div>
 <!-- NOTE: This needs to move to other component -->
 <div class="widget-controls-container" *ngIf="editMode">
     <div class="widget-title">
         <span fxFlex="1 1 100%">
-            <inline-editable class="navbar-item" 
+            <inline-editable class="navbar-item"
                 [fieldValue]="widget.settings.title"
                 [minLength]="3"
                 [maxLength]="100"
