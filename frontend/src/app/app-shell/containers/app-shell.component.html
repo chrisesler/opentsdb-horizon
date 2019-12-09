@@ -1,12 +1,12 @@
 <generic-message-bar></generic-message-bar>
 <div class="app-shell-wrapper" fxLayout="column" fxFlexFill>
     <!-- topmost navigation bar of the application -->
-    
+
     <mat-sidenav-container class="app-navigator" fxFlex="1 1 100%" hasBackdrop="false">
         <!-- the sidebar nav that slides out from left -->
         <mat-sidenav class="app-sidenav"
-            [fixedInViewport]="true" 
-            mode="side" 
+            [fixedInViewport]="true"
+            mode="side"
             [opened]="sideNavOpen"
             disableClose
             #sidenav>
@@ -30,7 +30,7 @@
                     [autoFocus]="false"
                     #drawer>
                     <!-- DRAWER CONTENTS -->
-                    <!--<dashboard-navigator 
+                    <!--<dashboard-navigator
                         *ngIf="activeNavSection === 'dashboard'"
                         [activeNavSection]="activeNavSection"
                         [activeMediaQuery]="activeMediaQuery"
@@ -43,8 +43,14 @@
                         [drawerMode]="drawerMode"
                         (toggleDrawer)="toggleDrawerMode($event)"
                         ></dbfs>
+                    <settings-panel
+                        *ngIf="activeNavSection === 'settings'"
+                        [activeNavSection]="activeNavSection"
+                        [drawerMode]="drawerMode"
+                        (toggleDrawer)="toggleDrawerMode($event)"
+                        ></settings-panel>
                     <!-- placeholders -->
-                    <test-navigator 
+                    <test-navigator
                         *ngIf="activeNavSection === 'metric-explorer'"
                         panelTitle="Metric Explorer Panel"
                         panelText="Metric explorer is coming soon to a Horizon near you."
@@ -52,7 +58,7 @@
                         [drawerMode]="drawerMode"
                         (toggleDrawer)="toggleDrawerMode($event)"
                         ></test-navigator>
-                   <!-- <test-navigator 
+                   <!-- <test-navigator
                         *ngIf="activeNavSection === 'alerts'"
                         panelTitle="Alerts Panel"
                         panelText="Alerts explorer is coming soon to a Horizon near you."
@@ -61,7 +67,7 @@
                         (toggleDrawer)="toggleDrawerMode($event)"
                         ></test-navigator>
                    -->
-                    <test-navigator 
+                    <test-navigator
                         *ngIf="activeNavSection === 'status'"
                         panelTitle="Status Panel"
                         panelText="Status explorer is coming soon to a Horizon near you."
@@ -69,7 +75,7 @@
                         [drawerMode]="drawerMode"
                         (toggleDrawer)="toggleDrawerMode($event)"
                         ></test-navigator>
-                    <test-navigator 
+                    <test-navigator
                         *ngIf="activeNavSection === 'annotations'"
                         panelTitle="Anotations Panel"
                         panelText="Anotations explorer is coming soon to a Horizon near you."
@@ -77,7 +83,7 @@
                         [drawerMode]="drawerMode"
                         (toggleDrawer)="toggleDrawerMode($event)"
                         ></test-navigator>
-                    <test-navigator 
+                    <test-navigator
                         *ngIf="activeNavSection === 'admin'"
                         panelTitle="Admin Panel"
                         panelText="Admin panel is coming soon to a Horizon near you."
@@ -85,7 +91,7 @@
                         [drawerMode]="drawerMode"
                         (toggleDrawer)="toggleDrawerMode($event)"
                         ></test-navigator>
-                    <test-navigator 
+                    <test-navigator
                         *ngIf="activeNavSection === 'favorites'"
                         panelTitle="Favorites Panel"
                         panelText="Favorites explorer is coming soon to a Horizon near you."
@@ -93,7 +99,7 @@
                         [drawerMode]="drawerMode"
                         (toggleDrawer)="toggleDrawerMode($event)"
                         ></test-navigator>
-                    <test-navigator 
+                    <test-navigator
                         *ngIf="activeNavSection === 'namespaces'"
                         panelTitle="Namespaces Panel"
                         panelText="Namespaces explorer is coming soon to a Horizon near you."
@@ -101,7 +107,7 @@
                         [drawerMode]="drawerMode"
                         (toggleDrawer)="toggleDrawerMode($event)"
                         ></test-navigator>
-                    <test-navigator 
+                    <test-navigator
                         *ngIf="activeNavSection === 'resources'"
                         panelTitle="Resources Panel"
                         panelText="Resources explorer is coming soon to a Horizon near you."
@@ -109,7 +115,7 @@
                         [drawerMode]="drawerMode"
                         (toggleDrawer)="toggleDrawerMode($event)"
                         ></test-navigator>
-                    <test-navigator 
+                    <test-navigator
                         *ngIf="activeNavSection === 'test'"
                         panelTitle="Test Panel"
                         panelText="This is a the test panel"
