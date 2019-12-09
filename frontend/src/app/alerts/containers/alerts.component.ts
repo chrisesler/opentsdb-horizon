@@ -925,10 +925,6 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
         }
     }
 
-    paginatorPageChange(event: any) {
-      this.logger.event('paginatorPageChange', event);
-    }
-
     ngAfterViewChecked() {
         if (this.location.path() === '/a' || this.location.path() === '/a/' + this.selectedNamespace) {
             this.utils.setTabTitle(this.selectedNamespace + ' Alerts');

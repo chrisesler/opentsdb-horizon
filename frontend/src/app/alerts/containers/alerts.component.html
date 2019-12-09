@@ -211,7 +211,6 @@
                 </div>
             </div>
             <mat-paginator #alertsPaginator
-                (page)="paginatorPageChange($event)"
                 [pageSizeOptions]="[25, 50, 100]"
                 [showFirstLastButtons]="alerts.length > 25"></mat-paginator>
         </div>
@@ -312,7 +311,6 @@
                 <div class="message" *ngIf="!stateLoaded.snooze">Loading...</div>
             </div>
             <mat-paginator #snoozePaginator
-                (page)="paginatorPageChange($event)"
                 [pageSizeOptions]="[10, 20, 30]"
                 showFirstLastButtons></mat-paginator>
         </div>
