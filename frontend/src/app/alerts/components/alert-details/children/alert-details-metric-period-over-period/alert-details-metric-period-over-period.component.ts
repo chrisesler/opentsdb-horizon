@@ -51,8 +51,6 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
       return true;
     } else if (!this.atleastOneThresholdSet()) {
       return true;
-    } else if (!this.slidingWindowLessThanPeriod()) {
-      return true;
     }
     return false;
 }
@@ -132,8 +130,8 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
     this.warnUpperThreshold = new FormControl(this.config.periodOverPeriod['warnUpperThreshold'], [this.positiveNumberValidator(), this.thresholdValidator('badUpperThreshold')]);
     this.badLowerThreshold = new FormControl(this.config.periodOverPeriod['badLowerThreshold'],   [this.positiveNumberValidator(), this.thresholdValidator('warnLowerThreshold')]);
     this.warnLowerThreshold = new FormControl(this.config.periodOverPeriod['warnLowerThreshold'], [this.positiveNumberValidator(), this.thresholdValidator('badLowerThreshold')]);
-    this.highestOutliersToRemove = new FormControl(this.config.periodOverPeriod['highestOutliersToRemove'], [this.positiveNumberValidator(), this.outliersValidator()]);
-    this.lowestOutliersToRemove = new FormControl(this.config.periodOverPeriod['lowestOutliersToRemove'], [this.positiveNumberValidator(), this.outliersValidator()]);
+    this.highestOutliersToRemove = new FormControl(this.config.periodOverPeriod['highestOutliersToRemove'], [this.integerValidator(), this.outliersValidator()]);
+    this.lowestOutliersToRemove = new FormControl(this.config.periodOverPeriod['lowestOutliersToRemove'], [this.integerValidator(), this.outliersValidator()]);
   }
 
   thresholdValidator(thresholdToCompare: string): ValidatorFn {
@@ -147,6 +145,16 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
           forbidden = !this.isValueLargerThanThreshold(thresholdToCompare, control.value, -1);
         }
         return forbidden ? { 'forbiddenValue': { value: control.value } } : null;
+    };
+  }
+
+  integerValidator(): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      let forbidden = true;
+      if (Number.isInteger(Number(control.value))) {
+        forbidden = false;
+      }
+      return forbidden ? { 'forbiddenValue': { value: control.value } } : null;
     };
   }
 
@@ -188,9 +196,4 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
            this.config.periodOverPeriod['warnLowerThreshold'] ||
            this.config.periodOverPeriod['badLowerThreshold'];
   }
-
-  slidingWindowLessThanPeriod() {
-    return Number(this.config.periodOverPeriod['slidingWindow'] < Number(this.config.periodOverPeriod['period']));
-  }
-
 }

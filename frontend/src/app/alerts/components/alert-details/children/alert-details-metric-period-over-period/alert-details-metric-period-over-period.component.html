@@ -24,10 +24,6 @@
     </div>
 </div>
 
-<mat-error *ngIf="!slidingWindowLessThanPeriod()">
-    Sliding window must be less than the period.
-</mat-error>
-
 <div class="form-group lookbacks" >
   <div class="form-label vertical-center"><strong>Number of Lookbacks</strong></div>
   <div *ngIf="viewMode">
@@ -92,11 +88,11 @@
 </div>
 
 <div class="error-messages">
-    <mat-error *ngIf="badUpperThreshold.errors && (badUpperThreshold.dirty || badUpperThreshold.touched)">
+    <mat-error *ngIf="badUpperThreshold.errors && badUpperThreshold.value !== null && (badUpperThreshold.dirty || badUpperThreshold.touched)">
         Bad threshold must be greater than Warn threshold and 0.
     </mat-error>
 
-    <mat-error *ngIf="warnUpperThreshold.errors && (warnUpperThreshold.dirty || warnUpperThreshold.touched)">
+    <mat-error *ngIf="warnUpperThreshold.errors && warnUpperThreshold.value !== null && (warnUpperThreshold.dirty || warnUpperThreshold.touched)">
         Warn threshold must be less than Bad threshold and greater than 0.
     </mat-error>
 </div>
@@ -147,11 +143,11 @@
 </div>
 
 <div class="error-messages">
-    <mat-error *ngIf="badLowerThreshold.errors && (badLowerThreshold.dirty || badLowerThreshold.touched)">
+    <mat-error *ngIf="badLowerThreshold.errors && badLowerThreshold.value !== null && (badLowerThreshold.dirty || badLowerThreshold.touched)">
         Bad threshold must be greater than Warn threshold and 0.
     </mat-error>
 
-    <mat-error *ngIf="warnLowerThreshold.errors && (warnLowerThreshold.dirty || warnLowerThreshold.touched)">
+    <mat-error *ngIf="warnLowerThreshold.errors && warnLowerThreshold.value !== null && (warnLowerThreshold.dirty || warnLowerThreshold.touched)">
         Warn threshold must be less than Bad threshold and greater than 0.
     </mat-error>
 </div>
@@ -198,7 +194,7 @@
 
     <div class="error-messages">
         <mat-error *ngIf="highestOutliersToRemove.errors || lowestOutliersToRemove.errors">
-            Total removed outliers must be less than number of lookbacks.
+            Removed outliers must be integers with a total less than number of lookbacks.
         </mat-error>
     </div>
 
