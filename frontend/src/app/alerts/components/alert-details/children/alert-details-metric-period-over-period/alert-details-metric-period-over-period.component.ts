@@ -18,15 +18,12 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
   @Input() queries: any[];
   @Input() viewMode: boolean;
   @Input() config: any;
-
   @Output() configChange = new EventEmitter();
 
   showThresholdAdvanced = false; // toggle in threshold form
   slidingWindowPresets = [60, 300, 600, 900, 3600, 3600 * 6, 3600 * 24];
   periodPresets = [3600, 3600 * 24, 3600 * 24 * 7];
   maxSlidingWindow = 3600 * 24; // 1 day
-
-  thresholdChanged = false;
 
   // form control
   lookbacks = new FormControl('');
@@ -62,9 +59,9 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
 
   ngOnInit() {
 
-    if (!this.config || !this.config.singleMetric) {
+    if (!this.config || !this.config.periodOverPeriod) {
       this.setDefaultConfig();
-      this.configChange.emit({thresholdChanged: false, config: {...this.config}});
+      this.configChange.emit({requeryData: true, thresholdChanged: false, config: {...this.config}});
     }
 
     this.updateValidators();
@@ -74,64 +71,69 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
     if (!this.config) {
       this.config = {};
     }
-    if (!this.config.singleMetric) {
-      this.config.singleMetric = {};
+    if (!this.config.periodOverPeriod) {
+      this.config.periodOverPeriod = {};
     }
 
     this.config.subType = this.config.subType || 'periodOverPeriod';
     this.config.delayEvaluation = this.config.delayEvaluation || '0';
-    // this.config.singleMetric.queryIndex = this.config.singleMetric.queryIndex || '0';
-    this.config.singleMetric.queryType = this.config.singleMetric.queryType || 'tsdb';
-    // this.config.singleMetric.metricId = this.config.singleMetric.metricId || 'q1_m1_groupby';
-    this.config.singleMetric.slidingWindow = this.config.singleMetric.slidingWindow || '300';
-    this.config.singleMetric.period = this.config.singleMetric.period || '3600';
-    this.config.singleMetric.lookbacks = this.config.singleMetric.lookbacks || '6';
-    this.config.singleMetric.badUpperThreshold = this.config.singleMetric.badUpperThreshold || '';
-    this.config.singleMetric.warnUpperThreshold = this.config.singleMetric.warnUpperThreshold || '';
-    this.config.singleMetric.badLowerThreshold = this.config.singleMetric.badLowerThreshold || '';
-    this.config.singleMetric.warnLowerThreshold = this.config.singleMetric.warnLowerThreshold || '';
-    this.config.singleMetric.upperThresholdType = this.config.singleMetric.upperThresholdType || 'value';
-    this.config.singleMetric.lowerThresholdType = this.config.singleMetric.lowerThresholdType || 'value';
-    this.config.singleMetric.highestOutliersToRemove = this.config.singleMetric.highestOutliersToRemove || '1';
-    this.config.singleMetric.lowestOutliersToRemove = this.config.singleMetric.lowestOutliersToRemove || '1';
-    this.config.singleMetric.algorithm = this.config.singleMetric.algorithm || 'simple-average';
+    this.config.periodOverPeriod.queryType = this.config.periodOverPeriod.queryType || 'tsdb';
+    this.config.periodOverPeriod.slidingWindow = this.config.periodOverPeriod.slidingWindow || '300';
+    this.config.periodOverPeriod.period = this.config.periodOverPeriod.period || '3600';
+    this.config.periodOverPeriod.lookbacks = this.config.periodOverPeriod.lookbacks || '6';
+    this.config.periodOverPeriod.badUpperThreshold = this.config.periodOverPeriod.badUpperThreshold || '';
+    this.config.periodOverPeriod.warnUpperThreshold = this.config.periodOverPeriod.warnUpperThreshold || '';
+    this.config.periodOverPeriod.badLowerThreshold = this.config.periodOverPeriod.badLowerThreshold || '';
+    this.config.periodOverPeriod.warnLowerThreshold = this.config.periodOverPeriod.warnLowerThreshold || '';
+    this.config.periodOverPeriod.upperThresholdType = this.config.periodOverPeriod.upperThresholdType || 'value';
+    this.config.periodOverPeriod.lowerThresholdType = this.config.periodOverPeriod.lowerThresholdType || 'value';
+    this.config.periodOverPeriod.highestOutliersToRemove = this.config.periodOverPeriod.highestOutliersToRemove || '1';
+    this.config.periodOverPeriod.lowestOutliersToRemove = this.config.periodOverPeriod.lowestOutliersToRemove || '1';
+    this.config.periodOverPeriod.algorithm = this.config.periodOverPeriod.algorithm || 'simple-average';
   }
 
   getDelayEvalutionPlaceholder(): string {
     let placeholder = 'Enter value';
 
-    if (this.viewMode && !this.config.singleMetric.delayEvaluation) {
+    if (this.viewMode && !this.config.periodOverPeriod.delayEvaluation) {
       placeholder = '0';
     }
 
     return placeholder;
   }
   updateConfig(prop, val) {
+    let thresholdChanged = false;
+    let requeryData = false;
+
     if (prop === 'badUpperThreshold' || prop === 'warnUpperThreshold' || prop === 'badLowerThreshold' || prop === 'warnLowerThreshold') {
-      this.thresholdChanged = true;
+      thresholdChanged = true;
     }
+
+    if (prop === 'lookbacks' || prop === 'highestOutliersToRemove' || prop === 'lowestOutliersToRemove' || prop === 'slidingWindow' || prop === 'period') {
+      requeryData = true;
+    }
+
     if (prop === 'delayEvaluation') {
       this.config[prop] = val;
     } else {
-      this.config.singleMetric[prop] = val;
+      this.config.periodOverPeriod[prop] = val;
     }
 
     this.updateValidators();
 
     if (!this.anyErrors) {
-      this.configChange.emit({ thresholdChanged: this.thresholdChanged, config: {...this.config}});
-      this.thresholdChanged = false;
+      this.configChange.emit({ thresholdChanged, requeryData, config: {...this.config}});
     }
   }
 
   updateValidators() {
-    this.lookbacks = new FormControl(this.config.singleMetric['lookbacks'], [Validators.max(10), Validators.min(1), this.isIntegerValidator()]);
-    this.badUpperThreshold = new FormControl(this.config.singleMetric['badUpperThreshold'],   [this.isIntegerValidator(), Validators.min(0), this.thresholdValidator('warnUpperThreshold')]);
-    this.warnUpperThreshold = new FormControl(this.config.singleMetric['warnUpperThreshold'], [this.isIntegerValidator(), Validators.min(0), this.thresholdValidator('badUpperThreshold')]);
-    this.badLowerThreshold = new FormControl(this.config.singleMetric['badLowerThreshold'],   [this.isIntegerValidator(), Validators.min(0), this.thresholdValidator('warnLowerThreshold')]);
-    this.warnLowerThreshold = new FormControl(this.config.singleMetric['warnLowerThreshold'], [this.isIntegerValidator(), Validators.min(0), this.thresholdValidator('badLowerThreshold')]);
-    this.highestOutliersToRemove = new FormControl(this.config.singleMetric['highestOutliersToRemove'], [this.isIntegerValidator(), Validators.min(0), this.outliersValidator()]);
-    this.lowestOutliersToRemove = new FormControl(this.config.singleMetric['lowestOutliersToRemove'], [this.isIntegerValidator(), Validators.min(0), this.outliersValidator()]);
+    this.lookbacks = new FormControl(this.config.periodOverPeriod['lookbacks'], [Validators.max(10), Validators.min(1), this.positiveNumberValidator()]);
+    this.badUpperThreshold = new FormControl(this.config.periodOverPeriod['badUpperThreshold'],   [this.positiveNumberValidator(), this.thresholdValidator('warnUpperThreshold')]);
+    this.warnUpperThreshold = new FormControl(this.config.periodOverPeriod['warnUpperThreshold'], [this.positiveNumberValidator(), this.thresholdValidator('badUpperThreshold')]);
+    this.badLowerThreshold = new FormControl(this.config.periodOverPeriod['badLowerThreshold'],   [this.positiveNumberValidator(), this.thresholdValidator('warnLowerThreshold')]);
+    this.warnLowerThreshold = new FormControl(this.config.periodOverPeriod['warnLowerThreshold'], [this.positiveNumberValidator(), this.thresholdValidator('badLowerThreshold')]);
+    this.highestOutliersToRemove = new FormControl(this.config.periodOverPeriod['highestOutliersToRemove'], [this.positiveNumberValidator(), this.outliersValidator()]);
+    this.lowestOutliersToRemove = new FormControl(this.config.periodOverPeriod['lowestOutliersToRemove'], [this.positiveNumberValidator(), this.outliersValidator()]);
   }
 
   thresholdValidator(thresholdToCompare: string): ValidatorFn {
@@ -148,12 +150,17 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
     };
   }
 
-  isIntegerValidator(): ValidatorFn {
+  positiveNumberValidator(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
         let forbidden = false;
         if (control.value !== '') {
-          const re = /^\d+$/; // integer
+          const re = /^\d*\.?\d+$/; // number, interger or decimal
           forbidden = !re.test(control.value);
+
+          // number greater than 0
+          if (Number.parseFloat(control.value) <= 0) {
+            forbidden = true;
+          }
         }
         return forbidden ? { 'forbiddenValue': { value: control.value } } : null;
     };
@@ -162,8 +169,8 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
   outliersValidator(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
         let forbidden = false;
-        const totalOutliersToRemove = Number(this.config.singleMetric['lowestOutliersToRemove']) + Number(this.config.singleMetric['highestOutliersToRemove']);
-        if (totalOutliersToRemove >= Number(this.config.singleMetric['lookbacks'])) {
+        const totalOutliersToRemove = Number(this.config.periodOverPeriod['lowestOutliersToRemove']) + Number(this.config.periodOverPeriod['highestOutliersToRemove']);
+        if (totalOutliersToRemove >= Number(this.config.periodOverPeriod['lookbacks'])) {
           forbidden = true;
         }
         return forbidden ? { 'forbiddenValue': { value: control.value } } : null;
@@ -171,19 +178,19 @@ export class AlertDetailsMetricPeriodOverPeriodComponent implements OnInit {
   }
 
   isValueLargerThanThreshold(threshold: string, value: string, defaultValue: number): boolean {
-    const thresholdValue: number = this.config.singleMetric[threshold] === '' ? defaultValue :  Number(this.config.singleMetric[threshold]);
-    return Number(value) > thresholdValue;
+    const thresholdValue: number = this.config.periodOverPeriod[threshold] === '' ? defaultValue :  Number(this.config.periodOverPeriod[threshold]);
+    return Number(value) >= thresholdValue;
   }
 
   atleastOneThresholdSet() {
-    return this.config.singleMetric['badUpperThreshold'] ||
-           this.config.singleMetric['warnUpperThreshold'] ||
-           this.config.singleMetric['warnLowerThreshold'] ||
-           this.config.singleMetric['badLowerThreshold'];
+    return this.config.periodOverPeriod['badUpperThreshold'] ||
+           this.config.periodOverPeriod['warnUpperThreshold'] ||
+           this.config.periodOverPeriod['warnLowerThreshold'] ||
+           this.config.periodOverPeriod['badLowerThreshold'];
   }
 
   slidingWindowLessThanPeriod() {
-    return Number(this.config.singleMetric['slidingWindow'] < Number(this.config.singleMetric['period']));
+    return Number(this.config.periodOverPeriod['slidingWindow'] < Number(this.config.periodOverPeriod['period']));
   }
 
 }
