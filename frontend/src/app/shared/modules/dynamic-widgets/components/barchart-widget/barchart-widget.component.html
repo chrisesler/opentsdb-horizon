@@ -59,20 +59,12 @@
         <mat-tab label="Visual Appearance" [disabled]="editQueryId">
             <ng-template matTabContent>
                 <widget-config-visual-appearance [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-visual-appearance>
-                <!--
-                <widget-config-visual-appearance *ngIf="!isStackedGraph" [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-visual-appearance>
-                <stacked-barchart-visual-appearance *ngIf="isStackedGraph" [widget]="widget" (widgetChange)="updateConfig($event);"></stacked-barchart-visual-appearance>
-                -->
             </ng-template>
         </mat-tab>
 
         <mat-tab label="Sorting" [disabled]="editQueryId">
             <ng-template matTabContent>
                 <widget-config-sorting [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-sorting>
-                <!--
-                <widget-config-visual-appearance *ngIf="!isStackedGraph" [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-visual-appearance>
-                <stacked-barchart-visual-appearance *ngIf="isStackedGraph" [widget]="widget" (widgetChange)="updateConfig($event);"></stacked-barchart-visual-appearance>
-                -->
             </ng-template>
         </mat-tab>
         <!--<mat-tab label="Alerts">

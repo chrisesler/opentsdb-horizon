@@ -33,7 +33,6 @@ import {
 import {
     BarchartWidgetComponent,
     StackedBarchartWidgetComponent,
-    StackedBarchartVisualAppearanceComponent,
     DropdownStacksComponent
 } from './components/barchart-widget';
 
@@ -75,7 +74,6 @@ import { EventsWidgetComponent } from './components/events-widget/events-widget.
         DonutWidgetComponent,
         TopnWidgetComponent,
         StatusWidgetComponent,
-        StackedBarchartVisualAppearanceComponent,
         DonutchartLegendComponent,
         MarkdownWidgetComponent,
         MarkdownWidgetVisualAppearanceComponent,
@@ -92,7 +90,6 @@ import { EventsWidgetComponent } from './components/events-widget/events-widget.
         StatusWidgetComponent,
         BarchartWidgetComponent,
         StackedBarchartWidgetComponent,
-        StackedBarchartVisualAppearanceComponent,
         DonutchartLegendComponent,
         DonutchartConfigMetricQueriesComponent,
         BignumberConfigMetricQueriesComponent,

@@ -13,7 +13,6 @@
 @import 'components/placeholder-widget/placeholder-widget.component';
 @import 'components/status-widget/status-widget.component';
 @import 'components/bignumber-widget/children/big-number-visual-appearance/big-number-visual-appearance.component';
-@import 'components/barchart-widget/children/stacked-barchart-visual-appearance/stacked-barchart-visual-appearance.component';
 @import 'components/donut-widget/children/donutchart-legend/donutchart-legend.component';
 @import 'components/donut-widget/children/donutchart-config-metric-queries/donutchart-config-metric-queries.component';
 @import 'components/bignumber-widget/children/bignumber-config-metric-queries/bignumber-config-metric-queries.component';
@@ -36,7 +35,6 @@
     @include status-widget-component-base();
     @include placeholder-widget-component-base(); // place holder last please
     @include barchart-widget-component-base();
-    @include stacked-barchart-visual-appearance-component-base();
     @include donutchart-legend-component-base();
     @include donutchart-config-metric-queries-component-base();
     @include bignumber-config-metric-queries-component-base();
@@ -59,7 +57,6 @@
     @include topn-widget-component-theme($theme-config);
     @include status-widget-component-theme($theme-config);
     @include placeholder-widget-component-theme($theme-config); // place holder last please
-    @include stacked-barchart-visual-appearance-component-theme($theme-config);
     @include donutchart-legend-component-theme($theme-config);
     @include donutchart-config-metric-queries-component-theme($theme-config);
     @include bignumber-config-metric-queries-component-theme($theme-config);
