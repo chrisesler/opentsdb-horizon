@@ -208,7 +208,11 @@ export class YamasService {
         this.transformedQuery.logLevel = environment.debugLevel.toUpperCase();
         this.transformedQuery.cacheMode = environment.tsdbCacheMode ?
             environment.tsdbCacheMode.toUpperCase() : null;
-        console.log('tsdb query', JSON.stringify(this.transformedQuery));
+        // make this a bit more readable/identifiable in the console
+        console.log('%cTSDB QUERY%c' + JSON.stringify(this.transformedQuery),
+                    'padding: 4px 32px 0 6px; font-weight: bold; color: #ffffff; background: #008080; clear: both; border-radius: 40% 60% 100% 0% / 30% 100% 0% 70%;',
+                    'padding: 6px; border: 3px solid #008080; background: #F5FFFA;'
+                    );
         return this.transformedQuery;
     }
 
@@ -693,7 +697,7 @@ export class YamasService {
         return !hasNotOp ? filter : { type: 'NOT', filter: filter };
     }
     getOrFilters(key, values) {
-        const filterTypes = { 'literalor': 'TagValueLiteralOr', 
+        const filterTypes = { 'literalor': 'TagValueLiteralOr',
             'wildcard': 'TagValueWildCard', 'regexp': 'TagValueRegex', 'librange': 'TagValueLibrange'};
         const filters: any = { };
         const literals: any = { };

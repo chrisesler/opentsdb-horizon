@@ -24,6 +24,8 @@ import { SharedcomponentsModule } from '../shared/modules/sharedcomponents/share
 import { AppShellService } from './services/app-shell.service';
 import { DbfsUtilsService } from './services/dbfs-utils.service';
 import { DbfsService } from './services/dbfs.service';
+import { LocalStorageService } from './services/local-storage.service';
+import { ThemeService } from './services/theme.service';
 
 // components
 import { AppShellComponent } from './containers/app-shell.component';
@@ -37,6 +39,11 @@ import {
     DbfsComponent,
     DbfsMiniNavComponent
 } from './components/dbfs';
+
+import {
+    SettingsPanelComponent,
+    SettingsThemeComponent
+} from './components/settings-panel';
 
 @NgModule({
     imports: [
@@ -65,7 +72,9 @@ import {
         NavigatorPanelItemElement,
         NavigatorSidenavComponent,
         DbfsComponent,
-        DbfsMiniNavComponent
+        DbfsMiniNavComponent,
+        SettingsPanelComponent,
+        SettingsThemeComponent
     ],
     providers: [
         AppShellService,

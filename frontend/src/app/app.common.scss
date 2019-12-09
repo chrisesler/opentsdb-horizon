@@ -579,6 +579,55 @@
     .gif-spinner {
         background-color: rgba(map-get($background, card), .8);
     }
+
+    //@include app-scrollbar($theme-config);
+
+    /** scrollbar stuff **/
+
+    $scrollbar: map-get($theme-config, scrollbar);
+
+    $scrollbar-padding: map-get($scrollbar, padding);
+    $scrollbar-size: map-get($scrollbar, size);
+    $scrollbar-track: $scrollbar-size;
+    $scrollbar-radius: $scrollbar-size;
+    $scrollbar-track-bg: map-get($scrollbar, track-bg);
+    $scrollbar-thumb-bg: map-get($scrollbar, thumb-bg);
+
+    * {
+        // background of the bar itself
+        &::-webkit-scrollbar {
+            background-color: rgba(0,0,0,0.1);
+
+            &:vertical {
+                width: ($scrollbar-size + ($scrollbar-padding * 2));
+            }
+
+            &:horizontal {
+                height: ($scrollbar-size + ($scrollbar-padding * 2));
+            }
+        }
+        // draggable scrolling element resizes depending on the size of the scrollable element
+        &::-webkit-scrollbar-thumb {
+            border-radius: $scrollbar-radius;
+            -webkit-box-shadow: inset 0 0 1 darken($scrollbar-thumb-bg, 20%);
+            background: linear-gradient(left, $scrollbar-thumb-bg, darken($scrollbar-thumb-bg, 10%));
+            border: $scrollbar-padding solid $scrollbar-track-bg;
+        }
+
+        // empty space “below” the progress bar
+        &::-webkit-scrollbar-track {
+            //-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+            border-radius: 0;
+            background-color: rgba($scrollbar-track-bg, 0.6);
+            border: 1px solid darken($scrollbar-track-bg, 10%);
+        }
+
+        // bottom corner of the scrollable element, where two scrollbar meet
+        &::-webkit-scrollbar-corner {
+            background-color: transparent;
+        }
+
+    }
 }
 
 @mixin app-scrollbar($theme-config) {

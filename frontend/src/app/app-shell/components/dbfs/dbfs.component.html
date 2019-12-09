@@ -98,7 +98,7 @@
         <div class="filter-list-control" *ngIf="namespacesList.length > user.memberNamespaces.length">
             <mat-form-field appearance="fill" color="primary">
                 <mat-icon matPrefix fontSet="denali" fontIcon="d-search"></mat-icon>
-                <input matInput (keyup)="applyNamespacesListFilter($event.target.value)" placeholder="Filter Namespaces">
+                <input matInput (keyup)="applyNamespacesListFilter($event.target.value)" placeholder="Filter Namespaces" autocomplete="off">
             </mat-form-field>
         </div>
         <div class="dnav-folders dynamic-scroller" *ngIf="namespacesList.length > user.memberNamespaces.length">
@@ -119,7 +119,7 @@
         <div class="filter-list-control" *ngIf="usersList.length > 1">
             <mat-form-field appearance="fill" color="primary">
                 <mat-icon matPrefix fontSet="denali" fontIcon="d-search"></mat-icon>
-                <input matInput (keyup)="applyUsersListFilter($event.target.value)" placeholder="Filter Users">
+                <input matInput (keyup)="applyUsersListFilter($event.target.value)" placeholder="Filter Users" autocomplete="off">
             </mat-form-field>
         </div>
         <div class="dnav-folders dynamic-scroller" *ngIf="usersList.length > 1">
@@ -137,8 +137,8 @@
 <ng-template #pathTree let-panels="panels", let-i="i">
     <mat-nav-list class="path-tree">
         <ng-container *ngFor="let leaf of panels; let n = index;">
-            <mat-list-item class="path-tree-item leaf-{{n}}" 
-                *ngIf="leaf.folderResource !== ':panel-root:' && n <= i" 
+            <mat-list-item class="path-tree-item leaf-{{n}}"
+                *ngIf="leaf.folderResource !== ':panel-root:' && n <= i"
                 [ngClass]="{'is-active': n === i}"
                 (click)="navtoSpecificPanel(n, i)">
                 <mat-icon class="path-icon" fontSet="denali" [fontIcon]="folders[leaf.folderResource].icon ? folders[leaf.folderResource].icon : 'd-folder'"></mat-icon>
@@ -213,13 +213,13 @@
         <!-- NEW -->
         <div class="list-item edit-form" [formGroup]="folderForm">
             <mat-form-field appearance="fill" [floatLabel]="'never'">
-                <input matInput placeholder="Enter folder Name" formControlName="fc_FolderName" (keyup.enter)="folderInputSave(panelIndex)">
+                <input matInput placeholder="Enter folder Name" formControlName="fc_FolderName" (keyup.enter)="folderInputSave(panelIndex)" autocomplete="off">
                 <mat-icon matPrefix fontSet="denali" fontIcon="d-folder-add"></mat-icon>
                 <button mat-icon-button matSuffix class="save-folder-name" (click)="folderInputSave(panelIndex)" >
                     <mat-icon fontSet="denali" fontIcon="d-check"></mat-icon>
                 </button>
-                <mat-error>  
-                    <span *ngIf="!folderForm.get('fc_FolderName').valid && folderForm.get('fc_FolderName').touched">Please enter a valid folder name</span>  
+                <mat-error>
+                    <span *ngIf="!folderForm.get('fc_FolderName').valid && folderForm.get('fc_FolderName').touched">Please enter a valid folder name</span>
                 </mat-error>
             </mat-form-field>
         </div>
@@ -237,23 +237,23 @@
         </div>
         <div class="list-item edit-form" *ngIf="edit.id === folder.id" [formGroup]="folderForm">
             <mat-form-field appearance="fill" [floatLabel]="'never'">
-                <input matInput placeholder="Edit folder Name" formControlName="fc_FolderName">
+                <input matInput placeholder="Edit folder Name" formControlName="fc_FolderName" autocomplete="off">
                 <mat-icon matPrefix fontSet="denali" fontIcon="d-pencil"></mat-icon>
                 <button mat-icon-button matSuffix class="save-folder-name" (click)="folderInputSave(panelIndex, folder)" >
                     <mat-icon fontSet="denali" fontIcon="d-check"></mat-icon>
-                </button>   
+                </button>
             </mat-form-field>
         </div>
         <span class="dnav-menu-trigger"
             id="folder-more-{{folder.id}}"
             [matMenuTriggerFor]="dnavFolderItemMenu"
-            [matMenuTriggerData]="{data: folder, panelIndex: panelIndex, type: 'folder'}" 
+            [matMenuTriggerData]="{data: folder, panelIndex: panelIndex, type: 'folder'}"
             (menuOpened)="menuState(folder.fullPath)"
             (menuClosed)="menuState(false)"
             #moreMenuTrigger></span>
         <span class="dnav-menu-trigger last-child"
             [matMenuTriggerFor]="dnavMiniNavigator"
-            [matMenuTriggerData]="{data: folder, panelIndex: panelIndex, type: 'folder'}" 
+            [matMenuTriggerData]="{data: folder, panelIndex: panelIndex, type: 'folder'}"
             (menuOpened)="menuState(folder.fullPath, true);"
             (menuClosed)="menuState(false, true);"
             #miniNavTrigger></span>
@@ -334,13 +334,13 @@
         <span class="dnav-menu-trigger"
             id="folder-more-{{folder.id}}"
             [matMenuTriggerFor]="dnavFolderItemMenu"
-            [matMenuTriggerData]="{data: folder, panelIndex: panelIndex, type: 'folder'}" 
+            [matMenuTriggerData]="{data: folder, panelIndex: panelIndex, type: 'folder'}"
             (menuOpened)="menuState(folder.fullPath)"
             (menuClosed)="menuState(false)"
             #moreMenuTrigger></span>
         <span class="dnav-menu-trigger last-child"
             [matMenuTriggerFor]="dnavMiniNavigator"
-            [matMenuTriggerData]="{data: folder, panelIndex: panelIndex, type: 'folder'}" 
+            [matMenuTriggerData]="{data: folder, panelIndex: panelIndex, type: 'folder'}"
             (menuOpened)="menuState(folder.fullPath, true);"
             (menuClosed)="menuState(false, true);"
             #miniNavTrigger></span>
@@ -426,7 +426,7 @@
             (menuClosed)="menuState(false)"
             #moreMenuTrigger></span>
         <span class="dnav-menu-trigger last-child"
-            [matMenuTriggerFor]="dnavMiniNavigator" 
+            [matMenuTriggerFor]="dnavMiniNavigator"
             [matMenuTriggerData]="{data: dashboard, panelIndex: panelIndex, type: 'file'}"
             (menuOpened)="menuState(dashboard.fullPath, true);"
             (menuClosed)="menuState(false, true);"
@@ -508,7 +508,7 @@
         <button mat-menu-item (click)="fileMenuAction('openNewTab', file)">
             <mat-icon fontSet="denali" fontIcon="d-external"></mat-icon>
             <span>Open in new tab</span>
-        </button> 
+        </button>
         <button mat-menu-item (click)="fileMenuAction('moveDashboard', file, $event)" *ngIf="!file.locked">
             <mat-icon fontSet="denali" fontIcon="d-folder-merge"></mat-icon>
             <span>Move Dashboard</span>
