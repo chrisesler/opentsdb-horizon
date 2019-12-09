@@ -39,6 +39,7 @@ import { DateUtilsService } from '../../../core/services/dateutils.service';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { AlertDetailsMetricPeriodOverPeriodComponent } from './children/alert-details-metric-period-over-period/alert-details-metric-period-over-period.component';
 import * as d3 from 'd3';
+import { ThemeService } from '../../../app-shell/services/theme.service';
 
 @Component({
 // tslint:disable-next-line: component-selector
@@ -99,6 +100,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             strokeWidth: 3,
             highlightCircleSize: 7
         },
+        highlightSeriesBackgroundColor: 'rgb(255, 255, 255)',
         xlabel: '',
         ylabel: '',
         y2label: '',
@@ -260,7 +262,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         public dialog: MatDialog,
         private interCom: IntercomService,
         private alertConverter: AlertConverterService,
-        private cdRef: ChangeDetectorRef
+        private cdRef: ChangeDetectorRef,
+        private themeService: ThemeService
     ) {
         // this.data = dialogData;
         if (this.data.name) {
@@ -271,6 +274,13 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     ngOnInit() {
         this.alertspageNavbarPortal = new TemplatePortal(this.alertDateTimeNavbarItemTmpl, undefined, {});
         this.cdkService.setNavbarPortal(this.alertspageNavbarPortal);
+
+        this.subscription.add(this.themeService.getThemeType().subscribe( themeType => {
+            this.options = {...this.options,
+                highlightSeriesBackgroundColor: (themeType === 'light') ? 'rgb(255,255,255)' : 'rgb(60,75,90)'
+            };
+            this.cdRef.markForCheck();
+        }));
 
         this.options.labelsDiv = this.dygraphLegend.nativeElement;
         this.subscription.add(this.doEventQuery$

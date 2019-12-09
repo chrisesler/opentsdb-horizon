@@ -28,7 +28,7 @@ export class NavigatorSidenavComponent implements OnInit {
     navItems: object[] = [
         { section: 'dashboard',         label: 'Dashboards',        icon: 'd-dashboard-tile' },
         // { section: 'metric-explorer',   label: 'Metric Explorer',   icon: 'd-chart-line' },
-        { section: 'alerts',            label: 'Alerts',            icon: 'd-notification' },
+        { section: 'alerts',            label: 'Alerts',            icon: 'd-notification'},
         /*{ section: 'status',            label: 'Status',            icon: 'd-heart-health' },
         { section: 'annotations',       label: 'Annotations',       icon: 'd-flag' },
         { section: 'admin',             label: 'Admin',             icon: 'd-user-secure', requiresUserAdmin: true },
@@ -36,6 +36,8 @@ export class NavigatorSidenavComponent implements OnInit {
         { section: 'namespaces',        label: 'Namespaces',        icon: 'd-briefcase' },
         { section: 'resources',         label: 'Resources',         icon: 'd-information-circle', spacerAfter: true },
         { section: 'test',              label: 'Toggle Test',       icon: 'd-setting' }*/
+        { section: 'settings',              label: 'Settings',       icon: 'd-setting' }
+
     ];
 
     constructor() { }

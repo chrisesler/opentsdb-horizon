@@ -9,6 +9,7 @@
         flex: 1;
         display: flex;
         flex-direction: column;
+
         .hide {
             display: none;
         }
@@ -29,8 +30,8 @@
                 display: none;
                 z-index: 1000;
                 // margin-top:15px;
-                background: #f0f0f0;
-                border: 1px solid #cccccc;
+                //background: #f0f0f0;
+                //border: 1px solid #cccccc;
                 padding: 4px;
                 min-width:250px;
                 width: 300px;
@@ -59,7 +60,8 @@
                 height: 100%;
                 overflow: auto;
                 z-index: 0;
-                background-color: #fee;
+                // background-color: #fee;
+
                 .mat-table {
                     font-family: Monaco, monospace;
                     background-color: inherit;
@@ -86,6 +88,7 @@
                 right: -5px;
                 top: 0px;
                 z-index: 1;
+
                 .mat-icon {
                     font-size: 16px;
                     color: rgb(216, 216, 215);
@@ -272,7 +275,24 @@
     $warn: map-get($theme-config, warn);
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
+    $is-dark-theme: map-get($theme-config, is-dark);
 
-    // .widget-panel-content.linechart-widget { }
+    $dygraph-tooltip-bg: if($is-dark-theme, map-get($background, menu), #f0f0f0);
+    $dygraph-tooltip-border: if($is-dark-theme, lighten(map-get($background, menu), 10%) , #cccccc);
+
+    $graph-legend-bg: map-get($background, graph-legend);
+
+    .widget-panel-content.linechart-widget {
+        .widget-output {
+            .dygraph-legend {
+                background: $dygraph-tooltip-bg;
+                border: 1px solid $dygraph-tooltip-border;
+            }
+
+            .graph-legend {
+                background: $graph-legend-bg
+            }
+        }
+    }
 
 }
