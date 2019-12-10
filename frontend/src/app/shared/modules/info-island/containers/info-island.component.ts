@@ -68,7 +68,8 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit  {
         draggable: true,
         width: 600,
         height: 300,
-        showActions: false
+        showActions: false,
+        outerWrap: '.app-dboard-content', // default outermost DOM element for dashboard,
     };
 
     minimum_size = {x: 500, y: 200};
@@ -131,8 +132,8 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit  {
     updateSize(size: DOMRect) {
         if (size.width > this.options.width) {
 
-            // check against dashboard content size
-            const dbContent = document.querySelector('.app-dboard-content');
+            // check against outermost div content size
+            const dbContent = document.querySelector(this.options.outerWrap);
             const dbSize = dbContent.getBoundingClientRect();
 
             this.options.width = (size.width + 24 < dbSize.width - 24) ? size.width + 24 : dbSize.width - 24;

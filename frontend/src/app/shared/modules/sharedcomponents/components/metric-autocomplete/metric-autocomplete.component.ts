@@ -56,6 +56,7 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
     queryChangeSub: Subscription;
     visible = false;
     isDestroying = false;
+    metricSub: Subscription;
 
     // tslint:disable-next-line:no-inferrable-types
     firstRun: boolean = true;
@@ -95,6 +96,9 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
 
     ngOnDestroy() {
         this.isDestroying = true;
+        if (  this.metricSub ) {
+            this.metricSub.unsubscribe();
+        }
     }
 
     get metricSearchControlValue() {
@@ -145,7 +149,10 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
                 this.message['metricSearchControl'] = {};
                 this.firstRun = true;
                 // this.detectChanges();
-                this.httpService.getMetricsByNamespace(query)
+                if (  this.metricSub ) {
+                    this.metricSub.unsubscribe();
+                }
+                this.metricSub = this.httpService.getMetricsByNamespace(query)
                     .subscribe(res => {
                         this.firstRun = false;
                         this.metricOptions = res;
