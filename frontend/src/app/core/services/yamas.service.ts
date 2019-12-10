@@ -153,10 +153,7 @@ export class YamasService {
                             this.transformedQuery.executionGraph.push(node);
                         }
                         this.metricSubGraphs.set(q.id, subGraph);
-                        const outputId = subGraph[subGraph.length - 1].id;
-                        if (!outputSourceIds.length || outputSourceIds.includes(id) ) {
-                            outputIds.push(outputId);
-                        }
+                        let outputId = subGraph[subGraph.length - 1].id;
 
                         if (periodOverPeriodEnabled) { // set egads nodes and outputIds
                             const nodesExceptSlidingWindow = this.getNodes(q.sources, this.metricSubGraphs);
@@ -166,13 +163,16 @@ export class YamasService {
                             const periodOverPeriodQuery = this.getPeriodOverPeriod(periodOverPeriod, nodesExceptSlidingWindow.concat(q).concat(slidingWindowQuery) , time.start, q.id, this.transformedQuery.filters);
                             this.transformedQuery.executionGraph.push(slidingWindowQuery);
                             this.transformedQuery.executionGraph.push(periodOverPeriodQuery);
-                            outputIds.push(periodOverPeriodQuery.id);
+                            outputId = periodOverPeriodQuery.id;
                         } else {
-                            const outputId = subGraph[subGraph.length - 1].id;
-                            outputIds.push(outputId);
+                            // const outputId = subGraph[subGraph.length - 1].id;
+                            // outputIds.push(outputId);
                             if (this.queries[i].metrics[j].summarizer) { // build for summarizer (which works with topN)
                                 outputIdToSummarizer[outputId] = this.queries[i].metrics[j].summarizer;
                             }
+                        }
+                        if (!outputSourceIds.length || outputSourceIds.includes(id) ) {
+                            outputIds.push(outputId);
                         }
                     }
                 }
