@@ -36,9 +36,10 @@ export class YamasService {
 
     constructor( private utils: UtilsService ) { }
 
-    buildQuery( time, queries, downsample: any = {} , summaryOnly= false, sorting, periodOverPeriod) {
+    buildQuery( time, queries, downsample: any = {} , summaryOnly= false, sorting, options) {
 
         let periodOverPeriodEnabled = false;
+        const periodOverPeriod = options && options.periodOverPeriod ? options.periodOverPeriod : {};
         if (periodOverPeriod && Object.keys(periodOverPeriod).length > 0) {
             periodOverPeriodEnabled = true;
         }
@@ -55,6 +56,12 @@ export class YamasService {
         this.metricSubGraphs = new Map();
         const outputIds = [];
         const outputIdToSummarizer = new Map();
+        const outputSourceIds = options && options.sources ? options.sources : [];
+        let querySources = [];
+        for ( let i = 0; i < outputSourceIds.length; i++ ) {
+            const [qindex, mindex] = this.utils.getMetricIndexFromId(outputSourceIds[i], this.queries);
+            this.getMetricSources(qindex, mindex, querySources);
+        }
 
         // add metric definitions
         for ( const i in this.queries ) {
@@ -65,8 +72,8 @@ export class YamasService {
                 this.downsample.aggregator = this.downsample.aggregators ? this.downsample.aggregators[0] : 'avg';
 
                 for (let j = 0; j < this.queries[i].metrics.length; j++) {
-
-                    if ( !this.queries[i].metrics[j].expression ) {
+                    const id = this.queries[i].metrics[j].id;
+                    if ( !this.queries[i].metrics[j].expression && (!querySources.length || querySources.includes(id) ) ) {
                         const q: any = this.getMetricQuery(i, j);
                         const subGraph = [ q ];
                         if ( this.queries[i].metrics[j].groupByTags && this.queries[i].metrics[j].groupByTags.length && !this.checkTagsExistInFilter(i, this.queries[i].metrics[j].groupByTags) ) {
@@ -76,9 +83,9 @@ export class YamasService {
                             hasCommonFilter = true;
                             q.filterId = filterId;
                         }
+
                         const dsId = q.id + '_downsample';
-                        const downSampleQuery = this.getQueryDownSample(downsample, this.downsample.aggregator, dsId, [q.id]);
-                        subGraph.push(downSampleQuery);
+                        subGraph.push(this.getQueryDownSample(downsample, this.downsample.aggregator, dsId, [q.id]));
 
                         const groupbyId = q.id + '_groupby';
                         const groupByQuery = this.getQueryGroupBy(this.queries[i].metrics[j].tagAggregator, this.queries[i].metrics[j].groupByTags, [dsId], groupbyId);
@@ -90,6 +97,8 @@ export class YamasService {
                             lastId = node.id;
                             this.transformedQuery.executionGraph.push(node);
                         }
+                        this.metricSubGraphs.set(q.id, subGraph);
+                        let outputId = subGraph[subGraph.length - 1].id;
 
                         if (periodOverPeriodEnabled) { // set egads nodes and outputIds
                             const slidingWindowQuery = this.getPeriodOverPeriodSlidingWindowConfig(periodOverPeriod, lastId, q.id);
@@ -100,14 +109,17 @@ export class YamasService {
                             subGraph.push(slidingWindowQuery);
                             this.transformedQuery.executionGraph.push(slidingWindowQuery);
                             this.transformedQuery.executionGraph.push(periodOverPeriodQuery);
-                            outputIds.push(periodOverPeriodQuery.id);
+                            outputId = periodOverPeriodQuery.id;
                         } else { // normal query - set outputIds
-                            const outputId = subGraph[subGraph.length - 1].id;
-                            outputIds.push(outputId);
+                            // const outputId = subGraph[subGraph.length - 1].id;
+                            // outputIds.push(outputId);
 
                             if (this.queries[i].metrics[j].summarizer) { // build for summarizer (which works with topN)
                                 outputIdToSummarizer[outputId] = this.queries[i].metrics[j].summarizer;
                             }
+                        }
+                        if (!outputSourceIds.length || outputSourceIds.includes(id) ) {
+                            outputIds.push(outputId);
                         }
 
                         this.metricSubGraphs.set(q.id, subGraph);
@@ -131,8 +143,8 @@ export class YamasService {
         for ( const i in this.queries ) {
             if ( this.queries[i]) {
                 for (let j = 0; j < this.queries[i].metrics.length; j++) {
-
-                    if ( this.queries[i].metrics[j].expression ) {
+                    const id = this.queries[i].metrics[j].id;
+                    if ( this.queries[i].metrics[j].expression && (!querySources.length || querySources.includes(id) ) ) {
                         const q = this.getExpressionQuery(i, j);
                         expNodes.push(q);
                         const subGraph = [ q ];
@@ -141,6 +153,7 @@ export class YamasService {
                             this.transformedQuery.executionGraph.push(node);
                         }
                         this.metricSubGraphs.set(q.id, subGraph);
+                        let outputId = subGraph[subGraph.length - 1].id;
 
                         if (periodOverPeriodEnabled) { // set egads nodes and outputIds
                             const nodesExceptSlidingWindow = this.getNodes(q.sources, this.metricSubGraphs);
@@ -150,13 +163,16 @@ export class YamasService {
                             const periodOverPeriodQuery = this.getPeriodOverPeriod(periodOverPeriod, nodesExceptSlidingWindow.concat(q).concat(slidingWindowQuery) , time.start, q.id, this.transformedQuery.filters);
                             this.transformedQuery.executionGraph.push(slidingWindowQuery);
                             this.transformedQuery.executionGraph.push(periodOverPeriodQuery);
-                            outputIds.push(periodOverPeriodQuery.id);
+                            outputId = periodOverPeriodQuery.id;
                         } else {
-                            const outputId = subGraph[subGraph.length - 1].id;
-                            outputIds.push(outputId);
+                            // const outputId = subGraph[subGraph.length - 1].id;
+                            // outputIds.push(outputId);
                             if (this.queries[i].metrics[j].summarizer) { // build for summarizer (which works with topN)
                                 outputIdToSummarizer[outputId] = this.queries[i].metrics[j].summarizer;
                             }
+                        }
+                        if (!outputSourceIds.length || outputSourceIds.includes(id) ) {
+                            outputIds.push(outputId);
                         }
                     }
                 }
@@ -934,6 +950,26 @@ export class YamasService {
             ]
           };
         return statusQuery;
+    }
+
+    getMetricSources(qindex, mindex, sources) {
+        const config = this.queries[qindex].metrics[mindex];
+        sources.push(config.id);
+        const expression = config.expression;
+        if (expression !== undefined ) {
+            const re = new RegExp(/\{\{(.+?)\}\}/, 'g');
+            let matches = [];
+            while (matches = re.exec(expression)) {
+                const id = matches[1];
+                const [ newQIndex, newMIndex ] = this.utils.getMetricIndexFromId(id, this.queries);
+                const newConfig = this.queries[newQIndex].metrics[newMIndex];
+                if ( newConfig.expression ) {
+                    this.getMetricSources(newQIndex, newMIndex, sources);
+                } else {
+                    sources.push(newConfig.id);
+                }
+            }
+        }
     }
 
 }

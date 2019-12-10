@@ -85,7 +85,7 @@
     <div class="toolbar-item show-amount-controls" *ngIf="dataLimitType !== 'All'">
         <input type="number" [formControl]="showAmount" max-length="3" autocomplete="off" (mousedown)="$event.stopPropagation()" (mousemove)="$event.stopPropagation()">
     </div>
-    <div class="toolbar-item logscale-controls">
+    <div class="toolbar-item logscale-controls" *ngIf="options.showLogscaleToggle">
         <span>Logscale:</span>
         <mat-checkbox (change)="logscaleCheckboxChange('y1',$event.checked)" [checked]="logScaleY1">Y1</mat-checkbox>
         <mat-checkbox (change)="logscaleCheckboxChange('y2',$event.checked)" [checked]="logScaleY2">Y2</mat-checkbox>
