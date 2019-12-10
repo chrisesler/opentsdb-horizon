@@ -304,7 +304,8 @@
                     outline: none;
                 }
             }
-            
+
+            /*
             .cdk-column-sparkline {
                 text-align: right;
 
@@ -320,7 +321,7 @@
                     min-width: initial;
                     padding: 0 6px;
                 }
-            }
+            }*/
 
             .cdk-column-type {
                 width: 125px;
@@ -638,7 +639,7 @@
 
     // CDK OVERLAY ITEMS (these are at document root level)
     .alert-contacts-menu.mat-menu-panel {
-        margin-left: calc(-50% + 32px);
+        //margin-left: calc(-50% + 32px);
         min-width: initial;
         max-width: initial;
 
@@ -874,8 +875,8 @@
 
         .group-label-chip {
             // border: 1px solid rgba(0,0,0,0.1);
-            background: rgba(0,0,0,0.08);
-            color: rgba(0,0,0,0.5);
+            background: if($is-dark, rgba(255,255,255,0.35), rgba(0,0,0,0.08));
+            color: if($is-dark, rgba(0,0,0,0.8), rgba(0,0,0,0.5));
         }
 
         .alert-results {
@@ -925,7 +926,7 @@
                 }*/
             }
 
-            .cdk-column-sparkline {
+            /*.cdk-column-sparkline {
                 &.menu-open {
                     position: relative;
 
@@ -936,7 +937,7 @@
                         border-bottom-right-radius: 0;
                     }
                 }
-            }
+            }*/
 
             .cdk-column-good {
                 .count-amount {
@@ -979,7 +980,7 @@
             .cdk-column-contacts {
                 .contact-icon-strip {
                     //background-color: rgba($brand-color, .15);
-                    color: $brand-color;
+                    color: if($is-dark, $brand-color-inverse, $brand-color);
                 }
             }
 
@@ -1008,7 +1009,7 @@
                 .cdk-column-contacts {
                     .contact-icon-strip {
                         background-color: transparent;
-                        color: rgba(map-get($foreground, divider), .25);
+                        color: if($is-dark, rgba(map-get($foreground, navbar-text), .25),rgba(map-get($foreground, divider), .25));
                     }
                 }
             }

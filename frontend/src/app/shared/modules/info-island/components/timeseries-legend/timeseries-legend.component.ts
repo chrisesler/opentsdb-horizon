@@ -39,7 +39,8 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
 
   options: any = {
     trackMouse: true,
-    open: false
+    open: false,
+    showLogscaleToggle: true
   };
   data: any;
 
@@ -75,7 +76,14 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
     // this.logger.ng('[TSL] Constructor', {ISLAND_DATA: _islandData});
     // Set initial incoming data (data from first click that opens island)
     this.currentWidgetId = _islandData.originId;
-    this.currentWidgetType = _islandData.widget.settings.component_type;
+    if (_islandData.widget && _islandData.widget.settings && _islandData.widget.settings.component_type) {
+      this.currentWidgetType = _islandData.widget.settings.component_type;
+    }
+
+    if (_islandData.data && _islandData.data.showLogscaleToggle === false) {
+      this.options.showLogscaleToggle = false;
+    }
+
     this.currentWidgetOptions = utilsService.deepClone(_islandData.data.options);
     this.currentWidgetQueries = utilsService.deepClone(_islandData.data.queries);
     this.multigraph = _islandData.data.multigraph;
@@ -98,7 +106,10 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
       });
     }
 
-    const widgetAxes = _islandData.widget.settings.axes || {};
+    let widgetAxes: any = {};
+    if (_islandData.widget && _islandData.widget.settings && _islandData.widget.settings.axes) {
+      widgetAxes = _islandData.widget.settings.axes;
+    }
     this.logScaleY1 = (widgetAxes.y1 && widgetAxes.y1.hasOwnProperty('logscale')) ? widgetAxes.y1.logscale : false;
     this.logScaleY2 = (widgetAxes.y2 && widgetAxes.y2.hasOwnProperty('logscale')) ? widgetAxes.y2.logscale : false;
 
@@ -150,7 +161,9 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
             }
             this.currentWidgetId = message.id;
             this.multigraph = message.payload.multigraph;
-            this.currentWidgetQueries = this.utilsService.deepClone(message.payload.queries);
+            if (message.payload.queries) {
+              this.currentWidgetQueries = this.utilsService.deepClone(message.payload.queries);
+            }
             this.data = this.utilsService.deepClone(message.payload.tickData);
             this.setTableColumns();
             this.setTableData();

@@ -15,6 +15,8 @@
 @import './components/dbfs/dbfs.component';
 @import './components/dbfs/children/dbfs-mini-nav/dbfs-mini-nav.component';
 
+@import './components/settings-panel/settings-panel.component';
+
 $navbar-config: (
     'navbar-height': 48px,
     'logo-height': 32px,
@@ -39,6 +41,7 @@ $navbar-config: (
     @include navigator-panel-component-base();
     @include dbfs-component-base();
     @include dbfs-mini-nav-component-base();
+    @include settings-panel-component-base();
 }
 
 // [ STEP 3 ] - ADD COMPONENT'S THEME MIXINS (aka look-n-feel)
@@ -54,4 +57,5 @@ $navbar-config: (
     @include navigator-panel-component-theme($theme-config);
     @include dbfs-component-theme($theme-config);
     @include dbfs-mini-nav-component-theme($theme-config);
+    @include settings-panel-component-theme($theme-config);
 }

@@ -22,7 +22,7 @@ $light-theme: (
       icon:               rgba(#000000, 0.54),
       icons:              rgba(#000000, 0.54),
       link:               map-get($mat-blue, A200),
-      navbar-icons:       #ffffff,      
+      navbar-icons:       #ffffff,
       navbar-text:        #ffffff,
       text:               rgba(#000000, 0.87),
       slider-min:         rgba(#000000, 0.87),
@@ -49,7 +49,8 @@ $light-theme: (
       unselected-chip:          map_get($mat-grey, 300),
       disabled-list-option:     map_get($mat-grey, 200),
       menu:                     map_get($mat-blue, 50),
-      gridster-highlight:       map_get($mat-blue-grey, 50)
+      gridster-highlight:       map_get($mat-blue-grey, 50),
+      graph-legend:             map_get($denali-red, 50)
     ),
     widgets: (
         widget-icons-background: #F5F8FE,
@@ -69,5 +70,11 @@ $light-theme: (
         warning-contrast: #000000,
         info: map_get($denali-sky, A700),
         info-contrast: #ffffff
+    ),
+    scrollbar: (
+       padding: 2px,
+       size: 8px,
+       track-bg: map_get($mat-grey, 300),
+       thumb-bg: map_get($denali-brand-6, 500)
     )
 );
