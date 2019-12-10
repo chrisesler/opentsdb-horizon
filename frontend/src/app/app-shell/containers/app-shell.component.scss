@@ -10,7 +10,7 @@
 
         .app-navigator {
             display: flex;
-            flex: 1; 
+            flex: 1;
         }
 
         .app-sidenav {
@@ -38,7 +38,7 @@
             // inner shaddow
             // first inset is the right shadow
             // second inset is the left shadow (slightly less opacity to compensate for the sidenav shadow layering
-            /*box-shadow: 
+            /*box-shadow:
                 inset -20px 0 20px -15px hsla(0,0%,0%,.55),
                 inset 20px 0 20px -15px hsla(0,0%,0%,.25) !important;*/
         }
@@ -98,6 +98,9 @@
 
     $sn-active: #2974d8;
 
+    $drawer-bg: if($is-dark, lighten(map-get($background, card), 10%), map-get($background, card));
+    $drawer-text: if($is-dark, map-get($foreground, navbar-text), map-get($background, navbar));
+
     .app-shell {
         //.app-navigator {}
 
@@ -106,9 +109,9 @@
         }
 
         .app-navigator-drawer {
-            background-color: map-get($background, card);
+            background-color: $drawer-bg;
             border-top: 1px solid transparent;
-            color: map-get($background, navbar);
+            color: $drawer-text;
         }
 
         .messaging-bar {

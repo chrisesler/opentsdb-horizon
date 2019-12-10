@@ -10,6 +10,7 @@ import { UtilsService } from '../../../../core/services/utils.service';
 import ThresholdsPlugin from '../../../dygraph-threshold-plugin/src/index';
 import * as moment from 'moment';
 import * as d3 from 'd3';
+import { LoggerService } from '../../../../core/services/logger.service';
 
 @Directive({
     // tslint:disable-next-line: directive-selector
@@ -45,12 +46,16 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
     constructor(
         private element: ElementRef,
         private utils: UtilsService,
-        private uConverter: UnitConverterService
+        private uConverter: UnitConverterService,
+        private logger: LoggerService
     ) { }
 
     ngOnInit() { }
 
     ngOnChanges(changes: SimpleChanges) {
+
+        // this.logger.log('SIMPLE CHANGES', {changes});
+
         // NOTE:
         // If changing to custom row/column after splitting metric by tag, it would cause the dygraph option.plugins error
         // the options.plugins originally has one item that is a function
@@ -258,7 +263,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                     // var leftSideWidth = splitX - area.x;
                     // var topHeight = splitY - area.y;
 
-                    canvas.fillStyle = '#44BCB7';
+                    canvas.fillStyle = '#A52A2A';
                     canvas.fillRect(splitX - 1, area.y, 2, splitY);
                 }
             }
