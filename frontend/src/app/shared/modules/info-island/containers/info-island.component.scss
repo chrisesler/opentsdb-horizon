@@ -86,7 +86,7 @@
         }
 
         .resizer {
-            
+
             // border-radius: 50%; /*magic to turn square into circle*/
             //background: white;
             //border: 3px solid #4286f4;
@@ -194,11 +194,25 @@
     $is-dark: map-get($theme-config, is-dark);
 
     $divider: map-get($foreground, divider);
-    $header-bg: map-get($background, navbar);
+
+    $menu-bg: if($is-dark, lighten(map-get($background, menu), 10%), map-get($background, menu));
+
+    $cdk-window-bg: $menu-bg;
+    $cdk-window-border: $divider;
+
+    $header-bg: if($is-dark, map-get($background, menu), map-get($background, navbar));
     $text: map-get($foreground, navbar-text);
 
     .info-island-container {
         @include mat-elevation(4);
+
+        .mat-card {
+            background-color: $cdk-window-bg;
+
+            @if $is-dark {
+                border: 1px solid $cdk-window-border;
+            }
+        }
 
         .mat-card-header {
             background: $header-bg;

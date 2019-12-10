@@ -21,7 +21,7 @@
         .mat-icon {
             height: 12px;
             width: 12px;
-            font-size: 100%; 
+            font-size: 100%;
         }
 
         .mat-icon-button {
@@ -136,15 +136,15 @@
         .mini-navigator-folders {
             display: flex;
             flex-direction: column;
-    
+
             .folder-list.mat-list-base {
                 padding: 0;
-                
+
             }
-    
+
             .folder-nav-item.mat-list-item {
                 height: 32px;
-    
+
                 .mat-list-item-content {
                     padding: 0 8px;
                 }
@@ -160,25 +160,25 @@
             height: 36px;
             font-weight: 300;
             font-size: 12px;
-    
+
             &.is-editing {
                 margin-right: 12px;
             }
-            
+
             .mat-icon {
                 height: 12px;
                 width: 12px;
-                font-size: 100%; 
+                font-size: 100%;
             }
-            
+
             .folder-icon {
                 margin-right: 8px;
             }
-    
+
             .list-item {
                 display: flex;
                 align-items: center;
-    
+
                 &.edit-form {
                     &,
                     .mat-form-field {
@@ -188,12 +188,12 @@
                         margin-left: 6px;
                     }
                 }
-    
+
                 &.goto-next-folder {
                     margin-right: 8px;
                 }
             }
-    
+
             .folder-name {
                 span {
                     max-width: 198px;
@@ -214,7 +214,7 @@
 
         &.mat-menu-panel {
             max-width: $dnav-width; // 2px is for the 1px border width
-            max-height: $dnav-height; // 
+            max-height: $dnav-height; //
         }
 
         .mat-menu-content {
@@ -259,37 +259,47 @@
     $sn-dark-text: map-get($navbar-config, sn-dark-text);
     $sn-seperator: map-get($navbar-config, sn-seperator);
     $sn-active: map-get($navbar-config, sn-active);
- 
+
+    $divider: map-get($foreground, divider);
+
     $navbar-background: map-get($background, navbar);
     $navbar-text: find-color-invert($navbar-background);
-    
+
+    $text-color: map-get($background, navbar);
+    $navbar-text-color: map-get($foreground, navbar-text);
+
     $menu-background: map-get($background, card);
     $menu-background-hover: find-color-invert($menu-background);
 
+    $item-text: if($is-dark-theme, rgba($navbar-text-color,.6), rgba($text-color,.85));
+    $icon-color: $item-text;
+
+    $menu-divider: if($is-dark-theme, $divider, $navbar-background);
+
     .mini-navigator-component {
-        background-color: $menu-background;
+        background-color: if($is-dark-theme, lighten($menu-background, 15%), $menu-background);
 
         .mini-navigator-toolbar {
             background: transparent;
-            color: $navbar-background;
+            color: $item-text;
             //border-bottom: 1px solid rgba($navbar-text,.25);
-            box-shadow: inset 0 -1px 0 0 rgba($navbar-background, .12);
+            box-shadow: inset 0 -1px 0 0 rgba($menu-divider, .12);
         }
 
         .mini-navigator-actions {
             //border-top: 1px solid rgba($navbar-text,.25);
-            color: $navbar-background;
-            box-shadow: inset 0 1px 0 0 rgba($navbar-background,.12);
+            color: $item-text;
+            box-shadow: inset 0 1px 0 0 rgba($menu-divider,.12);
         }
 
         // FOLDERS LIST
         .mini-navigator-folders {
             // content here
-    
+
             .mat-list .mat-list-item,
             .mat-nav-list .mat-list-item {
-                color: rgba($navbar-background,.65);
-    
+                color: rgba($item-text,.65);
+
                 .path-icon,
                 .folder-icon,
                 .dashboard-icon
@@ -300,22 +310,22 @@
 
                 &.is-active,
                 &.is-selected {
-                    color: rgba($navbar-text,.85);
+                    color: rgba($item-text,.85);
                 }
-    
+
                 &.is-selected {
                     background-color: $navbar-background;
                 }
-    
+
                 &:not(:last-child) {
-                    border-bottom: 1px solid rgba($navbar-background,.07);
+                    border-bottom: 1px solid rgba($menu-divider,.07);
                 }
-    
+
                 &:first-child {
                     border-top: 1px solid transparent;
                 }
             }
-    
+
         }
 
         // FOLDER ITEM
@@ -323,16 +333,16 @@
             .save-folder-name {
                 color: map-get($status, success);
             }
-    
+
             .list-item.edit-form {
-                    
+
                 .mat-form-field {
                     .mat-input-element::placeholder {
                         color: rgba($navbar-text, .25);
                     }
                 }
             }
-    
+
             .dnav-folder-menu {
                 .mat-icon-button {
                     background: rgba(0, 0, 0, .2);
@@ -344,14 +354,15 @@
     // CDK
     .dnav-cdk-mini-navigator {
         //transform: translate3d(40px, -32px, 0);
-        background-color: $menu-background;
+        background-color: if($is-dark-theme, lighten($menu-background, 15%), $menu-background);
         border: 1px solid rgba($navbar-background, .15);
 
+        $menu-item-text: if($is-dark-theme, $item-text, $navbar-background);
         .mat-menu-item {
-            color: rgba($navbar-background,.85);
+            color: rgba($item-text,.85);
 
             .mat-icon {
-                color: rgba($navbar-background, .5);
+                color: $item-text;
             }
 
             &:hover {

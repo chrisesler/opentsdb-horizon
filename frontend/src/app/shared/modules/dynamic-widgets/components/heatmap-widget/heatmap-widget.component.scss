@@ -27,8 +27,8 @@
                 display: none;
                 z-index: 1000;
                 margin-top:30px;
-                background: #f0f0f0;
-                border: 1px solid #cccccc;
+                // background: #f0f0f0;
+                // border: 1px solid #cccccc;
                 padding: 4px;
                 min-width: 350px;
                 max-width: 400px;
@@ -208,7 +208,19 @@
     $warn: map-get($theme-config, warn);
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
+    $is-dark-theme: map-get($theme-config, is-dark);
 
-    // .widget-panel-content.linechart-widget { }
+    $dygraph-tooltip-bg: if($is-dark-theme, map-get($background, menu), #f0f0f0);
+    $dygraph-tooltip-border: if($is-dark-theme, lighten(map-get($background, menu), 10%) , #cccccc);
+
+    .widget-panel-content.heatmap-widget {
+
+        .widget-output {
+            .dygraph-legend {
+                background: $dygraph-tooltip-bg;
+                border: 1px solid $dygraph-tooltip-border;
+            }
+        }
+    }
 
 }

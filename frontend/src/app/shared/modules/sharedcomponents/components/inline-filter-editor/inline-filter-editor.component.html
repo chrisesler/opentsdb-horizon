@@ -1,5 +1,5 @@
 <div class="tag-filters query-filter-block">
-            <div class="container" style="flex-direction: column;min-height:300px; border: 1px solid #ccc;">
+            <div class="container" style="flex-direction: column; min-height:300px; ">
 
                 <!-- if adding/editing tags -->
                 <div class="tag-filter-options">
@@ -11,7 +11,7 @@
                         </div>
                         <div class="tag-key-search-results has-scroller">
                             <div class="is-scroller">
-                                <div class="option-item tag-key-option" *ngFor="let option of tagFilteredOptions" 
+                                <div class="option-item tag-key-option" *ngFor="let option of tagFilteredOptions"
                                     [ngClass]="{'added': getTagIndex(option.name) !== -1, 'selected': option.name === selectedTag, 'last-added-key': lastAddedKey(option.name) }">
                                     <div class="option-cell add-remove" (click)="removeTagValues(option.name)" *ngIf="getTagIndex(option.name) !== -1">
                                             <mat-icon (click)="removeTagValues(option.name)">remove_circle_outline</mat-icon>
@@ -47,7 +47,7 @@
                         <span class="seperator"></span>
                         <div class="tag-values-search-results has-scroller" *ngIf="tagValueTypeControl.value==='literalor'">
                             <div class="is-scroller">
-                                <div class="option-item" *ngFor="let option of filteredTagValues" 
+                                <div class="option-item" *ngFor="let option of filteredTagValues"
                                     [ngClass]="{'added': filters[selectedTagIndex] && (filters[selectedTagIndex].filter.indexOf(option.name) >= 0 || (filters[selectedTagIndex].customFilter && filters[selectedTagIndex].customFilter.indexOf(option.name) >= 0))}">
                                     <div class="option-cell add-remove">
                                         <mat-icon *ngIf="getTagValueIndex(selectedTag, option.name) === -1" (click)="updateTagValueSelection(selectedTag, option.name, 'add');">add_circle_outline</mat-icon>

@@ -569,7 +569,7 @@
     $menu-background: map-get($background, card);
     $menu-background-hover: find-color-invert($menu-background);
 
-    $item-text: if($is-dark-theme, rgba($navbar-text-color,.5), rgba($text-color,.5));
+    $item-text: if($is-dark-theme, rgba($navbar-text-color,.6), rgba($text-color,.85));
     $icon-color: $item-text;
 
     .dashboard-navigator {
