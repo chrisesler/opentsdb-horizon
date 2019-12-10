@@ -14,7 +14,6 @@
 @import 'components/status-widget/status-widget.component';
 @import 'components/bignumber-widget/children/big-number-visual-appearance/big-number-visual-appearance.component';
 @import 'components/donut-widget/children/donutchart-legend/donutchart-legend.component';
-@import 'components/donut-widget/children/donutchart-config-metric-queries/donutchart-config-metric-queries.component';
 @import 'components/markdown-widget/markdown-widget.component';
 @import 'components/markdown-widget/children/markdown-widget-visual-appearance/markdown-widget-visual-appearance.component';
 @import 'components/events-widget/events-widget.component';
@@ -35,7 +34,6 @@
     @include placeholder-widget-component-base(); // place holder last please
     @include barchart-widget-component-base();
     @include donutchart-legend-component-base();
-    @include donutchart-config-metric-queries-component-base();
     @include markdown-widget-component-base();
     @include markdown-visual-appearance-widget-component-base();
     @include events-widget-component-base();
@@ -56,7 +54,6 @@
     @include status-widget-component-theme($theme-config);
     @include placeholder-widget-component-theme($theme-config); // place holder last please
     @include donutchart-legend-component-theme($theme-config);
-    @include donutchart-config-metric-queries-component-theme($theme-config);
     @include markdown-widget-component-theme($theme-config);
     @include markdown-visual-appearance-widget-component-theme($theme-config);
     @include events-widget-component-theme($theme-config);

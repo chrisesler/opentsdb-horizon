@@ -25,8 +25,7 @@ import {
 
 import {
     DonutWidgetComponent,
-    DonutchartLegendComponent,
-    DonutchartConfigMetricQueriesComponent
+    DonutchartLegendComponent
 } from './components/donut-widget';
 
 import {
@@ -86,7 +85,6 @@ import { EventsWidgetComponent } from './components/events-widget/events-widget.
         StatusWidgetComponent,
         BarchartWidgetComponent,
         DonutchartLegendComponent,
-        DonutchartConfigMetricQueriesComponent,
         MarkdownWidgetComponent,
         MarkdownWidgetVisualAppearanceComponent,
         TopnWidgetComponent,
