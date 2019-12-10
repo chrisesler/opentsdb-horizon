@@ -1,8 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material';
 
-import { UnitNormalizerService, IBigNum } from '../../../dynamic-widgets/services/unit-normalizer.service';
-
 // NOTE: This component needs more work. Just don't have time at the moment.
 // NOTE: This feature is used in many places. So need to come back to it.
 
@@ -97,7 +95,7 @@ export class DropdownUnitTypeComponent implements OnInit {
     // custom unit in menu
     @ViewChild('customUnit') customUnit: ElementRef;
 
-    constructor(public UN: UnitNormalizerService) { }
+    constructor() { }
 
     ngOnInit() {
         if (!this.blackListedUnits) {
