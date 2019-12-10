@@ -21,7 +21,6 @@ import {
 import {
     BignumberWidgetComponent,
     BignumberVisualAppearanceComponent,
-    BignumberConfigMetricQueriesComponent
 } from './components/bignumber-widget';
 
 import {
@@ -88,7 +87,6 @@ import { EventsWidgetComponent } from './components/events-widget/events-widget.
         BarchartWidgetComponent,
         DonutchartLegendComponent,
         DonutchartConfigMetricQueriesComponent,
-        BignumberConfigMetricQueriesComponent,
         MarkdownWidgetComponent,
         MarkdownWidgetVisualAppearanceComponent,
         TopnWidgetComponent,
