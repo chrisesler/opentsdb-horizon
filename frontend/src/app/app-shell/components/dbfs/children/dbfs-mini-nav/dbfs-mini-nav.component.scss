@@ -310,7 +310,7 @@
 
                 &.is-active,
                 &.is-selected {
-                    color: rgba($item-text,.85);
+                    color: rgba(find-color-invert($navbar-background),.85);
                 }
 
                 &.is-selected {
