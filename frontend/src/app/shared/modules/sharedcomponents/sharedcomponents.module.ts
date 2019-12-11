@@ -33,7 +33,6 @@ import { DropdownVisualTypeComponent } from './components/dropdown-visual-type/d
 import { NavbarTimezoneToggleComponent } from './components/navbar-timezone-toggle/navbar-timezone-toggle.component';
 import { NavbarSearchToggleComponent } from './components/navbar-search-toggle/navbar-search-toggle.component';
 import { SearchAllDialogComponent } from './components/search-all-dialog/search-all-dialog.component';
-import { DropdownAggregatorsComponent } from './components/dropdown-aggregators/dropdown-aggregators.component';
 import { DropdownUnitTypeComponent } from './components/dropdown-unit-type/dropdown-unit-type.component';
 import { GenericMessageBarComponent } from './components/generic-message-bar/generic-message-bar.component';
 import { SimpleDashboardListComponent } from './components/simple-dashboard-list/simple-dashboard-list.component';
@@ -87,7 +86,6 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
         NavbarTimezoneToggleComponent,
         NavbarSearchToggleComponent,
         SearchAllDialogComponent,
-        DropdownAggregatorsComponent,
         DropdownUnitTypeComponent,
         GenericMessageBarComponent,
         SimpleDashboardListComponent,
@@ -132,7 +130,6 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
         NavbarInfoMenuComponent,
         NavbarTimezoneToggleComponent,
         NavbarSearchToggleComponent,
-        DropdownAggregatorsComponent,
         DropdownMetricTagsComponent,
         GenericMessageBarComponent,
         SimpleDashboardListComponent,
