@@ -14,7 +14,6 @@ import { ColorPickerModule } from '../color-picker/color-picker.module';
 
  // other components
  // tslint:disable:max-line-length
- import { SearchMetricsDialogComponentV0 } from './components/search-metrics-dialog-v0/search-metrics-dialog.component-v0';
 import { SearchMetricsDialogComponent } from './components/search-metrics-dialog/search-metrics-dialog.component';
 import { ThemePickerComponent } from './components/theme-picker/theme-picker.component';
 import { InlineEditableComponent } from './components/inline-editable/inline-editable.component';
@@ -77,7 +76,6 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
         ColorPickerModule
     ],
     declarations: [
-        SearchMetricsDialogComponentV0,
         SearchMetricsDialogComponent,
         ThemePickerComponent,
         WidgetConfigAlertsComponent,
@@ -127,7 +125,6 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
         AuraDialogComponent
     ],
     exports: [
-        SearchMetricsDialogComponentV0,
         SearchMetricsDialogComponent,
         SearchAllDialogComponent,
         ThemePickerComponent,
@@ -171,7 +168,6 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
         GraphTypeComponent
     ],
     entryComponents: [
-        SearchMetricsDialogComponentV0,
         SearchMetricsDialogComponent,
         SearchAllDialogComponent,
         InlineFilterEditorComponent,
