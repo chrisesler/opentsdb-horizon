@@ -41,7 +41,6 @@ import { TagvEditviewComponent } from './components/tagv-editview/tagv-editview.
 import { ErrorDialogComponent } from './components/error-dialog/error-dialog.component';
 import { DebugDialogComponent } from './components/debug-dialog/debug-dialog.component';
 import { TagAggregatorComponent } from './components/tag-aggregator/tag-aggregator.component';
-import { TagGroupbyComponent } from './components/tag-groupby/tag-groupby.component';
 import { WidgetConfigSortingComponent } from './components/widget-config-sorting/widget-config-sorting.component';
 import { ConditionalFormatterComponent } from './components/conditional-formatter/conditional-formatter.component';
 import { QueryEditorProtoComponent } from './components/query-editor-proto/query-editor-proto.component';
@@ -94,7 +93,6 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
         ErrorDialogComponent,
         DebugDialogComponent,
         TagAggregatorComponent,
-        TagGroupbyComponent,
         WidgetConfigSortingComponent,
         ConditionalFormatterComponent,
         QueryEditorProtoComponent,
