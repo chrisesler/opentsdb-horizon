@@ -37,7 +37,6 @@ import { DropdownUnitTypeComponent } from './components/dropdown-unit-type/dropd
 import { GenericMessageBarComponent } from './components/generic-message-bar/generic-message-bar.component';
 import { SimpleDashboardListComponent } from './components/simple-dashboard-list/simple-dashboard-list.component';
 import { NamespaceAutocompleteComponent } from './components/namespace-autocomplete/namespace-autocomplete.component';
-import { TagvEditviewComponent } from './components/tagv-editview/tagv-editview.component';
 import { ErrorDialogComponent } from './components/error-dialog/error-dialog.component';
 import { DebugDialogComponent } from './components/debug-dialog/debug-dialog.component';
 import { TagAggregatorComponent } from './components/tag-aggregator/tag-aggregator.component';
@@ -89,7 +88,6 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
         GenericMessageBarComponent,
         SimpleDashboardListComponent,
         NamespaceAutocompleteComponent,
-        TagvEditviewComponent,
         ErrorDialogComponent,
         DebugDialogComponent,
         TagAggregatorComponent,
