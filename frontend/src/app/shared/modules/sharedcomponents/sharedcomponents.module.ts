@@ -46,7 +46,6 @@ import { NamespaceAutocompleteComponent } from './components/namespace-autocompl
 import { NamespaceTagAutocompleteComponent } from './components/namespace-tag-autocomplete/namespace-tag-autocomplete.component';
 import { NamespaceTagValuesComponent } from './components/namespace-tag-values/namespace-tag-values.component';
 import { TagvEditviewComponent } from './components/tagv-editview/tagv-editview.component';
-import { QueryEditorComponent } from './components/query-editor/query-editor.component';
 import { ErrorDialogComponent } from './components/error-dialog/error-dialog.component';
 import { DebugDialogComponent } from './components/debug-dialog/debug-dialog.component';
 import { TagAggregatorComponent } from './components/tag-aggregator/tag-aggregator.component';
@@ -108,7 +107,6 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
         NamespaceTagAutocompleteComponent,
         NamespaceTagValuesComponent,
         TagvEditviewComponent,
-        QueryEditorComponent,
         ErrorDialogComponent,
         DebugDialogComponent,
         TagAggregatorComponent,

@@ -32,7 +32,6 @@
 @import 'components/dropdown-line-weight/dropdown-line-weight.component';
 @import 'components/dropdown-unit-type/dropdown-unit-type.component';
 @import 'components/dropdown-visual-type/dropdown-visual-type.component';
-@import 'components/query-editor/query-editor.component.scss';
 @import 'components/conditional-formatter/conditional-formatter.component.scss';
 @import 'components/namespace-tag-autocomplete/namespace-tag-autocomplete.component.scss';
 @import 'components/metric-autocomplete/metric-autocomplete.component.scss';
@@ -86,7 +85,6 @@
     @include dropdown-line-weight-component-base();
     @include dropdown-unit-type-component-base();
     @include dropdown-visual-type-component-base();
-    @include query-editor-component-base();
     @include namespace-tag-autocomplete-component-base();
     @include metric-autocomplete-component-base();
     @include dropdown-metric-tags-component-base();
@@ -137,7 +135,6 @@
     @include dropdown-line-weight-component-theme($theme-config);
     @include dropdown-unit-type-component-theme($theme-config);
     @include dropdown-visual-type-component-theme($theme-config);
-    @include query-editor-component-theme($theme-config);
     @include namespace-tag-autocomplete-component-theme($theme-config);
     @include metric-autocomplete-component-theme($theme-config);
     @include dropdown-metric-tags-component-theme($theme-config);
