@@ -24,12 +24,12 @@
                 font-weight: normal;
                 height: 24px;
                 font-size: 10px;
-            }  
+            }
         }
 
         .ts-legend-table {
             min-width: 100%;
-            
+
             .mat-header-row .mat-header-cell {
                 font-size: 12px;
                 font-weight: 600;
@@ -156,7 +156,7 @@
                 border-right: 5px solid transparent;
                 border-top: 5px solid;
                 margin: 0 4px;
-                color: rgba(0, 0, 0, .54);
+                //color: rgba(0, 0, 0, .54);
             }
         }
     }
@@ -182,7 +182,20 @@
     $success: map-get($theme-config, success);
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
-    $is-dark-theme: map-get($theme-config, is-dark);
+    $is-dark: map-get($theme-config, is-dark);
+
+    $divider: map-get($foreground, divider);
+
+    $menu-bg: if($is-dark, lighten(map-get($background, menu), 6%), map-get($background, menu));
+
+    $cdk-window-bg: $menu-bg;
+    $cdk-window-border: $divider;
+
+    $header-bg: if($is-dark, map-get($background, menu), map-get($background, navbar));
+    $text: map-get($foreground, navbar-text);
+
+    $brief-dark: #3a87ad;
+    $brief-light: #ddeff9;
 
     .timeseries-legend-component {
         .ts-legend-toolbar {
@@ -190,12 +203,14 @@
             background-color: black;
 
             .mat-toolbar-row.detail-brief {
-                color: #3a87ad;
-                background-color: #ddeff9;
+                color: if($is-dark, $brief-light, $brief-dark);
+                background-color: if($is-dark, $brief-dark, $brief-light);
             }
         }
 
         .ts-legend-table {
+            background: $cdk-window-bg;
+
             .mat-sort-header-container.mat-sort-header-sorted {
                 color: #c09853;
 
@@ -217,10 +232,23 @@
 
     // island toolbar
     .info-island-toolbar.timeseries-legend-toolbar {
+
+        @if $is-dark {
+            .mat-select-arrow-wrapper .mat-select-arrow {
+                color: white;
+            }
+        }
+
         .mat-checkbox:not(.mat-checkbox-checked) {
             .mat-checkbox-background {
                 background-color: white;
             }
+        }
+    }
+
+    @if $is-dark {
+        .mat-menu-panel.show-limit-type-cdk-menu {
+            background: lighten($menu-bg, 6%);
         }
     }
 

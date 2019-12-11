@@ -209,7 +209,7 @@
                         .mat-flat-button {
                             padding: 0;
                             min-width: 50px;
-                            background: rgba(0,0,0,0.03);
+                            // background: rgba(0,0,0,0.03);
                             line-height: initial;
                             width: 100%;
 
@@ -246,7 +246,7 @@
                                 padding: 4px 0;
                                 display: inline-flex;
                                 justify-content: center;
-                                border-top: 1px solid rgba(0,0,0,0.06);
+                                //border-top: 1px solid rgba(0,0,0,0.06);
                             }
                         }
                     }
@@ -691,6 +691,20 @@
         }
 
         .metric-row-data {
+
+            &.metric-index {
+                .mat-flat-button {
+                    background: if($is-dark, rgba(255,255,255, 0.08), rgba(0,0,0, 0.03));
+
+                    .mat-select-arrow-wrapper {
+                        border-top: 1px solid if($is-dark, rgba(255,255,255, 0.25), rgba(0,0,0,0.06));
+
+                        .mat-select-arrow {
+                            color: if($is-dark, rgba(255,255,255,0.7), rgba(0,0,0,0.7));
+                        }
+                    }
+                }
+            }
 
             &.metric-name,
             &.expression {
