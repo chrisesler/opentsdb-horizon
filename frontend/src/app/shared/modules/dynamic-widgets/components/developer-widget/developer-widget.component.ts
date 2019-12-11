@@ -7,7 +7,6 @@ import { IntercomService, IMessage } from '../../../../../core/services/intercom
 import { WidgetModel } from '../../../../../dashboard/state/widgets.state';
 
 import {
-    WidgetConfigAlertsComponent,
     WidgetConfigAxesComponent,
     WidgetConfigGeneralComponent,
     WidgetConfigLegendComponent,

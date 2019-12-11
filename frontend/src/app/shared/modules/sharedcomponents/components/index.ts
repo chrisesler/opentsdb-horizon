@@ -1,5 +1,4 @@
 export * from './theme-picker/theme-picker.component';
-export * from './widget-config-alerts/widget-config-alerts.component';
 export * from './widget-config-axes/widget-config-axes.component';
 export * from './widget-config-general/widget-config-general.component';
 export * from './widget-config-legend/widget-config-legend.component';

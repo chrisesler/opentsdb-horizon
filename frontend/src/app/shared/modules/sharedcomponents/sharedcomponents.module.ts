@@ -20,7 +20,6 @@ import { NavbarUserMenuComponent } from './components/navbar-user-menu/navbar-us
 import { NavbarInfoMenuComponent } from './components/navbar-info-menu/navbar-info-menu.component';
 
  // widget config components
-import { WidgetConfigAlertsComponent } from './components/widget-config-alerts/widget-config-alerts.component';
 import { WidgetConfigAxesComponent } from './components/widget-config-axes/widget-config-axes.component';
 import { WidgetConfigGeneralComponent } from './components/widget-config-general/widget-config-general.component';
 import { WidgetConfigMetricQueriesComponent } from './components/widget-config-metric-queries/widget-config-metric-queries.component';
@@ -74,7 +73,6 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
     ],
     declarations: [
         ThemePickerComponent,
-        WidgetConfigAlertsComponent,
         WidgetConfigAxesComponent,
         WidgetConfigGeneralComponent,
         WidgetConfigLegendComponent,
@@ -121,7 +119,6 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
     exports: [
         SearchAllDialogComponent,
         ThemePickerComponent,
-        WidgetConfigAlertsComponent,
         WidgetConfigAxesComponent,
         WidgetConfigGeneralComponent,
         WidgetConfigLegendComponent,

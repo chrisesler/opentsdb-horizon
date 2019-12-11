@@ -51,7 +51,6 @@
 @import 'components/widget-config.common';
 
 // if individual widget-configs have custom style, include them
-@import 'components/widget-config-alerts/widget-config-alerts.component';
 @import 'components/widget-config-axes/widget-config-axes.component';
 @import 'components/widget-config-general/widget-config-general.component';
 @import 'components/widget-config-legend/widget-config-legend.component';
@@ -97,7 +96,6 @@
 
     // WIDGET CONFIG ITEMS
     @include widget-config-common-base();
-    @include widget-config-alerts-component-base();
     @include widget-config-axes-component-base();
     @include widget-config-general-component-base();
     @include widget-config-legend-component-base();
@@ -144,7 +142,6 @@
 
     // WIDGET CONFIG ITEMS
     @include widget-config-common-theme($theme-config);
-    @include widget-config-alerts-component-theme($theme-config);
     @include widget-config-axes-component-theme($theme-config);
     @include widget-config-general-component-theme($theme-config);
     @include widget-config-legend-component-theme($theme-config);
