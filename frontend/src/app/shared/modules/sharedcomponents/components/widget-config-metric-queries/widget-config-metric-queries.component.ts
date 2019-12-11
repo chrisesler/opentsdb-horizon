@@ -12,7 +12,6 @@ import {
     SearchMetricsDialogComponent
 } from '../search-metrics-dialog/search-metrics-dialog.component';
 
-import { InlineQueryEditorComponent } from '../inline-query-editor/inline-query-editor.component';
 
 import { Subscription } from 'rxjs';
 import { UtilsService } from '../../../../../core/services/utils.service';
@@ -45,10 +44,6 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     /** Dialogs */
     // search metrics dialog
     searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
-
-    // Inline Query Editor
-    inlineQueryEditorDialog: MatDialogRef<InlineQueryEditorComponent> | null;
-    inlineQueryEditorDialogSub: Subscription;
 
     /** Local variables */
 
@@ -313,38 +308,6 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
             left: '0px',
             right: '0px'
         };
-    }
-
-
-    openInlineQueryEditorDialog(query: any) {
-        // console.log('%cInlineQueryDialog', 'background: purple; color: white;', query);
-        const parentPos = this.elRef.nativeElement.closest('.widget-controls-container').getBoundingClientRect();
-        // console.log("parentpos", parentPos);
-        const dialogConf: MatDialogConfig = new MatDialogConfig();
-        const offsetHeight = 60;
-        dialogConf.width = parentPos.width + 'px';
-        dialogConf.maxWidth = '100%';
-        dialogConf.height = (parentPos.height - offsetHeight) + 'px';
-        dialogConf.backdropClass = 'inline-query-editor-dialog-backdrop';
-        dialogConf.panelClass = 'inline-query-editor-dialog-panel';
-        dialogConf.position = <DialogPosition>{
-            top: (parentPos.top + offsetHeight) + 'px',
-            bottom: '0px',
-            left: parentPos.left + 'px',
-            right: '0px'
-        };
-        // console.log("dialogConf", dialogConf.position);
-        dialogConf.data = query;
-
-        this.inlineQueryEditorDialog = this.dialog.open(InlineQueryEditorComponent, dialogConf);
-        // this.inlineQueryEditorDialog.updatePosition({top: '48px'});
-
-        this.inlineQueryEditorDialog.afterClosed().subscribe((dialog_out: any) => {
-            console.log('openInlineQueryEditorDialog::afterClosed', dialog_out);
-            // this.modGroup = dialog_out.mgroup;
-            // this.widgetChange.emit({action: 'AddMetricsToGroup', payload: { data: this.modGroup }});
-            // console.log('...expression return...', this.modGroup);
-        });
     }
 
 
