@@ -38,7 +38,6 @@ import { DropdownUnitTypeComponent } from './components/dropdown-unit-type/dropd
 import { GenericMessageBarComponent } from './components/generic-message-bar/generic-message-bar.component';
 import { SimpleDashboardListComponent } from './components/simple-dashboard-list/simple-dashboard-list.component';
 import { NamespaceAutocompleteComponent } from './components/namespace-autocomplete/namespace-autocomplete.component';
-import { NamespaceTagValuesComponent } from './components/namespace-tag-values/namespace-tag-values.component';
 import { TagvEditviewComponent } from './components/tagv-editview/tagv-editview.component';
 import { ErrorDialogComponent } from './components/error-dialog/error-dialog.component';
 import { DebugDialogComponent } from './components/debug-dialog/debug-dialog.component';
@@ -93,7 +92,6 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
         GenericMessageBarComponent,
         SimpleDashboardListComponent,
         NamespaceAutocompleteComponent,
-        NamespaceTagValuesComponent,
         TagvEditviewComponent,
         ErrorDialogComponent,
         DebugDialogComponent,
@@ -139,7 +137,6 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
         GenericMessageBarComponent,
         SimpleDashboardListComponent,
         InlineFilterEditorComponent,
-        NamespaceTagValuesComponent,
         WidgetConfigSortingComponent,
         ConditionalFormatterComponent,
         QueryEditorProtoComponent,
@@ -156,7 +153,6 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
     entryComponents: [
         SearchAllDialogComponent,
         InlineFilterEditorComponent,
-        NamespaceTagValuesComponent,
         MetricAutocompleteComponent,
         ErrorDialogComponent,
         AuraDialogComponent,
