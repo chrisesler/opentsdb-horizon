@@ -19,7 +19,6 @@
 // components
 @import 'components/generic-message-bar/generic-message-bar.component';
 @import 'components/search-all-dialog/search-all-dialog.component';
-@import 'components/simple-time-picker/simple-time-picker.component';
 @import 'components/theme-picker/theme-picker.component';
 @import 'components/inline-editable/inline-editable.component';
 @import 'components/navbar-user-menu/navbar-user-menu.component';
@@ -71,7 +70,6 @@
     // example: @include componentName-component-core();
     @include generic-message-bar-component-base();
     @include search-all-dialog-component-base();
-    @include simple-time-picker-component-base();
     @include theme-picker-component-base();
     @include inline-editable-component-base();
     @include navbar-user-menu-component-base();
@@ -120,7 +118,6 @@
     // example: @include componentName-component-theme($theme-config);
     @include generic-message-bar-component-theme($theme-config);
     @include search-all-dialog-component-theme($theme-config);
-    @include simple-time-picker-component-theme($theme-config);
     @include theme-picker-component-theme($theme-config);
     @include inline-editable-component-theme($theme-config);
     @include navbar-user-menu-component-theme($theme-config);

@@ -16,7 +16,6 @@ import { ColorPickerModule } from '../color-picker/color-picker.module';
  // tslint:disable:max-line-length
 import { ThemePickerComponent } from './components/theme-picker/theme-picker.component';
 import { InlineEditableComponent } from './components/inline-editable/inline-editable.component';
-import { SimpleTimePickerComponent } from './components/simple-time-picker/simple-time-picker.component';
 import { NavbarUserMenuComponent } from './components/navbar-user-menu/navbar-user-menu.component';
 import { NavbarInfoMenuComponent } from './components/navbar-info-menu/navbar-info-menu.component';
 
@@ -86,7 +85,6 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
         WidgetConfigVisualAppearanceComponent,
         WidgetConfigLegendBigNumberComponent,
         InlineEditableComponent,
-        SimpleTimePickerComponent,
         DropdownLineWeightComponent,
         DropdownLineTypeComponent,
         DropdownVisualTypeComponent,
@@ -135,7 +133,6 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
         WidgetConfigVisualAppearanceComponent,
         WidgetConfigLegendBigNumberComponent,
         DateTimePickerModule,
-        SimpleTimePickerComponent,
         ColorPickerModule,
         InlineEditableComponent,
         NamespaceAutocompleteComponent,

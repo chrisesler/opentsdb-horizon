@@ -7,7 +7,6 @@ export * from './widget-config-metric-queries/widget-config-metric-queries.compo
 export * from './widget-config-query-inspector/widget-config-query-inspector.component';
 export * from './widget-config-time/widget-config-time.component';
 export * from './widget-config-visual-appearance/widget-config-visual-appearance.component';
-export * from './simple-time-picker/simple-time-picker.component';
 export * from './dropdown-line-weight/dropdown-line-weight.component';
 export * from './dropdown-aggregators/dropdown-aggregators.component';
 export * from './generic-message-bar/generic-message-bar.component';
