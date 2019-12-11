@@ -59,7 +59,6 @@
 @import 'components/widget-config-query-inspector/widget-config-query-inspector.component';
 @import 'components/widget-config-time/widget-config-time.component';
 @import 'components/widget-config-visual-appearance/widget-config-visual-appearance.component';
-@import 'components/widget-config-legend-big-number/widget-config-legend-big-number.component';
 @import 'components/widget-config-events/widget-config-events.component';
 @import 'components/widget-config-multigraph/widget-config-multigraph.component';
 
@@ -106,7 +105,6 @@
     @include widget-config-query-inspector-component-base();
     @include widget-config-time-component-base();
     @include widget-config-visual-appearance-component-base();
-    @include widget-config-legend-big-number-component-base();
     @include widget-config-sorting-component-base();
     @include widget-config-events-component-base();
     @include widget-config-multigraph-component-base();
@@ -154,7 +152,6 @@
     @include widget-config-query-inspector-component-theme($theme-config);
     @include widget-config-time-component-theme($theme-config);
     @include widget-config-visual-appearance-component-theme($theme-config);
-    @include widget-config-legend-big-number-component-theme($theme-config);
     @include widget-config-sorting-component-theme($theme-config);
     @include widget-config-events-component-theme($theme-config);
     @include widget-config-multigraph-component-theme($theme-config);

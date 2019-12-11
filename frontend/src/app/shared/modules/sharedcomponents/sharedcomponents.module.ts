@@ -28,7 +28,6 @@ import { WidgetConfigTimeComponent } from './components/widget-config-time/widge
 import { WidgetConfigVisualAppearanceComponent } from './components/widget-config-visual-appearance/widget-config-visual-appearance.component';
 import { WidgetConfigQueryInspectorComponent } from './components/widget-config-query-inspector/widget-config-query-inspector.component';
 import { WidgetConfigLegendComponent } from './components/widget-config-legend/widget-config-legend.component';
-import { WidgetConfigLegendBigNumberComponent } from './components/widget-config-legend-big-number/widget-config-legend-big-number.component';
 import { DropdownLineWeightComponent } from './components/dropdown-line-weight/dropdown-line-weight.component';
 import { DropdownLineTypeComponent } from './components/dropdown-line-type/dropdown-line-type.component';
 import { DropdownVisualTypeComponent } from './components/dropdown-visual-type/dropdown-visual-type.component';
@@ -83,7 +82,6 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
         WidgetConfigQueryInspectorComponent,
         WidgetConfigTimeComponent,
         WidgetConfigVisualAppearanceComponent,
-        WidgetConfigLegendBigNumberComponent,
         InlineEditableComponent,
         DropdownLineWeightComponent,
         DropdownLineTypeComponent,
@@ -131,7 +129,6 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
         WidgetConfigQueryInspectorComponent,
         WidgetConfigTimeComponent,
         WidgetConfigVisualAppearanceComponent,
-        WidgetConfigLegendBigNumberComponent,
         DateTimePickerModule,
         ColorPickerModule,
         InlineEditableComponent,
