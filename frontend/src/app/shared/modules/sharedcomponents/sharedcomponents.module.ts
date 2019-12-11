@@ -19,7 +19,6 @@ import { SearchMetricsDialogComponent } from './components/search-metrics-dialog
 import { ThemePickerComponent } from './components/theme-picker/theme-picker.component';
 import { InlineEditableComponent } from './components/inline-editable/inline-editable.component';
 import { SimpleTimePickerComponent } from './components/simple-time-picker/simple-time-picker.component';
-import { ExpressionDialogComponent } from './components/expression-dialog/expression-dialog.component';
 import { NavbarUserMenuComponent } from './components/navbar-user-menu/navbar-user-menu.component';
 import { NavbarInfoMenuComponent } from './components/navbar-info-menu/navbar-info-menu.component';
 
@@ -94,7 +93,6 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
         WidgetConfigLegendBigNumberComponent,
         InlineEditableComponent,
         SimpleTimePickerComponent,
-        ExpressionDialogComponent,
         DropdownLineWeightComponent,
         DropdownLineTypeComponent,
         DropdownVisualTypeComponent,
@@ -181,7 +179,6 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
         SearchMetricsDialogComponentV0,
         SearchMetricsDialogComponent,
         SearchAllDialogComponent,
-        ExpressionDialogComponent,
         InlineQueryEditorComponent,
         InlineFilterEditorComponent,
         NamespaceTagValuesComponent,

@@ -12,9 +12,6 @@ import {
     SearchMetricsDialogComponent
 } from '../search-metrics-dialog/search-metrics-dialog.component';
 
-import {
-    ExpressionDialogComponent
-} from '../expression-dialog/expression-dialog.component';
 import { InlineQueryEditorComponent } from '../inline-query-editor/inline-query-editor.component';
 
 import { Subscription } from 'rxjs';
@@ -48,10 +45,6 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     /** Dialogs */
     // search metrics dialog
     searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
-
-    // expression
-    metricExpressionDialog: MatDialogRef<ExpressionDialogComponent> | null;
-    metricExpressionDialogSub: Subscription;
 
     // Inline Query Editor
     inlineQueryEditorDialog: MatDialogRef<InlineQueryEditorComponent> | null;
@@ -302,11 +295,6 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
             this.subscription.unsubscribe();
         }
         this.searchMetricsDialog = undefined;
-
-        if (this.metricExpressionDialogSub) {
-            this.metricExpressionDialogSub.unsubscribe();
-        }
-        this.metricExpressionDialog = undefined;
     }
 
     // opens the dialog window to search and add metrics
@@ -327,21 +315,6 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         };
     }
 
-    openMetricExpressionDialog(group: any) {
-        // console.log('%cMGROUP', 'background: purple; color: white;', group);
-        const dialogConf: MatDialogConfig = new MatDialogConfig();
-        dialogConf.width = '100%';
-        dialogConf.maxWidth = '100%';
-        dialogConf.height = 'calc(100% - 48px)';
-        dialogConf.backdropClass = 'metric-expression-dialog-backdrop';
-        dialogConf.panelClass = 'metric-expression-dialog-panel';
-        dialogConf.position = <DialogPosition>{
-            top: '48px',
-            bottom: '0px',
-            left: '0px',
-            right: '0px'
-        };
-    }
 
     openInlineQueryEditorDialog(query: any) {
         // console.log('%cInlineQueryDialog', 'background: purple; color: white;', query);

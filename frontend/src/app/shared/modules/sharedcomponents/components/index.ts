@@ -1,5 +1,4 @@
 export * from './search-metrics-dialog/search-metrics-dialog.component';
-export * from './expression-dialog/expression-dialog.component';
 export * from './theme-picker/theme-picker.component';
 export * from './widget-config-alerts/widget-config-alerts.component';
 export * from './widget-config-axes/widget-config-axes.component';
