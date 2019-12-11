@@ -14,7 +14,6 @@ import { ColorPickerModule } from '../color-picker/color-picker.module';
 
  // other components
  // tslint:disable:max-line-length
-import { SearchMetricsDialogComponent } from './components/search-metrics-dialog/search-metrics-dialog.component';
 import { ThemePickerComponent } from './components/theme-picker/theme-picker.component';
 import { InlineEditableComponent } from './components/inline-editable/inline-editable.component';
 import { SimpleTimePickerComponent } from './components/simple-time-picker/simple-time-picker.component';
@@ -76,7 +75,6 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
         ColorPickerModule
     ],
     declarations: [
-        SearchMetricsDialogComponent,
         ThemePickerComponent,
         WidgetConfigAlertsComponent,
         WidgetConfigAxesComponent,
@@ -125,7 +123,6 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
         AuraDialogComponent
     ],
     exports: [
-        SearchMetricsDialogComponent,
         SearchAllDialogComponent,
         ThemePickerComponent,
         WidgetConfigAlertsComponent,
@@ -168,7 +165,6 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
         GraphTypeComponent
     ],
     entryComponents: [
-        SearchMetricsDialogComponent,
         SearchAllDialogComponent,
         InlineFilterEditorComponent,
         NamespaceTagValuesComponent,

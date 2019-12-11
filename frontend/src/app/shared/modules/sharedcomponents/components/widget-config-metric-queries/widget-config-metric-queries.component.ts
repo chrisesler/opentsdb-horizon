@@ -8,9 +8,6 @@ import {
 
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 
-import {
-    SearchMetricsDialogComponent
-} from '../search-metrics-dialog/search-metrics-dialog.component';
 
 
 import { Subscription } from 'rxjs';
@@ -41,9 +38,6 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     /** Outputs */
     @Output() widgetChange = new EventEmitter;
 
-    /** Dialogs */
-    // search metrics dialog
-    searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
 
     /** Local variables */
 
@@ -289,25 +283,6 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         if (this.subscription) {
             this.subscription.unsubscribe();
         }
-        this.searchMetricsDialog = undefined;
-    }
-
-    // opens the dialog window to search and add metrics
-    openTimeSeriesMetricDialog(mgroupId: string) {
-        // console.log('%cMGROUP', 'background: purple; color: white;', mgroupId);
-        // do something
-        const dialogConf: MatDialogConfig = new MatDialogConfig();
-        dialogConf.width = '100%';
-        dialogConf.maxWidth = '100%';
-        dialogConf.height = 'calc(100% - 48px)';
-        dialogConf.backdropClass = 'search-metrics-dialog-backdrop';
-        dialogConf.panelClass = 'search-metrics-dialog-panel';
-        dialogConf.position = <DialogPosition>{
-            top: '48px',
-            bottom: '0px',
-            left: '0px',
-            right: '0px'
-        };
     }
 
 

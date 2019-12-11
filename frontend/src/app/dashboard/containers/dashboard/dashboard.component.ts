@@ -42,9 +42,6 @@ import {
 } from '../../state/settings.state';
 import { AppShellState, NavigatorState, DbfsLoadTopFolder, DbfsLoadSubfolder, DbfsDeleteDashboard, DbfsResourcesState } from '../../../app-shell/state';
 import { MatMenuTrigger, MenuPositionX, MatSnackBar } from '@angular/material';
-import {
-    SearchMetricsDialogComponent
-} from '../../../shared/modules/sharedcomponents/components/search-metrics-dialog/search-metrics-dialog.component';
 import { DashboardDeleteDialogComponent } from '../../components/dashboard-delete-dialog/dashboard-delete-dialog.component';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
 
@@ -181,7 +178,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     viewEditMode = false;
     newWidget: any; // setup new widget based on type from top bar
     mWidget: any; // change the widget type
-    searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
     dashboardDeleteDialog: MatDialogRef<DashboardDeleteDialogComponent> | null;
     activeMediaQuery = '';
     gridsterUnitSize: any = {};
@@ -998,34 +994,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.newWidget = this.dbService.getWidgetPrototype(selectedWidget.type, this.widgets);
     }
 
-    openTimeSeriesMetricDialog(widget: any) {
-        const dialogConf: MatDialogConfig = new MatDialogConfig();
-        dialogConf.width = '100%';
-        dialogConf.maxWidth = '100%';
-        dialogConf.height = 'calc(100% - 48px)';
-        dialogConf.backdropClass = 'search-metrics-dialog-backdrop';
-        dialogConf.panelClass = 'search-metrics-dialog-panel';
-        dialogConf.position = <DialogPosition>{
-            top: '48px',
-            bottom: '0px',
-            left: '0px',
-            right: '0px'
-        };
-        dialogConf.data = { mgroupId: widget.query.groups[0].id };
-
-        this.searchMetricsDialog = this.dialog.open(SearchMetricsDialogComponent, dialogConf);
-
-        this.searchMetricsDialog.updatePosition({ top: '48px' });
-        this.searchMetricsDialog.afterClosed().subscribe((dialog_out: any) => {
-            let widgets = [...this.widgets];
-            const group = dialog_out.mgroup;
-            widget.query.groups[0].queries = group.queries;
-            widgets = this.dbService.positionWidgetY(widgets, widget.gridPos.h);
-            widgets.unshift(widget);
-            this.store.dispatch(new UpdateWidgets(widgets));
-            this.rerender = { 'reload': true };
-        });
-    }
 
     refresh() {
         this.interCom.responsePut({
