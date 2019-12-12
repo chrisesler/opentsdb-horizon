@@ -69,10 +69,21 @@
     $navbar-background: map-get($background, navbar);
     $navbar-text: find-color-invert($navbar-background);
 
-    $menu-background: map-get($background, card);
+    $menu-background: if($is-dark-theme, lighten(map-get($background, card), 10%), map-get($background, card));
     $menu-background-hover: find-color-invert($menu-background);
+
+    $cdk-menu-bg: map-get($background, menu);
+    $cdk-menu-border: $divider;
 
     .settings-theme {
 
+    }
+
+    // cdk items
+    .mat-menu-panel.settings-themepicker-menu {
+        background-color: if($is-dark-theme, lighten($cdk-menu-bg, 8%), $cdk-menu-bg);
+        @if $is-dark-theme {
+            border: 1px solid $cdk-menu-border;
+        }
     }
 }

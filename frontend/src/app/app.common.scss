@@ -483,6 +483,10 @@
 
     }
 
+    .mat-autocomplete-panel {
+        background-color: map-get($background, menu);
+    }
+
     .mat-tab-group.mat-primary .mat-ink-bar,
     .mat-tab-nav-bar.mat-primary .mat-ink-bar {
         background: map-get($background, ink-bar);
