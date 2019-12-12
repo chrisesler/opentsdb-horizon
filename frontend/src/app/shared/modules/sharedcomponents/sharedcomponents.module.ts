@@ -31,7 +31,6 @@ import { DropdownLineWeightComponent } from './components/dropdown-line-weight/d
 import { DropdownLineTypeComponent } from './components/dropdown-line-type/dropdown-line-type.component';
 import { DropdownVisualTypeComponent } from './components/dropdown-visual-type/dropdown-visual-type.component';
 import { NavbarTimezoneToggleComponent } from './components/navbar-timezone-toggle/navbar-timezone-toggle.component';
-import { SearchAllDialogComponent } from './components/search-all-dialog/search-all-dialog.component';
 import { DropdownUnitTypeComponent } from './components/dropdown-unit-type/dropdown-unit-type.component';
 import { GenericMessageBarComponent } from './components/generic-message-bar/generic-message-bar.component';
 import { SimpleDashboardListComponent } from './components/simple-dashboard-list/simple-dashboard-list.component';
@@ -81,7 +80,6 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
         NavbarUserMenuComponent,
         NavbarInfoMenuComponent,
         NavbarTimezoneToggleComponent,
-        SearchAllDialogComponent,
         DropdownUnitTypeComponent,
         GenericMessageBarComponent,
         SimpleDashboardListComponent,
@@ -105,7 +103,6 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
         AuraDialogComponent
     ],
     exports: [
-        SearchAllDialogComponent,
         ThemePickerComponent,
         WidgetConfigAxesComponent,
         WidgetConfigGeneralComponent,
@@ -141,7 +138,6 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
         GraphTypeComponent
     ],
     entryComponents: [
-        SearchAllDialogComponent,
         InlineFilterEditorComponent,
         MetricAutocompleteComponent,
         ErrorDialogComponent,
