@@ -24,7 +24,6 @@
 @import 'components/navbar-user-menu/navbar-user-menu.component';
 @import 'components/navbar-info-menu/navbar-info-menu.component';
 @import 'components/navbar-timezone-toggle/navbar-timezone-toggle.component';
-@import 'components/navbar-search-toggle/navbar-search-toggle.component';
 @import 'components/dropdown-line-type/dropdown-line-type.component';
 @import 'components/dropdown-line-weight/dropdown-line-weight.component';
 @import 'components/dropdown-unit-type/dropdown-unit-type.component';
@@ -71,7 +70,6 @@
     @include navbar-user-menu-component-base();
     @include navbar-info-menu-component-base();
     @include navbar-timezone-toggle-component-base();
-    @include navbar-search-toggle-component-base();
     @include dropdown-line-type-component-base();
     @include dropdown-line-weight-component-base();
     @include dropdown-unit-type-component-base();
@@ -115,7 +113,6 @@
     @include navbar-user-menu-component-theme($theme-config);
     @include navbar-user-menu-component-theme($theme-config);
     @include navbar-timezone-toggle-component-theme($theme-config);
-    @include navbar-search-toggle-component-theme($theme-config);
     @include dropdown-line-type-component-theme($theme-config);
     @include dropdown-line-weight-component-theme($theme-config);
     @include dropdown-unit-type-component-theme($theme-config);
