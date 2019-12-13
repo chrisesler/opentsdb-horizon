@@ -656,7 +656,7 @@ export class YamasService {
             expression: transformedExp,
             join: {
                 type: 'Join',
-                joinType: groupByTags.length ? 'INNER' : 'NATURAL_OUTER',
+                joinType: 'NATURAL_OUTER',
                 joins: joinTags
             },
             interpolatorConfigs: [{
