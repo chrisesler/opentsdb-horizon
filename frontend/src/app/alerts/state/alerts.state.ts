@@ -35,8 +35,8 @@ export interface AlertModel {
 }
 
 export interface AlertsStateModel {
-    userNamespaces: [];
-    allNamespaces: [];
+    userNamespaces: any[];
+    allNamespaces: any[];
     selectedNamespace: any;
     loading: boolean;
     loaded: any;
