@@ -164,17 +164,6 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
 
     handleQueryRequest(message: any) {
         switch ( message.action ) {
-            case 'SetQueryEditMode':
-                this.queryEditMode = true;
-                const queries = this.widget.queries.filter( query => query.id === message.id );
-                this.editQuery = { query: queries[0], edit: message.payload.edit, type: this.widget.settings.component_type };
-                this.widgetChange.emit({ action: 'SetQueryEditMode', payload: { id: message.id }});
-                break;
-            case 'CloseQueryEditMode':
-                this.widgetChange.emit({ action: 'CloseQueryEditMode' });
-                this.queryEditMode = false;
-                this.editQuery = null;
-                break;
             case 'ToggleQueryVisibility':
                 this.widgetChange.emit({ id: message.id, action: 'ToggleQueryVisibility' });
                 break;
@@ -189,9 +178,6 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
                 break;
             case 'DeleteQueryMetric':
                 this.widgetChange.emit({ id: message.id, action: 'DeleteQueryMetric', payload: {  mid: message.payload.mid }});
-                break;
-            case 'DeleteQueryFilter':
-                this.widgetChange.emit({ id: message.id, action: 'DeleteQueryFilter', payload: {  findex: message.payload.findIndex }});
                 break;
             case 'QueryChange':
                 this.updateQuery(message.payload.query);

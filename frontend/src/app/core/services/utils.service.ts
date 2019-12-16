@@ -97,6 +97,72 @@ export class UtilsService {
         };
     }
 
+    setWidgetMetaData(widget, config) {
+        widget.settings = {...widget.settings, ...config};
+    }
+
+    setWidgetTimeConfiguration(widget, config) {
+        widget.settings.time = {
+                                    shiftTime: config.shiftTime,
+                                    overrideRelativeTime: config.overrideRelativeTime,
+                                    downsample: {
+                                        value: config.downsample,
+                                        aggregators: config.aggregators,
+                                        customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
+                                        customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit,
+                                        minInterval: config.minInterval,
+                                        reportingInterval: config.reportingInterval
+                                    }
+                                };
+     }
+
+    updateQuery( widget, payload ) {
+        const query = payload.query;
+        const qindex = query.id ? widget.queries.findIndex(q => q.id === query.id ) : -1;
+        if ( qindex === -1 ) {
+            query.id = this.generateId(6, this.getIDs(widget.queries));
+            widget.queries.push(query);
+        } else {
+            widget.queries[qindex] = query;
+        }
+    }
+
+    toggleQueryVisibility(widget, qid) {
+        const qindex = widget.queries.findIndex(d => d.id === qid);
+        widget.queries[qindex].settings.visual.visible =
+            !widget.queries[qindex].settings.visual.visible;
+    }
+
+    cloneQuery(widget, qid) {
+        const qindex = widget.queries.findIndex(d => d.id === qid);
+        if ( qindex !== -1 ) {
+            const query = this.getQueryClone(widget.queries, qindex);
+            widget.queries.splice(qindex + 1, 0, query);
+        }
+    }
+
+    deleteQuery(widget, qid) {
+        const qindex = widget.queries.findIndex(d => d.id === qid);
+        widget.queries.splice(qindex, 1);
+    }
+
+    toggleQueryMetricVisibility(widget, qid, mid) {
+        // toggle the individual query metric
+        const qindex = widget.queries.findIndex(d => d.id === qid);
+        const mindex = widget.queries[qindex].metrics.findIndex(d => d.id === mid);
+        widget.queries[qindex].metrics[mindex].settings.visual.visible =
+            !widget.queries[qindex].metrics[mindex].settings.visual.visible;
+    }
+
+    deleteQueryMetric(widget, qid, mid) {
+        // toggle the individual query
+        const qindex = widget.queries.findIndex(d => d.id === qid);
+        if (widget.queries[qindex]) {
+            const mindex = widget.queries[qindex].metrics.findIndex(d => d.id === mid);
+            widget.queries[qindex].metrics.splice(mindex, 1);
+        }
+    }
+
     getWidgetMetricDefaultLabel(queries, qIndex, mIndex: number) {
         let m = 0;
         let e = 0;

@@ -239,10 +239,10 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     updateConfig(message) {
         switch ( message.action ) {
             case 'SetMetaData':
-                this.setMetaData(message.payload.data);
+                this.util.setWidgetMetaData(this.widget, message.payload.data);
                 break;
             case 'SetTimeConfiguration':
-                this.setTimeConfiguration(message.payload.data);
+                this.util.setWidgetTimeConfiguration(this.widget, message.payload.data);
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
@@ -263,32 +263,32 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 this.type$.next(message.payload.type);
                 break;
             case 'UpdateQuery':
-                this.updateQuery(message.payload);
+                this.util.updateQuery(this.widget, message.payload);
                 this.widget.queries = [...this.widget.queries];
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'ToggleQueryMetricVisibility':
-                this.toggleQueryMetricVisibility(message.id, message.payload.mid);
+                this.util.toggleQueryMetricVisibility(this.widget, message.id, message.payload.mid);
                 this.refreshData(false);
                 break;
             case 'DeleteQueryMetric':
-                this.deleteQueryMetric(message.id, message.payload.mid);
+                this.util.deleteQueryMetric(this.widget, message.id, message.payload.mid);
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'ToggleQueryVisibility':
-                this.toggleQueryVisibility(message.id);
+                this.util.toggleQueryVisibility(this.widget, message.id);
                 this.refreshData(false);
                 this.needRequery = false;
                 break;
             case 'CloneQuery':
-                this.cloneQuery(message.id);
+                this.util.cloneQuery(this.widget, message.id);
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'DeleteQuery':
-                this.deleteQuery(message.id);
+                this.util.deleteQuery(this.widget, message.id);
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
@@ -329,32 +329,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         }
     }
 
-    updateQuery( payload ) {
-        const query = payload.query;
-        const qindex = query.id ? this.widget.queries.findIndex(q => q.id === query.id ) : -1;
-        if ( qindex !== -1 ) {
-            this.widget.queries[qindex] = query;
-        }
-    }
-
-    toggleQueryVisibility(qid) {
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        this.widget.queries[qindex].settings.visual.visible = !this.widget.queries[qindex].settings.visual.visible;
-    }
-
-    cloneQuery(qid) {
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        if ( qindex !== -1 ) {
-            const query = this.util.getQueryClone(this.widget.queries, qindex);
-            this.widget.queries.splice(qindex + 1, 0, query);
-        }
-    }
-
-    deleteQuery(qid) {
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        this.widget.queries.splice(qindex, 1);
-    }
-
     refreshData(reload = true) {
         this.isDataLoaded = false;
         if ( reload ) {
@@ -363,26 +337,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
             this.requestCachedData();
         }
     }
-
-    setMetaData(config) {
-        this.widget.settings = {...this.widget.settings, ...config};
-    }
-
-    setTimeConfiguration(config) {
-       this.widget.settings.time = {
-                                            shiftTime: config.shiftTime,
-                                            overrideRelativeTime: config.overrideRelativeTime,
-                                            downsample: {
-                                                value: config.downsample,
-                                                aggregators: config.aggregators,
-                                                customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
-                                                customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit,
-                                                minInterval: config.minInterval,
-                                                reportingInterval: config.reportingInterval
-                                            }
-                                        };
-    }
-
 
     setAxisOption() {
         const axis = this.valueAxis;
@@ -417,55 +371,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
 
     setSorting(sConfig) {
         this.widget.settings.sorting = { order: sConfig.order, limit: sConfig.limit };
-    }
-
-    toggleGroup(gIndex) {
-        this.widget.queries.groups[gIndex].settings.visual.visible = !this.widget.queries.groups[gIndex].settings.visual.visible;
-        for (let i = 0; i < this.widget.queries.groups[gIndex].queries.length; i++) {
-            this.widget.queries.groups[gIndex].queries[i].settings.visual.visible =
-            this.widget.queries.groups[gIndex].settings.visual.visible;
-        }
-        this.refreshData(false);
-    }
-    deleteGroup(gIndex) {
-        this.widget.queries.splice(gIndex, 1);
-        this.refreshData();
-    }
-
-    toggleGroupQuery(gIndex, index) {
-        // toggle the individual query
-        this.widget.queries.groups[gIndex].queries[index].settings.visual.visible =
-        !this.widget.queries.groups[gIndex].queries[index].settings.visual.visible;
-
-        // set the group to visible if the individual query is visible
-        if (this.widget.queries.groups[gIndex].queries[index].settings.visual.visible) {
-            this.widget.queries.groups[gIndex].settings.visual.visible = true;
-        } else { // set the group to invisible if all queries are invisible
-            this.widget.queries.groups[gIndex].settings.visual.visible = false;
-            for (let i = 0; i < this.widget.queries.groups[gIndex].queries.length; i++) {
-                if (this.widget.queries.groups[gIndex].queries[i].settings.visual.visible) {
-                    this.widget.queries.groups[gIndex].settings.visual.visible = true;
-                    break;
-                }
-            }
-        }
-        this.refreshData(false);
-    }
-
-    toggleQueryMetricVisibility(qid, mid) {
-        // toggle the individual query metric
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
-        this.widget.queries[qindex].metrics[mindex].settings.visual.visible =
-            !this.widget.queries[qindex].metrics[mindex].settings.visual.visible;
-    }
-
-    deleteQueryMetric(qid, mid) {
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        if (this.widget.queries[qindex]) {
-            const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
-            this.widget.queries[qindex].metrics.splice(mindex, 1);
-        }
     }
 
     changeWidgetType(type) {

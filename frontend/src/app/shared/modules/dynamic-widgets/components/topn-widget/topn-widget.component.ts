@@ -45,7 +45,6 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     doRefreshData$: BehaviorSubject<boolean>;
     doRefreshDataSub: Subscription;
     legendWidth = 0;
-    editQueryId = null;
     nQueryDataLoading = 0;
     error: any;
     errorDialog: MatDialogRef < ErrorDialogComponent > | null;
@@ -193,10 +192,10 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     updateConfig(message) {
         switch ( message.action ) {
             case 'SetMetaData':
-                this.setMetaData(message.payload.data);
+                this.util.setWidgetMetaData(this.widget, message.payload.data);
                 break;
             case 'SetTimeConfiguration':
-                this.setTimeConfiguration(message.payload.data);
+                this.util.setWidgetTimeConfiguration(this.widget, message.payload.data);
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
@@ -223,12 +222,6 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
-            case 'SetQueryEditMode':
-                this.editQueryId = message.payload.id;
-                break;
-            case 'CloseQueryEditMode':
-                this.editQueryId = null;
-                break;
             case 'ToggleQueryMetricVisibility':
                 this.toggleQueryMetricVisibility(message.id, message.payload.mid);
                 this.refreshData(false);
@@ -239,14 +232,8 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
-            case 'DeleteQueryFilter':
-                this.deleteQueryFilter(message.id, message.payload.findex);
-                this.widget.queries = this.util.deepClone(this.widget.queries);
-                this.doRefreshData$.next(true);
-                this.needRequery = true;
-                break;
             case 'ToggleQueryVisibility':
-                this.toggleQueryVisibility(message.id);
+                this.util.toggleQueryVisibility(this.widget, message.id);
                 this.refreshData(false);
                 this.needRequery = false;
                 break;
@@ -317,25 +304,6 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
         // console.log("setVisualConditions", this.widget.settings.visual);
     }
 
-    setMetaData(config) {
-        this.widget.settings = {...this.widget.settings, ...config};
-    }
-
-    setTimeConfiguration(config) {
-        this.widget.settings.time = {
-            shiftTime: config.shiftTime,
-            overrideRelativeTime: config.overrideRelativeTime,
-            downsample: {
-                value: config.downsample,
-                aggregators: config.aggregators,
-                customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
-                customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit,
-                minInterval: config.minInterval,
-                reportingInterval: config.reportingInterval
-            }
-        };
-    }
-
     setSorting(sConfig) {
         this.widget.settings.sorting = { order: sConfig.order, limit: sConfig.limit };
     }
@@ -373,16 +341,6 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 this.widget.queries[qindex].metrics[0].settings.visual.visible = true;
             }
         }
-    }
-
-    deleteQueryFilter(qid, findex) {
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        this.widget.queries[qindex].filters.splice(findex, 1);
-    }
-
-    toggleQueryVisibility(qid) {
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        this.widget.queries[qindex].settings.visual.visible = !this.widget.queries[qindex].settings.visual.visible;
     }
 
     cloneQuery(qid) {
