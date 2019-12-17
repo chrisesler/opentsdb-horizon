@@ -163,7 +163,8 @@ $widgets-common-config: (
         left: 0;
         right: 0;
         bottom: 0;
-        overflow: auto;
+        //overflow: auto;
+
     }
 
     .multi-graph-container {
@@ -293,6 +294,11 @@ $widgets-common-config: (
     }
 
     .widget-output.multigraph-enabled {
+
+        .multigraph-output {
+            overflow: auto;
+        }
+
         .multi-graph-container.multigraph-grid-mode {
             display: flex;
 
