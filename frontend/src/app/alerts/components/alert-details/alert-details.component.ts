@@ -1368,7 +1368,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                     const dataThresholdCopy = {...data.threshold};
                     data.notification.transitionsToNotify = [...this.periodOverPeriodTransitionsSelected];
                     data.threshold.periodOverPeriod = {...this.periodOverPeriodConfig.periodOverPeriod};
-                    data.threshold.periodOverPeriod.metricId = dataThresholdCopy.singleMetric.metricId;
+                    data.threshold.periodOverPeriod.metricId = subNodes[0].id; // metric/expression node
                     data.threshold.periodOverPeriod.queryIndex = dataThresholdCopy.singleMetric.queryIndex;
                 }
                 break;
