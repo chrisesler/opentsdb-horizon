@@ -1082,7 +1082,11 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     }
 
     getData() {
-        const settings = {
+        // *******
+        // ******* Remember to modify getTsdbQuery() too
+        // *******
+
+        const settings: any = {
             settings: {
                 data_source: 'yamas',
                 component_type: 'LinechartWidgetComponent'
@@ -1103,6 +1107,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         const options: any = {};
         if (Object.keys(this.periodOverPeriodConfig).length && this.data.threshold.subType === 'periodOverPeriod') {
             options.periodOverPeriod = this.periodOverPeriodConfig.periodOverPeriod;
+            settings.settings.time = {};
+            settings.settings.time.downsample = { aggregator: 'avg', value: 'custom', customValue: 1, customUnit: 'm'};
         }
 
         const mid = this.thresholdSingleMetricControls.metricId.value;
@@ -1119,13 +1125,13 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     }
 
     getTsdbQuery(mid) {
-        const settings = {
+        const settings: any = {
             settings: {
                 data_source: 'yamas',
                 component_type: 'LinechartWidgetComponent'
             }
         };
-        const time = {
+        const time: any = {
             start: '1h-ago'
         };
         const queries = {};
@@ -1137,6 +1143,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         const options: any = {};
         if (Object.keys(this.periodOverPeriodConfig).length && this.data.threshold.subType === 'periodOverPeriod') {
             options.periodOverPeriod = this.periodOverPeriodConfig.periodOverPeriod;
+            settings.settings.time = {};
+            settings.settings.time.downsample = { aggregator: 'avg', value: 'custom', customValue: 1, customUnit: 'm'};
         }
         options.sources = mid ? [ mid ] : [];
 

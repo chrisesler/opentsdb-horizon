@@ -255,7 +255,6 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
 
                     // splitX and splitY are the coordinates on the canvas
                     const splitX = coords[0];
-                    const splitY = coords[1];
 
                     // The drawing area doesn't start at (0, 0), it starts at (area.x, area.y).
                     // That's why we subtract them from splitX and splitY. This gives us the
@@ -263,8 +262,8 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                     // var leftSideWidth = splitX - area.x;
                     // var topHeight = splitY - area.y;
 
-                    canvas.fillStyle = '#A52A2A';
-                    canvas.fillRect(splitX - 1, area.y, 2, splitY);
+                    canvas.fillStyle = '#44BCB7';
+                    canvas.fillRect(splitX - 1, area.y, 2, this.size.height);
                 }
             }
         };

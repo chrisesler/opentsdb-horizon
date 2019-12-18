@@ -167,6 +167,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     previewEventsCount = 100;
     eventsCount = 10000;
     eventsLoading: boolean = false;
+    axisLabelsWidth = 55;
 
     // behaviors that get passed to island legend
     private _buckets: BehaviorSubject<any[]> = new BehaviorSubject([]);
@@ -796,12 +797,20 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             this.size = { width: nWidth, height: nHeight };
         }
         // Canvas Width resize
-        this.eventsWidth = nWidth - 55;
+        this.eventsWidth = nWidth - (this.axisEnabled(this.options.series).size * this.axisLabelsWidth);
 
         // after size it set, tell Angular to check changes
         if (cdCheck) {
             this.cdRef.detectChanges();
         }
+    }
+
+    axisEnabled(series) {
+        const axis = new Set();
+        for (const [key, value] of Object.entries(series)) {
+            axis.add(series[key].axis);
+        }
+        return axis;
     }
 
     setTimezone(timezone) {
