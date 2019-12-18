@@ -893,6 +893,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 }
                 // sending each group to get data.
                 const queries = {};
+                const sources = [];
                 for (let i = 0; i < payload.queries.length; i++) {
                     let query: any = JSON.parse(JSON.stringify(payload.queries[i]));
                     groupid = query.id;
@@ -909,6 +910,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                             // console.log("payload1", query.metrics[j].groupByTags.concat(groupby))
                             const metricGroupBy = query.metrics[j].groupByTags || [];
                             query.metrics[j].groupByTags = this.utilService.arrayUnique(metricGroupBy.concat(groupby));
+                            if ( query.metrics[j].settings.visual.visible ) {
+                                sources.push(query.metrics[j].id);
+                            }
                         }
                         queries[i] = query;
                     }
@@ -918,8 +922,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     isEditMode: this.viewEditMode,
                     dbid: this.dbid
                 };
-                if (Object.keys(queries).length) {
-                    const query = this.queryService.buildQuery(payload, dt, queries);
+                if ( Object.keys(queries).length && sources.length ) {
+                    const query = this.queryService.buildQuery(payload, dt, queries, { sources : sources } );
                     gquery.query = query;
                     // console.debug("****** DSHBID: " + this.dbid + "  WID: " + gquery.wid);
                     // ask widget to loading signal

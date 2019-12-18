@@ -270,7 +270,8 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 break;
             case 'ToggleQueryMetricVisibility':
                 this.util.toggleQueryMetricVisibility(this.widget, message.id, message.payload.mid);
-                this.refreshData(false);
+                this.doRefreshData$.next(true);
+                this.needRequery = true;
                 break;
             case 'DeleteQueryMetric':
                 this.util.deleteQueryMetric(this.widget, message.id, message.payload.mid);
@@ -279,8 +280,8 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 break;
             case 'ToggleQueryVisibility':
                 this.util.toggleQueryVisibility(this.widget, message.id);
-                this.refreshData(false);
-                this.needRequery = false;
+                this.doRefreshData$.next(true);
+                this.needRequery = true;
                 break;
             case 'CloneQuery':
                 this.util.cloneQuery(this.widget, message.id);

@@ -458,6 +458,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
             case 'ToggleQueryMetricVisibility':
                 this.toggleQueryMetricVisibility(message.id, message.payload.mid);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
+                this.needRequery = true;
                 break;
             case 'SummarizerChange':
                 this.setBigNumber();
@@ -613,7 +614,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         }
 
         this.widget.queries[qindex].metrics[mindex].settings.visual.visible = true;
-        this.refreshData(false);
+        this.refreshData();
         this.setBigNumber();
     }
 

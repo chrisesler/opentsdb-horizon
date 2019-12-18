@@ -576,12 +576,14 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 break;
             case 'ToggleQueryVisibility':
                 this.utilService.toggleQueryVisibility(this.widget, message.id);
-                this.refreshData(false);
                 this.widget.queries = this.utilService.deepClone(this.widget.queries);
+                this.needRequery = true;
+                this.doRefreshData$.next(true);
                 break;
             case 'ToggleQueryMetricVisibility':
                 this.utilService.toggleQueryMetricVisibility(this.widget, message.id, message.payload.mid);
-                this.refreshData(false);
+                this.needRequery = true;
+                this.doRefreshData$.next(true);
                 break;
             case 'CloneQuery':
                 this.utilService.cloneQuery(this.widget, message.id);
