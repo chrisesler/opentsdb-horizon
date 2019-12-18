@@ -4,7 +4,7 @@ import { map, catchError } from 'rxjs/operators';
 
 export interface UserSettingsModel {
     userid: string;
-    namespaces: Array<string>;
+    namespaces: string[];
     personalFolders: any[];
     namespaceFolders: any[];
 }

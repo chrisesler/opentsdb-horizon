@@ -1348,13 +1348,6 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         data.id = this.data.id;
         switch (data.type) {
             case 'simple':
-                if (this.data.threshold.subType === 'periodOverPeriod') {
-                    const dataThresholdCopy = {...data.threshold};
-                    data.notification.transitionsToNotify = [...this.periodOverPeriodTransitionsSelected];
-                    data.threshold.periodOverPeriod = {...this.periodOverPeriodConfig.periodOverPeriod};
-                    data.threshold.periodOverPeriod.metricId = dataThresholdCopy.singleMetric.metricId;
-                    data.threshold.periodOverPeriod.queryIndex = dataThresholdCopy.singleMetric.queryIndex;
-                }
                 const metricId = data.threshold.singleMetric.metricId;
                 const [qindex, mindex] = this.utils.getMetricIndexFromId(metricId, this.queries);
                 const tsdbQuery = this.getTsdbQuery(metricId);
@@ -1371,6 +1364,13 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 data.threshold.singleMetric.requiresFullWindow = data.threshold.singleMetric.timeSampler === 'all_of_the_times' ? data.threshold.singleMetric.requiresFullWindow : false;
                 // tslint:disable-next-line: max-line-length
                 data.threshold.singleMetric.reportingInterval = data.threshold.singleMetric.requiresFullWindow === true ? data.threshold.singleMetric.reportingInterval : null;
+                if (this.data.threshold.subType === 'periodOverPeriod') {
+                    const dataThresholdCopy = {...data.threshold};
+                    data.notification.transitionsToNotify = [...this.periodOverPeriodTransitionsSelected];
+                    data.threshold.periodOverPeriod = {...this.periodOverPeriodConfig.periodOverPeriod};
+                    data.threshold.periodOverPeriod.metricId = subNodes[0].id; // metric/expression node
+                    data.threshold.periodOverPeriod.queryIndex = dataThresholdCopy.singleMetric.queryIndex;
+                }
                 break;
             case 'healthcheck':
                 data.threshold.missingDataInterval = data.threshold.notifyOnMissing === 'true' ? data.threshold.missingDataInterval : null;

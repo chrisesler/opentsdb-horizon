@@ -819,10 +819,7 @@
                             <div class="form-group select-query">
                                 <div class="form-label vertical-center"><strong>Selected Metric</strong></div>
                                 <div class="form-control-wrap auto-width">
-                                    <ng-container *ngTemplateOutlet="selectedMetricReadOnly;context:{data:utils.getMetricDropdownValue(data.queries.raw, data.threshold.singleMetric.queryIndex, data.threshold.singleMetric.metricId).split(':')}"></ng-container>
-                                    <ng-template #selectedMetricReadOnly let-data="data">
-                                        {{queries[data[0]].metrics[data[1]].name}}
-                                    </ng-template>
+                                    {{utils.getNameFromID(this.utils.getMetricDropdownValue(data.queries.raw, data.threshold.singleMetric.metricId), data.queries.raw)}}
                                 </div>
                             </div>
 

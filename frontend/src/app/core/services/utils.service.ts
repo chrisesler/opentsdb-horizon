@@ -878,4 +878,16 @@ export class UtilsService {
         const config  = qIndex !== -1 && mIndex !== -1 ? queries[qIndex].metrics[mIndex] : {};
         return config.id;
     }
+
+    getNameFromID(id, queries) {
+        for (let i = 0; i < queries.length; i++) {
+            for (let j = 0; j < queries[i].metrics.length; j++) {
+                if (queries[i].metrics[j].id === id) {
+                    return queries[i].metrics[j].name;
+                }
+            }
+        }
+        return '';
+    }
+
 }
