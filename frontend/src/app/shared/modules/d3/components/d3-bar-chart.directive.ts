@@ -34,6 +34,15 @@ export class D3BarChartDirective implements OnInit, OnChanges {
       return;
     }
     let dataset = this.options.data;
+    dataset = [
+      {label: "Yamas.system",value: 0},
+      {label: "Yamas.system",value: -1},
+      {label: "Yamas.system",value: -2},
+      {label: "Yamas.system",value: -3},
+      {label: "Yamas.system",value: -4},
+      {label: "Yamas.system",value: -5},
+    ];
+    console.log("dataset", dataset);
     const margin = { top: 0, bottom: 0, left: 3, right: 5 };
     const minBarHeight = 15;
     let chartHeight = minBarHeight * dataset.length;
