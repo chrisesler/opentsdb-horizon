@@ -245,7 +245,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         const control = <FormArray>this.listForm.controls['listVariables'];
         const selControl = control.at(index);
         const val = selControl.get('filter').value;
-        const idx = this.filteredValueOptions[index].findIndex(item => item && item === val);
+        let idx = -1;
+        if (this.filteredValueOptions[index]) {
+            idx = this.filteredValueOptions[index].findIndex(item => item && item === val);
+        }
         if (idx === -1) {
             selControl.get('filter').setValue('');
         } else {
@@ -299,47 +302,36 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
 
     // since alias/name has to be unique with db filters
     private validateAlias(val: string, index: number, selControl: any, startVal: string) {
-        // debugger;
+        debugger;
         if (val.trim() !== '') {
             const tplFormGroups = this.editForm.controls['formTplVariables']['controls'];
-            if (tplFormGroups.length > 0) {
-                for (let i = 0; i < tplFormGroups.length; i++) {
-                    const rowControl = tplFormGroups[i];
-                    console.log('hill - rowControl', rowControl, rowControl.getRawValue(), rowControl.get('alias').value);
-                    let insert = 0;
-                    if (rowControl.get('mode').value === 'auto') {
-                        insert = rowControl.get('isNew').value;
-                    }
-                    if (i === index) { // value is changed of its own
-                        rowControl.get('isNew').setValue(0, { emitEvent: false });
-                        // update state here before applied count can be determined
-                        this.updateState(rowControl, false);
-                        // run after state update
-                        this.interCom.requestSend({
-                            action: 'UpdateTplAlias',
-                            payload: {
-                                vartag: rowControl.getRawValue(),
-                                originVal: startVal,
-                                insert: insert
-                            }
-                        });
-                        continue;
-                    }
-                    if (val.trim() === rowControl.get('alias').value.trim()) {
-                        tplFormGroups[index].controls['alias'].setErrors({ 'unique': true });
-                        tplFormGroups[i].controls['alias'].setErrors({ 'unique': true });
-                    } else {
-                        tplFormGroups[i]['controls']['alias'].setErrors(null);
-                        rowControl.get('isNew').setValue(0, { emitEvent: false });
-                        // update state here before applied count
-                        this.updateState(rowControl, false);
-                        // make sure exec after updating dashboard state.
-                        this.interCom.requestSend({
-                            action: 'UpdateTplAlias',
-                            payload: { vartag: rowControl.getRawValue(), originVal: startVal, insert: insert}
-                        });
-                    }
+            // first let do the validation of the form to make sure we have unique alias
+            for (let i = 0; i < tplFormGroups.length; i++) {
+                const rowControl = tplFormGroups[i];
+                // we need to reset error from prev round if any
+                rowControl.controls['alias'].setErrors(null);
+                if ( i === index ) { continue; }
+                if (val.trim() === rowControl.get('alias').value) {
+                    tplFormGroups[index].controls['alias'].setErrors({ 'unique': true });
+                    tplFormGroups[i].controls['alias'].setErrors({ 'unique': true });
+                    return;                   
                 }
+            }
+            // form is valid, move on
+            // first update state of this form, call one fill will update all the list
+            const selControl = this.getSelectedControl(index);
+            this.updateState(selControl, false);
+            // now update all of this tplVar
+            for (let j = 0; j < tplFormGroups.length; j++) {
+                const rowControl = tplFormGroups[j];
+                this.interCom.requestSend({
+                    action: 'UpdateTplAlias',
+                    payload: {
+                        vartag: rowControl.getRawValue(),
+                        originVal: startVal,
+                        insert: rowControl.get('isNew').value
+                    }
+                });
             }
         }
     }
@@ -359,7 +351,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         if (cname === 'filter') {
             // const idx = this.filteredValueOptions[index].findIndex(item => item && item.toLowerCase() === val.toLowerCase());
             console.log('hill - this.filteredValueOptions', this.filteredValueOptions);
-            const idx = this.filteredValueOptions[index].findIndex(item => item && item === val) || -1;
+            let idx = -1;
+            if (this.filteredValueOptions[index]) {
+                idx = this.filteredValueOptions[index].findIndex(item => item && item === val);
+            }
             if (idx === -1) {
                 selControl.get('filter').setValue('', { emitEvent: false });
             } else {
@@ -426,6 +421,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         this.modeChange.emit({ view: true });
     }
     updateState(selControl: AbstractControl, reQuery: boolean = true) {
+        console.log('hill - upappapdapdpsad updateState is calling', selControl.value);
         if (selControl.valid) {
             const sublist = [];
             for (let i = 0; i < this.formTplVariables.controls.length; i++) {
@@ -435,6 +431,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             }
             // update db filters state.
             this.updateTplVariableState(this.selectedNamespaces, sublist);
+            // console.log();
             // we might need to run widgets which are affected by this tag
             if (reQuery) {
                 this.interCom.requestSend({
