@@ -223,7 +223,9 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     // dirty flag to determine if the tag is insert or replace in auto mode
     // dirty = 1 means to do insert
     addVariableTemplate(data?: any) {
-        data = (data) ? data : { mode: this.getLastFilterMode(), applied: 0, isNew: 1 };
+        const mode = this.getLastFilterMode();
+        const isNew = mode === 'auto' ? 1 : 0;
+        data = (data) ? data : { mode: mode, applied: 0, isNew: isNew };
         const varData = {
             tagk: new FormControl((data.tagk) ? data.tagk : '', [Validators.required]),
             alias: new FormControl((data.alias) ? data.alias : '', [Validators.required]),
@@ -324,6 +326,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             // now update all of this tplVar
             for (let j = 0; j < tplFormGroups.length; j++) {
                 const rowControl = tplFormGroups[j];
+                // if manual mode and isNew then we should not do any insert.
+                if (rowControl.get('mode').value !== 'auto') {
+                    continue;
+                }
                 this.interCom.requestSend({
                     action: 'UpdateTplAlias',
                     payload: {
@@ -503,6 +509,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         // quickly to update the mode.
         this.updateState(selControl, false);
         if (mode === 'auto') {
+            if (selControl.valid) {
             // when mode is from manual to auto, we will reapply all of them
             this.interCom.requestSend({
                 action: 'UpdateTplAlias',
@@ -511,8 +518,12 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                     originVal: '',
                     insert: 1
                 }
-            });            
+            });  
+            } else {
+                selControl.get('isNew').setValue(1);
+            }         
         } else { // set to manual mode
+            selControl.get('isNew').setValue(0);
             this.updateState(selControl, false);
         }
     }
