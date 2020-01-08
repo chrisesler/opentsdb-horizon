@@ -821,6 +821,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         console.log('hill - updateTplAlias call', payload);
         this.checkDbTagsLoaded().subscribe(loaded => {
             if (loaded) { // make sure it's true
+                // debugger;
                 console.log('hill - dashboardtagkey', this.dashboardTags.rawDbTags);
                 let applied = 0;
                 for (let i = 0; i < this.widgets.length; i++) {
@@ -844,9 +845,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     const tvar = this.tplVariables.editTplVariables.tvars[i];
                     tvar.isNew = 0;
                     //if (tvar.alias === payload.vartag.alias && payload.vartag.applied < applied) {
+                    if (tvar.alias === payload.vartag.alias) {
                         tvar.applied += applied;
                         break;
-                    // }
+                    }
                 }
                 console.log('hill - this.edit tplvar hwn update akias', this.tplVariables.editTplVariables);
                 this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
