@@ -10,6 +10,7 @@ import { UtilsService } from '../../../../core/services/utils.service';
 import ThresholdsPlugin from '../../../dygraph-threshold-plugin/src/index';
 import * as moment from 'moment';
 import * as d3 from 'd3';
+import { LoggerService } from '../../../../core/services/logger.service';
 
 @Directive({
     // tslint:disable-next-line: directive-selector
@@ -45,12 +46,16 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
     constructor(
         private element: ElementRef,
         private utils: UtilsService,
-        private uConverter: UnitConverterService
+        private uConverter: UnitConverterService,
+        private logger: LoggerService
     ) { }
 
     ngOnInit() { }
 
     ngOnChanges(changes: SimpleChanges) {
+
+        // this.logger.log('SIMPLE CHANGES', {changes});
+
         // NOTE:
         // If changing to custom row/column after splitting metric by tag, it would cause the dygraph option.plugins error
         // the options.plugins originally has one item that is a function
@@ -250,7 +255,6 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
 
                     // splitX and splitY are the coordinates on the canvas
                     const splitX = coords[0];
-                    const splitY = coords[1];
 
                     // The drawing area doesn't start at (0, 0), it starts at (area.x, area.y).
                     // That's why we subtract them from splitX and splitY. This gives us the
@@ -259,7 +263,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                     // var topHeight = splitY - area.y;
 
                     canvas.fillStyle = '#44BCB7';
-                    canvas.fillRect(splitX - 1, area.y, 2, splitY);
+                    canvas.fillRect(splitX - 1, area.y, 2, this.size.height);
                 }
             }
         };
@@ -355,6 +359,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
             labelsDiv.style.left = (event.offsetX + xOffset) + 'px';
             labelsDiv.style.top = (event.offsetY + yOffset) + 'px';
         };
+
         if (!changes) {
             return;
         } else {
@@ -394,7 +399,27 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                     };
 
                     if (this.timeseriesLegend) {
-                        this.options.clickCallback = clickCallback;
+                        //this.options.clickCallback = clickCallback;
+                        // TODO: need to detect double click and NOT open the island
+
+                        let clickCount = 0;
+                        const handleSingleDoubleClick = function(e, x, points) {
+                          if (clickCount === 0) {
+                            setTimeout(() => {
+                              if (clickCount > 1) {
+                                // double click
+                              } else {
+                                // single click
+                                clickCallback.call(this, e, x, points);
+                              }
+                              clickCount = 0;
+                            }, 400); // 400 ms click delay
+                          }
+                          clickCount += 1;
+                        };
+
+                        this.options.clickCallback = handleSingleDoubleClick;
+
                     }
                 } else if (this.chartType === 'heatmap') {
                     this.options.interactionModel = {

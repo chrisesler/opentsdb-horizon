@@ -14,6 +14,25 @@
 
         .graphs {
             display: flex;
+
+            .query-preview {
+                margin-right: 10px;
+                margin-bottom: 10px;
+            }
+
+            .threshold-preview {
+                margin-left: 10px;
+                margin-bottom: 10px;
+            }
+        }
+
+        .preview-placeholder {
+            height: 150px;
+            padding: 10px;
+
+            .gif-spinner {
+                margin-left: 10px;
+            }
         }
     }
 

@@ -2,6 +2,8 @@
     <mat-toolbar-row class="detail-brief">
         <span>Total Series: showing {{visibleDataCount}} of {{data.series.length}}</span>
         <span class="flex-spacer"></span>
+        <span class="detail-when">{{data.when}}</span>
+        <span class="flex-spacer"></span>
         <span>Sort by {{sortActiveText}} {{(sort && sort.direction === 'asc') ? 'ascending' : 'descending'}}</span>
     </mat-toolbar-row>
 </mat-toolbar>
@@ -24,8 +26,8 @@
             <!-- Selection Column -->
             <ng-container matColumnDef="checkbox">
                 <th mat-header-cell *matHeaderCellDef >
-                    <mat-checkbox value="" color="primary" 
-                        [checked]="masterChecked" 
+                    <mat-checkbox value="" color="primary"
+                        [checked]="masterChecked"
                         [indeterminate]="masterIndeterminate"
                         (click)="$event.stopPropagation(); masterCheckboxClick($event)"></mat-checkbox>
                 </th>
@@ -35,16 +37,16 @@
                         (change)="timeSeriesVisibilityToggle(element.srcIndex, $event);"></mat-checkbox>
                 </td>
             </ng-container>
-        
+
             <!-- Metric Name Column -->
             <ng-container matColumnDef="metric">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header >metric</th>
                 <td mat-cell *matCellDef="let element" (click)="timeseriesVisibilityBy('row', element)">
                     <span class="color-chip" [style.color]="element.series.color"></span>
-                    <span>{{formattedMetricLabel(element)}}</span>
+                    <span [matTooltip]="element.series.hash">{{formattedMetricLabel(element)}}</span>
                 </td>
             </ng-container>
-        
+
             <!-- Tag Columns (dynamic) -->
             <ng-container *ngFor="let resultTag of resultTagKeys" [matColumnDef]="resultTag">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header >{{resultTag}}</th>
@@ -52,7 +54,7 @@
                     <span>{{element.series.tags[resultTag]}}</span>
                 </td>
             </ng-container>
-        
+
             <!-- Value Column -->
             <ng-container matColumnDef="value">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header > Value </th>
@@ -60,7 +62,7 @@
                     <span>{{element.formattedValue}}</span>
                 </td>
             </ng-container>
-        
+
             <tr mat-header-row *matHeaderRowDef="tableColumns; sticky: true" class="mat-elevation-z1"></tr>
             <tr mat-row *matRowDef="let row; columns: tableColumns;" [ngClass]="{'tag-highlight': !multigraph && row.series.tags[highlightTag.key] === highlightTag.value}"></tr>
         </table>
@@ -83,7 +85,7 @@
     <div class="toolbar-item show-amount-controls" *ngIf="dataLimitType !== 'All'">
         <input type="number" [formControl]="showAmount" max-length="3" autocomplete="off" (mousedown)="$event.stopPropagation()" (mousemove)="$event.stopPropagation()">
     </div>
-    <div class="toolbar-item logscale-controls">
+    <div class="toolbar-item logscale-controls" *ngIf="options.showLogscaleToggle">
         <span>Logscale:</span>
         <mat-checkbox (change)="logscaleCheckboxChange('y1',$event.checked)" [checked]="logScaleY1">Y1</mat-checkbox>
         <mat-checkbox (change)="logscaleCheckboxChange('y2',$event.checked)" [checked]="logScaleY2">Y2</mat-checkbox>

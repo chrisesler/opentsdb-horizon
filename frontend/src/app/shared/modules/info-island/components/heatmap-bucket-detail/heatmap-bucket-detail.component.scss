@@ -167,20 +167,28 @@
     $success: map-get($theme-config, success);
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
-    $is-dark-theme: map-get($theme-config, is-dark);
+    $is-dark: map-get($theme-config, is-dark);
+
+    $divider: map-get($foreground, divider);
+
+    $menu-bg: if($is-dark, lighten(map-get($background, menu), 6%), map-get($background, menu));
+
+    $cdk-window-bg: $menu-bg;
+    $cdk-window-border: $divider;
+
+    $header-bg: if($is-dark, map-get($background, menu), map-get($background, navbar));
+    $text: map-get($foreground, navbar-text);
 
     .heatmap-bucket-detail-component {
         .ts-legend-toolbar {
             color: white;
             background-color: black;
 
-            .mat-toolbar-row.detail-brief {
-                color: #3a87ad;
-                background-color: #ddeff9;
-            }
         }
 
         .ts-legend-table {
+            background: $cdk-window-bg;
+
             .mat-sort-header-container.mat-sort-header-sorted {
                 color: #c09853;
 

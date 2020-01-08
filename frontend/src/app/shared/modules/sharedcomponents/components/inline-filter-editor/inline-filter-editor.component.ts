@@ -66,7 +66,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
         private interCom: IntercomService,
         private cdRef: ChangeDetectorRef) {
             matIconRegistry.addSvgIcon('exclamation_point', domSanitizer.bypassSecurityTrustResourceUrl('assets/exclamation-point.svg')
-            );
+        );
     }
 
     ngOnInit() {

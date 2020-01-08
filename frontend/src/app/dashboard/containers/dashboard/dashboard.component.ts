@@ -68,9 +68,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     @Select(AuthState.getAuth) auth$: Observable<string>;
     @Select(DBSettingsState.getDashboardSettings) dbSettings$: Observable<any>;
-    @Select(UserSettingsState.GetUserNamespaces) userNamespaces$: Observable<string>;
-    @Select(UserSettingsState.GetPersonalFolders) userPersonalFolders$: Observable<any>;
-    @Select(UserSettingsState.GetNamespaceFolders) userNamespaceFolders$: Observable<string>;
+    @Select(UserSettingsState.GetUserNamespaces) userNamespaces$: Observable<string[]>;
+    @Select(UserSettingsState.GetPersonalFolders) userPersonalFolders$: Observable<any[]>;
+    @Select(UserSettingsState.GetNamespaceFolders) userNamespaceFolders$: Observable<any[]>;
     @Select(DBState.getDashboardFriendlyPath) dbPath$: Observable<string>;
     @Select(DBState.getLoadedDB) loadedRawDB$: Observable<any>;
     @Select(DBState.getDashboardStatus) dbStatus$: Observable<string>;
@@ -178,7 +178,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     widgets: any[] = [];
     tplVariables: any = { editTplVariables: [], viewTplVariables: []};
     variablePanelMode: any = { view : true };
-    userNamespaces: any = [];
+    userNamespaces: any[] = [];
     viewEditMode = false;
     newWidget: any; // setup new widget based on type from top bar
     mWidget: any; // change the widget type

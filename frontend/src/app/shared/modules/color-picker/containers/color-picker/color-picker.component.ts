@@ -102,7 +102,7 @@ export class ColorPickerComponent implements OnInit {
         { text: 'Maroon', value: '#B00013' },
         { text: 'Yellow', value: '#FED800' },
         { text: 'Blue', value: '#0B5ED2' },
-        { text: 'Lavendar', value: '#9971E0' },
+        { text: 'Lavender', value: '#9971E0' },
         { text: 'Black', value: '#000000' },
         { text: 'Red', value: '#DA001B' },
         { text: 'Lime', value: '#AAEC61' },

@@ -9,19 +9,22 @@
 </div>
 
 <div class="graphs">
-  <div class="graph-output">
+  <div #queryPreview class="graph-output query-preview" *ngIf="!nQueryDataLoading">
       <div #dygraph class="chart"
         dygraphsChart
         [chartType]="'line'"
-        [data]="chartData"
+        [data]="observedData"
         [size]="{'width': size.width/2 - 25, 'height': size.height - 10}"
-        [options]="options"
+        [options]="observedOptions"
         (lastTimeseriesHighlighted)="timeSeriesClicked($event)"
-        (zoomed)="handleZoomQuery($event)">
+        (zoomed)="handleZoomQuery($event)"
+        [timeseriesLegend]="tsLegendOptions"
+        (currentTickEvent)="timeseriesTickListener(i, j, yKey, xKey, $event)"
+       >
       </div>
     </div>
     
-    <div class="graph-output" *ngIf="thresholdData && thresholdData.ts">
+    <div class="graph-output threshold-preview" *ngIf="thresholdData && thresholdData.ts && !nQueryDataLoading && observedIndex !== -1">
       <div #dygraph class="chart"
         dygraphsChart
         [chartType]="'line'"
@@ -32,7 +35,19 @@
       </div>
     </div>
 
-    <div *ngIf="!thresholdData.ts">
-      <-- Click a line for Threshold Preview
+    <div *ngIf="nQueryDataLoading" class="preview-placeholder">
+      <span>
+        Fetching query...
+      </span>
+      <span>
+        <div class="gif-spinner">
+          <img src="/assets/spinner-26x26.gif" />
+        </div>
+      </span>
+
+    </div>
+
+    <div *ngIf="observedIndex === -1 && !nQueryDataLoading">
+      ← Please click a line
     </div>
 </div>

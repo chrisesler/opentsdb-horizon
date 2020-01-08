@@ -21,6 +21,8 @@ import { MatTableDataSource } from '@angular/material/table';
 import { LoggerService } from '../../../../../core/services/logger.service';
 import { environment } from '../../../../../../environments/environment';
 import { InfoIslandService } from '../../../info-island/services/info-island.service';
+import { ThemeService } from '../../../../../app-shell/services/theme.service';
+import { rgb } from 'd3';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -81,6 +83,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         strokeWidth: 1,
         strokeBorderWidth: this.isStackedGraph ? 0 : 0,
         highlightSeriesBackgroundAlpha: 0.5,
+        highlightSeriesBackgroundColor: 'rgb(255, 255, 255)',
         isZoomedIgnoreProgrammaticZoom: true,
         hideOverlayOnMouseOut: true,
         isCustomZoomed: false,
@@ -164,6 +167,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     previewEventsCount = 100;
     eventsCount = 10000;
     eventsLoading: boolean = false;
+    axisLabelsWidth = 55;
 
     // behaviors that get passed to island legend
     private _buckets: BehaviorSubject<any[]> = new BehaviorSubject([]);
@@ -181,7 +185,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         private unit: UnitConverterService,
         private logger: LoggerService,
         private multiService: MultigraphService,
-        private iiService: InfoIslandService
+        private iiService: InfoIslandService,
+        private themeService: ThemeService
     ) { }
 
     ngOnInit() {
@@ -195,6 +200,16 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                     this.refreshData();
                 }
             });
+
+        this.subscription.add(this.themeService.getThemeType().subscribe( themeType => {
+            this.logger.log('THEME TYPE', { themeType });
+
+            this.options = {...this.options,
+                //highlightSeriesBackgroundAlpha: (themeType === 'light') ? 0.5 : 0.8,
+                highlightSeriesBackgroundColor: (themeType === 'light') ? 'rgb(255,255,255)' : 'rgb(60,75,90)'
+            };
+            this.cdRef.markForCheck();
+        }));
 
         // subscribe to event stream
         this.subscription.add(this._buckets.pipe().subscribe( buckets => {
@@ -390,7 +405,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 environment.debugLevel.toUpperCase() === 'INFO') {
                                     this.debugData = rawdata.log; // debug log
                             }
-                            console.log("graphData", this.graphData)
+                            // console.log("graphData", this.graphData)
                             // we should not call setLegendDiv here as it's taken care in getUpdatedWidgetConfig
                             this.setLegendDiv();
                             if (!this.multigraphEnabled) {
@@ -778,12 +793,20 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             this.size = { width: nWidth, height: nHeight };
         }
         // Canvas Width resize
-        this.eventsWidth = nWidth - 55;
+        this.eventsWidth = nWidth - (this.axisEnabled(this.options.series).size * this.axisLabelsWidth);
 
         // after size it set, tell Angular to check changes
         if (cdCheck) {
             this.cdRef.detectChanges();
         }
+    }
+
+    axisEnabled(series) {
+        const axis = new Set();
+        for (const [key, value] of Object.entries(series)) {
+            axis.add(series[key].axis);
+        }
+        return axis;
     }
 
     setTimezone(timezone) {

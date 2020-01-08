@@ -410,6 +410,18 @@ export class UtilsService {
         return {};
     }
 
+    getMetricIndexFromId(id, queries) {
+        // tslint:disable-next-line:forin
+        for (const i in queries) {
+            for (const j in queries[i].metrics) {
+                if (queries[i].metrics[j].id === id) {
+                    return [parseInt(i, 10), parseInt(j, 10)];
+                }
+            }
+        }
+        return [];
+    }
+
     getSourceIDAndTypeFromMetricID(metricId, queries) {
         // tslint:disable-next-line:forin
         for (const i in queries) {
@@ -803,10 +815,24 @@ export class UtilsService {
         return label + (eIndex + 1);
     }
 
-    getMetricDropdownValue(queries, qindex, mid) {
+    getMetricDropdownValue(queries, dsId) {
         const REGDSID = /q?(\d+)?_?(m|e)(\d+).*/;
-        const qids = REGDSID.exec(mid);
-        const mIndex =  this.getDSIndexToMetricIndex(queries[qindex], parseInt(qids[3], 10) - 1, qids[2] );
-        return qindex + ':' + mIndex;
+        const ids = REGDSID.exec(dsId);
+        const qIndex = ids ? parseInt(ids[1], 10) - 1 : 0;
+        const mIndex = ids ? this.getDSIndexToMetricIndex(queries[qIndex], parseInt(ids[3], 10) - 1, ids[2]) : -1;
+        const config  = qIndex !== -1 && mIndex !== -1 ? queries[qIndex].metrics[mIndex] : {};
+        return config.id;
     }
+
+    getNameFromID(id, queries) {
+        for (let i = 0; i < queries.length; i++) {
+            for (let j = 0; j < queries[i].metrics.length; j++) {
+                if (queries[i].metrics[j].id === id) {
+                    return queries[i].metrics[j].name;
+                }
+            }
+        }
+        return '';
+    }
+
 }

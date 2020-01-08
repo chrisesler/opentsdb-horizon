@@ -23,7 +23,7 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                
+
                 &:not(:first-child) {
                     padding-right: 8px;
                 }
@@ -124,7 +124,7 @@
                     border-radius: 4px;
                     border: 0;
                     font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
-                    
+
                     .mat-list-item-content {
                         padding: 0;
                         flex: 1;
@@ -141,7 +141,7 @@
                             margin-right: 6px;
                         }
                     }
-                } 
+                }
             }
 
             .query-metric-table.mat-table {
@@ -205,14 +205,14 @@
                     &.metric-index {
                         min-width: 50px;
                         width: 50px;
-    
+
                         .mat-flat-button {
                             padding: 0;
                             min-width: 50px;
-                            background: rgba(0,0,0,0.03);
+                            // background: rgba(0,0,0,0.03);
                             line-height: initial;
                             width: 100%;
-        
+
                             .mat-button-wrapper {
                                 display: inline-flex;
                                 flex-direction: column;
@@ -222,18 +222,18 @@
                                 padding: 2px 0 0 !important;
                                 width: 100%;
                             }
-                            
+
                             .label {
                                 flex: 1;
                                 display: flex;
                                 padding: 0 6px;
-        
+
                                 span {
                                     flex: 1;
                                     font-size: 12px;
                                     padding: 2px 0;
                                 }
-        
+
                                 .mat-icon {
                                     width: 14px;
                                     height: 14px;
@@ -241,12 +241,12 @@
                                     margin-right: 4px;
                                 }
                             }
-        
+
                             .mat-select-arrow-wrapper {
                                 padding: 4px 0;
                                 display: inline-flex;
                                 justify-content: center;
-                                border-top: 1px solid rgba(0,0,0,0.06);
+                                //border-top: 1px solid rgba(0,0,0,0.06);
                             }
                         }
                     }
@@ -279,7 +279,7 @@
                                 opacity: 0;
                                 transition: opacity 200ms ease-in-out;
 
-                                
+
                             }
 
                             &:hover {
@@ -311,18 +311,18 @@
                             margin-left: 5px;
                         }
                     }
-    
+
                     &.tag-aggregator {
                         .tag-aggregator-wrapper {
                             width: 100%;
                             display: flex;
                             align-items: center;
                             height: 32px;
-    
+
                             .tag-aggregator-component {
                                 align-self: stretch;
                             }
-    
+
                             .by-spacer {
                                 padding: 0 6px;
                             }
@@ -335,18 +335,18 @@
                             display: flex;
                             align-items: center;
                             height: 32px;
-                            
+
                             .summarizer-title{
                                 padding-left: 5px;
                                 padding-right: 5px;
                             }
-                    
+
                             .mat-button {
                                 line-height: 32px;
-                    
+
                                 .mat-button-wrapper {
                                     display: flex;
-                    
+
                                     .mat-select-arrow-wrapper {
                                         display: flex;
                                         align-items: center;
@@ -362,7 +362,7 @@
                             display: flex;
                             align-items: center;
                             height: 32px;
-    
+
                             .metric-function-component {
                                 align-self: stretch;
                             }
@@ -373,11 +373,11 @@
                         margin-left: 8px;
                         display: inline-flex;
                         align-items: center;
-        
+
                         .mat-icon svg path {
                             fill: currentColor;
                         }
-        
+
                         .mat-flat-button {
                             padding: 0;
                             min-width: 24px;
@@ -386,22 +386,22 @@
                             .mat-button-wrapper {
                                 line-height: 24px;
                             }
-                            
+
                             .mat-icon {
                                 width: 24px;
                                 height: 24px;
-        
+
                                 svg {
                                     width: 90%;
                                     height: 90%;
                                 }
                             }
-        
+
                             .mat-select-arrow {
                                 color: white;
                             }
                         }
-        
+
                         .mat-mini-fab {
                             @include mat-elevation(2);
                             width: 24px;
@@ -409,11 +409,11 @@
                             display: flex;
                             align-items: center;
                             justify-content: center;
-        
+
                             .mat-button-wrapper {
                                 padding: 0;
                             }
-        
+
                             .mat-icon {
                                 width: 18px;
                                 height: 18px;
@@ -485,35 +485,35 @@
         .mat-select-arrow-wrapper {
             display: table-cell;
             vertical-align: middle;
-          
+
             // When used in a box appearance form-field the arrow should be shifted up 50%.
             .mat-form-field-appearance-fill & {
               transform: translateY(-50%);
             }
-          
+
             // When used in a outline form-field the arrow should be shifted up 25%.
             .mat-form-field-appearance-outline & {
               transform: translateY(-25%);
             }
-          
+
             // When used in a standard appearance form-field the arrow should be shifted up 50%,
             // but only if it's not empty and it has a label.
             .mat-form-field-appearance-standard.mat-form-field-has-label
               .mat-select:not(.mat-select-empty) & {
                 transform: translateY(-50%);
               }
-          
+
             // Animate the arrow position, but only when the transitioning to empty (animate the arrow down)
             // This is in line with the mat-form-field label animation
             .mat-form-field-appearance-standard .mat-select.mat-select-empty & {
               transition: transform $swift-ease-out-duration $swift-ease-out-timing-function;
             }
-          
+
             ._mat-animation-noopable.mat-form-field-appearance-standard .mat-select.mat-select-empty & {
               transition: none;
             }
           }
-          
+
           .mat-select-arrow {
             width: 0;
             height: 0;
@@ -531,7 +531,7 @@
                     &.metric-index {
                         min-width: 60px;
                         width: 60px;
-    
+
                         .mat-flat-button {
                             min-width: 60px;
                         }
@@ -630,6 +630,7 @@
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
     $is-dark: map-get($theme-config, is-dark);
+
     $chip-bg: rgba(map-get($primary, default), .1);
     $alias-bg: if($is-dark, rgba(255, 255, 255, .2), rgba(0, 0, 0, .2));
     $alias-text: if($is-dark, rgba(255, 255, 255, .5), rgba(0, 0, 0, .5));
@@ -646,16 +647,16 @@
     $query-block-bg: map-get($widgets, query-editor-block-bg);
     $query-block-selected-border: map-get($widgets, query-editor-selected-border);
 
-    $brand-color: map-get($background, navbar);
-    $brand-color-inverse: map-get($foreground, navbar-text);
-    
+    $brand-color: if($is-dark, lighten(map-get($background, navbar), 15%), map-get($background, navbar));
+    $brand-color-inverse: find-color-invert($brand-color);
+
     $lighter-divider: rgba(0,0,0,0.04);
 
     .query-editor-proto {
 
 
         .namespace-bar.mat-toolbar {
-            background-color: rgba(0,0,0,0.04);
+            background-color: if($is-dark, rgba(255,255,255,0.04), rgba(0,0,0,0.04));
 
             &.is-expanded {
                 box-shadow: inset 0 -1px 0 1px map-get($background, card);
@@ -673,10 +674,10 @@
             border-right: 1px solid $lighter-divider;
 
             .common-tags {
-                background-color: rgba($brand-color, 0.15);
+                background-color: if($is-dark, rgba($brand-color, 0.4), rgba($brand-color, 0.15));
 
                 .common-tags-label {
-                    color: $brand-color;
+                    color: if($is-dark, $brand-color-inverse, $brand-color);
                 }
 
                 .common-tags-wrapper {
@@ -690,6 +691,20 @@
         }
 
         .metric-row-data {
+
+            &.metric-index {
+                .mat-flat-button {
+                    background: if($is-dark, rgba(255,255,255, 0.08), rgba(0,0,0, 0.03));
+
+                    .mat-select-arrow-wrapper {
+                        border-top: 1px solid if($is-dark, rgba(255,255,255, 0.25), rgba(0,0,0,0.06));
+
+                        .mat-select-arrow {
+                            color: if($is-dark, rgba(255,255,255,0.7), rgba(0,0,0,0.7));
+                        }
+                    }
+                }
+            }
 
             &.metric-name,
             &.expression {
@@ -741,7 +756,7 @@
                 }
             }
         }
-        
+
 
         .metric-action-buttons {
             border: 1px solid $lighter-divider;

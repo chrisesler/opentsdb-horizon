@@ -19,6 +19,7 @@ import {
     MatSort,
     MatDialog,
     MatDialogRef,
+    MatDialogConfig,
     MatSnackBar,
     MatInput
 } from '@angular/material';
@@ -27,6 +28,7 @@ import {
 import { Observable, Subscription, Subject } from 'rxjs';
 import {  delayWhen, filter, skip, distinctUntilChanged } from 'rxjs/operators';
 import { HttpService } from '../../core/http/http.service';
+import { environment } from '../../../environments/environment';
 
 import { Select, Store } from '@ngxs/store';
 
@@ -55,6 +57,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { RecipientType } from '../components/alert-details/children/recipients-manager/models';
 
 import { CdkService } from '../../core/services/cdk.service';
+import { AuraDialogComponent } from '../../shared/modules/sharedcomponents/components/aura-dialog/aura-dialog.component';
 
 import * as _moment from 'moment';
 import { TemplatePortal } from '@angular/cdk/portal';
@@ -63,6 +66,8 @@ import { LoggerService } from '../../core/services/logger.service';
 import { UtilsService } from '../../core/services/utils.service';
 import { SnoozeDetailsComponent } from '../components/snooze-details/snooze-details.component';
 const moment = _moment;
+
+
 
 @Component({
     selector: 'app-alerts',
@@ -73,12 +78,32 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     @HostBinding('class.alerts-container-component') private _hostClass = true;
 
-    @ViewChild(MatPaginator) paginator: MatPaginator;
-    @ViewChild(MatSort) dataSourceSort: MatSort;
+    // @ViewChild(MatPaginator) paginator: MatPaginator;
+    @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
+      if (paginator && this.list === 'alerts' && this.alertsDataSource) {
+        this.alertsDataSource.paginator = paginator;
+      }
+      if (paginator && this.list === 'snooze' && this.snoozesDataSource) {
+        this.snoozesDataSource.paginator = paginator;
+      }
+    }
+
+    // @ViewChild(MatSort) dataSourceSort: MatSort;
+    @ViewChild(MatSort) set dataSourceSort(sortor: MatSort) {
+      if (sortor && this.list === 'alerts' && this.alertsDataSource) {
+        this.alertsDataSource.sort = sortor;
+      }
+      if (sortor && this.list === 'snooze' && this.snoozesDataSource) {
+        this.snoozesDataSource.sort = sortor;
+      }
+    }
 
     @ViewChild('confirmDeleteDialog', { read: TemplateRef }) confirmDeleteDialogRef: TemplateRef<any>;
+
     @ViewChild('alertFilterInput', { read: MatInput }) alertFilterInput: MatInput;
     @ViewChild('snoozeFilterInput', { read: MatInput }) snoozeFilterInput: MatInput;
+    alertsFilterInputVal: string = '';
+    snoozeFilterInputVal: string = '';
 
     @Input() response;
 
@@ -118,17 +143,19 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
     alertsDataSource; // dynamically gets reassigned after new alerts state is subscribed
     displayedColumns: string[] = [
         'select',
+        'bad',
+        'warn',
+        'good',
+        'unknown',
+        'missing',
         'name',
         'type',
         'alertGroupingRules',
         'contacts',
-        'modified',
-        // 'counts.bad',
-        // 'counts.warn',
-        // 'counts.good',
-        // 'counts.snoozed',
+        'modified'
         // 'sparkline' // hidden for now
     ];
+
 
     snoozesDataSource; // dynamically gets reassigned after new alerts state is subscribed
     snoozeDisplayedColumns: string[] = [
@@ -162,9 +189,7 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     // ALL namespaces are retrieved from somewhere else
     namespaces: any[] = [];
-
     alertFilterTypes = ['all', 'alerting', 'snoozed', 'disabled'];
-
 
     @ViewChild(AlertDetailsComponent) createAlertDialog: AlertDetailsComponent;
     @ViewChild(SnoozeDetailsComponent) snoozeDetailsComp: SnoozeDetailsComponent;
@@ -176,8 +201,6 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     // confirmDelete Dialog
     confirmDeleteDialog: MatDialogRef<TemplateRef<any>> | null;
-
-    private routeSub: Subscription;
 
     // tslint:disable-next-line:no-inferrable-types
     sparklineMenuOpen: boolean = false;
@@ -212,6 +235,7 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
     // tslint:disable-next-line:no-inferrable-types
     namespaceDropMenuOpen: boolean = false;
     configLoaded$  = new Subject();
+    auraUrl = environment.auraUI + '/#/aura/newquery';
 
     error: any = false;
 
@@ -220,6 +244,7 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     // portal placeholders
     alertspageNavbarPortal: TemplatePortal;
+    auraDialog: MatDialogRef<AuraDialogComponent> | null;
 
     constructor(
         private store: Store,
@@ -275,6 +300,7 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
                 // this.hasNamespaceWriteAccess = this.userNamespaces.find(d => d.name === this.selectedNamespace ) ? true : false;
                 this.stateLoaded.alerts = false;
                 this.stateLoaded.snooze = false;
+
                 this.loadAlertsSnooze(this.list === 'alerts' ? ['alerts'] : ['alerts', 'snooze']);
             } else {
                 this.hasNamespaceWriteAccess = false;
@@ -303,6 +329,7 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.subscription.add(this.alerts$.pipe(skip(1)).subscribe( alerts => {
             this.stateLoaded.alerts = true;
             this.alerts = JSON.parse(JSON.stringify(alerts));
+            this.alertsFilterInputVal = '';
             this.setTableDataSource();
             this.setAlertListMeta();
         }));
@@ -318,6 +345,7 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
                                 }
                                 return d;
                             });
+            this.snoozeFilterInputVal = '';
             this.setSnoozeTableDataSource();
         }));
 
@@ -469,7 +497,7 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
         // handle route for alerts
         this.subscription.add(this.activatedRoute.url.pipe(delayWhen(() => this.configLoaded$)).subscribe(url => {
 
-            this.logger.log('ROUT CHANGE', { url });
+            // this.logger.log('ROUTE CHANGE', { url });
 
             if ( url.length >= 1 && url[0].path === 'snooze') {
                 this.list = 'snooze';
@@ -588,9 +616,15 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     loadAlertsSnooze(list) {
         if ( list.includes('alerts') ) {
+            if (this.alertsDataSource) {
+                this.alertsDataSource.data = [];
+            }
             this.store.dispatch(new LoadAlerts({namespace: this.selectedNamespace}));
         }
         if ( list.includes('snooze') ) {
+            if (this.snoozesDataSource) {
+                this.snoozesDataSource.data = [];
+            }
             this.store.dispatch(new LoadSnoozes({namespace: this.selectedNamespace}));
         }
     }
@@ -606,8 +640,10 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
             this.alertFilterInput.value = '';
         }
         this.alertsDataSource = new MatTableDataSource<AlertModel>(this.alerts);
-        this.alertsDataSource.paginator = this.paginator;
-        this.alertsDataSource.sort = this.dataSourceSort;
+        // this.alertsDataSource.paginator = this.paginator;
+        this.alertsDataSource.filter = this.alertsFilterInputVal;
+        // this.alertsDataSource.sort = this.dataSourceSort;
+
     }
 
     setSnoozeTableDataSource() {
@@ -615,8 +651,9 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
             this.snoozeFilterInput.value = '';
         }
         this.snoozesDataSource = new MatTableDataSource<any>(this.snoozes);
-        this.snoozesDataSource.paginator = this.paginator;
-        this.snoozesDataSource.sort = this.dataSourceSort;
+        // this.snoozesDataSource.paginator = this.paginator;
+        this.snoozesDataSource.filter = this.snoozeFilterInputVal;
+        // this.snoozesDataSource.sort = this.dataSourceSort;
     }
 
     setAlertListMeta() {
@@ -638,7 +675,7 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     applyAlertDataFilter(dataFilter: string) {
-        this.alertsDataSource.filter = dataFilter;
+        this.alertsDataSource.filter = this.alertsFilterInputVal = dataFilter;
     }
 
     applyAllNamespaceDataFilter(dataFilter: string, event: any) {
@@ -647,7 +684,7 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     applySnoozeDataFilter(dataFilter: string) {
-        this.snoozesDataSource.filter = dataFilter;
+        this.snoozesDataSource.filter = this.snoozeFilterInputVal = dataFilter;
     }
 
     /* Utilities */
@@ -789,6 +826,7 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
             case 'CancelSnoozeEdit':
                 this.detailsView = false;
                 this.location.go('a/snooze/' + this.selectedNamespace);
+                this.setSnoozeTableDataSource();
                 break;
             default:
                 // this is when dialog is closed to return to summary page
@@ -798,6 +836,7 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
         }
         if ( message.action === 'CancelEdit' || message.action === 'SaveAlert' ) {
             this.setNavbarPortal();
+            this.setTableDataSource();
         }
     }
 
@@ -807,12 +846,6 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     setNamespaceMenuOpened(opened: boolean) {
         this.namespaceDropMenuOpen = opened;
-    }
-
-    showAllNamespacesInMenu($event: any) {
-        // $event.stopPropagation();
-        // set some flag
-        // then change values of menu
     }
 
     setSparklineMenuOpened(opened: boolean) {
@@ -867,6 +900,29 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     contactMenuEsc($event: any) {
         // console.log('contactMenuEsc', $event);
+    }
+
+    showAuraDialog(alertId, filters ) {
+        const dialogConf: MatDialogConfig = new MatDialogConfig();
+        // dialogConf.width = '50%';
+        dialogConf.minWidth = '1200px';
+        dialogConf.height = '500px';
+        dialogConf.backdropClass = 'aura-dialog-backdrop';
+        dialogConf.panelClass = 'aura-dialog-panel';
+        let url = this.auraUrl + '?namespace=' + this.selectedNamespace + '&tags=_alert_id:' + alertId + '&type=1';
+        if ( filters.status !== undefined ) {
+            url += '&status=' + filters.status;
+        }
+        if ( filters.snoozed !== undefined ) {
+            url += '&snoozed=1';
+        }
+        dialogConf.data = { src: url};
+        if ( !this.auraDialog ) {
+            this.auraDialog = this.dialog.open(AuraDialogComponent, dialogConf);
+            this.auraDialog.afterClosed().subscribe(() => {
+                this.auraDialog = undefined;
+            } );
+        }
     }
 
     ngAfterViewChecked() {

@@ -9,6 +9,22 @@
         @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), body-1);
     }
 
+    // IMAGE PRELOADING
+    :root:before {
+        content: url(/assets/spinner-26x26.gif)
+                 url(/assets/widget-icon-sprite.png)
+                 url(/assets/email-contact.svg)
+                 url(/assets/http-contact.svg)
+                 url(/assets/oc-contact.svg)
+                 url(/assets/opsgenie-contact.svg)
+                 url(/assets/slack-contact.svg);
+        /* partial fallback */
+        background-image: url(/assets/spinner-26x26.gif);
+        visibility: hidden;
+        position: absolute;
+        left: -999em;
+    }
+
     /* GRIDSTER OVERRIDES */
 
     .gridster-container {
@@ -467,6 +483,10 @@
 
     }
 
+    .mat-autocomplete-panel {
+        background-color: map-get($background, menu);
+    }
+
     .mat-tab-group.mat-primary .mat-ink-bar,
     .mat-tab-nav-bar.mat-primary .mat-ink-bar {
         background: map-get($background, ink-bar);
@@ -562,6 +582,55 @@
 
     .gif-spinner {
         background-color: rgba(map-get($background, card), .8);
+    }
+
+    //@include app-scrollbar($theme-config);
+
+    /** scrollbar stuff **/
+
+    $scrollbar: map-get($theme-config, scrollbar);
+
+    $scrollbar-padding: map-get($scrollbar, padding);
+    $scrollbar-size: map-get($scrollbar, size);
+    $scrollbar-track: $scrollbar-size;
+    $scrollbar-radius: $scrollbar-size;
+    $scrollbar-track-bg: map-get($scrollbar, track-bg);
+    $scrollbar-thumb-bg: map-get($scrollbar, thumb-bg);
+
+    * {
+        // background of the bar itself
+        &::-webkit-scrollbar {
+            background-color: rgba(0,0,0,0.1);
+
+            &:vertical {
+                width: ($scrollbar-size + ($scrollbar-padding * 2));
+            }
+
+            &:horizontal {
+                height: ($scrollbar-size + ($scrollbar-padding * 2));
+            }
+        }
+        // draggable scrolling element resizes depending on the size of the scrollable element
+        &::-webkit-scrollbar-thumb {
+            border-radius: $scrollbar-radius;
+            -webkit-box-shadow: inset 0 0 1 darken($scrollbar-thumb-bg, 20%);
+            background: linear-gradient(left, $scrollbar-thumb-bg, darken($scrollbar-thumb-bg, 10%));
+            border: $scrollbar-padding solid $scrollbar-track-bg;
+        }
+
+        // empty space “below” the progress bar
+        &::-webkit-scrollbar-track {
+            //-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+            border-radius: 0;
+            background-color: rgba($scrollbar-track-bg, 0.6);
+            border: 1px solid darken($scrollbar-track-bg, 10%);
+        }
+
+        // bottom corner of the scrollable element, where two scrollbar meet
+        &::-webkit-scrollbar-corner {
+            background-color: transparent;
+        }
+
     }
 }
 

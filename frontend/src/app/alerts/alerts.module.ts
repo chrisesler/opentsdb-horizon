@@ -28,11 +28,13 @@ import { AlertConfigurationContactsComponent } from './components/alert-details/
 import { AlertDetailsMetricPeriodOverPeriodComponent } from './components/alert-details/children/alert-details-metric-period-over-period/alert-details-metric-period-over-period.component';
 import { AlertDetailsMetricPeriodOverPeriodPreviewComponent } from './components/alert-details/children/alert-details-metric-period-over-period-preview/alert-details-metric-period-over-period-preview.component';
 import { AlertDetailsTransitionsComponent } from './components/alert-details/children/alert-details-transitions/alert-details-transitions.component';
+import { InfoIslandModule } from '../shared/modules/info-island/info-island.module';
 
 // directives
 
 @NgModule({
     imports: [
+        InfoIslandModule,
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
