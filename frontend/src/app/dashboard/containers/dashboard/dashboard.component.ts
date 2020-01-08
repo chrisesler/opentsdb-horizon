@@ -242,7 +242,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.isDbTagsLoaded = false;
             this.variablePanelMode = { view: true };
             this.store.dispatch(new ClearWidgetsData());
-            this.tplVariablePanel.reset();
+            if (this.tplVariablePanel) { this.tplVariablePanel.reset(); }
             if (url.length === 1 && url[0].path === '_new_') {
                 this.dbid = '_new_';
                 this.store.dispatch(new LoadDashboard(this.dbid));
@@ -359,6 +359,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         }
                         mIndex = 0;
                         this.store.dispatch(new UpdateWidgets(this.widgets));
+                        // for the new adding widget, we do need to apply auto filter if it's eligible
+                        /* for (let i = 0; i < this.tplVariables.editTplVariables.tvars.length; i++) {
+                            const tvar = this.tplVariables.editTplVariables.tvars[i];
+                            if (tvar.mode === 'auto') {
+                                this.updateTplAlias({
+                                    vartag: tvar,
+                                    originAlias: '',
+                                    index: i,
+                                    insert: 1
+                                });
+                            }
+                        } */
                     } else {
                         // check the component type of updated widget config.
                         // it needs to be replaced with new component
@@ -831,10 +843,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 for (let i = 0; i < this.tplVariables.editTplVariables.tvars.length; i++) {
                     const tvar = this.tplVariables.editTplVariables.tvars[i];
                     tvar.isNew = 0;
-                    if (tvar.alias === payload.vartag.alias && payload.vartag.applied < applied) {
-                        tvar.applied = applied;
+                    //if (tvar.alias === payload.vartag.alias && payload.vartag.applied < applied) {
+                        tvar.applied += applied;
                         break;
-                    }
+                    // }
                 }
                 console.log('hill - this.edit tplvar hwn update akias', this.tplVariables.editTplVariables);
                 this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
@@ -843,7 +855,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     updateTplVariablesAppliedCount(payload: any) {
-
         const idx = this.tplVariables.editTplVariables.tvars.findIndex(tpl => '[' + tpl.alias + ']' === payload.alias);
         if (idx > -1) {
             const tpl = this.tplVariables.editTplVariables.tvars[idx];

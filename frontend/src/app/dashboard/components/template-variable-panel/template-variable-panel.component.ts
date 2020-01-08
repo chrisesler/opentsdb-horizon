@@ -73,8 +73,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         if (changes.tplVariables && changes.tplVariables.currentValue.editTplVariables.tvars.length > 0) {
             console.log('hill - tplVariables changes', this.tplVariables);
             if (this.mode.view) {
+                this.selectedNamespaces = changes.tplVariables.currentValue.viewTplVariables.namespaces;
                 this.initListFormGroup();
             } else {
+                this.selectedNamespaces = changes.tplVariables.currentValue.editTplVariables.namespaces;
                 this.initEditFormGroup();
             }
         } else if (changes.mode && !changes.mode.firstChange && changes.mode.currentValue.view) {
