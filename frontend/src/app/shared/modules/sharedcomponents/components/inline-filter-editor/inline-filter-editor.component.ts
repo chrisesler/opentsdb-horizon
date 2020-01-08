@@ -18,7 +18,7 @@ import { HttpService } from '../../../../../core/http/http.service';
 import { MatMenuTrigger } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
-
+import { IntercomService } from '../../../../../core/services/intercom.service';
 
 
 
@@ -63,6 +63,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
         private httpService: HttpService,
         private matIconRegistry: MatIconRegistry,
         private domSanitizer: DomSanitizer,
+        private interCom: IntercomService,
         private cdRef: ChangeDetectorRef) {
             matIconRegistry.addSvgIcon('exclamation_point', domSanitizer.bypassSecurityTrustResourceUrl('assets/exclamation-point.svg')
             );
@@ -280,6 +281,13 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
                 this.filters[tagIndex].customFilter ?
                 this.filters[tagIndex].customFilter.push(v) :
                 this.filters[tagIndex].customFilter = [v];
+                this.interCom.requestSend({
+                    action: 'UpdateCustomFiltersAppliedCount',
+                    payload: {
+                        operator: 'add',
+                        alias: v
+                    }
+                });                
             } else {
                 this.filters[tagIndex].filter.push(v);
             }
@@ -288,6 +296,14 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
                 // when user maually removes a db filter
                 const varIndex = this.filters[tagIndex].customFilter.indexOf(v);
                 this.filters[tagIndex].customFilter.splice(varIndex, 1);
+                // we need to update db fitler state for applied count for this custom tag filter
+                this.interCom.requestSend({
+                    action: 'UpdateCustomFiltersAppliedCount',
+                    payload: {
+                        operator: 'remove',
+                        alias: v
+                    }
+                });
             } else {
                 const index = this.filters[tagIndex].filter.indexOf(v);
                 this.filters[tagIndex].filter.splice(index, 1);
