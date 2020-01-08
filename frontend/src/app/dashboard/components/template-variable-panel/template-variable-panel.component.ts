@@ -521,15 +521,16 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         this.updateState(selControl, false);
         if (mode === 'auto') {
             if (selControl.valid) {
-            // when mode is from manual to auto, we will reapply all of them
-            this.interCom.requestSend({
-                action: 'UpdateTplAlias',
-                payload: {
-                    vartag: selControl.value,
-                    originVal: '',
-                    insert: 1
-                }
-            });  
+                // when mode is from manual to auto, we will reapply all of them
+                this.interCom.requestSend({
+                    action: 'UpdateTplAlias',
+                    payload: {
+                        vartag: selControl.value,
+                        originAlias: [],
+                        index: index,
+                        insert: 1
+                    }
+                });
             } else {
                 selControl.get('isNew').setValue(1);
             }         
