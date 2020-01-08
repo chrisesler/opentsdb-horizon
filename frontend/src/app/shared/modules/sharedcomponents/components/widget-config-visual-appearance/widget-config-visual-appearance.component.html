@@ -123,69 +123,6 @@
         </table>
     </div>    
 </ng-template>
-<!-- BAR CHART AND STACKED BAR CHART COMPONENTS -->
-<ng-template [ngIf]="widget.settings.component_type==='StackedBarchartWidgetComponent'">
-    <div class="column display-modifier-container">
-        <div class="config-control">
-            <span class="mat-label mat-body-strong">Display</span>
-        </div>
-        <div class="config-control">
-            <mat-button-toggle-group class="display-modifier" vertical="true" [formControl]="displayControl">
-                <mat-button-toggle value="vertical">
-                    <mat-icon fontSet="denali" fontIcon="d-chart-bar-vertical"></mat-icon>
-                    <span>Vertical</span>
-                </mat-button-toggle>
-                <mat-button-toggle value="horizontal">
-                    <mat-icon fontSet="denali" fontIcon="d-chart-bar-horizontal"></mat-icon>
-                    <span>Horizontal</span>
-                </mat-button-toggle>
-            </mat-button-toggle-group>
-        </div>
-    </div>
-    <div class="column stackbars-container" [formGroup]="gForms">
-        <div class="config-control">
-            <span class="mat-label mat-body-strong">Bars</span>
-        </div>
-        <mat-table [dataSource]="widget.query.groups" formArrayName="bars">
-            <ng-container cdkColumnDef="id">
-                <mat-cell *cdkCellDef="let row; let index=index"> Bar {{ index+1 }} </mat-cell>
-            </ng-container>
-            <ng-container cdkColumnDef="title">
-                <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
-                    <mat-form-field appearance="fill">
-                        <input matInput formControlName="label">
-                    </mat-form-field>
-                </mat-cell>
-            </ng-container>
-            <mat-row *cdkRowDef="let row;  columns: ['id','title']"></mat-row>
-        </mat-table>
-        <!--<div>{{widget.query.groups|json}}</div>-->
-    </div>
-    <div class="column stacks-container" [formGroup]="gForms">
-        <div class="config-control">
-            <span class="mat-label mat-body-strong">Stacks</span>
-        </div>
-        <mat-table [dataSource]="widget.query.settings.visual.stacks" formArrayName="stacks">
-            <ng-container cdkColumnDef="id">
-                <mat-cell *cdkCellDef="let row; let index=index"> Stack {{ index+1 }} </mat-cell>
-            </ng-container>
-            <ng-container cdkColumnDef="label">
-                <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
-                    <mat-form-field appearance="fill">
-                        <input matInput formControlName="label">
-                    </mat-form-field>
-                </mat-cell>
-            </ng-container>
-            <ng-container cdkColumnDef="color">
-                <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
-                    <color-picker (newColor)="selectStackColor($event, index)" [color]="row.color"></color-picker>
-                </mat-cell>
-            </ng-container>
-            <mat-row *cdkRowDef="let row;  columns: ['id','label','color']"></mat-row>
-        </mat-table>
-        <!--<div>{{widget.query.settings.visual.stacks|json}}</div>-->
-    </div>
-</ng-template>
 <!-- DONUT CHART COMPONENT -->
 <ng-template [ngIf]="widget.settings.component_type==='DonutWidgetComponent'">
      <div class="column display-modifier-container">

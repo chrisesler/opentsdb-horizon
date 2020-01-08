@@ -218,12 +218,6 @@
         }
     }
 
-    // CDK items
-    .cdk-overlay-pane.search-metrics-dialog-panel {
-        .mat-dialog-container {
-            background: map-get($background, background);
-        }
-    }
 
     // CALL CHILDREN STYLES
     @include dbs-variable-item-component-theme($theme-config);

@@ -465,8 +465,6 @@ export class DatatranformerService {
                 return this.getChartJSFormattedDataBar(options, widget, data, queryData, stacked);
             case 'horizontalBar':
                 return this.getChartJSFormattedDataBar(options, widget, data, queryData, stacked);
-            case 'donut':
-                return this.getChartJSFormattedDataDonut(options, widget, data, queryData);
         }
     }
 
@@ -554,45 +552,6 @@ export class DatatranformerService {
         }
         label = label.length > len ? label.substr(0, len - 2) + '..' : label;
         return label;
-    }
-
-    getChartJSFormattedDataDonut(options, widget, datasets, queryData) {
-        datasets[0] = {data: [], backgroundColor: [], tooltipData: [] };
-        options.labels = [];
-        if ( queryData === undefined || !queryData.results || !queryData.results.length ) {
-            return datasets;
-        }
-        const results = queryData.results ? queryData.results : [];
-
-        const metricIndices = [];
-        const gConfig = widget.queries[0];
-        const mConfigs = gConfig.metrics;
-
-       for ( let i = 0; i < results.length; i++ ) {
-            const mid = results[i].source.split(':')[1];
-            const qids = this.REGDSID.exec(mid);
-            const configIndex =  this.util.getDSIndexToMetricIndex(widget.queries[0], parseInt(qids[3], 10) - 1, qids[2] );
-            const mConfig = mConfigs[configIndex];
-            const aggregator = mConfig.settings.visual.aggregator[0] || 'sum';
-            const n = results[i].data.length;
-            const colors = n === 1 ? [mConfig.settings.visual.color] : this.util.getColors( mConfig.settings.visual.color , n );
-            for ( let j = 0; j < n; j++ ) {
-                const aggs = results[i].data[j].NumericSummaryType.aggregations;
-                const tags = results[i].data[j].tags;
-                const key = Object.keys(results[i].data[j].NumericType)[0];
-                const aggData = results[i].data[j].NumericType[key];
-                if ( mConfig.settings && mConfig.settings.visual.visible ) {
-                    let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : '';
-                    const aggrIndex = aggs.indexOf(aggregator);
-                    label = this.getLableFromMetricTags(label, { metric:results[i].data[j].metric, ...tags});
-                    options.labels.push(label);
-                    datasets[0].data.push(aggData);
-                    datasets[0].backgroundColor.push(colors[j]);
-                    datasets[0].tooltipData.push({metric: results[i].data[j].metric, ...tags});
-                }
-            }
-        }
-        return [...datasets];
     }
 
     yamasToD3Donut(options, widget, queryData) {
@@ -743,77 +702,4 @@ export class DatatranformerService {
         }
         return summarizerOption;
     }
-
-  // build opentsdb query base on this of full quanlify metrics for exploer | adhoc
-  // defaulf time will be one hour from now
-  buildAdhocYamasQuery(metrics: any[]) {
-    let query = {
-      start: '1h-ago',
-      queries: []
-    };
-    for (let i = 0; i < metrics.length; i++) {
-      let m = metrics[i];
-      let q = {
-        aggregator: 'zimsum',
-        explicitTags: false,
-        downsample: '1m-avg-nan',
-        metric: m.metric,
-        rate: false,
-        rateOptions: {
-          counter: false,
-          resetValue: 1
-        },
-        filters: []
-      };
-
-      for (let k in m) {
-        if (k !== 'metric') {
-          let filter = {
-            type: 'literal_or',
-            tagk: k,
-            filter: m[k],
-            groupBy: true
-          };
-          q.filters.push(filter);
-        }
-      }
-      query.queries.push(q);
-    }
-
-    return query;
-  }
-
-  buildMetricObject(m) {
-    const q = {
-        aggregator: 'zimsum',
-        explicitTags: false,
-        downsample: '1m-avg-nan',
-        metric: m.metric,
-        rate: false,
-        rateOptions: {
-          counter: false,
-          resetValue: 1
-        },
-        filters: [],
-        settings: {
-            visual: {
-                visible: true,
-                color: '#000000'
-            }
-        }
-      };
-
-      for (const k in m) {
-        const v = k !== 'metric' ? m[k] : m[k].substr(m[k].indexOf('.')+1);
-          const filtertype = m[k].indexOf('*') !== -1 ? 'wildcard' : 'literalor';
-          const filter = {
-            type: filtertype,
-            tagk: k,
-            filter: v ,
-            groupBy: false
-          };
-          q.filters.push(filter);
-      }
-    return q;
-  }
 }

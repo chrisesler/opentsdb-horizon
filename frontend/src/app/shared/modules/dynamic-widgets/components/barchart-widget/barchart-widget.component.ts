@@ -74,7 +74,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     newSizeSub: Subscription;
     width = '100%';
     height = '100%';
-    editQueryId = null;
     nQueryDataLoading = 0;
     error: any;
     errorDialog: MatDialogRef < ErrorDialogComponent > | null;
@@ -240,26 +239,17 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     updateConfig(message) {
         switch ( message.action ) {
             case 'SetMetaData':
-                this.setMetaData(message.payload.data);
+                this.util.setWidgetMetaData(this.widget, message.payload.data);
                 break;
             case 'SetTimeConfiguration':
-                this.setTimeConfiguration(message.payload.data);
+                this.util.setWidgetTimeConfiguration(this.widget, message.payload.data);
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
-                break;
-            case 'SetStackedBarVisualization':
-                this.setStackedBarVisualization( message.payload.gIndex, message.payload.data );
                 break;
             case 'SetVisualization':
                 this.setBarVisualization( message.payload.gIndex, message.payload.data );
                 break;
-            case 'SetAlerts':
-                this.widget.settings.thresholds = message.payload.data;
-                this.setAlertOption();
-                this.options = { ...this.options };
-                break;
             case 'SetAxes' :
-                this.updateAlertValue(message.payload.data.y1);
                 this.widget.settings.axes = { ...this.widget.settings.axes, ...message.payload.data };
                 this.setAxisOption();
                 this.options = { ...this.options };
@@ -273,43 +263,33 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 this.type$.next(message.payload.type);
                 break;
             case 'UpdateQuery':
-                this.updateQuery(message.payload);
+                this.util.updateQuery(this.widget, message.payload);
                 this.widget.queries = [...this.widget.queries];
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
-            case 'SetQueryEditMode':
-                this.editQueryId = message.payload.id;
-                break;
-            case 'CloseQueryEditMode':
-                this.editQueryId = null;
-                break;
             case 'ToggleQueryMetricVisibility':
-                this.toggleQueryMetricVisibility(message.id, message.payload.mid);
-                this.refreshData(false);
-                break;
-            case 'DeleteQueryMetric':
-                this.deleteQueryMetric(message.id, message.payload.mid);
+                this.util.toggleQueryMetricVisibility(this.widget, message.id, message.payload.mid);
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
-            case 'DeleteQueryFilter':
-                this.deleteQueryFilter(message.id, message.payload.findex);
+            case 'DeleteQueryMetric':
+                this.util.deleteQueryMetric(this.widget, message.id, message.payload.mid);
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'ToggleQueryVisibility':
-                this.toggleQueryVisibility(message.id);
-                this.refreshData(false);
-                this.needRequery = false;
+                this.util.toggleQueryVisibility(this.widget, message.id);
+                this.doRefreshData$.next(true);
+                this.needRequery = true;
                 break;
             case 'CloneQuery':
-                this.cloneQuery(message.id);
+                this.util.cloneQuery(this.widget, message.id);
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'DeleteQuery':
-                this.deleteQuery(message.id);
+                this.util.deleteQuery(this.widget, message.id);
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
@@ -350,67 +330,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         }
     }
 
-    updateQuery( payload ) {
-        const query = payload.query;
-        const qindex = query.id ? this.widget.queries.findIndex(q => q.id === query.id ) : -1;
-        if ( qindex !== -1 ) {
-            this.widget.queries[qindex] = query;
-        }
-    }
-
-    toggleQueryVisibility(qid) {
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        this.widget.queries[qindex].settings.visual.visible = !this.widget.queries[qindex].settings.visual.visible;
-    }
-
-    cloneQuery(qid) {
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        if ( qindex !== -1 ) {
-            const query = this.util.getQueryClone(this.widget.queries, qindex);
-            this.widget.queries.splice(qindex + 1, 0, query);
-        }
-    }
-
-    deleteQuery(qid) {
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        this.widget.queries.splice(qindex, 1);
-    }
-
-    deleteMetrics(groups) {
-        let deletedMetrics = false;
-        const usedStacks = [];
-        for ( let i = groups.length - 1; i >= 0; i-- ) {
-            const group = groups[i];
-            const queries = group.queries;
-            // group delete
-            if ( group.settings.tempUI.selected === 'all' ) {
-                groups.splice( i, 1 );
-                deletedMetrics = true;
-            } else {
-                for ( let j = queries.length - 1;  j >= 0; j-- ) {
-                    if ( queries[j].settings.selected ) {
-                        queries.splice( j, 1 );
-                        deletedMetrics = true;
-                    } else {
-                        const stack = queries[j].settings.visual.stack;
-                        if ( usedStacks.indexOf( stack) === -1 ) {
-                            usedStacks.push(stack);
-                        }
-                    }
-                }
-            }
-        }
-        if ( deletedMetrics ) {
-            this.widget.queries.groups = groups;
-            // delete the stacks that are no longer used
-            const stacks = this.widget.settings.visual.stacks;
-            if ( usedStacks.length !== stacks.length ) {
-                this.widget.settings.visual.stacks = stacks.filter( stack => usedStacks.indexOf(stack.id) !== -1 );
-            }
-            this.widget = { ...this.widget };
-        }
-    }
-
     refreshData(reload = true) {
         this.isDataLoaded = false;
         if ( reload ) {
@@ -419,26 +338,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
             this.requestCachedData();
         }
     }
-
-    setMetaData(config) {
-        this.widget.settings = {...this.widget.settings, ...config};
-    }
-
-    setTimeConfiguration(config) {
-       this.widget.settings.time = {
-                                            shiftTime: config.shiftTime,
-                                            overrideRelativeTime: config.overrideRelativeTime,
-                                            downsample: {
-                                                value: config.downsample,
-                                                aggregators: config.aggregators,
-                                                customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
-                                                customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit,
-                                                minInterval: config.minInterval,
-                                                reportingInterval: config.reportingInterval
-                                            }
-                                        };
-    }
-
 
     setAxisOption() {
         const axis = this.valueAxis;
@@ -458,13 +357,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         axis.ticks.format = { unit: config.unit, precision: decimals, unitDisplay: config.unit ? true : false };
     }
 
-    setStackedBarVisualization(gIndex, configs) {
-        configs.forEach( (config, i) => {
-            this.widget.queries.groups[gIndex].queries[i].settings.visual = { ...this.widget.queries.groups[gIndex].queries[i].settings.visual, ...config };
-        });
-        this.refreshData(false);
-    }
-
     setBarVisualization( gIndex, configs ) {
         configs.forEach( (config, i) => {
             this.widget.queries[gIndex].metrics[i].settings.visual = { ...this.widget.queries[gIndex].metrics[i].settings.visual, ...config };
@@ -472,117 +364,14 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         this.refreshData(false);
     }
 
-    setAlertOption() {
-        const thresholds = this.widget.settings.thresholds || {};
-        const axis = this.widget.settings.axes && this.widget.settings.axes.y1 ? this.widget.settings.axes.y1 : <Axis>{};
-        const oUnit = this.unit.getDetails(axis.unit);
-
-        this.options.threshold = { thresholds: [] };
-        Object.keys(thresholds).forEach( k => {
-            const threshold = thresholds[k];
-            if ( threshold.value !== '' ) {
-                let lineType;
-                switch ( threshold.lineType ) {
-                    case 'solid':
-                        lineType = [];
-                        break;
-                    case 'dashed':
-                        lineType = [4, 4];
-                        break;
-                    case 'dotted':
-                        lineType = [2, 3];
-                        break;
-                    case 'dot-dashed':
-                        lineType = [4, 4, 2];
-                        break;
-                }
-                const o = {
-                    value: oUnit ? threshold.value * oUnit.m : threshold.value,
-                    scaleId: this.type === 'bar' ? 'y-axis-0' : 'x-axis-0',
-                    borderColor: threshold.lineColor,
-                    borderWidth: parseInt(threshold.lineWeight, 10),
-                    borderDash: lineType
-                };
-                this.options.threshold.thresholds.push(o);
-            }
-        });
-    }
-
     setOptions() {
         this.type$.next(this.widget.settings.visual.type);
         this.setAxisOption();
-        this.setAlertOption();
         this.options = {...this.options};
     }
 
-    updateAlertValue(nConfig) {
-        const oConfig = this.widget.settings.axes && this.widget.settings.axes.y1 ? this.widget.settings.axes.y1 : <Axis>{};
-        const oUnit = this.unit.getDetails(oConfig.unit);
-        const nUnit = this.unit.getDetails(nConfig.unit);
-        const thresholds = this.widget.settings.thresholds || {};
-        for ( let i in thresholds ) {
-            thresholds[i].value = oUnit ? thresholds[i].value * oUnit.m : thresholds[i].value;
-            thresholds[i].value = nUnit ? thresholds[i].value / nUnit.m : thresholds[i].value;
-        }
-    }
-
-
     setSorting(sConfig) {
         this.widget.settings.sorting = { order: sConfig.order, limit: sConfig.limit };
-    }
-
-    toggleGroup(gIndex) {
-        this.widget.queries.groups[gIndex].settings.visual.visible = !this.widget.queries.groups[gIndex].settings.visual.visible;
-        for (let i = 0; i < this.widget.queries.groups[gIndex].queries.length; i++) {
-            this.widget.queries.groups[gIndex].queries[i].settings.visual.visible =
-            this.widget.queries.groups[gIndex].settings.visual.visible;
-        }
-        this.refreshData(false);
-    }
-    deleteGroup(gIndex) {
-        this.widget.queries.splice(gIndex, 1);
-        this.refreshData();
-    }
-
-    toggleGroupQuery(gIndex, index) {
-        // toggle the individual query
-        this.widget.queries.groups[gIndex].queries[index].settings.visual.visible =
-        !this.widget.queries.groups[gIndex].queries[index].settings.visual.visible;
-
-        // set the group to visible if the individual query is visible
-        if (this.widget.queries.groups[gIndex].queries[index].settings.visual.visible) {
-            this.widget.queries.groups[gIndex].settings.visual.visible = true;
-        } else { // set the group to invisible if all queries are invisible
-            this.widget.queries.groups[gIndex].settings.visual.visible = false;
-            for (let i = 0; i < this.widget.queries.groups[gIndex].queries.length; i++) {
-                if (this.widget.queries.groups[gIndex].queries[i].settings.visual.visible) {
-                    this.widget.queries.groups[gIndex].settings.visual.visible = true;
-                    break;
-                }
-            }
-        }
-        this.refreshData(false);
-    }
-
-    toggleQueryMetricVisibility(qid, mid) {
-        // toggle the individual query metric
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
-        this.widget.queries[qindex].metrics[mindex].settings.visual.visible =
-            !this.widget.queries[qindex].metrics[mindex].settings.visual.visible;
-    }
-
-    deleteQueryMetric(qid, mid) {
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        if (this.widget.queries[qindex]) {
-            const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
-            this.widget.queries[qindex].metrics.splice(mindex, 1);
-        }
-    }
-
-    deleteQueryFilter(qid, findex) {
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        this.widget.queries[qindex].filters.splice(findex, 1);
     }
 
     changeWidgetType(type) {
@@ -658,10 +447,4 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         this.typeSub.unsubscribe();
         this.doRefreshDataSub.unsubscribe();
     }
-}
-
-export class StackedBarchartWidgetComponent extends BarchartWidgetComponent  {
-    @Input() editMode: boolean;
-    @Input() widget: WidgetModel;
-    isStackedGraph = true;
 }
