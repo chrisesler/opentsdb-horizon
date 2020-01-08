@@ -73,44 +73,19 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
         this.gForms = new FormGroup({});
         let enableStackOrderCntrl = false;
 
-        if (this.widget.settings.component_type === 'StackedBarchartWidgetComponent') {
-            this.gForms.addControl( 'bars', new FormArray(
-                this.widget.query.groups.map(item => new FormGroup({
-                    label : new FormControl(item.title)
-                })))
-            );
-            this.gForms.addControl( 'stacks', new FormArray(
-                this.widget.query.settings.visual.stacks.map(
-                    item => new FormGroup({
-                        label : new FormControl(item.label),
-                        color: new FormControl(item.color)
-                    }))
-                )
-            );
-            this.gForms.get('bars').valueChanges.subscribe(data => {
-                console.log(data, 'bars..');
-                this.widgetChange.emit( {'action': 'SetStackedBarBarVisuals', payload: { data: data }});
-            });
-
-            this.gForms.get('stacks').valueChanges.subscribe(data => {
-                console.log(data, 'stacks..');
-                this.widgetChange.emit( {'action': 'SetStackedBarStackVisuals', payload: { data: data }});
-            });
-        } else {
-            // all others - LineChart, BarChart, DonutChart
-            this.widget.queries.forEach((query, index) => {
-                this.dataSources[index] = query.metrics;
-                this.gForms.addControl(index, this.createFormArray(this.dataSources[index]));
-                if (this.widget.settings.component_type === 'LinechartWidgetComponent') {
-                    for ( let i = 0; i < query.metrics.length; i++ ) {
-                        const type = query.metrics[i].settings.visual.type;
-                        if ( type === 'area' || type === 'bar' ) {
-                            enableStackOrderCntrl = true;
-                        }
+        // all others - LineChart, BarChart, DonutChart
+        this.widget.queries.forEach((query, index) => {
+            this.dataSources[index] = query.metrics;
+            this.gForms.addControl(index, this.createFormArray(this.dataSources[index]));
+            if (this.widget.settings.component_type === 'LinechartWidgetComponent') {
+                for ( let i = 0; i < query.metrics.length; i++ ) {
+                    const type = query.metrics[i].settings.visual.type;
+                    if ( type === 'area' || type === 'bar' ) {
+                        enableStackOrderCntrl = true;
                     }
                 }
-            });
-        }
+            }
+        });
         // console.log(this.gForms, 'this.gforms');
 
         if (this.widget.settings.component_type !== 'LinechartWidgetComponent') {

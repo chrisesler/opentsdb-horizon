@@ -1,7 +1,4 @@
-export * from './search-metrics-dialog/search-metrics-dialog.component';
-export * from './expression-dialog/expression-dialog.component';
 export * from './theme-picker/theme-picker.component';
-export * from './widget-config-alerts/widget-config-alerts.component';
 export * from './widget-config-axes/widget-config-axes.component';
 export * from './widget-config-general/widget-config-general.component';
 export * from './widget-config-legend/widget-config-legend.component';
@@ -9,7 +6,5 @@ export * from './widget-config-metric-queries/widget-config-metric-queries.compo
 export * from './widget-config-query-inspector/widget-config-query-inspector.component';
 export * from './widget-config-time/widget-config-time.component';
 export * from './widget-config-visual-appearance/widget-config-visual-appearance.component';
-export * from './simple-time-picker/simple-time-picker.component';
 export * from './dropdown-line-weight/dropdown-line-weight.component';
-export * from './dropdown-aggregators/dropdown-aggregators.component';
 export * from './generic-message-bar/generic-message-bar.component';

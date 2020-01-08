@@ -167,11 +167,6 @@
                 <widget-config-visual-appearance [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-visual-appearance>
             </ng-template>
         </mat-tab>
-        <!--<mat-tab label="Alerts">
-            <ng-template matTabContent>
-                <widget-config-alerts [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-alerts>
-            </ng-template>
-        </mat-tab>-->
         <mat-tab label="Legend" [disabled]="editQueryId">
                 <ng-template matTabContent>
                     <widget-config-legend *ngIf="!multigraphEnabled" [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-legend>

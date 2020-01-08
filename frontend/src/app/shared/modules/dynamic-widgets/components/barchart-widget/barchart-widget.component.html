@@ -44,7 +44,6 @@
             <!-- ng-template is to lazy-load tab content (see: https://material.angular.io/components/tabs/overview#lazy-loading ) -->
             <ng-template matTabContent >
                 <widget-config-metric-queries *ngIf="!isStackedGraph" [options]="{enableSummarizer: true, enableMultipleQueries:true}" [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-metric-queries>
-                <stacked-barchart-config-metric-queries *ngIf="isStackedGraph" [widget]="widget" (widgetChange)="updateConfig($event);"></stacked-barchart-config-metric-queries>
             </ng-template>
         </mat-tab>
         <mat-tab label="Time Configuration" [disabled]="editQueryId">
@@ -60,27 +59,14 @@
         <mat-tab label="Visual Appearance" [disabled]="editQueryId">
             <ng-template matTabContent>
                 <widget-config-visual-appearance [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-visual-appearance>
-                <!--
-                <widget-config-visual-appearance *ngIf="!isStackedGraph" [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-visual-appearance>
-                <stacked-barchart-visual-appearance *ngIf="isStackedGraph" [widget]="widget" (widgetChange)="updateConfig($event);"></stacked-barchart-visual-appearance>
-                -->
             </ng-template>
         </mat-tab>
 
         <mat-tab label="Sorting" [disabled]="editQueryId">
             <ng-template matTabContent>
                 <widget-config-sorting [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-sorting>
-                <!--
-                <widget-config-visual-appearance *ngIf="!isStackedGraph" [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-visual-appearance>
-                <stacked-barchart-visual-appearance *ngIf="isStackedGraph" [widget]="widget" (widgetChange)="updateConfig($event);"></stacked-barchart-visual-appearance>
-                -->
             </ng-template>
         </mat-tab>
-        <!--<mat-tab label="Alerts">
-            <ng-template matTabContent>
-                <widget-config-alerts [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-alerts>
-            </ng-template>
-        </mat-tab>-->
         <mat-tab label="Meta Data" [disabled]="editQueryId">
                 <ng-template matTabContent>
                     <widget-config-general [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-general>

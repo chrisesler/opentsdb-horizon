@@ -115,7 +115,6 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
 
         switch ( this.widget.settings.component_type ) {
             case 'BarchartWidgetComponent':
-            case 'StackedBarchartWidgetComponent':
                 this.y1AxisEnabledToggleDisplay = false;
                 this.widgetConfigAxes.addControl('y1', this.getAxisFormGroup(this.getAxisConfiguration('y1')));
             break;

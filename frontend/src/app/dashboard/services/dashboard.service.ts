@@ -79,7 +79,6 @@ export class DashboardService {
         case 'LinechartWidgetComponent':
         case 'HeatmapWidgetComponent':
         case 'BarchartWidgetComponent':
-        case 'StackedBarchartWidgetComponent':
         case 'DonutWidgetComponent':
         case 'TopnWidgetComponent':
         case 'DeveloperWidgetComponent':
