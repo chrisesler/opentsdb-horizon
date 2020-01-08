@@ -118,8 +118,7 @@ export class D3BarChartDirective implements OnInit, OnChanges {
       const chartAreawidth = this.size.width - yAxisWidth - margin.left - margin.right;
       const x = d3.scaleLinear()
         .range([0, chartAreawidth])
-        .domain([0, d3.max(dataset, (d: any) => parseInt(d.value))]);
-
+        .domain([d3.min(dataset, (d: any) => parseFloat(d.value)), d3.max(dataset, (d: any) => parseFloat(d.value))]);
       const g = svg.append('g').attr("transform", "translate(" + (margin.left + yAxisWidth + 3) + "," + margin.top + ")");
 
       // reduce the font-size when bar height is less than the fontsize
@@ -140,7 +139,10 @@ export class D3BarChartDirective implements OnInit, OnChanges {
         .attr("y", (d, i) => y(i))
         .attr("height", barHeight)
         .attr("x", 0)
-        .attr("width", d => x(d.value))
+        .attr("width", d => {
+          const v = x(d.value);
+          return v > 0 ? v : 0;
+        })
         .style('stroke', (d: any) => d.color)
         .style("fill", (d: any) => d.color)
         .on("mouseover", mouseover)

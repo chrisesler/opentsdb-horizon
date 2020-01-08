@@ -155,9 +155,8 @@ var barChartPlotter = function(e) {
         logscale = g.attributes_.getForSeries("logscale", seriesName);
         var color = g.getOption("color", seriesName);
 
-        if (logscale) {
-            y_bottom = e.dygraph.toDomYCoord(1);
-        }
+        var seriesProp = g.getPropertiesForSeries(seriesName);
+        y_bottom = e.dygraph.toDomYCoord( logscale ? 1 : 0, seriesProp.axis - 1);
 
         axis = g.axisPropertiesForSeries(seriesName);
         points = sets[j];
