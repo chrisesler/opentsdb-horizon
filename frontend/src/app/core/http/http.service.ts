@@ -124,15 +124,10 @@ export class HttpService {
                 map((res: any) => {
 
                     let tagkeys = [];
-                    // make sure we have result
-                    if (res.results) {
-                        console.log('hill - tagkeys resuls', res.results);
-                        for (let i = 0, len = res.results.length; i < len; i++) {
-                            const keys = res.results[i].tagKeys.filter(item => tagkeys.indexOf(item.name) === -1);
-                            tagkeys = tagkeys.concat(keys.map(d => d.name));
-                        }
-                    } else {
-                        console.debug('Error in getting TAGs_KEYS for namspaces', res);
+                    console.log('hill - tagkeys resuls', res.results);
+                    for (let i = 0, len = res.results.length; i < len; i++) {
+                        const keys = res.results[i].tagKeys.filter(item => tagkeys.indexOf(item.name) === -1);
+                        tagkeys = tagkeys.concat(keys.map(d => d.name));
                     }
                     return tagkeys.sort(this.utils.sortAlphaNum);
                 })

@@ -176,7 +176,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     rerender: any = { 'reload': false }; // -> make gridster re-render correctly
     wData: any = {};
     widgets: any[] = [];
-    // tplVariables: any[];
     tplVariables: any = { editTplVariables: [], viewTplVariables: []};
     variablePanelMode: any = { view : true };
     userNamespaces: any = [];
@@ -592,15 +591,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 if (this.widgets.length && this.oldWidgets.length === 0) {
                     this.oldWidgets = [...this.widgets];
                 }
-
-                // only get dashboard tag key when they already set it up.
-                //if (this.tplVariables.editTplVariables.length > 0 && !this.isDbTagsLoaded) {
-                //    this.getDashboardTagKeys();
-                //}
-                // check to see if we can display variable template panel or not
-                // comment this out, since we now do allow user to set the dashboard tag filters
-                // even without any metrics
-                // this.showDBTagFilters = this.dbService.havingDBMetrics(this.widgets);
             }
         }));
 
@@ -815,35 +805,37 @@ export class DashboardComponent implements OnInit, OnDestroy {
     updateTplAlias(payload: any) {
         console.log('hill - updateTplAlias call', payload);
         this.checkDbTagsLoaded().subscribe(loaded => {
-            console.log('hill - dashboardtagkey', this.dashboardTags.rawDbTags);
-            let applied = 0;
-            for (let i = 0; i < this.widgets.length; i++) {
-                const widget = this.widgets[i];
-                // we will insert or modify based on insert flag
-                const isModify = this.dbService.applytDBFilterToWidget(widget, payload, this.dashboardTags.rawDbTags);
-                console.log('hill - isModify', isModify);
-                if (isModify) {
-                    if (payload.insert === 1) {
-                        applied = applied + 1;
+            if (loaded) { // make sure it's true
+                console.log('hill - dashboardtagkey', this.dashboardTags.rawDbTags);
+                let applied = 0;
+                for (let i = 0; i < this.widgets.length; i++) {
+                    const widget = this.widgets[i];
+                    // we will insert or modify based on insert flag
+                    const isModify = this.dbService.applytDBFilterToWidget(widget, payload, this.dashboardTags.rawDbTags);
+                    console.log('hill - isModify', isModify);
+                    if (isModify) {
+                        if (payload.insert === 1) {
+                            applied = applied + 1;
+                        }
+                        this.store.dispatch(new UpdateWidget({
+                            id: widget.id,
+                            needRequery: payload.vartag.filter !== '' ? true : false,
+                            widget: widget
+                        }));
                     }
-                    this.store.dispatch(new UpdateWidget({
-                        id: widget.id,
-                        needRequery: payload.vartag.filter !== '' ? true : false, 
-                        widget: widget
-                    }));
                 }
-            }
-            
-            for (let i = 0; i < this.tplVariables.editTplVariables.tvars.length; i++) {
-                const tvar = this.tplVariables.editTplVariables.tvars[i];
-                tvar.isNew = 0;
-                if (tvar.alias === payload.vartag.alias && payload.vartag.applied < applied) {
-                    tvar.applied = applied;
-                    break;
+
+                for (let i = 0; i < this.tplVariables.editTplVariables.tvars.length; i++) {
+                    const tvar = this.tplVariables.editTplVariables.tvars[i];
+                    tvar.isNew = 0;
+                    if (tvar.alias === payload.vartag.alias && payload.vartag.applied < applied) {
+                        tvar.applied = applied;
+                        break;
+                    }
                 }
+                console.log('hill - this.edit tplvar hwn update akias', this.tplVariables.editTplVariables);
+                this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
             }
-            console.log('hill - this.edit tplvar hwn update akias', this.tplVariables.editTplVariables);
-            this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
         });
     }
 

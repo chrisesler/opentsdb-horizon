@@ -3,7 +3,6 @@ import { UtilsService } from '../../core/services/utils.service';
 import { DashboardConverterService } from '../../core/services/dashboard-converter.service';
 import { URLOverrideService } from './urlOverride.service';
 
-
 @Injectable()
 export class DashboardService {
 
