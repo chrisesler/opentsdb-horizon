@@ -361,7 +361,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 this.prevSelectedTagk = val;
             }
             // case that they enter alias first
-            if (selControl.get('alias').value !== '' && selControl.get('tagl').value !== '') {
+            if (selControl.get('alias').value !== '' && selControl.get('tagk').value !== '') {
                 this.validateAlias(selControl.get('alias').value, index, selControl, this.originAlias);
             }
         }
@@ -401,6 +401,25 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 }
             });
             this.updateState(selControl);
+        }
+        // selControl.get('alias').setValue(event.option.value);
+        // this.autoSetAlias(selControl, index);
+    }
+    // helper funtion to auto set alias name
+    autoSetAlias(selControl: AbstractControl, index: number) {
+        const tagk = selControl.get('tagk').value;
+        selControl.get('alias').setValue(tagk);
+        this.validateAlias(selControl.get('alias').value, index, selControl, this.originAlias);
+        let aliases = [];
+        for (let i = 0; i < this.tplVariables.editTplVariables.tvars.length; i++) {
+            const tvar = this.tplVariables.editTplVariables.tvars[i];
+            aliases.push(tvar.alias);
+        }
+        const matchKeys = aliases.filter(a => a.substring(0, tagk.length) === tagk);
+        if (matchKeys.length === 0) {
+            selControl.get('alias').setValue(tagk);
+        } else {
+            
         }
     }
     // update state if it's is valid
