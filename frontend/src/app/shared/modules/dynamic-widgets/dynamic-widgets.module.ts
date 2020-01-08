@@ -21,22 +21,15 @@ import {
 import {
     BignumberWidgetComponent,
     BignumberVisualAppearanceComponent,
-    BignumberConfigMetricQueriesComponent
 } from './components/bignumber-widget';
 
 import {
     DonutWidgetComponent,
-    DonutchartLegendComponent,
-    DonutchartConfigMetricQueriesComponent
+    DonutchartLegendComponent
 } from './components/donut-widget';
 
 import {
-    BarchartWidgetComponent,
-    StackedBarchartWidgetComponent,
-    StackedBarchartVisualAppearanceComponent,
-    BarchartConfigMetricQueriesComponent,
-    StackedBarchartConfigMetricQueriesComponent,
-    DropdownStacksComponent
+    BarchartWidgetComponent
 } from './components/barchart-widget';
 
 import { StatusWidgetComponent } from './components/status-widget/status-widget.component';
@@ -70,15 +63,12 @@ import { EventsWidgetComponent } from './components/events-widget/events-widget.
         PlaceholderWidgetComponent,
         LinechartWidgetComponent,
         BarchartWidgetComponent,
-        StackedBarchartWidgetComponent,
         DeveloperWidgetComponent,
         BignumberWidgetComponent,
         BignumberVisualAppearanceComponent,
         DonutWidgetComponent,
         TopnWidgetComponent,
         StatusWidgetComponent,
-        StackedBarchartVisualAppearanceComponent,
-        StackedBarchartConfigMetricQueriesComponent,
         DonutchartLegendComponent,
         MarkdownWidgetComponent,
         MarkdownWidgetVisualAppearanceComponent,
@@ -94,14 +84,7 @@ import { EventsWidgetComponent } from './components/events-widget/events-widget.
         TopnWidgetComponent,
         StatusWidgetComponent,
         BarchartWidgetComponent,
-        StackedBarchartWidgetComponent,
-        StackedBarchartVisualAppearanceComponent,
         DonutchartLegendComponent,
-        DonutchartConfigMetricQueriesComponent,
-        BarchartConfigMetricQueriesComponent,
-        BignumberConfigMetricQueriesComponent,
-        StackedBarchartConfigMetricQueriesComponent,
-        DropdownStacksComponent,
         MarkdownWidgetComponent,
         MarkdownWidgetVisualAppearanceComponent,
         TopnWidgetComponent,
@@ -113,7 +96,6 @@ import { EventsWidgetComponent } from './components/events-widget/events-widget.
         LinechartWidgetComponent,
         HeatmapWidgetComponent,
         BarchartWidgetComponent,
-        StackedBarchartWidgetComponent,
         DeveloperWidgetComponent,
         BignumberWidgetComponent,
         DonutWidgetComponent,

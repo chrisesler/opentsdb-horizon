@@ -104,7 +104,6 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
   debugData: any; // debug data from the data source.
   debugDialog: MatDialogRef < DebugDialogComponent > | null;
   storeQuery: any;
-  editQueryId = null;
   needRequery = false;
   constructor(
       private cdRef: ChangeDetectorRef,
@@ -214,10 +213,10 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
   updateConfig(message) {
     switch ( message.action ) {
         case 'SetMetaData':
-            this.setMetaData(message.payload.data);
+            this.util.setWidgetMetaData(this.widget, message.payload.data);
             break;
         case 'SetTimeConfiguration':
-            this.setTimeConfiguration(message.payload.data);
+            this.util.setWidgetTimeConfiguration(this.widget, message.payload.data);
             this.doRefreshData$.next(true);
             this.needRequery = true; // set flag to requery if apply to dashboard
             break;
@@ -237,32 +236,21 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
             this.doRefreshData$.next(true);
             this.needRequery = true;
             break;
-        case 'SetQueryEditMode':
-            this.editQueryId = message.payload.id;
-            break;
-        case 'CloseQueryEditMode':
-            this.editQueryId = null;
-            break;
         case 'ToggleQueryMetricVisibility':
             this.toggleQueryMetricVisibility(message.id, message.payload.mid);
-            this.refreshData(false);
             this.widget.queries = this.util.deepClone(this.widget.queries);
+            this.doRefreshData$.next(true);
+            this.needRequery = true;
             break;
         case 'DeleteQueryMetric':
             this.deleteQueryMetric(message.id, message.payload.mid);
             this.doRefreshData$.next(true);
             this.needRequery = true;
             break;
-        case 'DeleteQueryFilter':
-            this.deleteQueryFilter(message.id, message.payload.findex);
-            this.widget.queries = this.util.deepClone(this.widget.queries);
+        case 'ToggleQueryVisibility':
+            this.util.toggleQueryVisibility(this.widget, message.id);
             this.doRefreshData$.next(true);
             this.needRequery = true;
-            break;
-        case 'ToggleQueryVisibility':
-            this.toggleQueryVisibility(message.id);
-            this.refreshData(false);
-            this.needRequery = false;
             break;
         case 'CloneQuery':
             this.cloneQuery(message.id);
@@ -385,16 +373,6 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
             this.widget.queries[qindex].metrics[0].settings.visual.visible = true;
         }
     }
-  }
-
-  deleteQueryFilter(qid, findex) {
-    const qindex = this.widget.queries.findIndex(d => d.id === qid);
-    this.widget.queries[qindex].filters.splice(findex, 1);
-  }
-
-  toggleQueryVisibility(qid) {
-    const qindex = this.widget.queries.findIndex(d => d.id === qid);
-    this.widget.queries[qindex].settings.visual.visible = !this.widget.queries[qindex].settings.visual.visible;
   }
 
   cloneQuery(qid) {

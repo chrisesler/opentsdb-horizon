@@ -78,14 +78,10 @@
         <navbar-timezone-toggle [timezone]="dbTime.zone" (change)="setTimezone($event);"></navbar-timezone-toggle>
     </span>
 
-    <!--<simple-time-picker xPosition="before"></simple-time-picker>-->
     <span class="navbar-item nav-dashboard-actions" *ngIf="activeMediaQuery !== 'xs' && !viewEditMode">
         <navbar-dashboard-actions-menu mat-button [needsSaving]="doesUserHaveWriteAccess()" [id]="dbid" [dbSettingsMeta]="meta" (dashboardAction)="receiveDashboardAction($event)"></navbar-dashboard-actions-menu>
     </span>
 
-    <!-- <span class="navbar-item navbar-icon-item nav-search-toggle" *ngIf="!viewEditMode">
-        <navbar-search-toggle mat-button></navbar-search-toggle>
-    </span> -->
 
     <!-- DISABLE FOR NOW
     <span class="navbar-item navbar-icon-item nav-info-menu">

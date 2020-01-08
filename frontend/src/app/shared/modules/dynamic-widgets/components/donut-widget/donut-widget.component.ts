@@ -53,7 +53,6 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     newSize$: BehaviorSubject<any>;
     newSizeSub: Subscription;
     legendWidth = 0;
-    editQueryId = null;
     nQueryDataLoading = 0;
     error: any;
     errorDialog: MatDialogRef < ErrorDialogComponent > | null;
@@ -215,10 +214,10 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     updateConfig(message) {
         switch ( message.action ) {
             case 'SetMetaData':
-                this.setMetaData(message.payload.data);
+                this.util.setWidgetMetaData(this.widget, message.payload.data);
                 break;
             case 'SetTimeConfiguration':
-                this.setTimeConfiguration(message.payload.data);
+                this.util.setWidgetTimeConfiguration(this.widget, message.payload.data);
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
@@ -241,46 +240,35 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 this.needRequery = true;
                 break;
             case 'UpdateQuery':
-                this.updateQuery(message.payload);
+                this.util.updateQuery(this.widget, message.payload);
                 this.widget.queries = [...this.widget.queries];
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
-            case 'SetQueryEditMode':
-                this.editQueryId = message.payload.id;
-                break;
-            case 'CloseQueryEditMode':
-                this.editQueryId = null;
-                break;
             case 'ToggleQueryMetricVisibility':
-                this.toggleQueryMetricVisibility(message.id, message.payload.mid);
-                this.refreshData(false);
-                this.widget.queries = this.util.deepClone(this.widget.queries);
-                break;
-            case 'DeleteQueryMetric':
-                this.deleteQueryMetric(message.id, message.payload.mid);
+                this.util.toggleQueryMetricVisibility(this.widget, message.id, message.payload.mid);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
-            case 'DeleteQueryFilter':
-                this.deleteQueryFilter(message.id, message.payload.findex);
+            case 'DeleteQueryMetric':
+                this.util.deleteQueryMetric(this.widget, message.id, message.payload.mid);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'ToggleQueryVisibility':
-                this.toggleQueryVisibility(message.id);
-                this.refreshData(false);
-                this.needRequery = false;
+                this.util.toggleQueryVisibility(this.widget, message.id);
+                this.doRefreshData$.next(true);
+                this.needRequery = true;
                 break;
             case 'CloneQuery':
-                this.cloneQuery(message.id);
+                this.util.cloneQuery(this.widget, message.id);
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'DeleteQuery':
-                this.deleteQuery(message.id);
+                this.util.deleteQuery(this.widget, message.id);
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
@@ -320,25 +308,6 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
         this.options.legendDiv = this.chartLegend.nativeElement;
     }
 
-    setMetaData(config) {
-        this.widget.settings = {...this.widget.settings, ...config};
-    }
-
-    setTimeConfiguration(config) {
-        this.widget.settings.time = {
-            shiftTime: config.shiftTime,
-            overrideRelativeTime: config.overrideRelativeTime,
-            downsample: {
-                value: config.downsample,
-                aggregators: config.aggregators,
-                customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
-                customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit,
-                minInterval: config.minInterval,
-                reportingInterval: config.reportingInterval
-            }
-        };
-    }
-
     setSorting(sConfig) {
         this.widget.settings.sorting = { order: sConfig.order, limit: sConfig.limit };
     }
@@ -350,45 +319,6 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
         } else {
             this.requestCachedData();
         }
-    }
-
-    toggleQueryMetricVisibility(qid, mid) {
-        // toggle the individual query metric
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
-        this.widget.queries[qindex].metrics[mindex].settings.visual.visible =
-            !this.widget.queries[qindex].metrics[mindex].settings.visual.visible;
-    }
-
-    deleteQueryMetric(qid, mid) {
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        if (this.widget.queries[qindex]) {
-            const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
-            this.widget.queries[qindex].metrics.splice(mindex, 1);
-        }
-    }
-
-    deleteQueryFilter(qid, findex) {
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        this.widget.queries[qindex].filters.splice(findex, 1);
-    }
-
-    toggleQueryVisibility(qid) {
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        this.widget.queries[qindex].settings.visual.visible = !this.widget.queries[qindex].settings.visual.visible;
-    }
-
-    cloneQuery(qid) {
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        if ( qindex !== -1 ) {
-            const query = this.util.getQueryClone(this.widget.queries, qindex);
-            this.widget.queries.splice(qindex + 1, 0, query);
-        }
-    }
-
-    deleteQuery(qid) {
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        this.widget.queries.splice(qindex, 1);
     }
 
     changeWidgetType(type) {

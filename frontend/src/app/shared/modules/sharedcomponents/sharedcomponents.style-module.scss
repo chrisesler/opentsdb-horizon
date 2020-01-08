@@ -18,24 +18,16 @@
 
 // components
 @import 'components/generic-message-bar/generic-message-bar.component';
-@import 'components/search-metrics-dialog/search-metrics-dialog.component';
-@import 'components/search-all-dialog/search-all-dialog.component';
-@import 'components/expression-dialog/expression-dialog.component';
-@import 'components/simple-time-picker/simple-time-picker.component';
 @import 'components/theme-picker/theme-picker.component';
 @import 'components/inline-editable/inline-editable.component';
 @import 'components/navbar-user-menu/navbar-user-menu.component';
 @import 'components/navbar-info-menu/navbar-info-menu.component';
 @import 'components/navbar-timezone-toggle/navbar-timezone-toggle.component';
-@import 'components/navbar-search-toggle/navbar-search-toggle.component';
-@import 'components/dropdown-aggregators/dropdown-aggregators.component';
 @import 'components/dropdown-line-type/dropdown-line-type.component';
 @import 'components/dropdown-line-weight/dropdown-line-weight.component';
 @import 'components/dropdown-unit-type/dropdown-unit-type.component';
 @import 'components/dropdown-visual-type/dropdown-visual-type.component';
-@import 'components/query-editor/query-editor.component.scss';
 @import 'components/conditional-formatter/conditional-formatter.component.scss';
-@import 'components/namespace-tag-autocomplete/namespace-tag-autocomplete.component.scss';
 @import 'components/metric-autocomplete/metric-autocomplete.component.scss';
 @import 'components/dropdown-metric-tags/dropdown-metric-tags.component.scss';
 @import 'components/inline-filter-editor/inline-filter-editor.component.scss';
@@ -55,7 +47,6 @@
 @import 'components/widget-config.common';
 
 // if individual widget-configs have custom style, include them
-@import 'components/widget-config-alerts/widget-config-alerts.component';
 @import 'components/widget-config-axes/widget-config-axes.component';
 @import 'components/widget-config-general/widget-config-general.component';
 @import 'components/widget-config-legend/widget-config-legend.component';
@@ -63,7 +54,6 @@
 @import 'components/widget-config-query-inspector/widget-config-query-inspector.component';
 @import 'components/widget-config-time/widget-config-time.component';
 @import 'components/widget-config-visual-appearance/widget-config-visual-appearance.component';
-@import 'components/widget-config-legend-big-number/widget-config-legend-big-number.component';
 @import 'components/widget-config-events/widget-config-events.component';
 @import 'components/widget-config-multigraph/widget-config-multigraph.component';
 
@@ -73,23 +63,15 @@
     // include your core mixins
     // example: @include componentName-component-core();
     @include generic-message-bar-component-base();
-    @include search-metrics-dialog-component-base();
-    @include search-all-dialog-component-base();
-    @include expression-dialog-component-base();
-    @include simple-time-picker-component-base();
     @include theme-picker-component-base();
     @include inline-editable-component-base();
     @include navbar-user-menu-component-base();
     @include navbar-info-menu-component-base();
     @include navbar-timezone-toggle-component-base();
-    @include navbar-search-toggle-component-base();
-    @include dropdown-aggregators-component-base();
     @include dropdown-line-type-component-base();
     @include dropdown-line-weight-component-base();
     @include dropdown-unit-type-component-base();
     @include dropdown-visual-type-component-base();
-    @include query-editor-component-base();
-    @include namespace-tag-autocomplete-component-base();
     @include metric-autocomplete-component-base();
     @include dropdown-metric-tags-component-base();
     @include inline-filter-editor-component-base();
@@ -106,7 +88,6 @@
 
     // WIDGET CONFIG ITEMS
     @include widget-config-common-base();
-    @include widget-config-alerts-component-base();
     @include widget-config-axes-component-base();
     @include widget-config-general-component-base();
     @include widget-config-legend-component-base();
@@ -114,7 +95,6 @@
     @include widget-config-query-inspector-component-base();
     @include widget-config-time-component-base();
     @include widget-config-visual-appearance-component-base();
-    @include widget-config-legend-big-number-component-base();
     @include widget-config-sorting-component-base();
     @include widget-config-events-component-base();
     @include widget-config-multigraph-component-base();
@@ -125,23 +105,15 @@
     // include your theme mixins, passing along the $theme-config
     // example: @include componentName-component-theme($theme-config);
     @include generic-message-bar-component-theme($theme-config);
-    @include search-metrics-dialog-component-theme($theme-config);
-    @include search-all-dialog-component-theme($theme-config);
-    @include expression-dialog-component-theme($theme-config);
-    @include simple-time-picker-component-theme($theme-config);
     @include theme-picker-component-theme($theme-config);
     @include inline-editable-component-theme($theme-config);
     @include navbar-user-menu-component-theme($theme-config);
     @include navbar-user-menu-component-theme($theme-config);
     @include navbar-timezone-toggle-component-theme($theme-config);
-    @include navbar-search-toggle-component-theme($theme-config);
-    @include dropdown-aggregators-component-theme($theme-config);
     @include dropdown-line-type-component-theme($theme-config);
     @include dropdown-line-weight-component-theme($theme-config);
     @include dropdown-unit-type-component-theme($theme-config);
     @include dropdown-visual-type-component-theme($theme-config);
-    @include query-editor-component-theme($theme-config);
-    @include namespace-tag-autocomplete-component-theme($theme-config);
     @include metric-autocomplete-component-theme($theme-config);
     @include dropdown-metric-tags-component-theme($theme-config);
     @include inline-filter-editor-component-theme($theme-config);
@@ -158,7 +130,6 @@
 
     // WIDGET CONFIG ITEMS
     @include widget-config-common-theme($theme-config);
-    @include widget-config-alerts-component-theme($theme-config);
     @include widget-config-axes-component-theme($theme-config);
     @include widget-config-general-component-theme($theme-config);
     @include widget-config-legend-component-theme($theme-config);
@@ -166,7 +137,6 @@
     @include widget-config-query-inspector-component-theme($theme-config);
     @include widget-config-time-component-theme($theme-config);
     @include widget-config-visual-appearance-component-theme($theme-config);
-    @include widget-config-legend-big-number-component-theme($theme-config);
     @include widget-config-sorting-component-theme($theme-config);
     @include widget-config-events-component-theme($theme-config);
     @include widget-config-multigraph-component-theme($theme-config);

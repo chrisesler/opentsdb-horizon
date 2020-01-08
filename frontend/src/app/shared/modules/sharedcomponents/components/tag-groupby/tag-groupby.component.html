@@ -1,6 +1,0 @@
-<button mat-button [matMenuTriggerFor]="groupByMenu" style="min-width:10px;line-height: 15px;border:1px solid #ccc;">
-  {{ groupByOptions[selectedIndex].icon }}
-</button>
-<mat-menu #groupByMenu="matMenu">
-<button mat-menu-item *ngFor="let option of groupByOptions" (click)="selectOption(option.value)">{{option.icon}}</button>
-</mat-menu>

@@ -127,7 +127,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     debugDialog: MatDialogRef < DebugDialogComponent > | null;
     storeQuery: any;
     legendDisplayColumns = [];
-    editQueryId = null;
     needRequery = false;
 
     legendDataSource; // = new MatTableDataSource(this.tmpArr);
@@ -523,10 +522,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     updateConfig(message) {
         switch ( message.action ) {
             case 'SetMetaData':
-                this.setMetaData(message.payload.data);
+                this.utilService.setWidgetMetaData(this.widget, message.payload.data);
                 break;
             case 'SetTimeConfiguration':
-                this.setTimeConfiguration(message.payload.data);
+                this.utilService.setWidgetTimeConfiguration(this.widget, message.payload.data);
                 this.doRefreshData$.next(true);
                 this.needRequery = true; // set flag to requery if apply to dashboard
                 break;
@@ -561,14 +560,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 this.setSize();
                 break;
             case 'UpdateQuery':
-                this.updateQuery(message.payload);
+                this.utilService.updateQuery(this.widget, message.payload);
                 this.widget.queries = [...this.widget.queries];
                 this.setOptions();
                 this.needRequery = true;
                 this.doRefreshData$.next(true);
-                break;
-            case 'SetQueryEditMode':
-                this.editQueryId = message.payload.id;
                 break;
             case 'SetShowEvents':
                 this.setShowEvents(message.payload.showEvents);
@@ -579,38 +575,31 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             case 'SetEventQueryNamespace':
                 this.setEventQueryNamespace(message.payload.namespace);
                 break;
-            case 'CloseQueryEditMode':
-                this.editQueryId = null;
-                break;
             case 'ToggleQueryVisibility':
-                this.toggleQueryVisibility(message.id);
-                this.refreshData(false);
+                this.utilService.toggleQueryVisibility(this.widget, message.id);
                 this.widget.queries = this.utilService.deepClone(this.widget.queries);
+                this.needRequery = true;
+                this.doRefreshData$.next(true);
                 break;
             case 'ToggleQueryMetricVisibility':
-                this.toggleQueryMetricVisibility(message.id, message.payload.mid);
-                this.refreshData(false);
+                this.utilService.toggleQueryMetricVisibility(this.widget, message.id, message.payload.mid);
+                this.needRequery = true;
+                this.doRefreshData$.next(true);
                 break;
             case 'CloneQuery':
-                this.cloneQuery(message.id);
+                this.utilService.cloneQuery(this.widget, message.id);
                 this.widget = this.utilService.deepClone(this.widget);
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'DeleteQuery':
-                this.deleteQuery(message.id);
+                this.utilService.deleteQuery(this.widget, message.id);
                 this.widget = this.utilService.deepClone(this.widget);
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'DeleteQueryMetric':
-                this.deleteQueryMetric(message.id, message.payload.mid);
-                this.widget.queries = this.utilService.deepClone(this.widget.queries);
-                this.doRefreshData$.next(true);
-                this.needRequery = true;
-                break;
-            case 'DeleteQueryFilter':
-                this.deleteQueryFilter(message.id, message.payload.findex);
+                this.utilService.deleteQueryMetric(this.widget, message.id, message.payload.mid);
                 this.widget.queries = this.utilService.deepClone(this.widget.queries);
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
@@ -631,17 +620,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                     this.refreshData(false);
                 }
                 break;
-        }
-    }
-
-    updateQuery( payload ) {
-        const query = payload.query;
-        const qindex = query.id ? this.widget.queries.findIndex(q => q.id === query.id ) : -1;
-        if ( qindex === -1 ) {
-            query.id = this.utilService.generateId(6, this.utilService.getIDs(this.widget.queries));
-            this.widget.queries.push(query);
-        } else {
-            this.widget.queries[qindex] = query;
         }
     }
 
@@ -814,21 +792,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         this._timezone.next(timezone);
     }
 
-    setTimeConfiguration(config) {
-        this.widget.settings.time = {
-            shiftTime: config.shiftTime,
-            overrideRelativeTime: config.overrideRelativeTime,
-            downsample: {
-                value: config.downsample,
-                aggregators: config.aggregators,
-                customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
-                customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit,
-                minInterval: config.minInterval,
-                reportingInterval: config.reportingInterval
-            }
-        };
-    }
-
     setAxesOption() {
         const axisKeys = Object.keys(this.widget.settings.axes);
         const thresholds = this.widget.settings.thresholds || {};
@@ -993,10 +956,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         this.widget.settings.legend = config;
         this.setLegendDiv();
         this.options = {...this.options};
-    }
-
-    setMetaData(config) {
-        this.widget.settings = {...this.widget.settings, ...config};
     }
 
     setLegendDiv() {
@@ -1276,47 +1235,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             this.requestCachedData();
             this.getEvents(); // todo: add events cache in-future
         }
-    }
-
-    toggleQueryVisibility(qid) {
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        this.widget.queries[qindex].settings.visual.visible =
-            !this.widget.queries[qindex].settings.visual.visible;
-    }
-
-    cloneQuery(qid) {
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        if ( qindex !== -1 ) {
-            const query = this.utilService.getQueryClone(this.widget.queries, qindex);
-            this.widget.queries.splice(qindex + 1, 0, query);
-        }
-    }
-
-    deleteQuery(qid) {
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        this.widget.queries.splice(qindex, 1);
-    }
-
-    toggleQueryMetricVisibility(qid, mid) {
-        // toggle the individual query metric
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
-        this.widget.queries[qindex].metrics[mindex].settings.visual.visible =
-            !this.widget.queries[qindex].metrics[mindex].settings.visual.visible;
-    }
-
-    deleteQueryMetric(qid, mid) {
-        // toggle the individual query
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        if (this.widget.queries[qindex]) {
-            const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
-            this.widget.queries[qindex].metrics.splice(mindex, 1);
-        }
-    }
-
-    deleteQueryFilter(qid, findex) {
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        this.widget.queries[qindex].filters.splice(findex, 1);
     }
 
     changeWidgetType(type) {

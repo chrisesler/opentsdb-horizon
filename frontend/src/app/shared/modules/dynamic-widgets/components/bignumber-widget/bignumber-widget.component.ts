@@ -69,7 +69,6 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     readonly maxCaptionLength: number = 36;
     readonly maxLabelLength: number = 10; // postfix, prefix, unit
 
-    editQueryId = null;
     needRequery = false;
     nQueryDataLoading = 0;
     error: any;
@@ -433,11 +432,12 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     updateConfig(message) {
         switch ( message.action ) {
             case 'SetTimeConfiguration':
-                this.setTimeConfiguration(message.payload.data);
+                this.util.setWidgetTimeConfiguration(this.widget, message.payload.data);
                 this.needRequery = true;
+                this.refreshData();
                 break;
             case 'SetMetaData':
-                this.setMetaData(message.payload.data);
+                this.util.setWidgetMetaData(this.widget, message.payload.data);
                 break;
             case 'SetVisualization':
                 this.setVisualization(message.payload.data);
@@ -447,20 +447,15 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                 this.setSelectedQuery(message.payload.data);
                 break;
             case 'UpdateQuery':
-                this.updateQuery(message.payload);
+                this.util.updateQuery(this.widget, message.payload);
                 this.widget.queries = [...this.widget.queries];
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
-            case 'SetQueryEditMode':
-                this.editQueryId = message.payload.id;
-                break;
-            case 'CloseQueryEditMode':
-                this.editQueryId = null;
-                break;
             case 'ToggleQueryMetricVisibility':
                 this.toggleQueryMetricVisibility(message.id, message.payload.mid);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
+                this.needRequery = true;
                 break;
             case 'SummarizerChange':
                 this.setBigNumber();
@@ -478,15 +473,9 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                 this.needRequery = true;
                 break;
             case 'DeleteQuery':
-                this.deleteQuery(message.id);
+                this.util.deleteQuery(this.widget, message.id);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.refreshData();
-                this.needRequery = true;
-                break;
-            case 'DeleteQueryFilter':
-                this.deleteQueryFilter(message.id, message.payload.findex);
-                this.widget.queries = this.util.deepClone(this.widget.queries);
-                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'ToggleDBFilterUsage':
@@ -497,37 +486,9 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         }
     }
 
-    updateQuery( payload ) {
-        const query = payload.query;
-        const qindex = query.id ? this.widget.queries.findIndex(q => q.id === query.id ) : -1;
-        if ( qindex !== -1 ) {
-            this.widget.queries[qindex] = query;
-        }
-    }
-
     setVisualization( vconfigs ) {
         this.widget.settings.visual = { ...vconfigs};
         this.determineTextAndBackgroundColors();
-    }
-
-    setTimeConfiguration(config) {
-        this.widget.settings.time = {
-            shiftTime: config.shiftTime,
-            overrideRelativeTime: config.overrideRelativeTime,
-            downsample: {
-                value: config.downsample,
-                aggregators: config.aggregators,
-                customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
-                customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit,
-                minInterval: config.minInterval,
-                reportingInterval: config.reportingInterval
-            }
-        };
-        this.refreshData();
-    }
-
-    setMetaData(config) {
-        this.widget.settings = {...this.widget.settings, ...config};
     }
 
     setSelectedQuery(queryID: string) {
@@ -650,7 +611,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         }
 
         this.widget.queries[qindex].metrics[mindex].settings.visual.visible = true;
-        this.refreshData(false);
+        this.refreshData();
         this.setBigNumber();
     }
 
@@ -683,18 +644,6 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                 this.widget.queries[qindex].metrics[0].settings.visual.visible = true;
             }
         }
-    }
-
-    deleteQuery(qid) {
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        if (this.widget.queries.length > 1) {
-            this.widget.queries.splice(qindex, 1);
-        }
-    }
-
-    deleteQueryFilter(qid, findex) {
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        this.widget.queries[qindex].filters.splice(findex, 1);
     }
 
     ngOnDestroy() {
