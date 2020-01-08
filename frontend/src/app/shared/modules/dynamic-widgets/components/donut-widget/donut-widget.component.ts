@@ -295,10 +295,6 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
         }
     }
 
-    isApplyTpl(): boolean {
-        return (!this.widget.settings.hasOwnProperty('useDBFilter') || this.widget.settings.useDBFilter);
-    }
-
     updateQuery( payload ) {
         const query = payload.query;
         const qindex = query.id ? this.widget.queries.findIndex(q => q.id === query.id ) : -1;

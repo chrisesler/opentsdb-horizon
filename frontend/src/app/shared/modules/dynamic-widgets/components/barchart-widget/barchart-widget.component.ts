@@ -323,9 +323,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 break;
         }
     }
-    isApplyTpl(): boolean {
-        return (!this.widget.settings.hasOwnProperty('useDBFilter') || this.widget.settings.useDBFilter);
-    }
+
     // for first time and call.
     setSize(newSize) {
         // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,

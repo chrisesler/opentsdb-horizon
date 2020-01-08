@@ -276,6 +276,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
         if (operation === 'add') {
             const checkVar = this.regexVars.test(v);
             if (checkVar) {
+                // when user manually adds a db filter
                 this.filters[tagIndex].customFilter ?
                 this.filters[tagIndex].customFilter.push(v) :
                 this.filters[tagIndex].customFilter = [v];
@@ -284,6 +285,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
             }
         } else if (tagIndex !== -1 && operation === 'remove') {
             if (this.regexVars.test(v)) {
+                // when user maually removes a db filter
                 const varIndex = this.filters[tagIndex].customFilter.indexOf(v);
                 this.filters[tagIndex].customFilter.splice(varIndex, 1);
             } else {

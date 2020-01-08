@@ -287,10 +287,6 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
     this.widget.settings.title = title;
   }
 
-  isApplyTpl(): boolean {
-    return (!this.widget.settings.hasOwnProperty('useDBFilter') || this.widget.settings.useDBFilter);
-  }
-
   setTimezone(timezone) {
       this.options.labelsUTC = timezone === 'utc' ? true : false;
   }
