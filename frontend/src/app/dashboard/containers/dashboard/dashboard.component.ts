@@ -409,7 +409,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
                     break;
                 case 'updateTemplateVariables':
-                    console.log('hill ----------------------------------- call updateState', message);
                     this.store.dispatch(new UpdateVariables(message.payload));
                     break;
                 case 'ApplyTplVarValue':
@@ -436,6 +435,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
                             mode: this.variablePanelMode.view ? 'view' : 'edit'
                         }
                     });
+                    break;
+                case 'UpdateCustomFiltersAppliedCount':
+                    // to update db fitler applied count from inline-tag-filters
+                    this.updateTplVariablesAppliedCount(message.payload);
                     break;
                 case 'getUserNamespaces':
                     this.store.dispatch(new LoadUserNamespaces());
@@ -837,6 +840,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
             }
         });
+    }
+
+    updateTplVariablesAppliedCount(payload: any) {
+
+        const idx = this.tplVariables.editTplVariables.tvars.findIndex(tpl => '[' + tpl.alias + ']' === payload.alias);
+        if (idx > -1) {
+            const tpl = this.tplVariables.editTplVariables.tvars[idx];
+            if (payload.operator === 'add') {
+                tpl.applied = tpl.applied + 1;
+            } else {
+                tpl.applied = tpl.applied - 1;
+            }
+            this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
+        }
     }
 
     // to passing raw data to widget
