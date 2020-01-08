@@ -445,7 +445,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 }
             }
             // update db filters state.
-            this.updateTplVariableState(this.selectedNamespaces, sublist);
+            this.updateTplVariableState(this.utils.deepClone(this.selectedNamespaces), sublist);
             // console.log();
             // we might need to run widgets which are affected by this tag
             if (reQuery) {
@@ -455,6 +455,18 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 });
             }
         }
+    }
+
+    // quickly update the namespace with add/remove namespace with valid one
+    updateNamespaceState() {
+        const sublist = [];
+        for (let i = 0; i < this.formTplVariables.controls.length; i++) {
+            if (this.formTplVariables.controls[i].valid) {
+                sublist.push(this.formTplVariables.controls[i].value);
+            }
+        }
+        // update db filters state.
+        this.updateTplVariableState(this.utils.deepClone(this.selectedNamespaces), sublist);      
     }
 
     calculateVariableDisplayWidth(item: FormGroup, options: any) {
@@ -541,6 +553,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         if (!this.selectedNamespaces.includes(namespace)) {
             this.selectedNamespaces.push(namespace);
             this.getTagkeysByNamespaces(this.selectedNamespaces);
+            this.updateNamespaceState();
         }
     }
 
@@ -548,11 +561,11 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         const index = this.selectedNamespaces.indexOf(namespace);
         if (!this.dbNamespaces.includes(namespace) && index !== -1) {
             this.selectedNamespaces.splice(index, 1);
+            this.updateNamespaceState();
             if (this.selectedNamespaces.length > 0) {
                 this.getTagkeysByNamespaces(this.selectedNamespaces);
             } else {
                 this.tagKeysByNamespaces = [];
-                this.updateTplVariableState([], []);
             }
         }
     }
