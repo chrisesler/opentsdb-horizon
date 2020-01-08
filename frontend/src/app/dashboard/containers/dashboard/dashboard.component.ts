@@ -410,6 +410,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
                     break;
                 case 'updateTemplateVariables':
+                    console.log('hill ----------------------------------- call updateState', message);
                     this.store.dispatch(new UpdateVariables(message.payload));
                     break;
                 case 'ApplyTplVarValue':
@@ -832,13 +833,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     }));
                 }
             }
+            
             for (let i = 0; i < this.tplVariables.editTplVariables.tvars.length; i++) {
                 const tvar = this.tplVariables.editTplVariables.tvars[i];
+                tvar.isNew = 0;
                 if (tvar.alias === payload.vartag.alias && payload.vartag.applied < applied) {
                     tvar.applied = applied;
                     break;
                 }
             }
+            console.log('hill - this.edit tplvar hwn update akias', this.tplVariables.editTplVariables);
             this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
         });
     }
