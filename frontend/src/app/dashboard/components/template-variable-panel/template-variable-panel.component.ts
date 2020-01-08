@@ -224,9 +224,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     // dirty flag to determine if the tag is insert or replace in auto mode
     // dirty = 1 means to do insert
     addVariableTemplate(data?: any) {
-        const mode = this.getLastFilterMode();
-        const isNew = mode === 'auto' ? 1 : 0;
-        data = (data) ? data : { mode: mode, applied: 0, isNew: isNew };
+        data = (data) ? data : { mode: this.getLastFilterMode(), applied: 0, isNew: 1 };
         const varData = {
             tagk: new FormControl((data.tagk) ? data.tagk : '', [Validators.required]),
             alias: new FormControl((data.alias) ? data.alias : '', [Validators.required]),
@@ -536,7 +534,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             }         
         } else { // set to manual mode
             selControl.get('isNew').setValue(0);
-            this.updateState(selControl, false);
         }
     }
 
