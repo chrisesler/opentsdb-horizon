@@ -43,6 +43,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     selectedNamespaces: any[] = [];
     tagKeysByNamespaces: string[] = [];
     dbNamespaces: string[] = [];
+    originAlias: string[] = [];
     constructor(
         private fb: FormBuilder,
         private interCom: IntercomService,
@@ -285,12 +286,16 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                     );
                 break;
             case 'alias':
-                const startVal = selControl['controls'][cname].value;
-                selControl['controls'][cname].valueChanges.pipe(
-                    debounceTime(1000)
-                ).subscribe(val => {
-                    this.validateAlias(val.toString(), index, selControl, startVal);
-                });
+                // const startVal = selControl['controls'][cname].value;
+                this.originAlias[index] = selControl['controls'][cname].value;
+                // if the tag_key is invalid, we should not move on here
+                if (selControl.get('tagk').value !== '') {
+                    selControl['controls'][cname].valueChanges.pipe(
+                        debounceTime(1000)
+                    ).subscribe(val => {
+                        this.validateAlias(val.toString(), index, selControl, this.originAlias);
+                    });
+                }
                 break;
             case 'filter':
                 this.manageFilterControl(index);
@@ -303,8 +308,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     // since alias/name has to be unique with db filters
-    private validateAlias(val: string, index: number, selControl: any, startVal: string) {
-        debugger;
+    private validateAlias(val: string, index: number, selControl: any, originAlias: string[]) {
         if (val.trim() !== '') {
             const tplFormGroups = this.editForm.controls['formTplVariables']['controls'];
             // first let do the validation of the form to make sure we have unique alias
@@ -334,11 +338,14 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                     action: 'UpdateTplAlias',
                     payload: {
                         vartag: rowControl.getRawValue(),
-                        originVal: startVal,
+                        originAlias: originAlias,
+                        index: j,
                         insert: rowControl.get('isNew').value
                     }
                 });
             }
+            // reset originAlias list after completing validating
+            this.originAlias = [];
         }
     }
 
@@ -352,6 +359,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 selControl['controls']['filter'].setValue('', { onlySelf: true, emitEvent: false });
             } else {
                 this.prevSelectedTagk = val;
+            }
+            // case that they enter alias first
+            if (selControl.get('alias').value !== '' && selControl.get('tagl').value !== '') {
+                this.validateAlias(selControl.get('alias').value, index, selControl, this.originAlias);
             }
         }
         if (cname === 'filter') {
