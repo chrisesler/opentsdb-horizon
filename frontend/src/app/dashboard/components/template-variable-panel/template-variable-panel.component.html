@@ -52,17 +52,17 @@
                     <thead>
                         <tr>
                             <th>Mode</th>
-                            <th>Tag Key</th>
-                            <th>Name</th>
+                            <th>Tag Key <sup>*</sup></th>
+                            <th>Name <sup>*</sup></th>
                             <th>Default value (optional)</th>
                             <th>Applied</th>
                             <th>Actions</th>
                             <th><!--empty for trash--></th>
-                            <th><!-- empty for error messages --></th>
+                            <!-- <th>empty for error messages</th> -->
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let tpl of formTplVariables.controls; let i=index" [formGroupName]="i" class="variable-edit-controls">
+                        <tr *ngFor="let tpl of formTplVariables.controls; let i = index" [formGroupName]="i" class="variable-edit-controls">
                             <!-- auto/manu toggle (TODO: still have to style) -->
                             <td>
                                 <div class="settings-control filter-mode-control">
@@ -92,6 +92,7 @@
                                                 {{option}}
                                             </mat-option>
                                         </mat-autocomplete>
+                                        <mat-error *ngIf="tpl.invalid">Tag Key is required</mat-error>
                                     </mat-form-field>
                                 </div>
                             </td>
@@ -100,6 +101,10 @@
                                 <div class="settings-control alias-control" style="min-width: 100px; width: 100%;">
                                     <mat-form-field appearance="fill" color="primary" floatLabel="never" style="width: 100%;" >
                                         <input matInput placeholder="Enter name/alias" formControlName="alias" (blur)="onInputBlur('alias', i)" (focus)="onInputFocus('alias', i)" autocomplete="off">
+                                        <mat-error *ngIf="tpl.get('alias').hasError('unique'); else requiredMesg">Filter Name must be unique.</mat-error>
+                                        <ng-template #requiredMesg>
+                                            <mat-error *ngIf="tpl.invalid">Filter Name is required</mat-error>
+                                        </ng-template>
                                     </mat-form-field>
                                 </div>
                             </td>
@@ -149,11 +154,11 @@
                                     </div>
                                 </div>
                             </td>
-                            <!-- error messages-->
+                            <!-- error messages
                             <td>
                                 <div class="settings-control error-control">
                                     <div class="errors">
-                                        <!-- error messages -->
+
                                         <span *ngIf="tpl.get('alias').hasError('unique'); else requiredMesg" class="error-msg">
                                             Name must be unique.
                                         </span>
@@ -162,7 +167,7 @@
                                         </ng-template>
                                     </div>
                                 </div>
-                            </td>
+                            </td>-->
                         </tr>
                     </tbody>
                 </table>
