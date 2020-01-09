@@ -122,6 +122,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         if (this.trackingSub.hasOwnProperty(name + index)) {
             this.trackingSub[name + index].unsubscribe();
         }
+        // need to clear old list for new one
+        if (this.filteredValueOptions[index]) {
+            this.filteredValueOptions[index] = [];
+        }
         this.trackingSub[name + index] = selControl.get('filter').valueChanges
             .pipe(
                 startWith(''),
@@ -135,10 +139,12 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 };
                 this.httpService.getTagValues(query).subscribe(
                     results => {
+                        const regexStr = val === '' ? 'regexp(.*)' : 'regexp('+val+')';
+                        results.unshift(regexStr);
                         this.filteredValueOptions[index] = results;
                     },
                     error => {
-                        this.filteredValueOptions[index] = [];
+                        this.filteredValueOptions[index] = ['regexp('+val+')'];
                     });
             });
     }

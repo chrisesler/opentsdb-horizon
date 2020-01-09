@@ -933,75 +933,69 @@ export class DashboardComponent implements OnInit, OnDestroy {
         // tslint:disable-next-line:max-line-length
         // const groupby = payload.settings.multigraph ? payload.settings.multigraph.chart.filter(d=> d.key !== 'metric_group' && d.displayAs !== 'g').map(d => d.key) : [];
         const groupby = payload.settings.multigraph ?
-            payload.settings.multigraph.chart.filter(d=> d.key !== 'metric_group').map(d => d.key) : [];
+            payload.settings.multigraph.chart.filter(d => d.key !== 'metric_group').map(d => d.key) : [];
         const dt = this.getDashboardDateRange();
-        // const subs = this.checkDbTagsLoaded().subscribe(loaded => {
-            if (payload.queries.length) {
-                const wType = payload.settings.component_type;
-                // override downsample to auto when the dashboard is zoomed
-                if ( this.isDBZoomed && message.id.indexOf('__EDIT__') === -1 && ( wType === 'HeatmapWidgetComponent' || wType === 'LinechartWidgetComponent' ) ) {
-                    payload.settings.time.downsample.value = 'auto';
-                }
-                // should we modify the widget if using dashboard tag filter
-                const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables.tvars : this.tplVariables.editTplVariables.tvars;
-                // sending each group to get data.
-                const queries = {};
-                const sources = [];
-                for (let i = 0; i < payload.queries.length; i++) {
-                    let query: any = JSON.parse(JSON.stringify(payload.queries[i]));
-                    groupid = query.id;
-                    if (query.namespace && query.metrics.length) {
-                        // filter only visible metrics, disable it now since it will break the expression
-                        // query = this.dbService.filterMetrics(query);
-                        // here we need to resolve template variables
-                        if (tplVars.length > 0) {
-                            if (query.filters.findIndex(f => f.customFilter !== undefined) > -1) {
-                                query = this.dbService.resolveTplVar(query, tplVars);
-                            }
-                        }
-                        // override the multigraph groupby config
-                        for ( let j = 0; j < query.metrics.length; j++ ) {
-                            // console.log("payload1", query.metrics[j].groupByTags.concat(groupby))
-                            const metricGroupBy = query.metrics[j].groupByTags || [];
-                            query.metrics[j].groupByTags = this.utilService.arrayUnique(metricGroupBy.concat(groupby));
-                            if ( query.metrics[j].settings.visual.visible ) {
-                                sources.push(query.metrics[j].id);
-                            }
-                        }
-                        queries[i] = query;
-                    }
-                }
-                const gquery: any = {
-                    wid: message.id,
-                    isEditMode: this.viewEditMode,
-                    dbid: this.dbid
-                };
-                if ( Object.keys(queries).length && sources.length ) {
-                    const query = this.queryService.buildQuery(payload, dt, queries, { sources : sources } );
-                    gquery.query = query;
-                    // console.debug("****** DSHBID: " + this.dbid + "  WID: " + gquery.wid);
-                    // ask widget to loading signal
-                    this.interCom.responsePut({
-                        id: payload.id,
-                        payload: {
-                            storeQuery: query
-                        },
-                        action: 'WidgetQueryLoading'
-                    });
-                    // now dispatch request
-                    this.store.dispatch(new GetQueryDataByGroup(gquery));
-                } else {
-                    gquery.data = {};
-                    this.store.dispatch(new SetQueryDataByGroup(gquery));
-                }
-            } else {
-                this.store.dispatch(new ClearQueryData({ wid: message.id , triggerChange: true }));
+        if (payload.queries.length) {
+            const wType = payload.settings.component_type;
+            // override downsample to auto when the dashboard is zoomed
+            if (this.isDBZoomed && message.id.indexOf('__EDIT__') === -1 && (wType === 'HeatmapWidgetComponent' || wType === 'LinechartWidgetComponent')) {
+                payload.settings.time.downsample.value = 'auto';
             }
-            // very important to unsubscribe
-            //if (subs) {
-            //    subs.unsubscribe();
-            //}
-        //});
+            // should we modify the widget if using dashboard tag filter
+            const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables.tvars : this.tplVariables.editTplVariables.tvars;
+            // sending each group to get data.
+            const queries = {};
+            const sources = [];
+            for (let i = 0; i < payload.queries.length; i++) {
+                let query: any = JSON.parse(JSON.stringify(payload.queries[i]));
+                groupid = query.id;
+                if (query.namespace && query.metrics.length) {
+                    // filter only visible metrics, disable it now since it will break the expression
+                    // query = this.dbService.filterMetrics(query);
+                    // here we need to resolve template variables
+                    if (tplVars.length > 0) {
+                        if (query.filters.findIndex(f => f.customFilter !== undefined) > -1) {
+                            query = this.dbService.resolveTplVar(query, tplVars);
+                        }
+                    }
+                    // override the multigraph groupby config
+                    for (let j = 0; j < query.metrics.length; j++) {
+                        // console.log("payload1", query.metrics[j].groupByTags.concat(groupby))
+                        const metricGroupBy = query.metrics[j].groupByTags || [];
+                        query.metrics[j].groupByTags = this.utilService.arrayUnique(metricGroupBy.concat(groupby));
+                        if (query.metrics[j].settings.visual.visible) {
+                            sources.push(query.metrics[j].id);
+                        }
+                    }
+                    queries[i] = query;
+                }
+            }
+            const gquery: any = {
+                wid: message.id,
+                isEditMode: this.viewEditMode,
+                dbid: this.dbid
+            };
+            if (Object.keys(queries).length && sources.length) {
+                const query = this.queryService.buildQuery(payload, dt, queries, { sources: sources });
+                gquery.query = query;
+                // console.debug("****** DSHBID: " + this.dbid + "  WID: " + gquery.wid);
+                // ask widget to loading signal
+                this.interCom.responsePut({
+                    id: payload.id,
+                    payload: {
+                        storeQuery: query
+                    },
+                    action: 'WidgetQueryLoading'
+                });
+                // now dispatch request
+                this.store.dispatch(new GetQueryDataByGroup(gquery));
+            } else {
+                gquery.data = {};
+                this.store.dispatch(new SetQueryDataByGroup(gquery));
+            }
+        } else {
+            this.store.dispatch(new ClearQueryData({ wid: message.id, triggerChange: true }));
+        }
     }
 
     handleEventQueryPayload(message: any) {
