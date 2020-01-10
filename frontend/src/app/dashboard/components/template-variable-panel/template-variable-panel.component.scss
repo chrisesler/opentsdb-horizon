@@ -141,7 +141,8 @@
         /* form fields for list-view */
         .dashboard-template-variable.mat-form-field {
 
-            .mat-form-field-prefix {
+            .mat-form-field-prefix,
+            .mat-form-field-suffix {
                 align-self: stretch;
                 display: flex;
                 align-items: center;
@@ -412,6 +413,19 @@
             .mat-form-field-prefix {
                 background: rgba(map-get($primary, default), .1);
             }
+
+            .mat-form-field-suffix {
+                .mat-icon {
+                    cursor: pointer;
+                    color: rgba(map-get($primary, default), .1);
+                }
+
+                &:hover {
+                    .mat-icon {
+                        color: rgba(map-get($primary, default), .3);
+                    }
+                }
+            }
         }
 
         /* Edit View controls */
@@ -448,4 +462,11 @@
     }
 
     // cdk items here (if any)
+    .mat-autocomplete-panel.default-value-autocomplete {
+        // regexp option is treated differently
+        .mat-option:first-child {
+            border-bottom: 1px solid $divider;
+            background-color: rgba(map-get($primary, default), 0.08);
+        }
+    }
 }
