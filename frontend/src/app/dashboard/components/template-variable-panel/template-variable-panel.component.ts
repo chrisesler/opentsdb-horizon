@@ -30,6 +30,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     @Input() tplVariables: any;
     @Input() mode: any;
     @Input() widgets: any[];
+    @Input() tagKeysByNamespaces: string[];
     @Output() modeChange: EventEmitter<any> = new EventEmitter<any>();
 
     editForm: FormGroup;
@@ -41,7 +42,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     disableDone = false;
     trackingSub: any = {};
     selectedNamespaces: any[] = [];
-    tagKeysByNamespaces: string[] = [];
     dbNamespaces: string[] = [];
     originAlias: string[] = [];
     tagBlurTimeout: any;
@@ -66,12 +66,12 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     reset() {
         this.dbNamespaces = [];
         this.selectedNamespaces = [];
-        this.tagKeysByNamespaces = [];
+        // this.tagKeysByNamespaces = [];
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        console.log('hill - changes', changes);
-        if (changes.tplVariables && changes.tplVariables.currentValue.editTplVariables.tvars.length > 0) {
+        console.log('hill - db filter changes', changes);
+        if (changes.tplVariables) {
             if (this.mode.view) {
                 this.selectedNamespaces = changes.tplVariables.currentValue.viewTplVariables.namespaces;
                 this.initListFormGroup();
@@ -83,15 +83,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             // copy edit -> view list
             this.tplVariables.viewTplVariables = this.utils.deepClone(this.tplVariables.editTplVariables);
             this.initListFormGroup();
-        } else if (changes.mode && !changes.mode.firstChange && !changes.mode.currentValue.view) {
-            // we need to get all tagkeys by namespace once first time only
-            // and first assign to selectedNamespaces
-            if (this.tplVariables.editTplVariables.namespaces.length > 0 && this.tagKeysByNamespaces.length === 0) {
-                this.getTagkeysByNamespaces(this.tplVariables.editTplVariables.namespaces);
-                this.selectedNamespaces = this.tplVariables.editTplVariables.namespaces;
-            }
-            this.tplVariables.editTplVariables.namespaces.sort(this.utils.sortAlphaNum);
-            this.initEditFormGroup();
         } else if (changes.widgets) {
             // call to get dashboard namespaces
             this.dbNamespaces = this.dbService.getNamespacesFromWidgets(this.widgets);
@@ -205,7 +196,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         return this.editForm.get('formTplVariables') as FormArray;
     }
 
-    initializeTplVariables(values: any) {
+    initializeTplVariables(values: any[]) {
         if (values.length === 0) {
             // add an empty one if there are no values
             this.addVariableTemplate();
@@ -587,7 +578,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     addNamespace(namespace) {
         if (!this.selectedNamespaces.includes(namespace)) {
             this.selectedNamespaces.push(namespace);
-            this.getTagkeysByNamespaces(this.selectedNamespaces);
+            this.interCom.requestSend({
+                action: 'UpdateTagKeysByNamespaces',
+                payload: this.selectedNamespaces
+            });
             this.updateNamespaceState();
         }
     }
@@ -598,17 +592,14 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             this.selectedNamespaces.splice(index, 1);
             this.updateNamespaceState();
             if (this.selectedNamespaces.length > 0) {
-                this.getTagkeysByNamespaces(this.selectedNamespaces);
+                this.interCom.requestSend({
+                    action: 'UpdateTagKeysByNamespaces',
+                    payload: this.selectedNamespaces
+                });
             } else {
                 this.tagKeysByNamespaces = [];
             }
         }
-    }
-
-    getTagkeysByNamespaces(namespaces) {
-        this.httpService.getTagKeys({ namespaces }).subscribe((res: string[]) => {
-            this.tagKeysByNamespaces = res;
-        });
     }
 
     updateTplVariableState(namespaces: string[], tvars: any[]) {

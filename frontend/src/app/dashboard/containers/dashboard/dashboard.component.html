@@ -5,6 +5,7 @@
         [ngClass]="{'is-edit-mode': !variablePanelMode.view}" 
         [mode]="variablePanelMode"
         [widgets]="widgets"
+        [tagKeysByNamespaces] = "tagKeysByNamespaces"
         [tplVariables]="tplVariables"
         (modeChange)="changeVarPanelMode($event)">
     </template-variable-panel>

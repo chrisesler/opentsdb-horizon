@@ -189,11 +189,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
         totalQueries: 0,
         tags: []
     };
-    dashboardNamespaces = [];
     isDbTagsLoaded$ = new Subject();
     isDbTagsLoaded = false;
     eWidgets: any = {}; // to whole eligible widgets with custom dashboard tags
-    // showDBTagFilters = false;
+    tagKeysByNamespaces = [];
 
     // used for unsaved changes warning message
     oldMeta = {};
@@ -443,6 +442,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                             mode: this.variablePanelMode.view ? 'view' : 'edit'
                         }
                     });
+                    break;
+                case 'UpdateTagKeysByNamespaces': 
+                    this.getTagkeysByNamespaces(message.payload);
                     break;
                 case 'UpdateCustomFiltersAppliedCount':
                     // to update db fitler applied count from inline-tag-filters
@@ -746,7 +748,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.updateURLParams(tplVars);
         for (let i = 0; i < this.widgets.length; i++) {
             const queries = this.widgets[i].queries;
-            console.log('hill - query', queries);
             for (let j = 0; j < queries.length; j++) {
                 if (tvars.length === 1) {
                     const idx = queries[j].filters.findIndex(f => f.customFilter && f.customFilter.includes('[' + tvars[0].alias + ']'));
@@ -783,14 +784,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // when delete a dashboard custom tag, we need to remove them out of 
     // widget if added before, and run query for widget that get affected.
     removeCustomTagFilter(payload: any) {
-        const vartag = payload.vartag;
+        const vartag = payload;
         for (let i = 0; i < this.widgets.length; i++) {
             const widget = this.widgets[i];
             for (let j = 0; j < widget.queries.length; j++) {
                 const filters = widget.queries[j].filters;
                 const fIndex = filters.findIndex(f => f.tagk === vartag.tagk);
                 if (fIndex > -1) {
-                    if (filters[fIndex].customFilter && filters[fIndex].customFilter.length) {
+                    if (filters[fIndex].customFilter && filters[fIndex].customFilter.length > 0) {
                         const cFilterIndex = filters[fIndex].customFilter.indexOf('[' + vartag.alias + ']');
                         if (cFilterIndex > -1) {
                             filters[fIndex].customFilter.splice(cFilterIndex, 1);
@@ -846,7 +847,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         break;
                     }
                 }
-                console.log('hill - this.edit tplvar hwn update akias', this.tplVariables.editTplVariables);
                 this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
             }
         });
@@ -923,7 +923,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     changeVarPanelMode(mode: any) {
+        if (!mode.view && this.tagKeysByNamespaces.length === 0) {
+            this.getTagkeysByNamespaces(this.tplVariables.editTplVariables.namespaces);
+        }
+        this.tplVariables = {...this.tplVariables};
         this.variablePanelMode = {...mode};
+
     }
     // dispatch payload query by group
     handleQueryPayload(message: any) {
@@ -1147,6 +1152,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const writeAccess = this.doesUserHaveWriteAccess();
         return (writeAccess && (widgetChange || metaChange));
     }
+
+    getTagkeysByNamespaces(namespaces) {
+        this.httpService.getTagKeys({ namespaces }).subscribe((res: string[]) => {
+            this.tagKeysByNamespaces = [...res];
+        });
+    }
+
 
     @HostListener('window:beforeunload', ['$event'])
     unloadNotification($event: any) {
