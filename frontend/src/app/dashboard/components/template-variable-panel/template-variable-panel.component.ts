@@ -61,7 +61,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
 
     ngOnInit() {}
 
-    // to set reset these variable, will be call from dashboard component. 
+    // to set reset these variable, will be call from dashboard component.
     reset() {
         this.dbNamespaces = [];
         this.selectedNamespaces = [];
@@ -84,7 +84,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             console.log('hill - edit -> view mode', this.tplVariables);
             this.tplVariables.viewTplVariables = this.utils.deepClone(this.tplVariables.editTplVariables);
             this.initListFormGroup();
-        } else if (changes.mode && !changes.mode.firstChange && !changes.mode.currentValue.view) { 
+        } else if (changes.mode && !changes.mode.firstChange && !changes.mode.currentValue.view) {
             // we need to get all tagkeys by namespace once first time only
             // and first assign to selectedNamespaces
             if (this.tplVariables.editTplVariables.namespaces.length > 0 && this.tagKeysByNamespaces.length === 0) {
@@ -103,7 +103,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 if (!this.tplVariables.editTplVariables.namespaces.includes(this.dbNamespaces[i])) {
                     this.tplVariables.editTplVariables.namespaces.push(this.dbNamespaces[i])
                 }
-            } 
+            }
         }
     }
     doEdit() {
@@ -327,7 +327,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 if (val.trim() === rowControl.get('alias').value) {
                     tplFormGroups[index].controls['alias'].setErrors({ 'unique': true });
                     tplFormGroups[i].controls['alias'].setErrors({ 'unique': true });
-                    return;                   
+                    return;
                 }
             }
             // form is valid, move on
@@ -405,7 +405,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             this.interCom.requestSend({
                 action: 'RemoveCustomTagFilter',
                 payload: {
-                    vartag: { tagk: this.prevSelectedTagk, 
+                    vartag: { tagk: this.prevSelectedTagk,
                               alias: selControl.get('alias').value,
                               filter: prevValue
                             }
@@ -509,7 +509,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             }
         }
         // update db filters state.
-        this.updateTplVariableState(this.utils.deepClone(this.selectedNamespaces), sublist);      
+        this.updateTplVariableState(this.utils.deepClone(this.selectedNamespaces), sublist);
     }
 
     calculateVariableDisplayWidth(item: FormGroup, options: any) {
@@ -520,7 +520,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         const fontFace = 'Ubuntu';
         const fontSize = 14;
 
-        let inputWidth, prefixWidth;
+        let inputWidth, prefixWidth, suffixWidth;
 
         // input only (value)
         if (options && options.inputOnly && options.inputOnly === true) {
@@ -538,8 +538,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             minSize = parseInt(minSize);
             inputWidth = (!filter || filter.length === 0) ? minSize : this.utils.calculateTextWidth(filter, fontSize, fontFace);
             prefixWidth = this.utils.calculateTextWidth(alias, fontSize, fontFace);
+            // suffix is the reset icon
+            suffixWidth = (filter.length > 0) ? 32 : 0;
             // 40 is padding and such
-            return (prefixWidth + inputWidth + 40) + 'px';
+            return (prefixWidth + inputWidth + suffixWidth + 40) + 'px';
         }
     }
 
@@ -586,7 +588,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 });
             } else {
                 selControl.get('isNew').setValue(1);
-            }         
+            }
         } else { // set to manual mode
             selControl.get('isNew').setValue(0);
         }
@@ -627,6 +629,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 tvars: tvars
             }
         });
+    }
+
+    resetFilterValue(event, idx) {
+      this.listVariables.controls[idx].get('filter').setValue('');
     }
 
     ngOnDestroy() {

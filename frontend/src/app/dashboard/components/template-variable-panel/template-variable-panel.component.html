@@ -11,6 +11,9 @@
                         <input matInput formControlName="filter" placeholder="" [matAutocomplete]="filterVarValues"
                             (blur)="onVariableBlur($event, i)" (keydown.enter)="onVariableBlur($event, i)" (focus)="onVariableFocus(i)">
                         <span matPrefix>{{vartpl.get('alias').value}}</span>
+                        <span matSuffix *ngIf="vartpl.get('filter').value.length > 0" (click)="resetFilterValue($event, i)">
+                            <mat-icon fontSet="denali" fontIcon="d-close-circle-solid"></mat-icon>
+                        </span>
                         <mat-autocomplete #filterVarValues="matAutocomplete" (optionSelected)="selectVarValueOption($event, i)" panelWidth="auto">
                             <mat-option *ngFor="let option of filteredValueOptions[i]" [value]="option">
                                 {{option}}
@@ -51,9 +54,19 @@
                 <table formArrayName="formTplVariables" *ngIf="selectedNamespaces.length > 0">
                     <thead>
                         <tr>
-                            <th>Mode</th>
+                            <th>
+                                Mode
+                                <info-tooltip>
+                                    <p>
+                                        <strong>Automatic: </strong> On your behalf, tag is added to all queries where the tag key is applicable.
+                                    </p>
+                                    <p>
+                                        <strong>Manual: </strong> Additional action must be taken to add tag to desired queries.
+                                    </p>
+                                </info-tooltip>
+                            </th>
                             <th>Tag Key <sup>*</sup></th>
-                            <th>Name <sup>*</sup></th>
+                            <th>Filter Name <sup>*</sup></th>
                             <th>Default value (optional)</th>
                             <th>Applied</th>
                             <th>Actions</th>
@@ -114,7 +127,7 @@
                                     <mat-form-field appearance="fill" color="primary" floatLabel="never" style="width: 300px;">
                                         <input matInput placeholder="Enter default value" formControlName="filter"
                                             (focus)="onInputFocus('filter', i)" (blur)="onInputBlur('filter', i)" (keydown.enter) ="onInputBlur('filter', i)" [matAutocomplete]="filterValueAuto">
-                                        <mat-autocomplete #filterValueAuto="matAutocomplete" (optionSelected)="selectFilterValueOption($event, i)" panelWidth="auto">
+                                        <mat-autocomplete #filterValueAuto="matAutocomplete" (optionSelected)="selectFilterValueOption($event, i)" panelWidth="auto" class="default-value-autocomplete">
                                             <mat-option *ngFor="let option of filteredValueOptions[i]" [value]="option">
                                                 {{option}}
                                             </mat-option>
@@ -192,3 +205,4 @@
         </div>
     </div>
 </ng-template>
+

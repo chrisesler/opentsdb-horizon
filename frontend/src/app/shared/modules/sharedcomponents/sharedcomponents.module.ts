@@ -52,6 +52,7 @@ import { WidgetConfigMultigraphComponent } from './components/widget-config-mult
 import { TimeSelectorComponent } from './components/time-selector/time-selector.component';
 import { GraphTypeComponent } from './components/graph-type/graph-type.component';
 import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.component';
+import { InfoTooltipComponent } from './components/info-tooltip/info-tooltip.component';
 
 @NgModule({
     imports: [
@@ -100,7 +101,8 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
         WidgetConfigMultigraphComponent,
         TimeSelectorComponent,
         GraphTypeComponent,
-        AuraDialogComponent
+        AuraDialogComponent,
+        InfoTooltipComponent
     ],
     exports: [
         ThemePickerComponent,
@@ -135,7 +137,8 @@ import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.compon
         EventListComponent,
         WidgetConfigMultigraphComponent,
         TimeSelectorComponent,
-        GraphTypeComponent
+        GraphTypeComponent,
+        InfoTooltipComponent
     ],
     entryComponents: [
         InlineFilterEditorComponent,
