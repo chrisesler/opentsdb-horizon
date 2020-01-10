@@ -40,6 +40,7 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
     // subscriptions
     selectedDownsample_Sub: Subscription; // check formcontrol value change to see if it is 'custom'
     widgetConfigTimeSub: Subscription;
+    customDownsampleUnitSub: Subscription;
 
     // form values
     selectedTimePreset: any = '1h';
@@ -228,6 +229,7 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
         // destroy our form control subscription
         this.selectedDownsample_Sub.unsubscribe();
         this.widgetConfigTimeSub.unsubscribe();
+        this.customDownsampleUnitSub.unsubscribe();
     }
 
     createForm() {
@@ -249,6 +251,7 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
         });
 
         // if ( !this.widget.settings.dataSummary ) {
+            const customUnit = this.widget.settings.time.downsample.customUnit || this.customDownsampleUnit;
             this.widgetConfigTime.addControl('downsample',
                 new FormControl(this.widget.settings.time.downsample.value || this.selectedDownsample));
             this.widgetConfigTime.addControl('customDownsampleValue',
@@ -257,13 +260,13 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
                             value: this.widget.settings.time.downsample.customValue || this.customDownsampleValue,
                             disabled: !isCustomDownsample ? true : false
                         },
-                        [Validators.min(1), Validators.pattern('^[0-9]+$') ]
+                        [Validators.min(customUnit === 's' ? 10 : 1), Validators.pattern('^[0-9]+$'), Validators.required ]
                     )
             );
             this.widgetConfigTime.addControl('customDownsampleUnit',
                     new FormControl(
                         {
-                            value: this.widget.settings.time.downsample.customUnit || this.customDownsampleUnit,
+                            value: customUnit,
                             disabled: isCustomDownsample ? false : true
                         }
                     )
@@ -280,6 +283,14 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
             }.bind(this));
         // }
 
+        this.customDownsampleUnitSub = this.widgetConfigTime.controls.customDownsampleUnit.valueChanges
+                                        .pipe(
+                                            distinctUntilChanged()
+                                        )
+                                        .subscribe( function(unit) {
+                                              this.widgetConfigTime.controls.customDownsampleValue.setValidators([Validators.min(unit === 's' ? 10 : 1), Validators.pattern('^[0-9]+$'), Validators.required ]);
+                                              this.widgetConfigTime.controls.customDownsampleValue.updateValueAndValidity();
+                                        }.bind(this));
         this.widgetConfigTimeSub = this.widgetConfigTime.valueChanges
                                         .pipe(
                                             distinctUntilChanged()
