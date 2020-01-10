@@ -275,6 +275,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     onInputFocus(cname: string, index: number) {
+        console.log('hill - onInputFocus call');
         const selControl = this.getSelectedControl(index);
         switch (cname) {
             case 'tagk':
@@ -356,21 +357,22 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     onInputBlur(cname: string, index: number) {
+        console.log('hill - onInputBur call');
         const selControl = this.getSelectedControl(index);
         const val = selControl['controls'][cname].value;
-        // when user type in and click select and if value is not valid, reset
-        if (cname === 'tagk') {
-            if (this.tagKeysByNamespaces.indexOf(val) === -1) {
-                selControl['controls'][cname].setValue('');
-                selControl['controls']['filter'].setValue('', { onlySelf: true, emitEvent: false });
-            } else {
-                this.prevSelectedTagk = val;
-                this.autoSetAlias(selControl, index);
-            }
-            // case that they enter alias first, hill - comment out for now
-            // if (selControl.get('alias').value !== '' && selControl.get('tagk').value !== '') {
-            //     this.validateAlias(selControl.get('alias').value, index, selControl, this.originAlias);
-            // }
+        console.log('hill - onbur data val type', typeof (val), selControl, this.tplVariables.editTplVariables);
+        // set delay to avoid blur excute before onSelect
+        if (cname === 'tagk' && val !== '') {
+            setTimeout(() => {
+                /* if (this.tagKeysByNamespaces.indexOf(val) === -1) {
+                    selControl['controls'][cname].setValue('');
+                    selControl['controls']['filter'].setValue('', { onlySelf: true, emitEvent: false });
+                } else {*/
+                    console.log('hill - autoSetalias blur with prevtagkey', this.prevSelectedTagk);
+                    this.prevSelectedTagk = val;
+                    this.autoSetAlias(selControl, index);
+                /*}*/
+            }, 300);
         }
         if (cname === 'filter') {
             // const idx = this.filteredValueOptions[index].findIndex(item => item && item.toLowerCase() === val.toLowerCase());
@@ -392,7 +394,9 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
 
     // update state if it's is valid
     selectTagKeyOption(event: any, index: number) {
+        console.log('hill - onSelect tag call');
         const selControl = this.getSelectedControl(index);
+        // console.log('hill - selectTagKeyOption', this.prevSelectedTagk);
         // if control is valid and the key is different
         if (selControl.valid && event.option.value !== this.prevSelectedTagk) {
             const prevValue = selControl.get('filter').value;
@@ -425,12 +429,16 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         }
         const matchKeys = aliases.filter(a => a.substring(0, tagk.length) === tagk);
         if (matchKeys.length === 0) {
-            selControl.get('alias').setValue(tagk);
+            if (selControl.get('alias').value === '') {
+                selControl.get('alias').setValue(tagk);
+            }
         } else {
-            for (let i = 0; i < possibleAlias.length; i++) {
-                if (!matchKeys.includes(possibleAlias[i])) {
-                    selControl.get('alias').setValue(possibleAlias[i]);
-                    break;
+            if (selControl.get('alias').value === '') {
+                for (let i = 0; i < possibleAlias.length; i++) {
+                    if (!matchKeys.includes(possibleAlias[i])) {
+                        selControl.get('alias').setValue(possibleAlias[i]);
+                        break;
+                    }
                 }
             }
         }
