@@ -44,6 +44,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     tagKeysByNamespaces: string[] = [];
     dbNamespaces: string[] = [];
     originAlias: string[] = [];
+    tagBlurTimeout: any;
     constructor(
         private fb: FormBuilder,
         private interCom: IntercomService,
@@ -71,7 +72,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     ngOnChanges(changes: SimpleChanges) {
         console.log('hill - changes', changes);
         if (changes.tplVariables && changes.tplVariables.currentValue.editTplVariables.tvars.length > 0) {
-            console.log('hill - tplVariables changes', this.tplVariables);
             if (this.mode.view) {
                 this.selectedNamespaces = changes.tplVariables.currentValue.viewTplVariables.namespaces;
                 this.initListFormGroup();
@@ -81,7 +81,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             }
         } else if (changes.mode && !changes.mode.firstChange && changes.mode.currentValue.view) {
             // copy edit -> view list
-            console.log('hill - edit -> view mode', this.tplVariables);
             this.tplVariables.viewTplVariables = this.utils.deepClone(this.tplVariables.editTplVariables);
             this.initListFormGroup();
         } else if (changes.mode && !changes.mode.firstChange && !changes.mode.currentValue.view) {
@@ -92,10 +91,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 this.selectedNamespaces = this.tplVariables.editTplVariables.namespaces;
             }
             this.tplVariables.editTplVariables.namespaces.sort(this.utils.sortAlphaNum);
-            console.log('hill - view -> edit mode', this.tplVariables);
             this.initEditFormGroup();
         } else if (changes.widgets) {
-            console.log('hill - widgets changes', this.widgets);
             // call to get dashboard namespaces
             this.dbNamespaces = this.dbService.getNamespacesFromWidgets(this.widgets);
             // update editTplVariables
@@ -265,7 +262,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         }
         // if it's a different value from viewlist
         if (this.tplVariables.viewTplVariables.tvars[index].filter !== selControl.get('filter').value) {
-            console.log('hill - call for value to update view when blur');
             this.tplVariables.viewTplVariables.tvars[index].filter = selControl.get('filter').value;
             this.interCom.requestSend({
                 action: 'ApplyTplVarValue',
@@ -287,6 +283,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                             // turn off lowercase
                             // const filterVal = val.toString().toLowerCase();
                             // return this.tagKeysByNamespaces.filter(key => key.toLowerCase().includes(filterVal));
+                            console.log('hill - current tagKeysByNamespaces', this.tagKeysByNamespaces);
                             const filterVal = val.toString();
                             return this.tagKeysByNamespaces.filter(key => key.includes(filterVal));
                         })
@@ -360,23 +357,19 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         console.log('hill - onInputBur call');
         const selControl = this.getSelectedControl(index);
         const val = selControl['controls'][cname].value;
-        console.log('hill - onbur data val type', typeof (val), selControl, this.tplVariables.editTplVariables);
         // set delay to avoid blur excute before onSelect
         if (cname === 'tagk' && val !== '') {
-            setTimeout(() => {
+            this.tagBlurTimeout = setTimeout(() => {
                 /* if (this.tagKeysByNamespaces.indexOf(val) === -1) {
                     selControl['controls'][cname].setValue('');
                     selControl['controls']['filter'].setValue('', { onlySelf: true, emitEvent: false });
                 } else {*/
-                    console.log('hill - autoSetalias blur with prevtagkey', this.prevSelectedTagk);
-                    this.prevSelectedTagk = val;
+                    console.log('hill - call inside timeout of onblur tagk');
                     this.autoSetAlias(selControl, index);
                 /*}*/
             }, 300);
         }
         if (cname === 'filter') {
-            // const idx = this.filteredValueOptions[index].findIndex(item => item && item.toLowerCase() === val.toLowerCase());
-            console.log('hill - this.filteredValueOptions', this.filteredValueOptions);
             let idx = -1;
             if (this.filteredValueOptions[index]) {
                 idx = this.filteredValueOptions[index].findIndex(item => item && item === val);
@@ -395,23 +388,22 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     // update state if it's is valid
     selectTagKeyOption(event: any, index: number) {
         console.log('hill - onSelect tag call');
+        if (this.tagBlurTimeout) {
+            clearTimeout(this.tagBlurTimeout);
+        }
         const selControl = this.getSelectedControl(index);
-        // console.log('hill - selectTagKeyOption', this.prevSelectedTagk);
+        const prevFilter = this.tplVariables.editTplVariables.tvars[index];
         // if control is valid and the key is different
-        if (selControl.valid && event.option.value !== this.prevSelectedTagk) {
-            const prevValue = selControl.get('filter').value;
+       if (selControl.valid && prevFilter && event.option.value !== prevFilter.tagk) {
             selControl.get('filter').setValue('');
+            selControl.get('applied').setValue(0);
+            selControl.get('isNew').setValue(1);
             // remove this tag out of widget if any
             this.interCom.requestSend({
                 action: 'RemoveCustomTagFilter',
-                payload: {
-                    vartag: { tagk: this.prevSelectedTagk,
-                              alias: selControl.get('alias').value,
-                              filter: prevValue
-                            }
-                }
+                payload: prevFilter
             });
-            this.updateState(selControl);
+            this.updateState(selControl, false);
         }
         this.autoSetAlias(selControl, index);
     }
@@ -453,7 +445,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     selectVarValueOption(event: any, index: number) {
         if (this.tplVariables.viewTplVariables.tvars[index].filter !== event.option.value) {
             this.tplVariables.viewTplVariables.tvars[index].filter = event.option.value;
-            console.log('hill - call for value to update view when select', this.tplVariables.viewTplVariables.tvars[index], this.tplVariables);
             this.interCom.requestSend({
                 action: 'ApplyTplVarValue',
                 payload: [this.tplVariables.viewTplVariables.tvars[index]]
@@ -479,7 +470,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         this.modeChange.emit({ view: true });
     }
     updateState(selControl: AbstractControl, reQuery: boolean = true) {
-        console.log('hill - upappapdapdpsad updateState is calling', selControl.value);
+        console.log('hill - updateState is calling', selControl.value);
         if (selControl.valid) {
             const sublist = [];
             for (let i = 0; i < this.formTplVariables.controls.length; i++) {
@@ -567,7 +558,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     switchFilterMode(mode: string, index: number, updateMode: boolean = true) {
-        console.log('hill - switchmode ', mode);
         const selControl = this.getSelectedControl(index);
         if (updateMode) {
             selControl.get('mode').setValue(mode);
