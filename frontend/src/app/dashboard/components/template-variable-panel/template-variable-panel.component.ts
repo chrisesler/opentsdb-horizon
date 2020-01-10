@@ -70,7 +70,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        console.log('hill - db filter changes', changes);
         if (changes.tplVariables) {
             if (this.mode.view) {
                 this.selectedNamespaces = changes.tplVariables.currentValue.viewTplVariables.namespaces;
@@ -274,7 +273,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                             // turn off lowercase
                             // const filterVal = val.toString().toLowerCase();
                             // return this.tagKeysByNamespaces.filter(key => key.toLowerCase().includes(filterVal));
-                            console.log('hill - current tagKeysByNamespaces', this.tagKeysByNamespaces);
                             const filterVal = val.toString();
                             return this.tagKeysByNamespaces.filter(key => key.includes(filterVal));
                         })
@@ -355,7 +353,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                     selControl['controls'][cname].setValue('');
                     selControl['controls']['filter'].setValue('', { onlySelf: true, emitEvent: false });
                 } else {*/
-                    console.log('hill - call inside timeout of onblur tagk');
+                    this.removeCustomTagFiler(index, val);
                     this.autoSetAlias(selControl, index);
                 /*}*/
             }, 300);
@@ -376,16 +374,11 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         }
     }
 
-    // update state if it's is valid
-    selectTagKeyOption(event: any, index: number) {
-        console.log('hill - onSelect tag call');
-        if (this.tagBlurTimeout) {
-            clearTimeout(this.tagBlurTimeout);
-        }
+    removeCustomTagFiler(index: number, currentTagk: string) {
         const selControl = this.getSelectedControl(index);
         const prevFilter = this.tplVariables.editTplVariables.tvars[index];
         // if control is valid and the key is different
-       if (selControl.valid && prevFilter && event.option.value !== prevFilter.tagk) {
+        if (selControl.valid && prevFilter && currentTagk !== prevFilter.tagk) {
             selControl.get('filter').setValue('');
             selControl.get('applied').setValue(0);
             selControl.get('isNew').setValue(1);
@@ -396,6 +389,16 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             });
             this.updateState(selControl, false);
         }
+    }
+
+    // update state if it's is valid
+    selectTagKeyOption(event: any, index: number) {
+        console.log('hill - onSelect tag call');
+        if (this.tagBlurTimeout) {
+            clearTimeout(this.tagBlurTimeout);
+        }
+        const selControl = this.getSelectedControl(index);
+        this.removeCustomTagFiler(index, event.option.value);
         this.autoSetAlias(selControl, index);
     }
     // helper funtion to auto set alias name
@@ -434,6 +437,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     selectVarValueOption(event: any, index: number) {
+        // the event is matAutocomplete event, we deal later to clear focus
         if (this.tplVariables.viewTplVariables.tvars[index].filter !== event.option.value) {
             this.tplVariables.viewTplVariables.tvars[index].filter = event.option.value;
             this.interCom.requestSend({
@@ -612,8 +616,20 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         });
     }
 
-    resetFilterValue(event, idx) {
-      this.listVariables.controls[idx].get('filter').setValue('');
+    resetFilterValue(event: any, index: number) {
+        event.stopPropagation();
+        event.preventDefault();
+        this.listVariables.controls[index].get('filter').setValue('');
+        const control = <FormArray>this.listForm.controls['listVariables'];
+        const selControl = control.at(index);       
+        // if it's a different value from viewlist
+        if (this.tplVariables.viewTplVariables.tvars[index].filter !== selControl.get('filter').value) {
+            this.tplVariables.viewTplVariables.tvars[index].filter = selControl.get('filter').value;
+            this.interCom.requestSend({
+                action: 'ApplyTplVarValue',
+                payload: [selControl.value]
+            });
+        }
     }
 
     ngOnDestroy() {
