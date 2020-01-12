@@ -355,17 +355,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         mIndex = 0;
                         this.store.dispatch(new UpdateWidgets(this.widgets));
                         // for the new adding widget, we do need to apply auto filter if it's eligible
-                        /* for (let i = 0; i < this.tplVariables.editTplVariables.tvars.length; i++) {
+                        for (let i = 0; i < this.tplVariables.editTplVariables.tvars.length; i++) {
                             const tvar = this.tplVariables.editTplVariables.tvars[i];
                             if (tvar.mode === 'auto') {
-                                this.updateTplAlias({
+                                this.applyTplToNewWidget(message.payload.widget,
+                                {
                                     vartag: tvar,
-                                    originAlias: '',
+                                    originAlias: [],
                                     index: i,
                                     insert: 1
                                 });
                             }
-                        } */
+                        }
                     } else {
                         // check the component type of updated widget config.
                         // it needs to be replaced with new component
@@ -851,6 +852,54 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
         });
     }
+    // for new created widget
+    applyTplToNewWidget(widget: any, payload: any) {   
+        let _widget = this.utilService.deepClone(widget);
+        // set to false to force get dashboard tags for all widgets nect time
+        this.isDbTagsLoaded = false;
+        this.httpService.getTagKeysForQueries([_widget]).subscribe((res: any) => {
+            debugger;
+            const widgetTags = this.formatDbTagKeysByWidgets(res);
+            let applied = 0;
+            const isModify = this.dbService.applytDBFilterToWidget(_widget, payload, widgetTags.rawDbTags);
+            if (isModify) {
+                applied = applied + 1;
+                this.store.dispatch(new UpdateWidget({
+                    id: _widget.id,
+                    needRequery: payload.vartag.filter !== '' ? true : false,
+                    widget: _widget
+                }));
+            }
+            for (let i = 0; i < this.tplVariables.editTplVariables.tvars.length; i++) {
+                const tvar = this.tplVariables.editTplVariables.tvars[i];
+                tvar.isNew = 0;
+                if (tvar.alias === payload.vartag.alias) {
+                    tvar.applied += applied;
+                    break;
+                }
+            }
+            this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
+        });
+    }
+
+    // helper to create dbTags
+    formatDbTagKeysByWidgets(res: any) {
+        const _dashboardTags = { rawDbTags: {}, totalQueries: 0, tags: [] };
+        for (let i = 0; res && i < res.results.length; i++) {
+            const [wid, qid] = res.results[i].id ? res.results[i].id.split(':') : [null, null];
+            if (!wid) { continue; }
+            const keys = res.results[i].tagKeys.map(d => d.name);
+            if (!_dashboardTags.rawDbTags[wid]) {
+                _dashboardTags.rawDbTags[wid] = {};
+            }
+            _dashboardTags.rawDbTags[wid][qid] = keys;
+            _dashboardTags.totalQueries++;
+            _dashboardTags.tags = [...this.dashboardTags.tags,
+            ...keys.filter(k => _dashboardTags.tags.indexOf(k) < 0)];
+        }
+        _dashboardTags.tags.sort(this.utilService.sortAlphaNum);
+        return {..._dashboardTags};
+    }
 
     updateTplVariablesAppliedCount(payload: any) {
         const idx = this.tplVariables.editTplVariables.tvars.findIndex(tpl => '[' + tpl.alias + ']' === payload.alias);
@@ -885,20 +934,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         console.log('hill - CALL GET DASHBOARD TAG');
         this.isDbTagsLoaded = false;
         this.httpService.getTagKeysForQueries(this.widgets).subscribe((res: any) => {
-            this.dashboardTags = { rawDbTags: {}, totalQueries: 0, tags: [] };
-            for (let i = 0; res && i < res.results.length; i++) {
-                const [wid, qid] = res.results[i].id ? res.results[i].id.split(':') : [null, null];
-                if (!wid) { continue; }
-                const keys = res.results[i].tagKeys.map(d => d.name);
-                if (!this.dashboardTags.rawDbTags[wid]) {
-                    this.dashboardTags.rawDbTags[wid] = {};
-                }
-                this.dashboardTags.rawDbTags[wid][qid] = keys;
-                this.dashboardTags.totalQueries++;
-                this.dashboardTags.tags = [...this.dashboardTags.tags,
-                ...keys.filter(k => this.dashboardTags.tags.indexOf(k) < 0)];
-            }
-            this.dashboardTags.tags.sort(this.utilService.sortAlphaNum);
+            this.dashboardTags = this.formatDbTagKeysByWidgets(res);
             this.isDbTagsLoaded = true;
             this.isDbTagsLoaded$.next(reloadData);
         },
