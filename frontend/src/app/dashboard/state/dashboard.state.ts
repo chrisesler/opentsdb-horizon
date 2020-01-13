@@ -10,6 +10,7 @@ import { URLOverrideService } from '../services/urlOverride.service';
 import { DashboardConverterService } from '../../core/services/dashboard-converter.service';
 import { map, catchError } from 'rxjs/operators';
 import { LoggerService } from '../../core/services/logger.service';
+import { UtilsService } from '../../core/services/utils.service';
 
 export interface DBStateModel {
     id: string;
@@ -104,7 +105,8 @@ export class DBState {
         private urlOverrideService: URLOverrideService,
         private dbConverterService: DashboardConverterService,
         private logger: LoggerService,
-        private store: Store
+        private store: Store,
+        private utils: UtilsService
     ) {}
 
     @Selector() static getDashboardId(state: DBStateModel) {
@@ -154,7 +156,7 @@ export class DBState {
                     if (dashboard.content.version && dashboard.content.version === this.dbConverterService.currentVersion) {
                         ctx.dispatch(new LoadDashboardSuccess(dashboard));
                     } else {
-                            ctx.dispatch(new MigrateAndLoadDashboard(id, dashboard));
+                        ctx.dispatch(new MigrateAndLoadDashboard(id, dashboard));
                     }
                 }),
                 catchError( error => ctx.dispatch(new LoadDashboardFail(error)))
@@ -174,8 +176,9 @@ export class DBState {
     @Action(MigrateAndLoadDashboard)
     migrateAndLoadDashboard(ctx: StateContext<DBStateModel>, { id: id, payload: payload }: MigrateAndLoadDashboard) {
             this.logger.action('State :: Migrate and Load Dashboard', { id, payload });
-            payload = this.dbConverterService.convert(payload);
-            ctx.dispatch(new LoadDashboardSuccess(payload));
+            this.dbConverterService.convert(payload).subscribe((res) => {
+                ctx.dispatch(new LoadDashboardSuccess(res));
+            });
             // we dont want to save after conversion but return the conversion version
             // since user might have no permission to save
             /*return this.httpService.saveDashboard(id, payload).pipe(

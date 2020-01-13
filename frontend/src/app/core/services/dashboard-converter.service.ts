@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { UtilsService } from './utils.service';
 import { HttpService } from '../http/http.service';
+import { of, Observable, Subscription } from 'rxjs';
+import { tap, map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -13,14 +15,19 @@ export class DashboardConverterService {
     private httpService: HttpService ) { }
 
   // call to convert dashboad to currentVersion
-  convert(dashboard: any) {
-    for (let i = dashboard.content.version + 1; i <= this.currentVersion; i++) {
-      if (this['toDBVersion' + i] instanceof Function) {
-        dashboard = this['toDBVersion' + i](dashboard);
+  convert(dashboard: any): Observable<any> {
+    return new Observable((obs) => {
+      for (let i = dashboard.content.version + 1; i <= this.currentVersion; i++) {
+        if (this['toDBVersion' + i] instanceof Function) {
+          this['toDBVersion' + i](dashboard).subscribe((db) => {
+            obs.next(db);  
+            obs.complete();
+          });
+          }
       }
-    }
-    return dashboard;
+    });
   }
+
   // to return current max version of dashboard
   getDBCurrentVersion() {
     return this.currentVersion;
@@ -98,7 +105,7 @@ export class DashboardConverterService {
   // - end of helper private, put your helper/private functions in above block of code
 
   // update dashboard to version 2
-  toDBVersion2(dashboard: any) {
+  toDBVersion2(dashboard: any): Observable<any> {
     dashboard.content.version = 2;
     const widgets = dashboard.content.widgets;
     for (let i = 0; i < widgets.length; i++) {
@@ -155,11 +162,11 @@ export class DashboardConverterService {
         }
       }
     }
-    return dashboard;
+    return of(dashboard);
   }
   // update dashboard to version 3, we move tplVariables to top and remove
   // enable things
-  toDBVersion3(dashboard: any) {
+  toDBVersion3(dashboard: any): Observable<any> {
     dashboard.content.version = 3;
     const tplVariables = [...dashboard.content.settings.variables.tplVariables];
     for (let i = 0; i < tplVariables.length; i++) {
@@ -215,11 +222,11 @@ export class DashboardConverterService {
       }
     }
     dashboard.content.widgets = widgets;
-    return dashboard;
+    return of(dashboard);
   }
 
   // update dashboard to version 4, convert array to string
-  toDBVersion4(dashboard: any) {
+  toDBVersion4(dashboard: any): Observable<any> {
     dashboard.content.version = 4;
     const tplVariables = [...dashboard.content.settings.tplVariables];
     for (let i = 0; i < tplVariables.length; i++) {
@@ -233,11 +240,11 @@ export class DashboardConverterService {
       }
     }
     dashboard.content.settings.tplVariables = tplVariables;
-    return dashboard;
+    return of(dashboard);
   }
 
   // update dashboard to version 5, make sure ids are unique within widget and replace expression references
-  toDBVersion5(dashboard: any) {
+  toDBVersion5(dashboard: any): Observable<any> {
     dashboard.content.version = 5;
     const widgets = dashboard.content.widgets;
     for (let i = 0; i < widgets.length; i++) {
@@ -262,11 +269,11 @@ export class DashboardConverterService {
       }
       // }
     }
-    return dashboard;
+    return of(dashboard);
   }
 
   // update dashboard to version 6: make sure summarizer is set for barchart, big number, donut, and topn
-  toDBVersion6(dashboard: any) {
+  toDBVersion6(dashboard: any): Observable<any> {
     dashboard.content.version = 6;
     const widgets = dashboard.content.widgets;
     for (let i = 0; i < widgets.length; i++) {
@@ -286,10 +293,10 @@ export class DashboardConverterService {
         }
       }
     }
-    return dashboard;
+    return of(dashboard);
   }
   // update dashboard to version 7: set eventQueries if not there
-  toDBVersion7(dashboard: any) {
+  toDBVersion7(dashboard: any): Observable<any> {
     dashboard.content.version = 7;
     const widgets = dashboard.content.widgets;
     for (let i = 0; i < widgets.length; i++) {
@@ -305,62 +312,61 @@ export class DashboardConverterService {
         }
       }
     }
-    return dashboard;
+    return of(dashboard);
   }
 
   // update dashboard to version 8
   // to deal with dashboard template v2
-  toDBVersion8(dashboard: any) {
-    dashboard.content.version = 8;
-    let settings = dashboard.content.settings;
-    let widgets = dashboard.content.widgets;
-    const tvars = settings.tplVariables || [];
-    // get all namespace from widgets
-    const namespaces = {};
-    for (let i = 0; i < widgets.length; i++) {
-      const queries = widgets[i].queries;
-      for (let j = 0; j < queries.length; j++) {
-        namespaces[queries[j].namespace] = true;
-      }
-    }
-    // update tvars format
-    for (let i = 0; i < tvars.length; i++) {
-      tvars[i].mode = 'auto';
-      tvars[i].applied = 0;
-      tvars[i].isNew = 0;
-    }
-    let tplVariables = {
-      namespaces: Object.keys(namespaces),
-      tvars: tvars
-    };
-    // now we need to apply these tpl variable into each widget and
-    // update applied count and everything else
-    let _widgets = this.utils.deepClone(widgets);
-    this.httpService.getTagKeysForQueries(widgets).subscribe((res: any) => {
-        const dbTags = this.formatDbTagKeysByWidgets(res);
-        for (let i = 0; i < tplVariables.tvars.length; i++) {
-          let tvar = tplVariables.tvars[i];
-          const payload = {
-            vartag: tvar,
-            originAlias: [],
-            index: i,
-            insert: 1
-          };
-          // check to apply each widget with this db filter
-          for (let j = 0; j < _widgets.length; j++) {
-            let widget = _widgets[j];
-            const isModify = this.applytDBFilterToWidget(widget, payload, dbTags.rawDbTags);
-            if (isModify) {
-              tvar.applied = tvar.applied + 1;
+  toDBVersion8(dashboard: any): Observable<any> {
+    return this.httpService.getTagKeysForQueries(dashboard.content.widgets).pipe(
+        map ((res) => { 
+          dashboard.content.version = 8;
+          let settings = dashboard.content.settings;
+          let widgets = dashboard.content.widgets;
+          const tvars = settings.tplVariables || [];
+          // get all namespace from widgets
+          const namespaces = {};
+          for (let i = 0; i < widgets.length; i++) {
+            const queries = widgets[i].queries;
+            for (let j = 0; j < queries.length; j++) {
+              namespaces[queries[j].namespace] = true;
             }
           }
-        }       
-    });
-    delete dashboard.content.settings.tplVariables;
-    dashboard.content.settings.tplVariables = tplVariables;
-    delete dashboard.content.widgets;
-    dashboard.content.widgets = _widgets;
-    return dashboard;
+          // update tvars format
+          for (let i = 0; i < tvars.length; i++) {
+            tvars[i].mode = 'auto';
+            tvars[i].applied = 0;
+            tvars[i].isNew = 0;
+          }
+          let tplVariables = {
+            namespaces: Object.keys(namespaces),
+            tvars: tvars
+          };
+          let dbTags = this.formatDbTagKeysByWidgets(res);
+          for (let i = 0; i < tplVariables.tvars.length; i++) {
+            let tvar = tplVariables.tvars[i];
+            const payload = {
+              vartag: tvar,
+              originAlias: [],
+              index: i,
+              insert: 1
+            };
+            // check to apply each widget with this db filter
+            for (let j = 0; j < widgets.length; j++) {
+              let widget = widgets[j];
+              const isModify = this.applytDBFilterToWidget(widget, payload, dbTags.rawDbTags);
+              if (isModify) {
+                tvar.applied = tvar.applied + 1;
+              }
+            }
+          }
+          delete dashboard.content.settings.tplVariables;
+          dashboard.content.settings.tplVariables = tplVariables;
+          delete dashboard.content.widgets;
+          dashboard.content.widgets = widgets;
+          return dashboard;          
+        })
+      );
   }
 
 }
