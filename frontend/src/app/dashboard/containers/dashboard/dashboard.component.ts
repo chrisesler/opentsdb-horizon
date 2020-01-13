@@ -237,7 +237,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.isDbTagsLoaded = false;
             this.variablePanelMode = { view: true };
             this.store.dispatch(new ClearWidgetsData());
-            this.tplVariables = { editTplVariables: {}, viewTplVariables: { tvars: []}};
+            this.tplVariables = { editTplVariables: {}, viewTplVariables: {}}
             if (this.tplVariablePanel) { this.tplVariablePanel.reset(); }
             if (url.length === 1 && url[0].path === '_new_') {
                 this.dbid = '_new_';
@@ -657,7 +657,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }));
         this.subscription.add(this.tplVariables$.subscribe(tpl => {
             // whenever tplVariables$ trigger, we save to view too.
-            console.log('hill - tplVariables$', tpl);
             if (tpl) {
                 this.tplVariables.editTplVariables = this.utilService.deepClone(tpl);
                 // only assign when it's empty, first time
@@ -819,16 +818,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     // this will do the insert or update the name/alias if the widget is eligible.
     updateTplAlias(payload: any) {
-        console.log('hill - updateTplAlias call', payload);
         this.checkDbTagsLoaded().subscribe(loaded => {
             if (loaded) { // make sure it's true
-                console.log('hill - dashboardtagkey', this.dashboardTags.rawDbTags);
                 let applied = 0;
                 for (let i = 0; i < this.widgets.length; i++) {
                     const widget = this.widgets[i];
                     // we will insert or modify based on insert flag
                     const isModify = this.dbService.applytDBFilterToWidget(widget, payload, this.dashboardTags.rawDbTags);
-                    console.log('hill - isModify', isModify);
                     if (isModify) {
                         if (payload.insert === 1) {
                             applied = applied + 1;
@@ -913,7 +909,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // get all dashboard tags, use to check eligible for when apply db filter 
     // to widget.
     getDashboardTagKeys(reloadData: boolean = true) {
-        console.log('hill - CALL GET DASHBOARD TAG');
         this.isDbTagsLoaded = false;
         this.httpService.getTagKeysForQueries(this.widgets).subscribe((res: any) => {
             this.dashboardTags = this.dbService.formatDbTagKeysByWidgets(res);
@@ -941,8 +936,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     changeVarPanelMode(mode: any) {
-        if (!mode.view && this.tagKeysByNamespaces.length === 0) {
-            this.getTagkeysByNamespaces(this.tplVariables.editTplVariables.namespaces);
+        if (!mode.view) {
+            if (this.tagKeysByNamespaces.length === 0) {
+                this.getTagkeysByNamespaces(this.tplVariables.editTplVariables.namespaces);
+            }
             this.tplVariables = {...this.tplVariables};
         }     
         this.variablePanelMode = {...mode};
