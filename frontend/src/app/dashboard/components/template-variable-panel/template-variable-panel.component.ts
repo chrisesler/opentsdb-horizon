@@ -66,7 +66,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     reset() {
         this.dbNamespaces = [];
         this.selectedNamespaces = [];
-        // this.tagKeysByNamespaces = [];
     }
 
     ngOnChanges(changes: SimpleChanges) {

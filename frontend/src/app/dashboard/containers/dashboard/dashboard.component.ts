@@ -173,7 +173,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     rerender: any = { 'reload': false }; // -> make gridster re-render correctly
     wData: any = {};
     widgets: any[] = [];
-    tplVariables: any = { editTplVariables: [], viewTplVariables: []};
+    tplVariables: any = { editTplVariables: {}, viewTplVariables: {}};
     variablePanelMode: any = { view : true };
     userNamespaces: any[] = [];
     viewEditMode = false;
@@ -237,6 +237,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.isDbTagsLoaded = false;
             this.variablePanelMode = { view: true };
             this.store.dispatch(new ClearWidgetsData());
+            this.tplVariables.viewTplVariables = {};
             if (this.tplVariablePanel) { this.tplVariablePanel.reset(); }
             if (url.length === 1 && url[0].path === '_new_') {
                 this.dbid = '_new_';
@@ -658,10 +659,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
             // whenever tplVariables$ trigger, we save to view too.
             console.log('hill - tplVariables$', tpl);
             if (tpl) {
-                this.tplVariables = {...this.tplVariables,
-                    editTplVariables: this.utilService.deepClone(tpl),
-                    viewTplVariables: this.utilService.deepClone(tpl)
-                };
+                this.tplVariables.editTplVariables = this.utilService.deepClone(tpl);
+                // only assign when it's empty, first time
+                if (Object.keys(this.tplVariables.viewTplVariables).length === 0 || this.tplVariables.viewTplVariables.tvars.length === 0) {
+                    this.tplVariables.viewTplVariables = this.utilService.deepClone(tpl);
+                }
+                this.tplVariables = {...this.tplVariables};
             }
         }));
         this.subscription.add(this.widgetGroupRawData$.subscribe(result => {
@@ -819,7 +822,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         console.log('hill - updateTplAlias call', payload);
         this.checkDbTagsLoaded().subscribe(loaded => {
             if (loaded) { // make sure it's true
-                // debugger;
                 console.log('hill - dashboardtagkey', this.dashboardTags.rawDbTags);
                 let applied = 0;
                 for (let i = 0; i < this.widgets.length; i++) {
@@ -858,7 +860,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         // set to false to force get dashboard tags for all widgets nect time
         this.isDbTagsLoaded = false;
         this.httpService.getTagKeysForQueries([_widget]).subscribe((res: any) => {
-            debugger;
             const widgetTags = this.formatDbTagKeysByWidgets(res);
             let applied = 0;
             const isModify = this.dbService.applytDBFilterToWidget(_widget, payload, widgetTags.rawDbTags);
@@ -961,8 +962,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     changeVarPanelMode(mode: any) {
         if (!mode.view && this.tagKeysByNamespaces.length === 0) {
             this.getTagkeysByNamespaces(this.tplVariables.editTplVariables.namespaces);
-        }
-        this.tplVariables = {...this.tplVariables};
+            this.tplVariables = {...this.tplVariables};
+        }     
         this.variablePanelMode = {...mode};
 
     }
