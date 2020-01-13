@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { UtilsService } from './utils.service';
 import { HttpService } from '../http/http.service';
-import { of, Observable, Subscription } from 'rxjs';
+import { of, Observable, forkJoin } from 'rxjs';
 import { tap, map } from 'rxjs/operators';
 
 @Injectable({
@@ -17,13 +17,19 @@ export class DashboardConverterService {
   // call to convert dashboad to currentVersion
   convert(dashboard: any): Observable<any> {
     return new Observable((obs) => {
+      let allObs: Observable<any>[] = [];
       for (let i = dashboard.content.version + 1; i <= this.currentVersion; i++) {
         if (this['toDBVersion' + i] instanceof Function) {
-          this['toDBVersion' + i](dashboard).subscribe((db) => {
-            obs.next(db);  
-            obs.complete();
-          });
-          }
+          allObs.push(this['toDBVersion' + i](dashboard));
+        }
+      }
+      // execute them all
+      if (allObs.length > 0) {
+        forkJoin(allObs).subscribe((res) => {
+          // the last one in the chain is what we want
+          obs.next(res[res.length - 1]);
+          obs.complete();
+        });
       }
     });
   }
