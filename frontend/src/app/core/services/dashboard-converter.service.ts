@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { UtilsService } from './utils.service';
+import { HttpService } from '../http/http.service';
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +9,8 @@ export class DashboardConverterService {
 
   currentVersion = 8;
 
-  constructor (private utils: UtilsService) { }
+  constructor ( private utils: UtilsService,
+    private httpService: HttpService ) { }
 
   // call to convert dashboad to currentVersion
   convert(dashboard: any) {
@@ -23,6 +25,77 @@ export class DashboardConverterService {
   getDBCurrentVersion() {
     return this.currentVersion;
   }
+
+  // some helper/private functions for converter
+  applytDBFilterToWidget(widget: any, payload: any, rawDbTags: any) {
+    let isModify = false;
+    const wid = widget.id;
+    if (rawDbTags[wid]) {
+      for (let i = 0; i < widget.queries.length; i++) {
+        const query = widget.queries[i];
+        if (rawDbTags[wid].hasOwnProperty(query.id) && rawDbTags[wid][query.id].includes(payload.vartag.tagk)) {
+          const fIndx = query.filters.findIndex(f => f.tagk === payload.vartag.tagk);
+          if (fIndx > -1) {
+            const currFilter = query.filters[fIndx];
+            // we do have this tag defined
+            if (payload.insert === 1) {
+              if (!currFilter.customFilter) {
+                currFilter.customFilter = ['[' + payload.vartag.alias + ']'];
+                isModify = true;
+              } else {
+                // only insert if they are not there
+                if (!currFilter.customFilter.includes('[' + payload.vartag.alias + ']')) {
+                  currFilter.customFilter.push('[' + payload.vartag.alias + ']');
+                  isModify = true;
+                }
+              }
+            } else {
+              // to do update alias name if only they are there.
+              if (currFilter.customFilter) {
+                const idx = currFilter.customFilter.indexOf(('[' + payload.originAlias[payload.index] + ']'));
+                if (idx > -1) {
+                  currFilter.customFilter[idx] = '[' + payload.vartag.alias + ']';
+                  isModify = true;
+                }
+              }
+            }
+          } else {
+            // the filter is not yet defined
+            if (payload.insert === 1) {
+              const nFilter = {
+                tagk: payload.vartag.tagk,
+                customFilter: ['[' + payload.vartag.alias + ']'],
+                filter: [],
+                groupBy: false
+              };
+              query.filters.push(nFilter);
+              isModify = true;
+            }
+          }
+        }
+      }
+    }
+    return isModify;
+   }
+   
+  formatDbTagKeysByWidgets(res: any) {
+    const _dashboardTags = { rawDbTags: {}, totalQueries: 0, tags: [] };
+    for (let i = 0; res && i < res.results.length; i++) {
+      const [wid, qid] = res.results[i].id ? res.results[i].id.split(':') : [null, null];
+      if (!wid) { continue; }
+      const keys = res.results[i].tagKeys.map(d => d.name);
+      if (!_dashboardTags.rawDbTags[wid]) {
+        _dashboardTags.rawDbTags[wid] = {};
+      }
+      _dashboardTags.rawDbTags[wid][qid] = keys;
+      _dashboardTags.totalQueries++;
+      _dashboardTags.tags = [..._dashboardTags.tags,
+      ...keys.filter(k => _dashboardTags.tags.indexOf(k) < 0)];
+    }
+    _dashboardTags.tags.sort(this.utils.sortAlphaNum);
+    return { ..._dashboardTags };
+  }
+  // - end of helper private, put your helper/private functions in above block of code
 
   // update dashboard to version 2
   toDBVersion2(dashboard: any) {
@@ -239,24 +312,54 @@ export class DashboardConverterService {
   // to deal with dashboard template v2
   toDBVersion8(dashboard: any) {
     dashboard.content.version = 8;
-    const settings = dashboard.content.settings;
-    const widgets = dashboard.content.widgets;
-    const tvars = settings.tplVariables.tvars || [];
+    let settings = dashboard.content.settings;
+    let widgets = dashboard.content.widgets;
+    const tvars = settings.tplVariables || [];
     // get all namespace from widgets
     const namespaces = {};
-    for ( let i = 0; i < widgets.length; i++ ) {
-        const queries = widgets[i].queries;
-        for ( let j = 0; j < queries.length; j++ ) {
-          namespaces[queries[j].namespace] = true;
-        }
+    for (let i = 0; i < widgets.length; i++) {
+      const queries = widgets[i].queries;
+      for (let j = 0; j < queries.length; j++) {
+        namespaces[queries[j].namespace] = true;
+      }
     }
-    const tplVariables = {
+    // update tvars format
+    for (let i = 0; i < tvars.length; i++) {
+      tvars[i].mode = 'auto';
+      tvars[i].applied = 0;
+      tvars[i].isNew = 0;
+    }
+    let tplVariables = {
       namespaces: Object.keys(namespaces),
       tvars: tvars
     };
+    // now we need to apply these tpl variable into each widget and
+    // update applied count and everything else
+    let _widgets = this.utils.deepClone(widgets);
+    this.httpService.getTagKeysForQueries(widgets).subscribe((res: any) => {
+        const dbTags = this.formatDbTagKeysByWidgets(res);
+        for (let i = 0; i < tplVariables.tvars.length; i++) {
+          let tvar = tplVariables.tvars[i];
+          const payload = {
+            vartag: tvar,
+            originAlias: [],
+            index: i,
+            insert: 1
+          };
+          // check to apply each widget with this db filter
+          for (let j = 0; j < _widgets.length; j++) {
+            let widget = _widgets[j];
+            const isModify = this.applytDBFilterToWidget(widget, payload, dbTags.rawDbTags);
+            if (isModify) {
+              tvar.applied = tvar.applied + 1;
+            }
+          }
+        }       
+    });
     delete dashboard.content.settings.tplVariables;
     dashboard.content.settings.tplVariables = tplVariables;
-
+    delete dashboard.content.widgets;
+    dashboard.content.widgets = _widgets;
     return dashboard;
   }
 
