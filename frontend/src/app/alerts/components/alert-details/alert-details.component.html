@@ -555,12 +555,32 @@
                                 <div class="form-group alert-oc-severity">
                                     <div class="form-label vertical-center"><strong>OC Severity</strong></div>
                                     <div class="severity-type-options">
-                                        <mat-radio-group formControlName="ocSeverity">
-                                            <mat-radio-button *ngFor="let option of ocSeverityOptions" value="{{option.value}}">{{option.label}}</mat-radio-button>
-                                        </mat-radio-group>
+                                        <mat-form-field>
+                                            <mat-select formControlName="ocSeverity">
+                                                <mat-option *ngFor="let option of ocSeverityOptions" [value]="option.value">
+                                                {{option.label}}
+                                                </mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
                                     </div>
                                     <div class="severity-info">
                                         <mat-icon fontSet="denali" fontIcon="d-information-circle"></mat-icon> A measure of the criticality of the alert: 1 is low, 5 is high. 2 and above seen by the OC.
+                                    </div>
+                                </div>
+
+                                <div class="form-group alert-oc-tier">
+                                    <div class="form-label vertical-center"><strong>OC Tier</strong></div>
+                                    <div class="tier-type-options">
+                                        <mat-form-field>
+                                            <mat-select formControlName="ocTier">
+                                                <mat-option *ngFor="let option of ocTierOptions" [value]="option.value">
+                                                {{option.label}}
+                                                </mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                    <div class="tier-info">
+                                        <mat-icon fontSet="denali" fontIcon="d-information-circle"></mat-icon> Alerts can be routed to different tiers (other than the OC) via Service Now. Formerly known as auto-escalation.
                                     </div>
                                 </div>
                             </div>
@@ -731,9 +751,30 @@
                             <div class="form-group alert-oc-severity">
                                 <div class="form-label vertical-center"><strong>Severity</strong></div>
                                 <div class="severity-type-options">
-                                    <mat-radio-group formControlName="ocSeverity">
-                                        <mat-radio-button *ngFor="let option of ocSeverityOptions" value="{{option.value}}">{{option.label}}</mat-radio-button>
-                                    </mat-radio-group>
+                                    <div class="severity-type-options">
+                                        <mat-form-field>
+                                            <mat-select formControlName="ocSeverity">
+                                                <mat-option *ngFor="let option of ocSeverityOptions" [value]="option.value">
+                                                {{option.label}}
+                                                </mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group alert-oc-tier">
+                                <div class="form-label vertical-center"><strong>OC Tier</strong></div>
+                                <div class="tier-type-options">
+                                    <mat-form-field>
+                                        <mat-select formControlName="ocTier">
+                                            <mat-option *ngFor="let option of ocTierOptions" [value]="option.value">
+                                            {{option.label}}
+                                            </mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
+                                <div class="tier-info">
+                                    <mat-icon fontSet="denali" fontIcon="d-information-circle"></mat-icon> Alerts can be routed to different tiers (other than the OC) via Service Now. Formerly known as auto-escalation.
                                 </div>
                             </div>
                         </div>
@@ -1190,6 +1231,12 @@
                                     <div class="form-label vertical-center"><strong>OC Severity</strong></div>
                                     <div class="severity-type-options">
                                         <span>{{data.notification.ocSeverity}}</span>
+                                    </div>
+                                </div>
+                                <div class="form-group alert-oc-tier">
+                                    <div class="form-label vertical-center"><strong>OC Tier</strong></div>
+                                    <div class="tier-type-options">
+                                        <span>{{data.notification.ocTier}}</span>
                                     </div>
                                 </div>
                             </div>
