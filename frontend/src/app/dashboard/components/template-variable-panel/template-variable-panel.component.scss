@@ -385,6 +385,12 @@
         .variable-form-wrapper {
             .namespace-column {
                 border-right: 1px solid $divider;
+
+                .mat-chip-list-wrapper {
+                    .mat-standard-chip {
+                        background-color: if($is-dark-theme, rgba(map-get($primary, default), .6), rgba(map-get($primary, default), .1));
+                    }
+                }
             }
 
             .filters-column {
@@ -444,7 +450,7 @@
                     }
 
                     .mat-ink-bar {
-                        background-color: #ffffff;
+                        background-color: if($is-dark-theme, rgba(#ffffff, 0.12), #ffffff);
                         border: 1px solid map-get($foreground, link);
                     }
                 }
