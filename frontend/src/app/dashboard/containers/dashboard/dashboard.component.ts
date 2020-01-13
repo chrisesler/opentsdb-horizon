@@ -237,7 +237,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.isDbTagsLoaded = false;
             this.variablePanelMode = { view: true };
             this.store.dispatch(new ClearWidgetsData());
-            this.tplVariables.viewTplVariables = {};
+            this.tplVariables = { editTplVariables: {}, viewTplVariables: { tvars: []}};
             if (this.tplVariablePanel) { this.tplVariablePanel.reset(); }
             if (url.length === 1 && url[0].path === '_new_') {
                 this.dbid = '_new_';

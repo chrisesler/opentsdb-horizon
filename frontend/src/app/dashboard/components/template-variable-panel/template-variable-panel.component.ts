@@ -69,6 +69,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     ngOnChanges(changes: SimpleChanges) {
+        // debugger;
         if (changes.tplVariables) {
             if (this.mode.view) {
                 this.selectedNamespaces = changes.tplVariables.currentValue.viewTplVariables.namespaces;
@@ -138,18 +139,20 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     initListFormGroup() {
         this.filteredValueOptions = [];
         this.listForm.controls['listVariables'] = this.fb.array([]);
-        this.tplVariables.viewTplVariables.tvars.forEach((data, index) => {
-            const vardata = {
-                tagk: new FormControl((data.tagk) ? data.tagk : '', []),
-                alias: new FormControl((data.alias) ? data.alias : '', []),
-                filter: new FormControl((data.filter) ? data.filter : '', []),
-                mode: new FormControl((data.mode) ? data.mode : 'auto'),
-                applied: data.applied,
-                isNew: data.isNew
-            };
-            const control = <FormArray>this.listForm.controls['listVariables'];
-            control.push(this.fb.group(vardata));
-        });
+        if (this.tplVariables.viewTplVariables.tvars) {
+            this.tplVariables.viewTplVariables.tvars.forEach((data, index) => {
+                const vardata = {
+                    tagk: new FormControl((data.tagk) ? data.tagk : '', []),
+                    alias: new FormControl((data.alias) ? data.alias : '', []),
+                    filter: new FormControl((data.filter) ? data.filter : '', []),
+                    mode: new FormControl((data.mode) ? data.mode : 'auto'),
+                    applied: data.applied,
+                    isNew: data.isNew
+                };
+                const control = <FormArray>this.listForm.controls['listVariables'];
+                control.push(this.fb.group(vardata));
+            });
+        }
     }
 
     initEditFormGroup() {
