@@ -762,17 +762,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         break;
                     }
                 } else if (tvars.length > 1) {
-                    const tmp = queries[j].filters.filter(f => {
-                        // check to see if the custom tag is using in query and different
-                        // from the previous view mode. this is edit mode from view mode.
-                        for (let k = 0; k < tvars.length; k++) {
-                            const _idx = queries[j].filters.findIndex(f => f.customFilter && f.customFilter.includes('[' + tvars[k].alias + ']'));
-                            if (_idx > -1 && tvars[k].filter !== this.tplVariables.viewTplVariables.tvars[k].filter) {
-                                return true;
-                            }
+                    let matchIdx = 0;
+                    for (let k = 0; k < tvars.length; k++) {
+                        const idx = queries[j].filters.findIndex(f => f.customFilter && f.customFilter.includes('[' + tvars[k].alias + ']'));
+                        if (idx > -1) {
+                            matchIdx += 1;
                         }
-                    });
-                    if (tmp.length > 0) {
+                    }
+                    if (matchIdx > 0) {
                         this.handleQueryPayload({
                             id: this.widgets[i].id,
                             payload: this.widgets[i]
