@@ -91,7 +91,9 @@ export class HttpService {
                 map((res: any) => res ? res.results[0].namespaces : []),
             );
     }
-
+    // to get all tagkeys by namespaces
+    // can pass a list of namespace and optional a list of metrics
+    // queryObj = { namespaces: ['ssp', 'yamas'] }
     getTagKeys(queryObj: any): Observable<any> {
         const headers = new HttpHeaders({
             'Content-Type': 'application/json'
@@ -120,13 +122,12 @@ export class HttpService {
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
             .pipe(
                 map((res: any) => {
-
                     let tagkeys = [];
                     for (let i = 0, len = res.results.length; i < len; i++) {
-                        const keys = res.results[i].tagKeys.filter(item => tagkeys.indexOf(item.key) === -1);
+                        const keys = res.results[i].tagKeys.filter(item => tagkeys.indexOf(item.name) === -1);
                         tagkeys = tagkeys.concat(keys.map(d => d.name));
                     }
-                    return tagkeys;
+                    return tagkeys.sort(this.utils.sortAlphaNum);
                 })
             );
     }

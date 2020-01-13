@@ -533,9 +533,9 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
                 // they do have one or more customFilter for same tag key, add value of it
                 for (let j = 0; j < mfilters[i].customFilter.length; j++) {
                     const cusFilter = mfilters[i].customFilter[j];
-                    for (let k = 0; k < this.tplVariables.length; k++) {
-                        if ('[' + this.tplVariables[k].alias + ']' === cusFilter && this.tplVariables[k].filter !== '') {
-                            mfilters[i].filter.push(this.tplVariables[k].filter);
+                    for (let k = 0; k < this.tplVariables.tvars.length; k++) {
+                        if ('[' + this.tplVariables.tvars[k].alias + ']' === cusFilter && this.tplVariables.tvars[k].filter !== '') {
+                            mfilters[i].filter.push(this.tplVariables.tvars[k].filter);
                         }
                     }
                 }

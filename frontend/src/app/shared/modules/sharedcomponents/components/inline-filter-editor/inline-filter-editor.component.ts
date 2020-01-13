@@ -18,7 +18,7 @@ import { HttpService } from '../../../../../core/http/http.service';
 import { MatMenuTrigger } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
-
+import { IntercomService } from '../../../../../core/services/intercom.service';
 
 
 
@@ -33,7 +33,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
 
     @Input() query: any;
     @Input() options: any;
-    @Input() tplVariables: any[] = [];
+    @Input() tplVariables: any;
     @Output() filterOutput = new EventEmitter();
     @ViewChild('tagValueSearchInput') tagValueSearchInput: ElementRef;
     @ViewChild('tagSearchInput') tagSearchInput: ElementRef;
@@ -63,13 +63,14 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
         private httpService: HttpService,
         private matIconRegistry: MatIconRegistry,
         private domSanitizer: DomSanitizer,
+        private interCom: IntercomService,
         private cdRef: ChangeDetectorRef) {
             matIconRegistry.addSvgIcon('exclamation_point', domSanitizer.bypassSecurityTrustResourceUrl('assets/exclamation-point.svg')
         );
     }
 
     ngOnInit() {
-        this.tplVariables = this.tplVariables || [];
+        this.tplVariables = this.tplVariables || {};
         this.namespace = this.query.namespace;
         this.metrics = this.query.metrics;
         this.filters = this.query.filters;
@@ -183,7 +184,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
                         this.tagValueSub.unsubscribe();
                     }
                     // any var template match with selected tag
-                    const tplVars = this.tplVariables.filter(v => v.tagk === this.selectedTag);
+                    const tplVars = this.tplVariables.tvars.filter(v => v.tagk === this.selectedTag);
                     this.tagValueSub = this.httpService.getTagValuesByNamespace(query, this.options.metaSource)
                         .subscribe(res => {
                             // append tpl vars to the top of the list of value
@@ -276,16 +277,33 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
         if (operation === 'add') {
             const checkVar = this.regexVars.test(v);
             if (checkVar) {
+                // when user manually adds a db filter
                 this.filters[tagIndex].customFilter ?
                 this.filters[tagIndex].customFilter.push(v) :
                 this.filters[tagIndex].customFilter = [v];
+                this.interCom.requestSend({
+                    action: 'UpdateCustomFiltersAppliedCount',
+                    payload: {
+                        operator: 'add',
+                        alias: v
+                    }
+                });                
             } else {
                 this.filters[tagIndex].filter.push(v);
             }
         } else if (tagIndex !== -1 && operation === 'remove') {
             if (this.regexVars.test(v)) {
+                // when user maually removes a db filter
                 const varIndex = this.filters[tagIndex].customFilter.indexOf(v);
                 this.filters[tagIndex].customFilter.splice(varIndex, 1);
+                // we need to update db fitler state for applied count for this custom tag filter
+                this.interCom.requestSend({
+                    action: 'UpdateCustomFiltersAppliedCount',
+                    payload: {
+                        operator: 'remove',
+                        alias: v
+                    }
+                });
             } else {
                 const index = this.filters[tagIndex].filter.indexOf(v);
                 this.filters[tagIndex].filter.splice(index, 1);

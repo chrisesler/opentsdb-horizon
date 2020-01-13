@@ -18,11 +18,12 @@
         /* Table overrides */
         table {
             width: auto;
-            margin: 0 5px;
+            // margin: 0 5px;
         }
 
         td {
-            padding: 0 4px;
+            padding: 4px;
+            vertical-align: center;
 
             &:first-child {
                 padding-left: 0;
@@ -39,25 +40,7 @@
                 padding-left: 4px;
             }
 
-            &:nth-child(n+2):nth-last-child(n+2) {
-                box-shadow: inset 1px 0 0 rgba(0,0,0,0.08);
-            }
         }
-
-        tr:not(:first-child) {
-            border-top: 1px solid rgba(0,0,0,.05);
-        }
-
-        tbody tr:first-child td {
-            padding-top: 4px;
-        }
-
-        /*span.actionslist {
-            span {
-                display: inline;
-                margin-right: 10px;
-            }
-        }*/
 
         ul.varlist {
             li {
@@ -78,18 +61,88 @@
             padding: 4px 12px;
         }
 
+        /* wrapper for EDIT view */
         .variable-edit-wrapper {
             display: flex;
             flex-direction: column;
-            padding: 0 6px 4px 6px;
+            padding: 0 0 6px 0;
             flex: 1;
-            box-shadow: inset 0 50px 0 rgba(0,0,0,0.05);
+        }
+
+        .variable-form-wrapper {
+            display: flex;
+            flex: 1;
+
+            .column-title {
+                margin-bottom: 6px;
+            }
+
+            .namespace-column,
+            .filters-column {
+                display: flex;
+                flex-direction: column;
+                padding: 10px 16px;
+            }
+
+            .namespace-column {
+                max-width: 300px;
+                min-width: 300px;
+                flex: 1 1 300px;
+
+                .mat-form-field {
+                    width: 100%;
+                }
+
+                .mat-chip-list-wrapper {
+                    margin: 0px;
+                }
+                .mat-chip {
+                    font-weight: 300;
+                }
+                .mat-standard-chip {
+                    background: #eaf1fb;
+                    margin: 2px;
+                    min-height: 25px;
+                    padding: 5px 8px;
+                }
+                .mat-icon {
+                    width: 15px;
+                    height: 15px;
+                    font-size: 15px;
+                }
+            }
+
+            .filters-column {
+                flex: 1;
+            }
+
+            .new-tag-filter {
+                .mat-button {
+                    font-size: 12px;
+                    line-height: 24px;
+
+                    .mat-icon {
+                        @include sizeDenaliIcon(14px);
+                    }
+                    .mat-icon:first-child {
+                        margin-right: 6px;
+                    }
+                }
+            }
+
+            .namespace-required-message {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 16px;
+            }
         }
 
         /* form fields for list-view */
         .dashboard-template-variable.mat-form-field {
 
-            .mat-form-field-prefix {
+            .mat-form-field-prefix,
+            .mat-form-field-suffix {
                 align-self: stretch;
                 display: flex;
                 align-items: center;
@@ -132,7 +185,6 @@
 
             .settings-control {
                 margin-bottom: 0;
-                //padding: 0 10px;
                 transition: background-color 500ms ease-in-out;
 
                 &.actions-control {
@@ -152,6 +204,20 @@
                         }
                     }
 
+                    .auto-message {
+                        white-space: nowrap;
+                    }
+
+                    .actions {
+                        display: flex;
+                    }
+
+                    .add-to-button,
+                    .remove-from-button {
+                        padding: 0 10px;
+                    }
+
+                    // TODO: May remove the next 3 blocks
                     .affected-count {
                         margin-right: 12px;
                     }
@@ -164,6 +230,62 @@
                     .undo-button {
                         margin-right: 10px;
                         margin-left: -12px;
+                    }
+                }
+
+                &.error-control {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    .errors {
+                        display: flex;
+                        align-items: stretch;
+                        justify-content: center;
+                    }
+                }
+
+                &.filter-mode-control {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-bottom: 0 !important;
+                    padding: 0 2px;
+                    display: inline-block;
+                    margin-top: 3px;
+
+                    .sliding-toggle-group {
+                        padding: 0 2px;
+
+
+                        .mat-tab-link {
+                            font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+                            height: 31px;
+                            padding: 0 4px;
+                            min-width: 50px;
+                            opacity: 1;
+                            z-index: 1;
+                            background-color: transparent;
+                            user-select: none;
+
+                            &.mat-tab-label-active,
+                            &:not(.mat-tab-disabled):not(.mat-tab-label-active) {
+                                &,
+                                &:focus {
+                                    background-color: transparent !important;
+                                }
+                            }
+
+                            &:not(.mat-tab-disabled):focus {
+                                background-color: transparent !important;
+                            }
+                        }
+
+                        .mat-ink-bar {
+                            height: 27px;
+                            bottom: 2px;
+                            border-radius: 4px;
+                        }
                     }
                 }
             }
@@ -197,7 +319,7 @@
             flex: 1;
             width: 100%;
             max-width: 100%;
-            padding: 6px;
+            padding: 5px 10px 0 10px;
 
             .edit-actions {
 
@@ -235,10 +357,14 @@
 
     $border-color: map-get($background, background);
 
+    $divider: rgba(0, 0, 0, 0.08);
+
+    $input-bg: rgba(map-get($primary, default), 0.08);
+
     .template-variable-panel-component {
         background-color: map-get($background, card);
         color: $navbar-text;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        border-bottom: 1px solid $divider;
 
         &.is-edit-mode {
             background-color: map-get($background, card);
@@ -249,10 +375,37 @@
             color: map-get($warn, default);
         }
 
+        // TODO: possible remove when done
+        tr:not(:first-child) {
+            border-top: 1px solid rgba(0,0,0,.05);
+        }
+
         /* list-view controls */
 
-        .variable-list-wrapper {
+        .variable-form-wrapper {
+            .namespace-column {
+                border-right: 1px solid $divider;
+            }
 
+            .filters-column {
+                table {
+                    thead tr {
+                        border-bottom: 1px solid rgba(0,0,0,.05)
+                    }
+
+                    tr:not(:first-child) {
+                        border-top: 1px solid rgba(0,0,0,.05);
+                    }
+                }
+            }
+
+            .namespace-required-message {
+                background: $divider;
+            }
+        }
+
+        .variable-action-controls {
+            border-top: 1px solid $divider;
         }
 
         /* form fields for list-view */
@@ -260,10 +413,42 @@
             .mat-form-field-prefix {
                 background: rgba(map-get($primary, default), .1);
             }
+
+            .mat-form-field-suffix {
+                .mat-icon {
+                    cursor: pointer;
+                    color: rgba(map-get($primary, default), .1);
+                }
+
+                &:hover {
+                    .mat-icon {
+                        color: rgba(map-get($primary, default), .3);
+                    }
+                }
+            }
         }
 
         /* Edit View controls */
         .variable-edit-controls {
+
+            .settings-control.filter-mode-control {
+                .sliding-toggle-group {
+                    background-color: $input-bg;
+                    border-bottom: 1px solid transparent;
+
+                    .mat-tab-link {
+                        &,
+                        &.mat-tab-label-active {
+                            color: map-get($foreground, link);
+                        }
+                    }
+
+                    .mat-ink-bar {
+                        background-color: #ffffff;
+                        border: 1px solid map-get($foreground, link);
+                    }
+                }
+            }
 
             /* not using chips for the time being
             .filter-values-list {
@@ -277,4 +462,11 @@
     }
 
     // cdk items here (if any)
+    .mat-autocomplete-panel.default-value-autocomplete {
+        // regexp option is treated differently
+        .mat-option:first-child {
+            border-bottom: 1px solid $divider;
+            background-color: rgba(map-get($primary, default), 0.08);
+        }
+    }
 }

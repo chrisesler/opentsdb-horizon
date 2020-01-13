@@ -1182,7 +1182,7 @@ export class DbfsResourcesState {
         const originDetails = this.dbfsUtils.detailsByFullPath(file);
         const source = state.files[file];
         const destination = state.folders[originDetails.trashPath];
-        console.log(originDetails, source, destination);
+        // console.log(originDetails, source, destination);
 
         return this.service.trashFile(source.id, destination.id).pipe(
             map( (payload: any) => {

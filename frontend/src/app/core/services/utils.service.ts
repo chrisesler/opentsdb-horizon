@@ -50,6 +50,17 @@ export class UtilsService {
         return searchPattern.toLowerCase();
     }
 
+    // reserve whatever user type as regexp
+    convertPattern(searchPattern) {
+        searchPattern = searchPattern ? searchPattern.trim() : '';
+        if (searchPattern.length === 0) { 
+            return '.*'; 
+        } else {
+            searchPattern = searchPattern.replace(/\s+/g, '.*');
+            return searchPattern; 
+        }
+    }
+
     replaceIdsInExpressions(newID, oldID, metrics) {
         const idreg = new RegExp('\\{\\{' + oldID + '\\}\\}', 'g');
         for (const metric of metrics) {

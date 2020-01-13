@@ -118,7 +118,7 @@ export class DbfsUtilsService {
 
     normalizePanelFolder(rawFolder: any, moveEnabled: boolean = true, selectEnabled: boolean = true, noDisplay: boolean = false): DbfsPanelFolderModel {
 
-        console.log('RAW FOLDER', rawFolder);
+        // console.log('RAW FOLDER', rawFolder);
         const folder = this.normalizeFolder(rawFolder);
 
         const panelFolder: DbfsPanelFolderModel  = <DbfsPanelFolderModel>{...folder, moveEnabled, selectEnabled, selected: false};

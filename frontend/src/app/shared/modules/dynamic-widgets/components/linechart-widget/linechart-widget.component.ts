@@ -627,10 +627,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         this.widget.settings.title = title;
     }
 
-    isApplyTpl(): boolean {
-        return (!this.widget.settings.hasOwnProperty('useDBFilter') || this.widget.settings.useDBFilter);
-    }
-
     // by default it should not call change detection unless we set it
     setSize(cdCheck: boolean = true) {
         // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,

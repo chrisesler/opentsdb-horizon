@@ -3,7 +3,6 @@ import { UtilsService } from '../../core/services/utils.service';
 import { DashboardConverterService } from '../../core/services/dashboard-converter.service';
 import { URLOverrideService } from './urlOverride.service';
 
-
 @Injectable()
 export class DashboardService {
 
@@ -23,7 +22,10 @@ export class DashboardService {
             namespace: '',
             isPersonal: false,
         },
-        tplVariables: []
+        tplVariables: {
+          namespaces: [],
+          tvars: []
+        }
     },
     widgets: [
     ]
@@ -110,6 +112,17 @@ export class DashboardService {
     return modWidgets;
   }
 
+  getNamespacesFromWidgets( widgets ) {
+    const namespaces = {};
+    for ( let i = 0; i < widgets.length; i++ ) {
+        const queries = widgets[i].queries;
+        for ( let j = 0; j < queries.length; j++ ) {
+          namespaces[queries[j].namespace] = true;
+        }
+    }
+    return Object.keys(namespaces);
+  }
+
   getMetricsFromWidgets( widgets ) {
     const metrics = [];
     for ( let i = 0; i < widgets.length; i++ ) {
@@ -160,144 +173,85 @@ export class DashboardService {
     }
   }
 
-  // return all eligible widgets id and qid based on list of tplVariables
-  // what widget has the tag defined or not
-  checkEligibleWidgets(tplVariables: any, rawDbTags: any) {
-    const eWidgets = {};
-    for (let i = 0; i < tplVariables.length; i++) {
-      const vartag = tplVariables[i];
-      // if (vartag.filter.trim()  !== '') { // hmm it can be from something to nothing
-      eWidgets[vartag.alias] = {};
-      const ewid = {};
-      for (const wid in rawDbTags) {
-        if (rawDbTags.hasOwnProperty(wid)) {
-          const eqid = {};
-          for (const qid in rawDbTags[wid]) {
-            if (rawDbTags[wid].hasOwnProperty(qid)) {
-              if (rawDbTags[wid][qid].includes(vartag.tagk)) {
-                eqid[qid] = true;
-              }
-            }
-          }
-          if (Object.keys(eqid).length > 0) {
-            ewid[wid] = eqid;
-          }
-        }
-      }
-      eWidgets[vartag.alias] = ewid;
-      // }
-    }
-    return eWidgets;
-  }
-
-  // return widget custom tag info if this widget is eligible
-  applyWidgetDBFilter(widget: any, tplVariables: any, rawDbTags: any) {
-   let isModify = false;
-   const wid = widget.id.indexOf('__EDIT__') !== -1 ? widget.id.replace('__EDIT__', '') : widget.id;
-   const eWidget = {};
-    for (let i = 0; i < tplVariables.length; i++) {
-      const vartag = tplVariables[i];
-      if (rawDbTags[wid]) {
-        const eqid = {};
-        for (const qid in rawDbTags[wid]) {
-          if (rawDbTags[wid].hasOwnProperty(qid)) {
-            if (rawDbTags[wid][qid].includes(vartag.tagk)) {
-              eqid[qid] = true;
-            }
-          }
-        }
-        if (Object.keys(eqid).length > 0) {
-          eWidget[vartag.alias] = eqid;
-        }
-      }
-    }
-    // mcolo: abc: true, cdf: true --> for query id
-    for (const alias of Object.keys(eWidget)) {
-        const tplIdx = tplVariables.findIndex(tpl => tpl.alias === alias);
-        const vartag = tplVariables[tplIdx];
-        // when user set custom tag to empty, we need to requery to origin config
-        if (vartag.filter === '') { isModify = true; continue; }
-        for (let i = 0; i < widget.queries.length; i++) {
-          const query = widget.queries[i];
-          if (eWidget[alias].hasOwnProperty(query.id)) {
-            // see if it has filter of this tag
-            const fIdx = query.filters.findIndex(f => f.tagk === vartag.tagk);
-            if (fIdx > -1) {
-              const currFilter = query.filters[fIdx];
-              // if they manually define this [alias] in customFilter then we don't
-              // modify it since it's static mode
-              if (!currFilter.customFilter || currFilter.customFilter.length === 0) {
-                currFilter.filter = [];
-                currFilter.dynamicFilter ?
-                  currFilter.dynamicFilter.push('[' + alias + ']') : currFilter.dynamicFilter = ['[' + alias + ']'];
-                isModify = true;
-              }
-            } else {
-              const nfilter = {
-                tagk: vartag.tagk,
-                filter: [],
-                groupBy: false,
-                dynamicFilter: ['[' + alias + ']']
-              };
-              query.filters.push(nfilter);
-              isModify = true;
-            }
-          }
-        }
-    }
-    return isModify ? widget : undefined;
-  }
-
-  // to insert dynamicFilter or modify customFilter accordingly
+  // apply the customFilter to widget queries if it's eligible
   // @widget: widget to modify
-  // @eWidget: object to hold this widget dashboard tag filter of eligible
-  // @tplVariables: current list of db tag filters (in view or edit mode)
-  applyTplVarToWidget(widget: any, eWidgets: any, tplVariables: any[]) {
-    // for editing widget, we need to get the id out.
-    const wid = widget.id.indexOf('__EDIT__') !== -1 ? widget.id.replace('__EDIT__', '') : widget.id;
+  // @tplVar: the current tplVar to apply
+  // @rawDbTags: the information about widget available tags
+  applytDBFilterToWidget(widget: any, payload: any, rawDbTags: any) {
     let isModify = false;
-    for (const alias in eWidgets) {
-      if (eWidgets[alias].hasOwnProperty(wid)) {
-        const tplIdx = tplVariables.findIndex(tpl => tpl.alias === alias);
-        const vartag = tplVariables[tplIdx];
-        // when user set custom tag to empty, we need to requery to origin config
-        if (vartag.filter === '') { isModify = true; continue; }
-        for (let i = 0; i < widget.queries.length; i++) {
-          const query = widget.queries[i];
-          if (eWidgets[alias][wid].hasOwnProperty(query.id)) {
-            const fIdx = query.filters.findIndex(f => f.tagk === vartag.tagk);
-            if (fIdx > -1) {
-              // check if it has this alias, if it does then leave it alone as static mode
-              if ((query.filters[fIdx].customFilter && query.filters[fIdx].customFilter.length === 0)
-                || !query.filters[fIdx].customFilter) {
-                query.filters[fIdx].filter = [];
-                query.filters[fIdx].dynamicFilter ? query.filters[fIdx].dynamicFilter.push('[' + alias + ']')
-                  : query.filters[fIdx].dynamicFilter = ['[' + alias + ']'];
+    const wid = widget.id.indexOf('__EDIT__') !== -1 ? widget.id.replace('__EDIT__', '') : widget.id;
+    if (rawDbTags[wid]) {
+      for (let i = 0; i < widget.queries.length; i++) {
+        const query = widget.queries[i];
+        if (rawDbTags[wid].hasOwnProperty(query.id) && rawDbTags[wid][query.id].includes(payload.vartag.tagk)) {
+          const fIndx = query.filters.findIndex(f => f.tagk === payload.vartag.tagk);
+          if (fIndx > -1) {
+            const currFilter = query.filters[fIndx];
+            // we do have this tag defined
+            if (payload.insert === 1) {
+              if (!currFilter.customFilter) {
+                currFilter.customFilter = ['[' + payload.vartag.alias + ']'];
                 isModify = true;
               } else {
-                // they have static mode, but let it thru
-                isModify = true;
+                // only insert if they are not there
+                if (!currFilter.customFilter.includes('[' + payload.vartag.alias + ']')) {
+                  currFilter.customFilter.push('[' + payload.vartag.alias + ']');
+                  isModify = true;
+                }
               }
             } else {
-              const nfilter = {
-                tagk: vartag.tagk,
+              // to do update alias name if only they are there.
+              if (currFilter.customFilter) {
+                const idx = currFilter.customFilter.indexOf(('[' + payload.originAlias[payload.index] + ']'));
+                if (idx > -1) {
+                  currFilter.customFilter[idx] = '[' + payload.vartag.alias + ']';
+                  isModify = true;
+                }
+              }
+            }
+          } else {
+            // the filter is not yet defined
+            if (payload.insert === 1) {
+              const nFilter = {
+                tagk: payload.vartag.tagk,
+                customFilter: ['[' + payload.vartag.alias + ']'],
                 filter: [],
-                groupBy: false,
-                dynamicFilter: ['[' + alias + ']']
+                groupBy: false
               };
-              query.filters.push(nfilter);
+              query.filters.push(nFilter);
               isModify = true;
             }
           }
         }
       }
     }
-    return isModify ? widget : undefined;
+    return isModify;
+   }
+
+  // helper to create dbTags
+  formatDbTagKeysByWidgets(res: any) {
+    const _dashboardTags = { rawDbTags: {}, totalQueries: 0, tags: [] };
+    for (let i = 0; res && i < res.results.length; i++) {
+      const [wid, qid] = res.results[i].id ? res.results[i].id.split(':') : [null, null];
+      if (!wid) { continue; }
+      const keys = res.results[i].tagKeys.map(d => d.name);
+      if (!_dashboardTags.rawDbTags[wid]) {
+        _dashboardTags.rawDbTags[wid] = {};
+      }
+      _dashboardTags.rawDbTags[wid][qid] = keys;
+      _dashboardTags.totalQueries++;
+      _dashboardTags.tags = [..._dashboardTags.tags,
+      ...keys.filter(k => _dashboardTags.tags.indexOf(k) < 0)];
+    }
+    _dashboardTags.tags.sort(this.utils.sortAlphaNum);
+    return { ..._dashboardTags };
   }
+
+  // to resolve from variable to real filter value
   resolveTplVar(query: any, tplVariables: any[]) {
     for (let i = 0; i < query.filters.length; i++) {
       const qFilter = query.filters[i];
-      // they do have custom filter mean static filter
+      // they do have custom filter
       if (qFilter.customFilter && qFilter.customFilter.length > 0) {
         for (let j = 0; j < qFilter.customFilter.length; j++) {
           const hasNot = qFilter.customFilter[j][0] === '!';
@@ -309,20 +263,9 @@ export class DashboardService {
             }
           }
         }
-      } else if (qFilter.dynamicFilter && qFilter.dynamicFilter.length > 0) {
-        for (let j = 0; j < qFilter.dynamicFilter.length; j++) {
-          const hasNot = qFilter.dynamicFilter[j][0] === '!';
-          const alias = qFilter.dynamicFilter[j].substring(hasNot ? 2 : 1, qFilter.dynamicFilter[j].length - 1);
-          const tplIdx = tplVariables.findIndex(tpl => tpl.alias === alias);
-          if (tplIdx > -1) {
-            if (tplVariables[tplIdx].filter !== '' && qFilter.filter.indexOf(tplVariables[tplIdx].filter) === -1) {
-              qFilter.filter.push( hasNot ? '!' + tplVariables[tplIdx].filter : tplVariables[tplIdx].filter );
-            }
-          }
-        }
-      }
+      } 
     }
-    // clean out empty filter
+    // clean out empty filter, since they might have db filter but not set value yet.
     query.filters = query.filters.filter(f => f.filter.length > 0);
     return query;
   }
