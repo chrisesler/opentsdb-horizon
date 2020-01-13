@@ -16,22 +16,8 @@ export class DashboardConverterService {
 
   // call to convert dashboad to currentVersion
   convert(dashboard: any): Observable<any> {
-    return new Observable((obs) => {
-      let allObs: Observable<any>[] = [];
-      for (let i = dashboard.content.version + 1; i <= this.currentVersion; i++) {
-        if (this['toDBVersion' + i] instanceof Function) {
-          allObs.push(this['toDBVersion' + i](dashboard));
-        }
-      }
-      // execute them all
-      if (allObs.length > 0) {
-        forkJoin(allObs).subscribe((res) => {
-          // the last one in the chain is what we want
-          obs.next(res[res.length - 1]);
-          obs.complete();
-        });
-      }
-    });
+      const i = dashboard.content.version + 1 || 2;
+      return this['toDBVersion' + i](dashboard);
   }
 
   // to return current max version of dashboard
@@ -168,7 +154,7 @@ export class DashboardConverterService {
         }
       }
     }
-    return of(dashboard);
+    return this.toDBVersion3(dashboard);
   }
   // update dashboard to version 3, we move tplVariables to top and remove
   // enable things
@@ -228,7 +214,7 @@ export class DashboardConverterService {
       }
     }
     dashboard.content.widgets = widgets;
-    return of(dashboard);
+    return this.toDBVersion4(dashboard);
   }
 
   // update dashboard to version 4, convert array to string
@@ -246,7 +232,7 @@ export class DashboardConverterService {
       }
     }
     dashboard.content.settings.tplVariables = tplVariables;
-    return of(dashboard);
+    return this.toDBVersion5(dashboard);
   }
 
   // update dashboard to version 5, make sure ids are unique within widget and replace expression references
@@ -275,7 +261,7 @@ export class DashboardConverterService {
       }
       // }
     }
-    return of(dashboard);
+    return this.toDBVersion6(dashboard);
   }
 
   // update dashboard to version 6: make sure summarizer is set for barchart, big number, donut, and topn
@@ -299,7 +285,7 @@ export class DashboardConverterService {
         }
       }
     }
-    return of(dashboard);
+    return this.toDBVersion7(dashboard);
   }
   // update dashboard to version 7: set eventQueries if not there
   toDBVersion7(dashboard: any): Observable<any> {
@@ -318,12 +304,12 @@ export class DashboardConverterService {
         }
       }
     }
-    return of(dashboard);
+    return this.toDBVersion8(dashboard);
   }
 
   // update dashboard to version 8
   // to deal with dashboard template v2
-  toDBVersion8(dashboard: any): Observable<any> {
+  toDBVersion8(dashboard: any) {
     return this.httpService.getTagKeysForQueries(dashboard.content.widgets).pipe(
         map ((res) => { 
           dashboard.content.version = 8;
@@ -370,7 +356,7 @@ export class DashboardConverterService {
           dashboard.content.settings.tplVariables = tplVariables;
           delete dashboard.content.widgets;
           dashboard.content.widgets = widgets;
-          return dashboard;          
+          return dashboard;
         })
       );
   }
