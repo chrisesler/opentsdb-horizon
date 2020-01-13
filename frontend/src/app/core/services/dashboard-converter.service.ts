@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { UtilsService } from './utils.service';
 import { HttpService } from '../http/http.service';
-import { of, Observable, Subscription } from 'rxjs';
+import { of, Observable, forkJoin } from 'rxjs';
 import { tap, map } from 'rxjs/operators';
 
 @Injectable({
