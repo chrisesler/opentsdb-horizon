@@ -228,6 +228,26 @@ export class DashboardService {
     return isModify;
    }
 
+  // helper to create dbTags
+  formatDbTagKeysByWidgets(res: any) {
+    const _dashboardTags = { rawDbTags: {}, totalQueries: 0, tags: [] };
+    for (let i = 0; res && i < res.results.length; i++) {
+      const [wid, qid] = res.results[i].id ? res.results[i].id.split(':') : [null, null];
+      if (!wid) { continue; }
+      const keys = res.results[i].tagKeys.map(d => d.name);
+      if (!_dashboardTags.rawDbTags[wid]) {
+        _dashboardTags.rawDbTags[wid] = {};
+      }
+      _dashboardTags.rawDbTags[wid][qid] = keys;
+      _dashboardTags.totalQueries++;
+      _dashboardTags.tags = [..._dashboardTags.tags,
+      ...keys.filter(k => _dashboardTags.tags.indexOf(k) < 0)];
+    }
+    _dashboardTags.tags.sort(this.utils.sortAlphaNum);
+    return { ..._dashboardTags };
+  }
+
+  // to resolve from variable to real filter value
   resolveTplVar(query: any, tplVariables: any[]) {
     for (let i = 0; i < query.filters.length; i++) {
       const qFilter = query.filters[i];

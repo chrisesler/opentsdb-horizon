@@ -860,7 +860,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         // set to false to force get dashboard tags for all widgets nect time
         this.isDbTagsLoaded = false;
         this.httpService.getTagKeysForQueries([_widget]).subscribe((res: any) => {
-            const widgetTags = this.formatDbTagKeysByWidgets(res);
+            const widgetTags = this.dbService.formatDbTagKeysByWidgets(res);
             let applied = 0;
             const isModify = this.dbService.applytDBFilterToWidget(_widget, payload, widgetTags.rawDbTags);
             if (isModify) {
@@ -881,25 +881,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
             this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
         });
-    }
-
-    // helper to create dbTags
-    formatDbTagKeysByWidgets(res: any) {
-        const _dashboardTags = { rawDbTags: {}, totalQueries: 0, tags: [] };
-        for (let i = 0; res && i < res.results.length; i++) {
-            const [wid, qid] = res.results[i].id ? res.results[i].id.split(':') : [null, null];
-            if (!wid) { continue; }
-            const keys = res.results[i].tagKeys.map(d => d.name);
-            if (!_dashboardTags.rawDbTags[wid]) {
-                _dashboardTags.rawDbTags[wid] = {};
-            }
-            _dashboardTags.rawDbTags[wid][qid] = keys;
-            _dashboardTags.totalQueries++;
-            _dashboardTags.tags = [...this.dashboardTags.tags,
-            ...keys.filter(k => _dashboardTags.tags.indexOf(k) < 0)];
-        }
-        _dashboardTags.tags.sort(this.utilService.sortAlphaNum);
-        return {..._dashboardTags};
     }
 
     updateTplVariablesAppliedCount(payload: any) {
@@ -935,7 +916,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         console.log('hill - CALL GET DASHBOARD TAG');
         this.isDbTagsLoaded = false;
         this.httpService.getTagKeysForQueries(this.widgets).subscribe((res: any) => {
-            this.dashboardTags = this.formatDbTagKeysByWidgets(res);
+            this.dashboardTags = this.dbService.formatDbTagKeysByWidgets(res);
             this.isDbTagsLoaded = true;
             this.isDbTagsLoaded$.next(reloadData);
         },
