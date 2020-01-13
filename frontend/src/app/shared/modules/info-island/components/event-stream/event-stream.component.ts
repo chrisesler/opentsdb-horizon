@@ -39,7 +39,7 @@ export class EventStreamComponent implements OnInit, OnChanges, OnDestroy, After
         @Inject(ISLAND_DATA) private _data: any
     ) {
 
-        console.log('DATA', _data);
+        // console.log('DATA', _data);
         this.title = _data.data.title;
 
         this.subscription.add(_data.data.timeRange$.subscribe( time => {

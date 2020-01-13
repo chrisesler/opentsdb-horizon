@@ -69,7 +69,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        // debugger;
         if (changes.tplVariables) {
             if (this.mode.view) {
                 this.selectedNamespaces = changes.tplVariables.currentValue.viewTplVariables.namespaces;
@@ -263,7 +262,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     onInputFocus(cname: string, index: number) {
-        console.log('hill - onInputFocus call');
         const selControl = this.getSelectedControl(index);
         switch (cname) {
             case 'tagk':
@@ -345,7 +343,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     onInputBlur(cname: string, index: number) {
-        console.log('hill - onInputBur call');
         const selControl = this.getSelectedControl(index);
         const val = selControl['controls'][cname].value;
         // set delay to avoid blur excute before onSelect
@@ -395,7 +392,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
 
     // update state if it's is valid
     selectTagKeyOption(event: any, index: number) {
-        console.log('hill - onSelect tag call');
         if (this.tagBlurTimeout) {
             clearTimeout(this.tagBlurTimeout);
         }
@@ -467,7 +463,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         this.modeChange.emit({ view: true });
     }
     updateState(selControl: AbstractControl, reQuery: boolean = true) {
-        console.log('hill - updateState is calling', selControl.value);
         if (selControl.valid) {
             const sublist = [];
             for (let i = 0; i < this.formTplVariables.controls.length; i++) {
@@ -477,7 +472,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             }
             // update db filters state.
             this.updateTplVariableState(this.utils.deepClone(this.selectedNamespaces), sublist);
-            // console.log();
             // we might need to run widgets which are affected by this tag
             if (reQuery) {
                 this.interCom.requestSend({

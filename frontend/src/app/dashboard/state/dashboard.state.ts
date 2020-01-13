@@ -256,7 +256,6 @@ export class DBState {
     @Action(DeleteDashboardSuccess)
     deleteDashboardSuccess(ctx: StateContext<DBStateModel>, { payload }: DeleteDashboardSuccess) {
         const state = ctx.getState();
-        console.log('delete dashboard success', payload);
         ctx.patchState({...state,
           path: '/' + payload.id + payload.fullPath,
           fullPath: payload.fullPath,

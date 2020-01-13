@@ -122,9 +122,7 @@ export class HttpService {
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
             .pipe(
                 map((res: any) => {
-
                     let tagkeys = [];
-                    console.log('hill - tagkeys resuls', res.results);
                     for (let i = 0, len = res.results.length; i < len; i++) {
                         const keys = res.results[i].tagKeys.filter(item => tagkeys.indexOf(item.name) === -1);
                         tagkeys = tagkeys.concat(keys.map(d => d.name));
