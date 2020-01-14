@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var utils = require('./lib/utils');
+var oktaConfig = require('./config/oktaConfig');
 var authUtil = require('./middlewares/auth-utils');
 var expressOkta = require('express-okta-oath');
 
@@ -19,17 +20,7 @@ app.use(cookieParser());
 if (utils.getEnv() === 'dev') {
     // implement okta validation
 } else if (utils.getProperty('auth_mode') === 'okta') {
-  var oktaSecret = require('ysecure.node').getKey(utils.getProperty('okta_secret_key_name'));
-  const okta     = new expressOkta.Okta({
-      callbackPath: utils.getProperty('okta_callback_path') || '/oauth2/callback',
-      clientID: utils.getProperty('okta_client_id') || '0oad31e56t73oaW1L0h7',
-      clientSecret: oktaSecret || '',
-      cookieDomain: utils.getProperty('okta_cookie_domain') || 'yamas.ouroath.com',
-      oktaEnv: utils.getProperty('okta_env') || 'uat',
-      timeout: utils.getProperty('okta_timeout'),
-      authTimeout: utils.getProperty('okta_auth_timeout'),
-      prompt: utils.getProperty('okta_prompt') || 'default'
-  });
+  const okta     = new expressOkta.Okta(oktaConfig);
   app.use(okta.callback());
   app.use(authUtil.validateOktaCredentials(okta));
 }
