@@ -44,14 +44,21 @@
                     white-space: nowrap;
                 }
 
-                //.event-count {}
             }
 
             .mat-expansion-panel-body {
                 padding: 0;
 
                 .event-summary {
-                    padding: 8px 24px 8px 46px;
+                    padding: 8px 24px 8px 30px;
+
+                    .event-tags {
+                        margin-bottom: 5px;
+                    }
+
+                    .event-message {
+                        margin-top: 5px;
+                    }
                 }
 
                 .event-header {
@@ -71,17 +78,19 @@
                 .event-priority,
                 .event-property,
                 .event-tag {
-                    span:not(:last-child),
-                    strong:not(:last-child) {
-                        margin-right: 6px;
-                    }
+                    margin-left: 10px;
                 }
 
                 .event-tag {
                     margin-right: 12px;
                 }
 
-                .event-details-wrapper {
+                .event-details-text-wrapper {
+
+                    .event-details-text {
+                        margin-left: 10px;
+                    }
+
                     .mat-button {
                         min-width: initial;
                         padding: 0 4px;
@@ -96,7 +105,7 @@
                         }
                     }
 
-                    .event-details {
+                    .event-details-text {
                         padding: 6px;
                         border-radius: 4px;
                         font-family: mat-font-family($mono-fontface);
@@ -169,6 +178,10 @@
 
         .event-panel.mat-expansion-panel {
 
+            strong {
+                margin-left: 2px;
+            }
+
             .mat-expansion-panel-header {
                 // border-bottom: 1px solid $divider;
                 // background: rgba(228, 209, 209, 0.12);
@@ -191,7 +204,7 @@
                         background: rgba(map-get($primary, default), .10);
                     }
 
-                    .event-details {
+                    .event-details-text {
                         border: 1px solid $divider;
                         background: $header-bg;
                     }

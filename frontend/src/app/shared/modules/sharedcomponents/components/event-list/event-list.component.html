@@ -14,35 +14,43 @@
                     </mat-panel-title>
                 </mat-expansion-panel-header>
                 <div *ngIf="expandedBucketIndex === i" class="event-summary">
-                    <div class="event-namespace">
-                        <span>namespace:</span> <strong>{{event.namespace}}</strong>
+
+                    <div class="event-tags">
+                        <div *ngIf="event.tags" class="event-tags">
+                            <div class="tag-value">Tags</div>
+                            <div class="event-tag" *ngFor="let tag of getTags(event.tags); let last = last">
+                                <span class="tag-key">{{ tag.key }}:</span>
+                                <strong class="tag-value">{{ tag.value }}</strong>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="event-source">
-                        <span>source:</span> <strong>{{event.source}}</strong>
-                    </div>
+                    <div class="event-details">
+                        <div> Properties </div>
+                        <div class="event-namespace">
+                            <span>namespace:</span> <strong>{{event.namespace}}</strong>
+                        </div>
 
-                    <div class="event-optionals">
+                        <div class="event-source">
+                            <span>source:</span> <strong>{{event.source}}</strong>
+                        </div>
+
                         <div class="event-priority" *ngIf="event.priority">
                             <span>priority:</span> <strong>{{event.priority}}</strong>
                         </div>
 
                         <div *ngIf="event.additionalProps">
-                            <div class="event-property" *ngFor="let tag of util.transformTagMapToArray(event.additionalProps)">
+                            <div class="event-property" *ngFor="let tag of getTags(event.additionalProps)">
                                 <span class="tag-key">{{ tag.key }}: </span>
                                 <strong class="tag-value">{{ tag.value }}</strong>
                             </div>
                         </div>
-    
-                        <div *ngIf="event.tags" class="event-tags">
-                            <span class="event-tag" *ngFor="let tag of util.transformTagMapToArray(event.tags); let last = last">
-                                <span class="tag-key">{{ tag.key }}:</span>
-                                <strong class="tag-value">{{ tag.value }}{{last?'':','}}</strong>
-                            </span>
-                        </div>
-        
-                        <div class="event-details-wrapper">
-                            <div class="event-details">
+
+                    </div>
+                    <div class="event-message">
+                        <div class="event-details-text-wrapper">
+                            <div>Message</div>
+                            <div class="event-details-text">
                                 {{event.message}}   
                             </div>
                         </div>

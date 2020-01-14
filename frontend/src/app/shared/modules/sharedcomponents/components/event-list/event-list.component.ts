@@ -58,4 +58,18 @@ export class EventListComponent implements OnInit {
             this.expandedBucketIndex = -1;
         }
     }
+
+    getTags(tags) {
+        const arr = this.util.transformTagMapToArray(tags);
+        const sArr = arr.sort(function(a, b) {
+            if (a['key'] > b['key']) {
+                return 1;
+            } else if (b['key'] > a['key']) {
+                return -1;
+            } else {
+                return 0;
+            }
+        });
+        return sArr;
+    }
 }
