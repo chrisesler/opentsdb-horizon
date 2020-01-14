@@ -118,14 +118,14 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 distinctUntilChanged(),
                 debounceTime(300)
             ).subscribe(val => {
-
+                val = val ? val.trim() : '';
                 const query = {
                     namespaces: this.mode.view ? this.tplVariables.viewTplVariables.namespaces : this.tplVariables.editTplVariables.namespaces,
                     tag: { key: selControl.get('tagk').value, value: val }
                 };
                 this.httpService.getTagValues(query).subscribe(
                     results => {
-                        const regexStr = val === '' ? 'regexp(.*)' : 'regexp('+val+')';
+                        const regexStr = val === '' || val === 'regexp()' ? 'regexp(.*)' : /^regexp\(.*\)$/.test(val) ? val : 'regexp('+val+')';
                         results.unshift(regexStr);
                         this.filteredValueOptions[index] = results;
                     },
