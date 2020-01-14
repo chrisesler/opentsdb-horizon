@@ -242,7 +242,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         const control = <FormArray>this.listForm.controls['listVariables'];
         const selControl = control.at(index);
         const val = selControl.get('filter').value;
-        let idx = -1;
+        // no check and let user enter whatever
+        /* let idx = -1;
         if (this.filteredValueOptions[index]) {
             idx = this.filteredValueOptions[index].findIndex(item => item && item === val);
         }
@@ -251,6 +252,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         } else {
             selControl.get('filter').setValue(this.filteredValueOptions[index][idx]);
         }
+        */
         // if it's a different value from viewlist
         if (this.tplVariables.viewTplVariables.tvars[index].filter !== selControl.get('filter').value) {
             this.tplVariables.viewTplVariables.tvars[index].filter = selControl.get('filter').value;
@@ -358,7 +360,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             }, 300);
         }
         if (cname === 'filter') {
-            let idx = -1;
+            // to check filter again return list
+            /* let idx = -1;
             if (this.filteredValueOptions[index]) {
                 idx = this.filteredValueOptions[index].findIndex(item => item && item === val);
             }
@@ -367,6 +370,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             } else {
                 selControl.get('filter').setValue(this.filteredValueOptions[index][idx], { emitEvent: false });
             }
+            */
             if (this.tplVariables.editTplVariables.tvars[index].filter !== selControl.get('filter').value) {
                 this.updateState(selControl);
             }
