@@ -1,5 +1,6 @@
 var utils = require('../lib/utils');
 var expressOkta = require('express-okta-oath');
+var oktaConfig = require('../config/oktaConfig');
 var express = require('express');
 var router = express.Router();
 
@@ -13,15 +14,26 @@ router.get("/login", function (req, res) {
 });
 
 router.get("/heartbeat", function (req, res) {
-  var valid = false;
   if ( utils.getProperty('auth_mode') === 'okta' && req.okta && req.okta.status == "VALID" ) {
-      valid = true;
-  }
+      // refresh cookies if the age is >= 10 mins, 
+      const now = Math.floor(Date.now() / 1000);
+      const claims = req.okta.claims;
 
-  if ( valid ) {
-          res.status(200).json({"status":"ok"});
+      if ( now - claims.iat >= 600 ) {
+        const okta     = new expressOkta.Okta(oktaConfig);
+        expressOkta.refreshAccessTokenCallback(okta.config, req, res, '', function(details) {
+          
+          if ( details.status === 'VALID' ) { 
+            res.status(200).json({"status":"ok"});
+          } else {
+            res.status(401).json({"status":"bad"});
+          }
+        });
+      } else {
+        res.status(200).json({"status":"ok"});
+      }
   } else {
-          res.status(401).json({"status":"bad"});
+      res.status(401).json({"status":"bad"});
   }
 });
 
