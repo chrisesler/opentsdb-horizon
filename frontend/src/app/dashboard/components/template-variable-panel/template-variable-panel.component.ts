@@ -320,9 +320,12 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             }
             // form is valid, move on
             // first update state of this form, call one fill will update all the list
-            const selControl = this.getSelectedControl(index);
+            // const selControl = this.getSelectedControl(index);
             this.updateState(selControl, false);
             // now update all of this tplVar
+
+            // hill - better to hold change index in a hash and only loop thru that rather than the whole form
+
             for (let j = 0; j < tplFormGroups.length; j++) {
                 const rowControl = tplFormGroups[j];
                 // if manual mode and isNew then we should not do any insert.
@@ -451,16 +454,20 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
 
     deleteTemplateVariable(index: number) {
         const control = <FormArray>this.editForm.controls['formTplVariables'];
-        const removedItem = control.at(index);
+        const selControl = control.at(index);
         control.removeAt(index);
-        if (removedItem.valid) {
-            // remove this tag out of widget if manually add in.
+        // check in case they delete the one that not in state yet 
+        // then nothing need to do, just remove from form.
+        if (this.tplVariables.editTplVariables.tvars[index]) {
+            const removedItem = this.tplVariables.editTplVariables.tvars[index];
+            // removing an item, then we should check the current editTplVariable
+            // to find item to remove and it's the index.     
             this.interCom.requestSend({
                 action: 'RemoveCustomTagFilter',
-                payload: { vartag: removedItem.value }
+                payload: removedItem
             });
             // we already trigger all widget update to requery from RemoveCustomTagFilter
-            this.updateState(removedItem, false);
+            this.updateState(selControl, false);
         }
     }
     done() {
@@ -544,7 +551,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             // remove this tag out of widget if there
             this.interCom.requestSend({
                 action: 'RemoveCustomTagFilter',
-                payload: { vartag: removeTvar.value }
+                payload: removeTvar.value
             });
             // we already trigger all widget update to requery from RemoveCustomTagFilter
             removeTvar.get('applied').setValue(0);

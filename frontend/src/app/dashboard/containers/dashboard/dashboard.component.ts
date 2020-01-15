@@ -658,12 +658,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.subscription.add(this.tplVariables$.subscribe(tpl => {
             // whenever tplVariables$ trigger, we save to view too.
             if (tpl) {
-                this.tplVariables.editTplVariables = this.utilService.deepClone(tpl);
-                // only assign when it's empty, first time
-                if (Object.keys(this.tplVariables.viewTplVariables).length === 0 || this.tplVariables.viewTplVariables.tvars.length === 0) {
+                    this.tplVariables.editTplVariables = this.utilService.deepClone(tpl);
                     this.tplVariables.viewTplVariables = this.utilService.deepClone(tpl);
-                }
-                this.tplVariables = {...this.tplVariables};
+                    this.tplVariables = {...this.tplVariables};                  
             }
         }));
         this.subscription.add(this.widgetGroupRawData$.subscribe(result => {
