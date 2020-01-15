@@ -119,10 +119,36 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 debounceTime(300)
             ).subscribe(val => {
                 val = val ? val.trim() : '';
-                const query = {
-                    namespaces: this.mode.view ? this.tplVariables.viewTplVariables.namespaces : this.tplVariables.editTplVariables.namespaces,
-                    tag: { key: selControl.get('tagk').value, value: val }
+                const alias = '[' + selControl.get('alias').value + ']';
+                const tagk = selControl.get('tagk').value;
+                const metrics = [];
+                // get tag values that matches metrics or namespace if metrics is empty
+                for ( let i = 0; i < this.widgets.length; i++ ) {
+                    const queries = this.widgets[i].queries;
+                    for ( let j = 0; j < queries.length; j++ ) {
+                        const filters = queries[j].filters;
+                        let aliasFound = false;
+                        for ( let k = 0; k < filters.length; k++ ) {
+                            if ( filters[k].tagk === tagk && filters[k].customFilter && filters[k].customFilter.includes(alias)) {
+                                aliasFound = true;
+                            }
+                        }
+                        if ( aliasFound ) {
+                            for ( let k = 0; k < queries[j].metrics.length; k++ ) {
+                                metrics.push( queries[j].namespace + '.' + queries[j].metrics[k].name );
+                            }
+                        }
+                    }
+                }
+                const query: any = {
+                    tag: { key: tagk, value: val }
                 };
+                if ( metrics.length ) {
+                    query.metrics = metrics;
+                } else {
+                    // tslint:disable-next-line: max-line-length
+                    query.namespaces = this.mode.view ? this.tplVariables.viewTplVariables.namespaces : this.tplVariables.editTplVariables.namespaces;
+                }
                 this.httpService.getTagValues(query).subscribe(
                     results => {
                         const regexStr = val === '' || val === 'regexp()' ? 'regexp(.*)' : /^regexp\(.*\)$/.test(val) ? val : 'regexp('+val+')';
