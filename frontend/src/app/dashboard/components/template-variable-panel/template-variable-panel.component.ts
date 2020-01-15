@@ -7,7 +7,9 @@ import {
     Output,
     OnChanges,
     OnDestroy,
-    SimpleChanges
+    SimpleChanges,
+    ViewChild,
+    ElementRef
 } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl, FormArray, Validators, AbstractControl } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
@@ -32,6 +34,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     @Input() widgets: any[];
     @Input() tagKeysByNamespaces: string[];
     @Output() modeChange: EventEmitter<any> = new EventEmitter<any>();
+    @ViewChild('focusEl') focusEl: ElementRef;
 
     editForm: FormGroup;
     listForm: FormGroup;
@@ -45,6 +48,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     dbNamespaces: string[] = [];
     originAlias: string[] = [];
     tagBlurTimeout: any;
+    tagValueBlurTimeout: any;
+    tagValueFocusTimeout: any;
+    tagValueViewBlurTimeout: any;
+    tagValueViewFocusTimeout: any;
     constructor(
         private fb: FormBuilder,
         private interCom: IntercomService,
@@ -104,6 +111,11 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             : this.editForm.get('formTplVariables') as FormArray;
         const name = this.mode.view ? 'view' : 'edit';
         const selControl = arrayControl.at(index);
+        const conVal = selControl.get('filter').value;
+        const res = conVal.match(/^regexp\((.*)\)$/);
+        if (res) {
+            selControl.get('filter').setValue(res[1]);
+        }
         // unsubscribe if exists to keep list as new
         if (this.trackingSub.hasOwnProperty(name + index)) {
             this.trackingSub[name + index].unsubscribe();
@@ -149,7 +161,11 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                     // tslint:disable-next-line: max-line-length
                     query.namespaces = this.mode.view ? this.tplVariables.viewTplVariables.namespaces : this.tplVariables.editTplVariables.namespaces;
                 }
-                this.httpService.getTagValues(query).subscribe(
+                const qid = 'v-' + name + index;
+                if ( this.trackingSub[qid] ) {
+                    this.trackingSub[qid].unsubscribe();
+                }
+                this.trackingSub[qid] = this.httpService.getTagValues(query).subscribe(
                     results => {
                         const regexStr = val === '' || val === 'regexp()' ? 'regexp(.*)' : /^regexp\(.*\)$/.test(val) ? val : 'regexp('+val+')';
                         results.unshift(regexStr);
@@ -261,7 +277,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     onVariableFocus(index: number) {
-        this.manageFilterControl(index);
+        this.tagValueViewFocusTimeout = setTimeout(() => {
+            this.manageFilterControl(index);
+        }, 100);
+
     }
 
     onVariableBlur(event: any, index: number) {
@@ -280,13 +299,19 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         }
         */
         // if it's a different value from viewlist
-        if (this.tplVariables.viewTplVariables.tvars[index].filter !== selControl.get('filter').value) {
-            this.tplVariables.viewTplVariables.tvars[index].filter = selControl.get('filter').value;
-            this.interCom.requestSend({
-                action: 'ApplyTplVarValue',
-                payload: [selControl.value]
-            });
-        }
+        this.tagValueViewBlurTimeout = setTimeout(()=> {
+            if (this.tplVariables.viewTplVariables.tvars[index].filter !== val) {
+                const res = val.match(/^regexp\((.*)\)$/);
+                if (!res) {
+                    selControl.get('filter').setValue('regexp(' + val + ')', {emitEvent: false});
+                }
+                this.tplVariables.viewTplVariables.tvars[index].filter = selControl.get('filter').value;
+                this.interCom.requestSend({
+                    action: 'ApplyTplVarValue',
+                    payload: [selControl.value]
+                });
+            }
+        }, 300);
     }
 
     onInputFocus(cname: string, index: number) {
@@ -319,7 +344,9 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 }
                 break;
             case 'filter':
-                this.manageFilterControl(index);
+                this.tagValueFocusTimeout = setTimeout(() => {
+                    this.manageFilterControl(index);
+                }, 100);
                 break;
         }
     }
@@ -397,9 +424,11 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 selControl.get('filter').setValue(this.filteredValueOptions[index][idx], { emitEvent: false });
             }
             */
-            if (this.tplVariables.editTplVariables.tvars[index].filter !== selControl.get('filter').value) {
-                this.updateState(selControl);
-            }
+            this.tagValueBlurTimeout = setTimeout(() => {
+                if (this.tplVariables.editTplVariables.tvars[index].filter !== selControl.get('filter').value) {
+                    this.updateState(selControl);
+                }
+            }, 300);
         }
     }
 
@@ -460,11 +489,24 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
     // update state if it's is valid
     selectFilterValueOption(event: any, index: number) {
+        if ( this.tagValueBlurTimeout ) {
+            clearTimeout(this.tagValueBlurTimeout);
+        }
+        if ( this.tagValueFocusTimeout ) {
+            clearTimeout(this.tagValueFocusTimeout);
+        }
         const selControl = this.getSelectedControl(index);
         this.updateState(selControl);
     }
 
     selectVarValueOption(event: any, index: number) {
+        if ( this.tagValueViewBlurTimeout ) {
+            clearTimeout(this.tagValueViewBlurTimeout);
+        }
+        if ( this.tagValueViewFocusTimeout ) {
+            clearTimeout(this.tagValueViewFocusTimeout);
+        }
+        this.focusEl.nativeElement.focus();
         // the event is matAutocomplete event, we deal later to clear focus
         if (this.tplVariables.viewTplVariables.tvars[index].filter !== event.option.value) {
             this.tplVariables.viewTplVariables.tvars[index].filter = event.option.value;
