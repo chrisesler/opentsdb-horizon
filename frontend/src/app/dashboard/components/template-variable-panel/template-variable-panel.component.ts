@@ -376,39 +376,34 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             // const selControl = this.getSelectedControl(index);
             this.updateState(selControl, false);
             // now update all of this tplVar
-            for (let i = 0; i < this.originAlias.length; i++) {
-                const rowControl = tplFormGroups[i];
-                // only alias has been update, we update in widget if it is
-                if (this.originAlias[i] !== undefined && this.originAlias[i] !== rowControl.get('alias').value) {
-                    this.interCom.requestSend({
-                        action: 'UpdateTplAlias',
-                        payload: {
-                            vartag: rowControl.getRawValue(),
-                            originAlias: originAlias,
-                            index: i,
-                            insert: rowControl.get('isNew').value
-                        }
-                    });
-                }
-            }
-/*
-            for (let j = 0; j < tplFormGroups.length; j++) {
-                const rowControl = tplFormGroups[j];
-                // if manual mode and isNew then we should not do any insert.
-                if (rowControl.get('mode').value !== 'auto') {
-                    continue;
-                }
+            if (this.originAlias.length === 0) {
+                const rowControl = tplFormGroups[index];
                 this.interCom.requestSend({
                     action: 'UpdateTplAlias',
                     payload: {
                         vartag: rowControl.getRawValue(),
                         originAlias: originAlias,
-                        index: j,
+                        index: index,
                         insert: rowControl.get('isNew').value
                     }
                 });
+            } else {
+                for (let i = 0; i < this.originAlias.length; i++) {
+                    const rowControl = tplFormGroups[i];
+                    // only alias has been update, we update in widget if it is
+                    if (this.originAlias[i] !== undefined && this.originAlias[i] !== rowControl.get('alias').value) {
+                        this.interCom.requestSend({
+                            action: 'UpdateTplAlias',
+                            payload: {
+                                vartag: rowControl.getRawValue(),
+                                originAlias: originAlias,
+                                index: i,
+                                insert: rowControl.get('isNew').value
+                            }
+                        });
+                    }
+                }
             }
-*/
             // reset originAlias list after completing validating
             this.originAlias = [];
         }
@@ -513,7 +508,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             clearTimeout(this.tagValueFocusTimeout);
         }
         const selControl = this.getSelectedControl(index);
-        this.updateState(selControl);
+        this.updateState(selControl);;
     }
 
     selectVarValueOption(event: any, index: number) {

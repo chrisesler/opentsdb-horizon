@@ -823,13 +823,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     if (isModify) {
                         if (payload.insert === 1) {
                             applied = applied + 1;
-                            // run query only if this is new insert and filter have value
-                            this.store.dispatch(new UpdateWidget({
-                                id: widget.id,
-                                needRequery: payload.vartag.filter !== '' ? true : false,
-                                widget: widget
-                            }));
                         }
+                        this.store.dispatch(new UpdateWidget({
+                            id: widget.id,
+                            needRequery: payload.vartag.filter !== '' ? true : false,
+                            widget: widget
+                        }));
                     }
                 }
 
