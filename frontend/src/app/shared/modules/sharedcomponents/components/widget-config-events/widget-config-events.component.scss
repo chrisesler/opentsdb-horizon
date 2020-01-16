@@ -16,6 +16,24 @@
                 display: block;
                 width: 100%;
             }
+
+            .info-hint {
+                height: 32px;
+                display: inline-flex;
+                align-items: center;
+                font-size: 10px;
+                margin-left: 8px;
+
+                .mat-icon {
+                    font-size: 10px;
+                    width: 8px;
+                    height: 10px;
+
+                    &:first-child {
+                        margin-right: 6px;
+                    }
+                }
+            }
         }
     }
 }

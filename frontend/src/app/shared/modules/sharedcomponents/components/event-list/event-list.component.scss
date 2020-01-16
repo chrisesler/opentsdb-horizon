@@ -7,7 +7,6 @@
     $mono-fontface: map-get($app-fontface-config, mono);
 
     .event-list .event-stream-list { 
-        // overflow: scroll;
 
         .event-panel.mat-expansion-panel {
             @include mat-elevation(0);
@@ -18,7 +17,6 @@
                 cursor: pointer;
                 border-radius: 0;
                 line-height: 16px;
-                padding-bottom: 2px;
                 padding-left: 12px;
 
                 .mat-expansion-indicator {
@@ -48,12 +46,23 @@
 
             .mat-expansion-panel-body {
                 padding: 0;
+                font-size: 12px;
+
+                legend {
+                    padding-left: 2px;
+                    padding-right: 2px;
+                    margin-left: 5px;
+                }
 
                 .event-summary {
-                    padding: 8px 24px 8px 30px;
+                    padding: 0px 24px 8px 30px;
 
                     .event-tags {
-                        margin-bottom: 5px;
+                        padding-bottom: 3px;
+
+                        .event-tag {
+                            padding-bottom: 2px;
+                        }
                     }
 
                     .event-message {
@@ -73,12 +82,13 @@
 
                 .event-header,
                 .event-description,
-                .event-namespace,
-                .event-source,
-                .event-priority,
                 .event-property,
                 .event-tag {
                     margin-left: 10px;
+                }
+
+                .event-property {
+                    padding-bottom: 2px;
                 }
 
                 .event-tag {
@@ -117,39 +127,13 @@
             // when event-panel (accordion item) is open
             &.mat-expanded {
                 .mat-expansion-panel-header {
-                    font-weight: bold;
+                    // font-weight: bold;
                     .mat-expansion-indicator {
                         margin-top: 2px;
                     }
                 }
             }
         }
-
-        /*.event {
-            padding-bottom: 5px;
-
-            .event-source {
-                font-weight: bold;
-                padding-left: 5px;
-            }
-
-            .event-title {
-                // font-style: italic;
-                padding-left: 5px;
-            }
-
-            .event-time {
-                font-family: monospace;
-                color: darkgray
-                // font-style: italic;
-            }
-
-            .details {
-                div {
-                    margin-top: 3px;
-                }
-            }
-        }*/
     }
 
     .event-list {
@@ -173,18 +157,19 @@
     $divider: map-get($foreground, divider);
 
     $header-bg: lighten($divider, 50%);
+    $is-dark: map-get($theme-config, is-dark);
+
+    $bg: map-get($background, background);
 
     .event-list { 
 
         .event-panel.mat-expansion-panel {
 
             strong {
-                margin-left: 2px;
+                margin-left: 4px;
             }
 
             .mat-expansion-panel-header {
-                // border-bottom: 1px solid $divider;
-                // background: rgba(228, 209, 209, 0.12);
 
                 &:hover {
                     background: darken($divider, 5%);
@@ -195,18 +180,16 @@
             }
 
             .mat-expansion-panel-body {
+
+                fieldset {
+                    background: if($is-dark, $bg, white);
+                }
+
                 .event-summary {
+                    background: $header-bg;
+
                     &:not(:last-child) {
                         border-bottom: 1px solid $header-bg;
-                    }
-
-                    &:hover {
-                        background: rgba(map-get($primary, default), .10);
-                    }
-
-                    .event-details-text {
-                        border: 1px solid $divider;
-                        background: $header-bg;
                     }
                 }
             }
@@ -214,16 +197,11 @@
             // when event-panel (accordion item) is open
             &.mat-expanded {
                 .mat-expansion-panel-header {
-                //    .mat-expansion-indicator { }   
                     background: $header-bg;
                 }
 
                 .mat-expansion-panel-body {
                     border-bottom: 1px solid $divider;
-
-                    .event-summary {
-                        
-                    }
                 }
             }
         }

@@ -20,7 +20,11 @@
     </div>
     
     <div class="search">
-        <b>Search</b>
-        <input matInput type="search" class="search-input" [formControl]="seachControl" placeholder="ex: priority:high AND message:blahh">
+        <b>Search</b> 
+        <mat-hint class="info-hint">
+            <mat-icon fontSet="denali" fontIcon="d-information-circle"></mat-icon>
+            <a href="https://git.ouroath.com/pages/monitoring/horizon_userguide/Events/eventSearch/" target="_blank">Guide</a>
+        </mat-hint> 
+        <input matInput type="search" class="search-input" [formControl]="seachControl" placeholder=" source:chef AND tag.env:prod">
     </div>
 </div>
