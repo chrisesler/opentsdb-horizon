@@ -147,7 +147,9 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                         }
                         if ( aliasFound ) {
                             for ( let k = 0; k < queries[j].metrics.length; k++ ) {
-                                metrics.push( queries[j].namespace + '.' + queries[j].metrics[k].name );
+                                if (!queries[j].metrics[k].expression) {
+                                    metrics.push( queries[j].namespace + '.' + queries[j].metrics[k].name );
+                                }
                             }
                         }
                     }
