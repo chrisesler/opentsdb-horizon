@@ -39,7 +39,6 @@ import {
     DbsVariableItemComponent
 } from './components/dashboard-settings-dialog';
 import { DashboardSettingsToggleComponent } from './components/dashboard-settings-toggle/dashboard-settings-toggle.component';
-import { DataExplorerComponent } from './components/data-explorer/data-explorer.component';
 import {
     VariableTemplateBarComponent,
     VariableSelectorComponent
@@ -80,7 +79,6 @@ import { TemplateVariablePanelComponent } from './components/template-variable-p
         ConfigTagsListComponent,
         DashboardSettingsDialogComponent,
         DashboardSettingsToggleComponent,
-        DataExplorerComponent,
         DbsMetaComponent,
         DbsVariablesComponent,
         DbsJsonComponent,

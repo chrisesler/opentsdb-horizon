@@ -24,7 +24,6 @@
 @import './components/dashboard-save-dialog/dashboard-save-dialog.component';
 @import './components/dashboard-delete-dialog/dashboard-delete-dialog.component';
 @import './components/widget-delete-dialog/widget-delete-dialog.component';
-@import './components/data-explorer/data-explorer.component';
 @import './components/dashboard-settings-toggle/dashboard-settings-toggle.component';
 @import './components/dashboard-settings-dialog/dashboard-settings-dialog.component';
 @import './components/variable-template-bar/variable-template-bar.component';
@@ -50,7 +49,6 @@
     @include dashboard-save-dialog-component-base();
     @include dashboard-delete-dialog-component-base();
     @include widget-delete-dialog-component-base();
-    @include data-explorer-component-base();
     @include dashboard-settings-toggle-component-base();
     @include dashboard-settings-dialog-component-base();
     @include variable-template-bar-component-base();
@@ -74,7 +72,6 @@
     @include dashboard-save-dialog-component-theme($theme-config);
     @include dashboard-delete-dialog-component-theme($theme-config);
     @include widget-delete-dialog-component-theme($theme-config);
-    @include data-explorer-component-theme($theme-config);
     @include dashboard-settings-toggle-component-theme($theme-config);
     @include dashboard-settings-dialog-component-theme($theme-config);
     @include variable-template-bar-component-theme($theme-config);
