@@ -147,7 +147,9 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                         }
                         if ( aliasFound ) {
                             for ( let k = 0; k < queries[j].metrics.length; k++ ) {
-                                metrics.push( queries[j].namespace + '.' + queries[j].metrics[k].name );
+                                if (!queries[j].metrics[k].expression) {
+                                    metrics.push( queries[j].namespace + '.' + queries[j].metrics[k].name );
+                                }
                             }
                         }
                     }
@@ -373,24 +375,36 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             }
             // form is valid, move on
             // first update state of this form, call one fill will update all the list
-            const selControl = this.getSelectedControl(index);
+            // const selControl = this.getSelectedControl(index);
             this.updateState(selControl, false);
             // now update all of this tplVar
-            for (let j = 0; j < tplFormGroups.length; j++) {
-                const rowControl = tplFormGroups[j];
-                // if manual mode and isNew then we should not do any insert.
-                if (rowControl.get('mode').value !== 'auto') {
-                    continue;
-                }
+            if (this.originAlias.length === 0) {
+                const rowControl = tplFormGroups[index];
                 this.interCom.requestSend({
                     action: 'UpdateTplAlias',
                     payload: {
                         vartag: rowControl.getRawValue(),
                         originAlias: originAlias,
-                        index: j,
+                        index: index,
                         insert: rowControl.get('isNew').value
                     }
                 });
+            } else {
+                for (let i = 0; i < this.originAlias.length; i++) {
+                    const rowControl = tplFormGroups[i];
+                    // only alias has been update, we update in widget if it is
+                    if (this.originAlias[i] !== undefined && this.originAlias[i] !== rowControl.get('alias').value) {
+                        this.interCom.requestSend({
+                            action: 'UpdateTplAlias',
+                            payload: {
+                                vartag: rowControl.getRawValue(),
+                                originAlias: originAlias,
+                                index: i,
+                                insert: rowControl.get('isNew').value
+                            }
+                        });
+                    }
+                }
             }
             // reset originAlias list after completing validating
             this.originAlias = [];
@@ -410,7 +424,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                     this.removeCustomTagFiler(index, val);
                     this.autoSetAlias(selControl, index);
                 /*}*/
-            }, 300);
+            }, 200);
         }
         if (cname === 'filter') {
             // to check filter again return list
@@ -428,7 +442,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 if (this.tplVariables.editTplVariables.tvars[index].filter !== selControl.get('filter').value) {
                     this.updateState(selControl);
                 }
-            }, 300);
+            }, 200);
         }
     }
 
@@ -496,7 +510,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             clearTimeout(this.tagValueFocusTimeout);
         }
         const selControl = this.getSelectedControl(index);
-        this.updateState(selControl);
+        this.updateState(selControl);;
     }
 
     selectVarValueOption(event: any, index: number) {
@@ -519,16 +533,20 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
 
     deleteTemplateVariable(index: number) {
         const control = <FormArray>this.editForm.controls['formTplVariables'];
-        const removedItem = control.at(index);
+        const selControl = control.at(index);
         control.removeAt(index);
-        if (removedItem.valid) {
-            // remove this tag out of widget if manually add in.
+        // check in case they delete the one that not in state yet 
+        // then nothing need to do, just remove from form.
+        if (this.tplVariables.editTplVariables.tvars[index]) {
+            const removedItem = this.tplVariables.editTplVariables.tvars[index];
+            // removing an item, then we should check the current editTplVariable
+            // to find item to remove and it's the index.     
             this.interCom.requestSend({
                 action: 'RemoveCustomTagFilter',
-                payload: { vartag: removedItem.value }
+                payload: removedItem
             });
             // we already trigger all widget update to requery from RemoveCustomTagFilter
-            this.updateState(removedItem, false);
+            this.updateState(selControl, false);
         }
     }
     done() {
@@ -612,7 +630,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             // remove this tag out of widget if there
             this.interCom.requestSend({
                 action: 'RemoveCustomTagFilter',
-                payload: { vartag: removeTvar.value }
+                payload: removeTvar.value
             });
             // we already trigger all widget update to requery from RemoveCustomTagFilter
             removeTvar.get('applied').setValue(0);
