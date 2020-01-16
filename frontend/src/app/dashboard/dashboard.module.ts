@@ -26,7 +26,6 @@ import { EventsState } from './state/events.state';
 import { DashboardComponent } from './containers/dashboard/dashboard.component';
 import { DboardContentComponent } from './components/dboard-content/dboard-content.component';
 import { WidgetLoaderComponent } from './components/widget-loader/widget-loader.component';
-import { ConfigTagsListComponent } from './components/config-tags-list/config-tags-list.component';
 
 // directives
 import { WidgetDirective } from './directives/widget.directive';
@@ -76,7 +75,6 @@ import { TemplateVariablePanelComponent } from './components/template-variable-p
         WidgetLoaderComponent,
         WidgetDirective,
         WidgetViewDirective,
-        ConfigTagsListComponent,
         DashboardSettingsDialogComponent,
         DashboardSettingsToggleComponent,
         DbsMetaComponent,
