@@ -376,9 +376,22 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             // const selControl = this.getSelectedControl(index);
             this.updateState(selControl, false);
             // now update all of this tplVar
-
-            // hill - better to hold change index in a hash and only loop thru that rather than the whole form
-
+            for (let i = 0; i < this.originAlias.length; i++) {
+                const rowControl = tplFormGroups[i];
+                // only alias has been update, we update in widget if it is
+                if (this.originAlias[i] !== undefined && this.originAlias[i] !== rowControl.get('alias').value) {
+                    this.interCom.requestSend({
+                        action: 'UpdateTplAlias',
+                        payload: {
+                            vartag: rowControl.getRawValue(),
+                            originAlias: originAlias,
+                            index: i,
+                            insert: rowControl.get('isNew').value
+                        }
+                    });
+                }
+            }
+/*
             for (let j = 0; j < tplFormGroups.length; j++) {
                 const rowControl = tplFormGroups[j];
                 // if manual mode and isNew then we should not do any insert.
@@ -395,6 +408,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                     }
                 });
             }
+*/
             // reset originAlias list after completing validating
             this.originAlias = [];
         }
@@ -413,7 +427,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                     this.removeCustomTagFiler(index, val);
                     this.autoSetAlias(selControl, index);
                 /*}*/
-            }, 300);
+            }, 200);
         }
         if (cname === 'filter') {
             // to check filter again return list
@@ -431,7 +445,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 if (this.tplVariables.editTplVariables.tvars[index].filter !== selControl.get('filter').value) {
                     this.updateState(selControl);
                 }
-            }, 300);
+            }, 200);
         }
     }
 
