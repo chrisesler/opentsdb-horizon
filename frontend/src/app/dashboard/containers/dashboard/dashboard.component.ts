@@ -811,6 +811,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
     }
     // this will do the insert or update the name/alias if the widget is eligible.
+    // this should not run any query since alias change, only query if it's a new insert and filter is not empty
     updateTplAlias(payload: any) {
         this.checkDbTagsLoaded().subscribe(loaded => {
             if (loaded) { // make sure it's true
@@ -822,12 +823,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     if (isModify) {
                         if (payload.insert === 1) {
                             applied = applied + 1;
+                            // run query only if this is new insert and filter have value
+                            this.store.dispatch(new UpdateWidget({
+                                id: widget.id,
+                                needRequery: payload.vartag.filter !== '' ? true : false,
+                                widget: widget
+                            }));
                         }
-                        this.store.dispatch(new UpdateWidget({
-                            id: widget.id,
-                            needRequery: payload.vartag.filter !== '' ? true : false,
-                            widget: widget
-                        }));
                     }
                 }
 
