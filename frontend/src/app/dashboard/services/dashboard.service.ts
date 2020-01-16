@@ -117,7 +117,9 @@ export class DashboardService {
     for ( let i = 0; i < widgets.length; i++ ) {
         const queries = widgets[i].queries;
         for ( let j = 0; j < queries.length; j++ ) {
-          namespaces[queries[j].namespace] = true;
+          if ( queries[j].namespace ) {
+            namespaces[queries[j].namespace] = true;
+          }
         }
     }
     return Object.keys(namespaces);
