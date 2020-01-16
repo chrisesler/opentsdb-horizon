@@ -61,6 +61,14 @@
             padding: 4px 12px;
         }
 
+        .hidden-focus {
+            width: 1px;
+            height: 1px;
+            background: transparent;
+            outline: none;
+            opacity: 0;
+        }
+
         /* wrapper for EDIT view */
         .variable-edit-wrapper {
             display: flex;
