@@ -16,7 +16,6 @@ import { ColorPickerModule } from '../color-picker/color-picker.module';
  // tslint:disable:max-line-length
 import { ThemePickerComponent } from './components/theme-picker/theme-picker.component';
 import { InlineEditableComponent } from './components/inline-editable/inline-editable.component';
-import { NavbarUserMenuComponent } from './components/navbar-user-menu/navbar-user-menu.component';
 
  // widget config components
 import { WidgetConfigAxesComponent } from './components/widget-config-axes/widget-config-axes.component';
@@ -77,7 +76,6 @@ import { InfoTooltipComponent } from './components/info-tooltip/info-tooltip.com
         DropdownLineWeightComponent,
         DropdownLineTypeComponent,
         DropdownVisualTypeComponent,
-        NavbarUserMenuComponent,
         NavbarTimezoneToggleComponent,
         DropdownUnitTypeComponent,
         GenericMessageBarComponent,
@@ -117,7 +115,6 @@ import { InfoTooltipComponent } from './components/info-tooltip/info-tooltip.com
         NamespaceAutocompleteComponent,
         DropdownLineWeightComponent,
         DropdownUnitTypeComponent,
-        NavbarUserMenuComponent,
         NavbarTimezoneToggleComponent,
         DropdownMetricTagsComponent,
         GenericMessageBarComponent,

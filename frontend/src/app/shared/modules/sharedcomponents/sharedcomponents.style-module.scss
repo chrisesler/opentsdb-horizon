@@ -20,7 +20,6 @@
 @import 'components/generic-message-bar/generic-message-bar.component';
 @import 'components/theme-picker/theme-picker.component';
 @import 'components/inline-editable/inline-editable.component';
-@import 'components/navbar-user-menu/navbar-user-menu.component';
 @import 'components/navbar-timezone-toggle/navbar-timezone-toggle.component';
 @import 'components/dropdown-line-type/dropdown-line-type.component';
 @import 'components/dropdown-line-weight/dropdown-line-weight.component';
@@ -65,7 +64,6 @@
     @include generic-message-bar-component-base();
     @include theme-picker-component-base();
     @include inline-editable-component-base();
-    @include navbar-user-menu-component-base();
     @include navbar-timezone-toggle-component-base();
     @include dropdown-line-type-component-base();
     @include dropdown-line-weight-component-base();
@@ -107,8 +105,6 @@
     @include generic-message-bar-component-theme($theme-config);
     @include theme-picker-component-theme($theme-config);
     @include inline-editable-component-theme($theme-config);
-    @include navbar-user-menu-component-theme($theme-config);
-    @include navbar-user-menu-component-theme($theme-config);
     @include navbar-timezone-toggle-component-theme($theme-config);
     @include dropdown-line-type-component-theme($theme-config);
     @include dropdown-line-weight-component-theme($theme-config);
