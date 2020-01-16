@@ -21,7 +21,6 @@
 @import 'components/theme-picker/theme-picker.component';
 @import 'components/inline-editable/inline-editable.component';
 @import 'components/navbar-user-menu/navbar-user-menu.component';
-@import 'components/navbar-info-menu/navbar-info-menu.component';
 @import 'components/navbar-timezone-toggle/navbar-timezone-toggle.component';
 @import 'components/dropdown-line-type/dropdown-line-type.component';
 @import 'components/dropdown-line-weight/dropdown-line-weight.component';
@@ -67,7 +66,6 @@
     @include theme-picker-component-base();
     @include inline-editable-component-base();
     @include navbar-user-menu-component-base();
-    @include navbar-info-menu-component-base();
     @include navbar-timezone-toggle-component-base();
     @include dropdown-line-type-component-base();
     @include dropdown-line-weight-component-base();

@@ -17,7 +17,6 @@ import { ColorPickerModule } from '../color-picker/color-picker.module';
 import { ThemePickerComponent } from './components/theme-picker/theme-picker.component';
 import { InlineEditableComponent } from './components/inline-editable/inline-editable.component';
 import { NavbarUserMenuComponent } from './components/navbar-user-menu/navbar-user-menu.component';
-import { NavbarInfoMenuComponent } from './components/navbar-info-menu/navbar-info-menu.component';
 
  // widget config components
 import { WidgetConfigAxesComponent } from './components/widget-config-axes/widget-config-axes.component';
@@ -79,7 +78,6 @@ import { InfoTooltipComponent } from './components/info-tooltip/info-tooltip.com
         DropdownLineTypeComponent,
         DropdownVisualTypeComponent,
         NavbarUserMenuComponent,
-        NavbarInfoMenuComponent,
         NavbarTimezoneToggleComponent,
         DropdownUnitTypeComponent,
         GenericMessageBarComponent,
@@ -120,7 +118,6 @@ import { InfoTooltipComponent } from './components/info-tooltip/info-tooltip.com
         DropdownLineWeightComponent,
         DropdownUnitTypeComponent,
         NavbarUserMenuComponent,
-        NavbarInfoMenuComponent,
         NavbarTimezoneToggleComponent,
         DropdownMetricTagsComponent,
         GenericMessageBarComponent,
