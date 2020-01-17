@@ -658,12 +658,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.subscription.add(this.tplVariables$.subscribe(tpl => {
             // whenever tplVariables$ trigger, we save to view too.
             if (tpl) {
-                this.tplVariables.editTplVariables = this.utilService.deepClone(tpl);
-                // only assign when it's empty, first time
-                if (Object.keys(this.tplVariables.viewTplVariables).length === 0 || this.tplVariables.viewTplVariables.tvars.length === 0) {
+                    this.tplVariables.editTplVariables = this.utilService.deepClone(tpl);
                     this.tplVariables.viewTplVariables = this.utilService.deepClone(tpl);
-                }
-                this.tplVariables = {...this.tplVariables};
+                    this.tplVariables = {...this.tplVariables};                  
             }
         }));
         this.subscription.add(this.widgetGroupRawData$.subscribe(result => {
@@ -814,6 +811,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
     }
     // this will do the insert or update the name/alias if the widget is eligible.
+    // this should not run any query since alias change, only query if it's a new insert and filter is not empty
     updateTplAlias(payload: any) {
         this.checkDbTagsLoaded().subscribe(loaded => {
             if (loaded) { // make sure it's true

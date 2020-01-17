@@ -26,11 +26,10 @@ Horizon Yamas UI
   npm install node-sass grunt-sass
 ```
 
-### 2. Install YNPM Dependencies
+### 2. Set npm registry
 ```  
   cd horizon
-  npm -g install ynpm --registry=https://ynpm-registry.corp.yahoo.com/ --cache $HOME/.ynpm
-  ynpm i express-okta-oath
+  npm set registry https://registry.npm.vzbuilders.com:4443/npm-registry
 ```
 
 ### 3. Install Horizon Frontend
@@ -42,7 +41,7 @@ Horizon Yamas UI
 ### 4. Install Horizon Server (dev only)
 ```  
   cd horizon/server
-  ynpm install
+  npm install
 ```
 
 ### 5. Install Certificates
@@ -51,7 +50,7 @@ Horizon Yamas UI
 Make a \*.yahoo.com domain reference in your /etc/hosts file:
 
 ```
-  sudo bash -c 'echo "127.0.0.1 dev.yamas.ops.yahoo.com" >> /private/etc/hosts'
+  sudo bash -c 'echo "127.0.0.1 dev.yamas.ouroath.com" >> /private/etc/hosts'
 ```
 
 #### Generate self signed certificates (skip if you have done this for aura)
@@ -87,7 +86,7 @@ sudo chown -R <userid>:staff ${HOME}/.ssh/yamas
 #### 7. Load horizon:
 
 ```
-  https://dev.yamas.ops.yahoo.com:4443/
+  https://dev.yamas.ouroath.com:4443/
 ```
 
 Note: In Chrome, you may have to type `thisisunsafe` to bypass HSTS security warning.
