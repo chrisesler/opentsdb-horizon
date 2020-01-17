@@ -11,11 +11,12 @@ import {
 } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl, FormArray, Validators, AbstractControl } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
-import { map, startWith, debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
-import { IntercomService, IMessage } from '../../../core/services/intercom.service';
+import { map, startWith, debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { IntercomService } from '../../../core/services/intercom.service';
 import { UtilsService } from '../../../core/services/utils.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { HttpService } from '../../../core/http/http.service';
+import { moveItemInArray, CdkDragStart } from '@angular/cdk/drag-drop';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -45,6 +46,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     dbNamespaces: string[] = [];
     originAlias: string[] = [];
     tagBlurTimeout: any;
+
+    // style object for drag placeholder
+    placeholderStyles: any = { width: '100%', height: '49px', transform: 'translate3d(0px,0px,0px)'};
+
     constructor(
         private fb: FormBuilder,
         private interCom: IntercomService,
@@ -295,6 +300,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 break;
         }
     }
+
     private getSelectedControl(index: number, formArrayName = 'formTplVariables') {
         const control = <FormArray>this.editForm.controls[formArrayName];
         return control.at(index);
@@ -459,9 +465,11 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             this.updateState(removedItem, false);
         }
     }
+
     done() {
         this.modeChange.emit({ view: true });
     }
+
     updateState(selControl: AbstractControl, reQuery: boolean = true) {
         if (selControl.valid) {
             const sublist = [];
@@ -617,7 +625,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         event.preventDefault();
         this.listVariables.controls[index].get('filter').setValue('');
         const control = <FormArray>this.listForm.controls['listVariables'];
-        const selControl = control.at(index);       
+        const selControl = control.at(index);
         // if it's a different value from viewlist
         if (this.tplVariables.viewTplVariables.tvars[index].filter !== selControl.get('filter').value) {
             this.tplVariables.viewTplVariables.tvars[index].filter = selControl.get('filter').value;
@@ -626,6 +634,31 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 payload: [selControl.value]
             });
         }
+    }
+
+    // DragDrop Table reorder event
+    dropTable(event: any) {
+        // console.log('DROP TABLE EVENT', event);
+        // move item within the controls array
+        moveItemInArray(this.formTplVariables['controls'], event.previousIndex, event.currentIndex);
+
+        // extract variables values from form
+        const values = this.formTplVariables.getRawValue();
+
+        // Copy values over to the view side of the variables
+        this.tplVariables.viewTplVariables.tvars = [...values];
+
+        // need a control to pass to update state. Just going to grab the first one
+        const selControl = this.getSelectedControl(0);
+        this.updateState(selControl, false);
+    }
+
+    dragStart(cdkEvent: CdkDragStart, index: number) {
+        // console.log('DRAG START', cdkEvent, index);
+        // get size of the element we are dragging
+        const sourceElCoords = cdkEvent.source.element.nativeElement.getBoundingClientRect();
+        // synchronize the width of the placeholder with the dragged element
+        this.placeholderStyles = { width: (sourceElCoords.width - 6) + 'px', height: '49px', transform: 'translate3d(0px,0px,0px)' };
     }
 
     ngOnDestroy() {
