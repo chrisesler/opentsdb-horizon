@@ -9,7 +9,6 @@
                 <mat-expansion-panel-header collapsedHeight="32px" expandedHeight="32px" >
                     <mat-panel-title>
                         <span class="event-time">{{util.buildDisplayTime(event.timestamp, startTime, endTime, true, timezone)}}</span>
-                        <!-- <span class="event-source"> {{event.source}} </span> -->
                         <span class="event-title"> {{event.title}} </span> 
                     </mat-panel-title>
                 </mat-expansion-panel-header>
@@ -18,35 +17,30 @@
                     <div class="event-tags">
                         <fieldset *ngIf="event.tags" class="event-tags">
                             <legend>Tags</legend>
-                            <!-- <div class="tag-value">Tags</div> -->
-                            <div class="event-tag" *ngFor="let tag of getTags(event.tags); let last = last">
-                                <span class="tag-key">{{ tag.key }}:</span>
-                                <!-- {{ tag.key }}: {{ tag.value }} -->
-                                <strong class="tag-value">{{ tag.value }}</strong>
-                            </div>
+                            <span class="event-tag" *ngFor="let tag of getTags(event.tags)">
+                                <span class="tag-key">{{tag.key}}:</span> <span class="tag-value">{{tag.value}}</span>
+                            </span>
                         </fieldset>
                     </div>
 
-                    <div class="event-details">
+                    <div class="event-properties">
                         <fieldset>
                             <legend> Properties </legend>
-                            <div class="event-property">
-                                <span>namespace:</span> <strong>{{event.namespace}}</strong>
-                            </div>
+                            <span class="event-property">
+                                <span class="tag-key">namespace:</span> <span class="tag-value">{{ event.namespace }}</span>
+                            </span>
     
-                            <div class="event-property">
-                                <span>source:</span> <strong>{{event.source}}</strong>
-                            </div>
+                            <span class="event-property">
+                                <span class="tag-key">source:</span> <span class="tag-value">{{ event.source }}</span>
+                            </span>
     
-                            <div class="event-property" *ngIf="event.priority">
-                                <span>priority:</span> <strong>{{event.priority}}</strong>
-                            </div>
+                            <span class="event-property" *ngIf="event.priority">
+                                <span class="tag-key">priority:</span> <span class="tag-value">{{ event.priority }}</span>
+                            </span>
     
-                            <div *ngIf="event.additionalProps">
-                                <div class="event-property" *ngFor="let tag of getTags(event.additionalProps)">
-                                    <span>{{tag.key}}: </span> <strong>{{tag.value}}</strong>
-                                </div>
-                            </div>
+                            <span class="event-property" *ngFor="let tag of getTags(event.additionalProps)">
+                                <span class="tag-key">{{tag.key}}: </span> <span class="tag-value">{{ tag.value }}</span>
+                            </span>
                         </fieldset>
                     </div>
 

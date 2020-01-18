@@ -48,57 +48,67 @@
                 padding: 0;
                 font-size: 12px;
 
+                .tag-key {
+                    font-weight: bold;
+                }
+
+                .tag-value {
+                    padding-left: 4px;
+                    font-family: mat-font-family($mono-fontface);;
+                }
+
+                fieldset {
+                    border: none;
+                    border-radius: 5px;
+                    // padding-bottom: 5px;
+                    // padding-left: 5px;
+                    padding: 5px;
+                }
+
                 legend {
                     padding-left: 2px;
                     padding-right: 2px;
-                    margin-left: 5px;
+                    // margin-left: 5px;
                 }
 
                 .event-summary {
                     padding: 0px 24px 8px 30px;
 
                     .event-tags {
-                        padding-bottom: 3px;
-
                         .event-tag {
-                            padding-bottom: 2px;
+                            height: 16px;
+                            float: left;
+                            margin-left: 5px;
+                            margin-bottom: 5px;
+                            padding-left: 5px;
+                            padding-right: 5px;
+                            padding-bottom: 5px;
                         }
                     }
+
+                    .event-properties {
+                        
+                        .event-property {
+                            height: 16px;
+                            float: left;
+                            margin-left: 5px;
+                            margin-bottom: 5px;
+                            padding-left: 5px;
+                            padding-right: 5px;
+                            padding-bottom: 5px;
+                        }
+                    }              
 
                     .event-message {
                         margin-top: 5px;
                     }
                 }
 
-                .event-header {
-                    :not(:last-child) {
-                        margin-right: 6px;
-                    }
-                    .event-time {
-                        font-family: mat-font-family($mono-fontface);
-                        font-size: mat-font-size($mono-fontface, caption);  
-                    }
-                }
-
-                .event-header,
-                .event-description,
-                .event-property,
-                .event-tag {
-                    margin-left: 10px;
-                }
-
-                .event-property {
-                    padding-bottom: 2px;
-                }
-
-                .event-tag {
-                    margin-right: 12px;
-                }
-
                 .event-details-text-wrapper {
 
                     .event-details-text {
                         margin-left: 10px;
+                        padding-bottom: 5px;
                     }
 
                     .mat-button {
@@ -116,10 +126,12 @@
                     }
 
                     .event-details-text {
-                        padding: 6px;
+                        // padding: 6px;
                         border-radius: 4px;
                         font-family: mat-font-family($mono-fontface);
-                        font-size: mat-font-size($mono-fontface, caption);
+                        font-size: 12px;
+                        line-height: 12px;
+                        margin-top: 2px;
                     }
                 }
             }
@@ -160,14 +172,11 @@
     $is-dark: map-get($theme-config, is-dark);
 
     $bg: map-get($background, background);
+    $fg: map-get($foreground, foreground);
 
     .event-list { 
 
         .event-panel.mat-expansion-panel {
-
-            strong {
-                margin-left: 4px;
-            }
 
             .mat-expansion-panel-header {
 
@@ -191,6 +200,16 @@
                     &:not(:last-child) {
                         border-bottom: 1px solid $header-bg;
                     }
+                }
+
+                .event-tag {
+                    background: $header-bg;
+                    border-radius: 5px;
+                }
+
+                .event-property {
+                    background: $header-bg;
+                    border-radius: 5px;
                 }
             }
 
