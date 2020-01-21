@@ -134,7 +134,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             .pipe(
                 startWith(''),
                 distinctUntilChanged(),
-                debounceTime(300)
+                debounceTime(100)
             ).subscribe(val => {
                 val = val ? val.trim() : '';
                 const alias = '[' + selControl.get('alias').value + ']';

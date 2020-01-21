@@ -5,6 +5,14 @@
     .app-dashboard {
         display: flex;
         flex: 1 1 100%;
+        * {
+            animation: none !important;
+            transition-property: none !important;
+            -webkit-transition: none !important;
+            -moz-transition: none !important;
+            -o-transition: none !important;
+            transition: none !important;
+        }
     }
 
     .app-navbar {
