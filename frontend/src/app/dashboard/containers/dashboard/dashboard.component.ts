@@ -817,7 +817,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
             if (loaded) { // make sure it's true
                 let affectWidgetIndex = [];
                 let applied = 0;
-                console.time('ApplyAliasAllWidgets');
                 for (let i = 0; i < this.widgets.length; i++) {
                     const widget = this.widgets[i];
                     // we will insert or modify based on insert flag
@@ -829,7 +828,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         affectWidgetIndex.push(i);
                     }
                 }
-                console.timeEnd('ApplyAliasAllWidgets');
                 // let the tpl update first
                 for (let i = 0; i < this.tplVariables.editTplVariables.tvars.length; i++) {
                     const tvar = this.tplVariables.editTplVariables.tvars[i];
@@ -841,10 +839,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 }
                 this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
 
-                console.log('hill - affewcte widdid', affectWidgetIndex);
                 // now deal with affectedWidgets
                 for (let i = 0; i < affectWidgetIndex.length; i++) {
-                    console.log('hill - widget affect', this.widgets[affectWidgetIndex[i]]);
                     this.store.dispatch(new UpdateWidget({
                         id: this.widgets[affectWidgetIndex[i]].id,
                         needRequery: payload.vartag.filter !== '' ? true : false,

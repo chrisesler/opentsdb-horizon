@@ -476,12 +476,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             clearTimeout(this.tagBlurTimeout);
         }
         const selControl = this.getSelectedControl(index);
-        console.time('RemoveCustomFilter');
         this.removeCustomTagFiler(index, event.option.value);
-        console.timeEnd('RemoveCustomFilter');
-        console.time('autoSetAlias');
         this.autoSetAlias(selControl, index);
-        console.timeEnd('autoSetAlias');
     }
     // helper funtion to auto set alias name
     autoSetAlias(selControl: AbstractControl, index: number) {
