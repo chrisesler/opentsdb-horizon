@@ -9,7 +9,7 @@ import {
     OnDestroy,
     SimpleChanges,
     ViewChild,
-    ElementRef
+    ElementRef, ChangeDetectionStrategy, ViewEncapsulation
 } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl, FormArray, Validators, AbstractControl } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
@@ -82,6 +82,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     ngOnChanges(changes: SimpleChanges) {
+        if (changes.tplVariables.firstChange) { return; }
         if (changes.tplVariables) {
             if (this.mode.view) {
                 this.selectedNamespaces = changes.tplVariables.currentValue.viewTplVariables.namespaces;
@@ -117,6 +118,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             : this.editForm.get('formTplVariables') as FormArray;
         const name = this.mode.view ? 'view' : 'edit';
         const selControl = arrayControl.at(index);
+        if (selControl.invalid) { return; } // no go futher if no tagkey and alias defined.
         const conVal = selControl.get('filter').value;
         const res = conVal.match(/^regexp\((.*)\)$/);
         if (res) {
@@ -186,6 +188,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     initListFormGroup() {
+        this.editForm.reset({ emitEvent: false});
         this.filteredValueOptions = [];
         this.listForm.controls['listVariables'] = this.fb.array([]);
         if (this.tplVariables.viewTplVariables.tvars) {
@@ -205,6 +208,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     initEditFormGroup() {
+        this.listForm.reset({ emitEvent: false});
         this.filteredValueOptions = [];
         this.editForm.controls['formTplVariables'] = this.fb.array([]);
         this.initializeTplVariables(this.tplVariables.editTplVariables.tvars);
@@ -217,8 +221,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             });
         }
 
-        // we sub to form status changes
-        this.editForm.statusChanges.subscribe(status => {
+        // comment this block for now since we not using it yet
+        /* this.editForm.statusChanges.subscribe(status => {
             this.disableDone = status === 'VALID' ? false : true;
             const len = this.formTplVariables.controls.length;
             if (status === 'INVALID') {
@@ -237,6 +241,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 }
             }
         });
+        */
     }
 
     get listVariables() {
@@ -319,7 +324,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                     payload: [selControl.value]
                 });
             }
-        }, 300);
+        }, 100);
     }
 
     onInputFocus(cname: string, index: number) {
@@ -431,9 +436,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                     this.removeCustomTagFiler(index, val);
                     this.autoSetAlias(selControl, index);
                 /*}*/
-            }, 200);
+            }, 100);
         }
         if (cname === 'filter') {
+            if (selControl.invalid) { return; }
             // to check filter again return list
             let idx = -1;
             if (this.filteredValueOptions[index]) {
@@ -441,7 +447,9 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             }
             // when they not on the list we add 'regexp' around it
             if (idx === -1) {
-                selControl.get('filter').setValue('regexp(' + val + ')', { emitEvent: false });
+                if (val !== '') {
+                    selControl.get('filter').setValue('regexp(' + val + ')', { emitEvent: false });
+                }
             } else {
                 selControl.get('filter').setValue(this.filteredValueOptions[index][idx], { emitEvent: false });
             }
@@ -449,7 +457,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 if (this.tplVariables.editTplVariables.tvars[index].filter !== selControl.get('filter').value) {
                     this.updateState(selControl);
                 }
-            }, 200);
+            }, 100);
         }
     }
 
