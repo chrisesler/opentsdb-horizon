@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule, ErrorHandler } from '@angular/core';
+import { NgModule, ErrorHandler, Injectable } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { environment } from '../environments/environment';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -25,6 +25,18 @@ import { AuthService } from './core/services/auth.service';
 import { AuthState } from './shared/state/auth.state';
 
 import { AppShellModule } from './app-shell/app-shell.module';
+import * as Hammer from 'hammerjs';
+import { HammerGestureConfig, HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
+
+@Injectable()
+export class CustomHammerConfig extends HammerGestureConfig {
+  buildHammer(elem: HTMLElement) {
+    let mconf = new Hammer(elem, {
+      touchAction: 'auto'
+    });
+    return mconf;
+  }
+}
 
 @NgModule({
   declarations: [
@@ -54,8 +66,11 @@ import { AppShellModule } from './app-shell/app-shell.module';
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
       multi: true
-    }
-
+    },
+    {
+      provide: HAMMER_GESTURE_CONFIG,
+      useClass: CustomHammerConfig
+    }    
   ],
   bootstrap: [AppComponent]
 })
