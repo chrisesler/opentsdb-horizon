@@ -54,7 +54,8 @@
 
                 .tag-value {
                     padding-left: 4px;
-                    font-family: mat-font-family($mono-fontface);;
+                    font-family: mat-font-family($mono-fontface);
+                    word-break: break-all;
                 }
 
                 fieldset {
@@ -76,26 +77,24 @@
 
                     .event-tags {
                         .event-tag {
-                            height: 16px;
                             float: left;
                             margin-left: 5px;
-                            margin-bottom: 5px;
+                            margin-bottom: 6px;
                             padding-left: 5px;
                             padding-right: 5px;
-                            padding-bottom: 5px;
+                            // padding-bottom: 5px;
                         }
                     }
 
                     .event-properties {
                         
                         .event-property {
-                            height: 16px;
                             float: left;
                             margin-left: 5px;
-                            margin-bottom: 5px;
+                            margin-bottom: 6px;
                             padding-left: 5px;
                             padding-right: 5px;
-                            padding-bottom: 5px;
+                            // padding-bottom: 5px;
                         }
                     }              
 

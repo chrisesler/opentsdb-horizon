@@ -25,6 +25,6 @@
             <mat-icon fontSet="denali" fontIcon="d-information-circle"></mat-icon>
             <a href="https://git.ouroath.com/pages/monitoring/horizon_userguide/Events/eventSearch/" target="_blank">Guide</a>
         </mat-hint> 
-        <input matInput type="search" class="search-input" [formControl]="seachControl" placeholder="source:chef AND tag.env:prod AND (title:failed* OR !alert_type:success message:error*)">
+        <input matInput type="search" class="search-input" [formControl]="seachControl" placeholder='source:chef AND tag.env:prod AND (title:failed* OR !alert_type:success message:"error creating")'>
     </div>
 </div>
