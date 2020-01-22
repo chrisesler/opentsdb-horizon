@@ -435,16 +435,16 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         }
         if (cname === 'filter') {
             // to check filter again return list
-            /* let idx = -1;
+            let idx = -1;
             if (this.filteredValueOptions[index]) {
                 idx = this.filteredValueOptions[index].findIndex(item => item && item === val);
             }
+            // when they not on the list we add 'regexp' around it
             if (idx === -1) {
-                selControl.get('filter').setValue('', { emitEvent: false });
+                selControl.get('filter').setValue('regexp(' + val + ')', { emitEvent: false });
             } else {
                 selControl.get('filter').setValue(this.filteredValueOptions[index][idx], { emitEvent: false });
             }
-            */
             this.tagValueBlurTimeout = setTimeout(() => {
                 if (this.tplVariables.editTplVariables.tvars[index].filter !== selControl.get('filter').value) {
                     this.updateState(selControl);

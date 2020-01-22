@@ -825,7 +825,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         if (payload.insert === 1) {
                             applied = applied + 1;
                         }
-                        affectWidgetIndex.push(i);
+                        this.store.dispatch(new UpdateWidget({
+                            id: widget.id,
+                            needRequery: payload.vartag.filter !== '' ? true : false,
+                            widget: widget
+                        }));
                     }
                 }
                 // let the tpl update first
@@ -838,15 +842,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     }
                 }
                 this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
-
-                // now deal with affectedWidgets
-                for (let i = 0; i < affectWidgetIndex.length; i++) {
-                    this.store.dispatch(new UpdateWidget({
-                        id: this.widgets[affectWidgetIndex[i]].id,
-                        needRequery: payload.vartag.filter !== '' ? true : false,
-                        widget: this.widgets[affectWidgetIndex[i]]
-                    }));
-                }
 
             }
         });
