@@ -82,7 +82,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        if (changes.tplVariables.firstChange) { return; }
         if (changes.tplVariables) {
             if (this.mode.view) {
                 this.selectedNamespaces = changes.tplVariables.currentValue.viewTplVariables.namespaces;
