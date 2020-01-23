@@ -553,6 +553,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                 this.options.width = this.size.width;
                 this.options.height = this.size.height;
                 this._g = new Dygraph(this.element.nativeElement, this.data.ts, this.options);
+                window.removeEventListener('mouseout', this._g.mouseOutHandler_, false);
             } else if (this._g && ( changes.eventBuckets || changes.showEvents ) ) {
                 this._g.updateOptions(this.options);
             }

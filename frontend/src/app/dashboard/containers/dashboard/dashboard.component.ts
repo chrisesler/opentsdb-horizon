@@ -815,6 +815,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     updateTplAlias(payload: any) {
         this.checkDbTagsLoaded().subscribe(loaded => {
             if (loaded) { // make sure it's true
+                let affectWidgets = [];
                 let applied = 0;
                 for (let i = 0; i < this.widgets.length; i++) {
                     const widget = this.widgets[i];
@@ -824,24 +825,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         if (payload.insert === 1) {
                             applied = applied + 1;
                         }
-                        this.store.dispatch(new UpdateWidget({
-                            id: widget.id,
-                            needRequery: payload.vartag.filter !== '' ? true : false,
-                            widget: widget
-                        }));
+                        affectWidgets.push(widget);
                     }
                 }
-
+                // let the tpl update first
                 for (let i = 0; i < this.tplVariables.editTplVariables.tvars.length; i++) {
                     const tvar = this.tplVariables.editTplVariables.tvars[i];
                     tvar.isNew = 0;
-                    //if (tvar.alias === payload.vartag.alias && payload.vartag.applied < applied) {
                     if (tvar.alias === payload.vartag.alias) {
                         tvar.applied += applied;
                         break;
                     }
                 }
                 this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
+
+                // deal with widgets that get affected
+                for (let i = 0; i < affectWidgets.length; i++) {
+                    const widget = affectWidgets[i];
+                    this.store.dispatch(new UpdateWidget({
+                        id: widget.id,
+                        needRequery: payload.vartag.filter !== '' ? true : false,
+                        widget: widget
+                    }));
+                }
+
             }
         });
     }

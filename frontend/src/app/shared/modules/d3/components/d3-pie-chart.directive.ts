@@ -47,7 +47,7 @@ export class D3PieChartDirective implements OnInit, OnChanges {
       tooltip.html( d.data.label + '<p>Value: ' +  d3.format('.3s')(d.data.value) + '</p>' + taghtml);
     };
     const mouseover = function(d) { tooltip.style("display", "inline-block");}
-    const mouseout = function(d){
+    const mouseleave = function(d){
       tooltip.style("display", "none");
     };
 
@@ -97,7 +97,7 @@ export class D3PieChartDirective implements OnInit, OnChanges {
                     .each(function(d) { this._current - d; })
                     .on("mouseover", mouseover)
                     .on("mousemove", mousemove)
-                    .on("mouseout", mouseout);
+                    .on("mouseleave", mouseleave);
 
     dataset.forEach(function(d) {
       d.value = +d.value; 
@@ -121,7 +121,7 @@ export class D3PieChartDirective implements OnInit, OnChanges {
                       .text(d => d3.format(".1%")(d.value/total))
                       .on("mouseover", mouseover)
                       .on("mousemove", mousemove)
-                      .on("mouseout", mouseout);
+                      .on("mouseleave", mouseleave);
     }
     const legendClickHandler = function(s:any, index) {
       const rect:any = d3.select(this.parentNode.childNodes[index]);
