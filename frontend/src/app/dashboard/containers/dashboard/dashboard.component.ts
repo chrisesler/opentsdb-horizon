@@ -285,9 +285,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     });
                     break;
                 case 'removeWidget':
+                    const deleteWidgetIdx = this.widgets.findIndex(w => w.id === message.payload.widgetId);
+                    if (deleteWidgetIdx > -1) {
+                        const deleteWidget = this.utilService.deepClone(this.widgets[deleteWidgetIdx]);
+                        this.updateTplVariableForCloneDelete( deleteWidget, 'delete');
+                    }
                     this.store.dispatch(new DeleteWidget(message.payload.widgetId));
                     this.rerender = { 'reload': true };
-                    this.getDashboardTagKeys(false);
+                    this.isDbTagsLoaded = false;
                     break;
                 case 'cloneWidget':
                     // widgets = this.widgets;
@@ -303,7 +308,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     // update the state with new widgets
                     // const copyWidgets = this.utilService.deepClone(this.widgets);
                     this.store.dispatch(new UpdateWidgets(this.widgets));
-                    this.getDashboardTagKeys(false);
                     this.rerender = { 'reload': true };
                     const gridsterContainerEl = this.elRef.nativeElement.querySelector('.is-scroller');
                     const cloneWidgetEndPos = (cloneWidget.gridPos.y + cloneWidget.gridPos.h) * this.gridsterUnitSize.height;
@@ -313,6 +317,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                             gridsterContainerEl.scrollTop = cloneWidgetEndPos - containerPos.height;
                         }, 100);
                     }
+                    this.updateTplVariableForCloneDelete( cloneWidget, 'clone');
                     break;
                 case 'changeWidgetType':
                     const [newConfig, needRefresh] = this.wdService.convertToNewType(message.payload.newType, message.payload.wConfig);
@@ -892,6 +897,35 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
             this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
         });
+    }
+    // @action: 'clone' or 'delete'
+    updateTplVariableForCloneDelete(widget: any, action: string) {
+        let isUpdated = false;
+        for (let i = 0; i < this.tplVariables.editTplVariables.tvars.length; i++) {
+            const tvar = this.tplVariables.editTplVariables.tvars[i];
+            for (let j = 0; j < widget.queries.length; j++) {
+                const query = widget.queries[j];
+                const macthVars = query.filters.filter(f => {
+                    if (f.tagk && f.tagk === tvar.tagk && f.customFilter && f.customFilter.includes('[' + tvar.alias + ']')) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                });
+                if (macthVars.length > 0) {
+                    // make sure pass action or not affected
+                    if (action === 'clone') {
+                        tvar.applied += 1;
+                    } else if (action === 'delete') {
+                        tvar.applied -= 1;
+                    }
+                    isUpdated = true;
+                }
+            }
+        }
+        if (isUpdated) {
+            this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
+        }
     }
 
     updateTplVariablesAppliedCount(payload: any) {
