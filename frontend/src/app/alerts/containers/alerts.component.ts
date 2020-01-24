@@ -190,6 +190,7 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
     // ALL namespaces are retrieved from somewhere else
     namespaces: any[] = [];
     alertFilterTypes = ['all', 'alerting', 'snoozed', 'disabled'];
+    alertsFilterRegexp = new RegExp(".*");
 
     @ViewChild(AlertDetailsComponent) createAlertDialog: AlertDetailsComponent;
     @ViewChild(SnoozeDetailsComponent) snoozeDetailsComp: SnoozeDetailsComponent;
@@ -642,6 +643,9 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.alertsDataSource = new MatTableDataSource<AlertModel>(this.alerts);
         // this.alertsDataSource.paginator = this.paginator;
         this.alertsDataSource.filter = this.alertsFilterInputVal;
+        this.alertsDataSource.filterPredicate = (data: AlertModel, filter: string) => {
+                return data.name.match(this.alertsFilterRegexp);
+        }
         // this.alertsDataSource.sort = this.dataSourceSort;
 
     }
@@ -675,7 +679,9 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     applyAlertDataFilter(dataFilter: string) {
-        this.alertsDataSource.filter = this.alertsFilterInputVal = dataFilter;
+        this.alertsFilterInputVal = dataFilter; 
+        this.alertsDataSource.filter = dataFilter;
+        this.alertsFilterRegexp = new RegExp(dataFilter.replace(/\s/g, ".*"));
     }
 
     applyAllNamespaceDataFilter(dataFilter: string, event: any) {
