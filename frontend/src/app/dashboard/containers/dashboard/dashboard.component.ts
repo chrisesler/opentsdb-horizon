@@ -285,9 +285,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     });
                     break;
                 case 'removeWidget':
+                    const deleteWidgetIdx = this.widgets.findIndex(w => w.id === message.payload.widgetId);
+                    if (deleteWidgetIdx > -1) {
+                        const deleteWidget = this.utilService.deepClone(this.widgets[deleteWidgetIdx]);
+                        this.updateTplVariableForCloneDelete( deleteWidget, 'delete');
+                    }
                     this.store.dispatch(new DeleteWidget(message.payload.widgetId));
                     this.rerender = { 'reload': true };
-                    this.getDashboardTagKeys(false);
+                    this.isDbTagsLoaded = false;
                     break;
                 case 'cloneWidget':
                     // widgets = this.widgets;
@@ -303,7 +308,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     // update the state with new widgets
                     // const copyWidgets = this.utilService.deepClone(this.widgets);
                     this.store.dispatch(new UpdateWidgets(this.widgets));
-                    this.getDashboardTagKeys(false);
                     this.rerender = { 'reload': true };
                     const gridsterContainerEl = this.elRef.nativeElement.querySelector('.is-scroller');
                     const cloneWidgetEndPos = (cloneWidget.gridPos.y + cloneWidget.gridPos.h) * this.gridsterUnitSize.height;
@@ -313,6 +317,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                             gridsterContainerEl.scrollTop = cloneWidgetEndPos - containerPos.height;
                         }, 100);
                     }
+                    this.updateTplVariableForCloneDelete( cloneWidget, 'clone');
                     break;
                 case 'changeWidgetType':
                     const [newConfig, needRefresh] = this.wdService.convertToNewType(message.payload.newType, message.payload.wConfig);
@@ -782,6 +787,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // widget if added before, and run query for widget that get affected.
     removeCustomTagFilter(payload: any) {
         const vartag = payload;
+        let affectedWidgets = [];
         for (let i = 0; i < this.widgets.length; i++) {
             const widget = this.widgets[i];
             for (let j = 0; j < widget.queries.length; j++) {
@@ -798,16 +804,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
                                 filters.splice(fIndex, 1);
                             }
                             // requery if the remove custom tag has value, and only if the custom filter has value
-                            this.store.dispatch(new UpdateWidget({
-                                id: widget.id,
-                                needRequery: vartag.filter.trim() !== '' ? true : false,
-                                widget: widget
-                            }));
+                            affectedWidgets.push(widget);
                         }
 
                     }
                 }
             }
+        }
+        // if there is filter value, we do need to run query and refresh them.
+        if (vartag.filter.trim() !== '') {
+            for (let i = 0; i < affectedWidgets.length; i++) {
+                const widget = affectedWidgets[i];
+                this.store.dispatch(new UpdateWidget({
+                    id: widget.id,
+                    needRequery: true,
+                    widget: widget
+                }));
+            }
+        } else {
+            this.store.dispatch(new UpdateWidgets(this.widgets));
         }
     }
     // this will do the insert or update the name/alias if the widget is eligible.
@@ -815,7 +830,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     updateTplAlias(payload: any) {
         this.checkDbTagsLoaded().subscribe(loaded => {
             if (loaded) { // make sure it's true
-                let affectWidgets = [];
+                let affectedWidgets = [];
                 let applied = 0;
                 for (let i = 0; i < this.widgets.length; i++) {
                     const widget = this.widgets[i];
@@ -825,30 +840,33 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         if (payload.insert === 1) {
                             applied = applied + 1;
                         }
-                        affectWidgets.push(widget);
+                        affectedWidgets.push(widget);
                     }
                 }
-                // let the tpl update first
-                for (let i = 0; i < this.tplVariables.editTplVariables.tvars.length; i++) {
-                    const tvar = this.tplVariables.editTplVariables.tvars[i];
-                    tvar.isNew = 0;
-                    if (tvar.alias === payload.vartag.alias) {
-                        tvar.applied += applied;
-                        break;
+                // if isChanged mean some widgets get modified
+                if (affectedWidgets.length > 0) {
+                    for (let i = 0; i < this.tplVariables.editTplVariables.tvars.length; i++) {
+                        const tvar = this.tplVariables.editTplVariables.tvars[i];
+                        tvar.isNew = 0;
+                        if (tvar.alias === payload.vartag.alias) {
+                            tvar.applied += applied;
+                            break;
+                        }
+                    }
+                    this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
+                    if (payload.vartag.filter.trim() !== '') {
+                        for (let i = 0; i < affectedWidgets.length; i++) {
+                            const widget = affectedWidgets[i];
+                            this.store.dispatch(new UpdateWidget({
+                                id: widget.id,
+                                needRequery: true,
+                                widget: widget
+                            }));
+                        }                        
+                    } else {
+                        this.store.dispatch(new UpdateWidgets(this.widgets));
                     }
                 }
-                this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
-
-                // deal with widgets that get affected
-                for (let i = 0; i < affectWidgets.length; i++) {
-                    const widget = affectWidgets[i];
-                    this.store.dispatch(new UpdateWidget({
-                        id: widget.id,
-                        needRequery: payload.vartag.filter !== '' ? true : false,
-                        widget: widget
-                    }));
-                }
-
             }
         });
     }
@@ -879,6 +897,35 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
             this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
         });
+    }
+    // @action: 'clone' or 'delete'
+    updateTplVariableForCloneDelete(widget: any, action: string) {
+        let isUpdated = false;
+        for (let i = 0; i < this.tplVariables.editTplVariables.tvars.length; i++) {
+            const tvar = this.tplVariables.editTplVariables.tvars[i];
+            for (let j = 0; j < widget.queries.length; j++) {
+                const query = widget.queries[j];
+                const macthVars = query.filters.filter(f => {
+                    if (f.tagk && f.tagk === tvar.tagk && f.customFilter && f.customFilter.includes('[' + tvar.alias + ']')) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                });
+                if (macthVars.length > 0) {
+                    // make sure pass action or not affected
+                    if (action === 'clone') {
+                        tvar.applied += 1;
+                    } else if (action === 'delete') {
+                        tvar.applied -= 1;
+                    }
+                    isUpdated = true;
+                }
+            }
+        }
+        if (isUpdated) {
+            this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
+        }
     }
 
     updateTplVariablesAppliedCount(payload: any) {
