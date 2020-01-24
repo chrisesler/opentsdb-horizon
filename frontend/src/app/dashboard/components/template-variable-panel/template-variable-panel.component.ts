@@ -174,14 +174,13 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 if ( this.trackingSub[qid] ) {
                     this.trackingSub[qid].unsubscribe();
                 }
+                const regexStr = val === '' || val === 'regexp()' ? 'regexp(.*)' : /^regexp\(.*\)$/.test(val) ? val : 'regexp('+val.replace(/\s/g, ".*")+')';
+                this.filteredValueOptions[index] = [regexStr];
                 this.trackingSub[qid] = this.httpService.getTagValues(query).subscribe(
                     results => {
-                        const regexStr = val === '' || val === 'regexp()' ? 'regexp(.*)' : /^regexp\(.*\)$/.test(val) ? val : 'regexp('+val+')';
-                        results.unshift(regexStr);
-                        this.filteredValueOptions[index] = results;
-                    },
-                    error => {
-                        this.filteredValueOptions[index] = ['regexp('+val+')'];
+                        if (results.length > 0) {                     
+                            this.filteredValueOptions[index] = this.filteredValueOptions[index].concat(results);
+                        }
                     });
             });
     }
@@ -306,7 +305,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         }
         if (idx === -1) {
             if (val !== '') {
-                selControl.get('filter').setValue('regexp(' + val + ')', { emitEvent: false });
+                selControl.get('filter').setValue('regexp(' + val.replace(/\s/g, ".*") + ')', { emitEvent: false });
             }
         } else {
             selControl.get('filter').setValue(this.filteredValueOptions[index][idx]);
@@ -316,7 +315,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             if (this.tplVariables.viewTplVariables.tvars[index].filter !== val) {
                 const res = val.match(/^regexp\((.*)\)$/);
                 if (!res) {
-                    selControl.get('filter').setValue('regexp(' + val + ')', {emitEvent: false});
+                    selControl.get('filter').setValue('regexp(' + val.replace(/\s/g, ".*") + ')', {emitEvent: false});
                 }
                 this.tplVariables.viewTplVariables.tvars[index].filter = selControl.get('filter').value;
                 this.interCom.requestSend({
@@ -452,7 +451,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             // when they not on the list we add 'regexp' around it
             if (idx === -1) {
                 if (val !== '') {
-                    selControl.get('filter').setValue('regexp(' + val + ')', { emitEvent: false });
+                    selControl.get('filter').setValue('regexp(' + val.replace(/\s/g, ".*") + ')', { emitEvent: false });
                 }
             } else {
                 selControl.get('filter').setValue(this.filteredValueOptions[index][idx], { emitEvent: false });
