@@ -782,6 +782,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // widget if added before, and run query for widget that get affected.
     removeCustomTagFilter(payload: any) {
         const vartag = payload;
+        let affectedWidgets = [];
         for (let i = 0; i < this.widgets.length; i++) {
             const widget = this.widgets[i];
             for (let j = 0; j < widget.queries.length; j++) {
@@ -798,16 +799,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
                                 filters.splice(fIndex, 1);
                             }
                             // requery if the remove custom tag has value, and only if the custom filter has value
-                            this.store.dispatch(new UpdateWidget({
-                                id: widget.id,
-                                needRequery: vartag.filter.trim() !== '' ? true : false,
-                                widget: widget
-                            }));
+                            affectedWidgets.push(widget);
                         }
 
                     }
                 }
             }
+        }
+        // if there is filter value, we do need to run query and refresh them.
+        if (vartag.filter.trim() !== '') {
+            for (let i = 0; i < affectedWidgets.length; i++) {
+                const widget = affectedWidgets[i];
+                this.store.dispatch(new UpdateWidget({
+                    id: widget.id,
+                    needRequery: true,
+                    widget: widget
+                }));
+            }
+        } else {
+            this.store.dispatch(new UpdateWidgets(this.widgets));
         }
     }
     // this will do the insert or update the name/alias if the widget is eligible.
@@ -815,7 +825,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     updateTplAlias(payload: any) {
         this.checkDbTagsLoaded().subscribe(loaded => {
             if (loaded) { // make sure it's true
-                let isChanged = false;
+                let affectedWidgets = [];
                 let applied = 0;
                 for (let i = 0; i < this.widgets.length; i++) {
                     const widget = this.widgets[i];
@@ -825,11 +835,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         if (payload.insert === 1) {
                             applied = applied + 1;
                         }
-                        isChanged = true;
+                        affectedWidgets.push(widget);
                     }
                 }
                 // if isChanged mean some widgets get modified
-                if (isChanged) {
+                if (affectedWidgets.length > 0) {
                     for (let i = 0; i < this.tplVariables.editTplVariables.tvars.length; i++) {
                         const tvar = this.tplVariables.editTplVariables.tvars[i];
                         tvar.isNew = 0;
@@ -839,7 +849,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         }
                     }
                     this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
-                    this.store.dispatch(new UpdateWidgets(this.widgets));
+                    if (payload.vartag.filter.trim() !== '') {
+                        for (let i = 0; i < affectedWidgets.length; i++) {
+                            const widget = affectedWidgets[i];
+                            this.store.dispatch(new UpdateWidget({
+                                id: widget.id,
+                                needRequery: true,
+                                widget: widget
+                            }));
+                        }                        
+                    } else {
+                        this.store.dispatch(new UpdateWidgets(this.widgets));
+                    }
                 }
             }
         });
