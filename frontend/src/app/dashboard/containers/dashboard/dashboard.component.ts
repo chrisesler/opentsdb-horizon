@@ -175,6 +175,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     widgets: any[] = [];
     tplVariables: any = { editTplVariables: {}, viewTplVariables: {}};
     variablePanelMode: any = { view : true };
+    IsAddClone = false;
     userNamespaces: any[] = [];
     viewEditMode = false;
     newWidget: any; // setup new widget based on type from top bar
@@ -361,8 +362,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         mIndex = 0;
                         this.store.dispatch(new UpdateWidgets(this.widgets));
                         // for the new adding widget, we do need to apply auto filter if it's eligible
-                        for (let i = 0; i < this.tplVariables.editTplVariables.tvars.length; i++) {
-                            const tvar = this.tplVariables.editTplVariables.tvars[i];
+                        const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables.tvars : this.tplVariables.editTplVariables.tvars;
+                        for (let i = 0; i < tplVars.length; i++) {
+                            const tvar = tplVars[i];
                             if (tvar.mode === 'auto') {
                                 this.applyTplToNewWidget(message.payload.widget,
                                 {
@@ -396,8 +398,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         }
                     }
                     // case that widget is updated we need to get new set of dashboard tags
-                    this.getDashboardTagKeys(false);
-                    // this.handleQueryPayload({ id: message.id, payload: this.widgets[mIndex] });
+                    this.isDbTagsLoaded = false;
                     break;
                 case 'dashboardSaveRequest':
                     // DashboardSaveRequest comes from the save button
@@ -664,7 +665,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
             // whenever tplVariables$ trigger, we save to view too.
             if (tpl) {
                     this.tplVariables.editTplVariables = this.utilService.deepClone(tpl);
-                    this.tplVariables.viewTplVariables = this.utilService.deepClone(tpl);
+                    if (this.variablePanelMode.view && this.IsAddClone) {
+                        this.tplVariables.viewTplVariables  = this.tplVariables.viewTplVariables;
+                        this.IsAddClone = false;
+                    } else {
+                        this.tplVariables.viewTplVariables = this.utilService.deepClone(tpl);
+                    }
                     this.tplVariables = {...this.tplVariables};                  
             }
         }));
@@ -895,6 +901,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     break;
                 }
             }
+            this.IsAddClone = true;
             this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
         });
     }
@@ -915,15 +922,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 if (macthVars.length > 0) {
                     // make sure pass action or not affected
                     if (action === 'clone') {
-                        tvar.applied += 1;
+                        tvar.applied = tvar.applied + 1;
                     } else if (action === 'delete') {
-                        tvar.applied -= 1;
+                        tvar.applied = tvar.applied -1;
                     }
                     isUpdated = true;
                 }
             }
         }
         if (isUpdated) {
+            this.IsAddClone = true;
             this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
         }
     }
