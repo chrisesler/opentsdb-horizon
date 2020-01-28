@@ -33,6 +33,8 @@ jobs:
   component:
     template: nodejs/lib@stable
     steps:
+      - lint: echo DISABLED
+      - posttest: cp -v $SD_SOURCE_DIR/artifacts/coverage/lcov.info $SD_ARTIFACTS_DIR/coverage/
       - postpublish: npm run postpublish
       - postinstall-deps: npm run install-subdirs
     requires:
