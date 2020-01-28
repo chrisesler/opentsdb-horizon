@@ -445,10 +445,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     // custom tag to select.
                     this.interCom.responsePut({
                         action: 'TplVariables',
-                        payload: {
-                            tplVariables: this.tplVariables,
-                            mode: this.variablePanelMode.view ? 'view' : 'edit'
-                        }
+                        payload: this.variablePanelMode.view ? this.tplVariables.viewTplVariables : this.tplVariables.editTplVariables
                     });
                     break;
                 case 'UpdateTagKeysByNamespaces': 
@@ -945,6 +942,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             } else {
                 tpl.applied = tpl.applied - 1;
             }
+            this.IsAddClone = true;
             this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
         }
     }
