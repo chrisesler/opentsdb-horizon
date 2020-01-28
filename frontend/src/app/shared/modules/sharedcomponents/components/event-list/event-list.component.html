@@ -61,5 +61,6 @@
 </div>
 
 <div class="no-events-message" *ngIf="(!events || events.length === 0) && !loading">
-    No events.
+    <span *ngIf="error"> ERROR: {{error}} </span>
+    <span *ngIf="!error"> No events. </span>
 </div>

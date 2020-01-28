@@ -16,6 +16,7 @@ export class EventListComponent implements OnInit {
     @Input() endTime: number;
     @Input() previewLimit: number;
     @Input() loading: boolean;
+    @Input() error: string;
 
     expandedBucketIndex = -1;
 
