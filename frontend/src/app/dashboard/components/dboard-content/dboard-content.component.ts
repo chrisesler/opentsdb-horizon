@@ -153,8 +153,8 @@ export class DboardContentComponent implements OnChanges {
   // then update the this.widgets reference
   gridsterFlow(event: any) {
     if (this.viewEditMode) { return; }
-    const width = event.gridsterComponent.gridster.cellWidth;
-    const height = event.gridsterComponent.gridster.cellHeight;
+    // const width = event.gridsterComponent.gridster.cellWidth;
+    // const height = event.gridsterComponent.gridster.cellHeight;
     // comment out for now using ResizeSensor
     /* if (!event.isInit) {
        this.interCom.responsePut({
@@ -162,7 +162,7 @@ export class DboardContentComponent implements OnChanges {
         payload: { width, height, winSize: this.winSize }
       });
     } */
-    this.widgetsLayoutUpdate.emit(this.getWigetPosition(width, height, this.winSize));
+    // this.widgetsLayoutUpdate.emit(this.getWigetPosition(width, height, this.winSize));
   }
 
   // this event happened when item is dragged or resize end

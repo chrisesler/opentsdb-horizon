@@ -284,9 +284,17 @@ export class AlertsState {
     SetNamespace(ctx: StateContext<AlertsStateModel>, { namespace }: SetNamespace) {
         const state = ctx.getState();
         const userNamespaces = state.userNamespaces;
-        const readOnly = (userNamespaces.find( (d: any) => d.name === namespace ) === undefined) ? true : false;
+        let fixedNamespace: string = "";
 
-        ctx.patchState({ selectedNamespace: namespace, readOnly});
+        state.allNamespaces.forEach(d => { 
+            if (d.name.toLowerCase() === namespace.toLowerCase()) { fixedNamespace = d.name; }
+        });
+
+        const readOnly = (userNamespaces.find( (d: any) => d.name === fixedNamespace ) === undefined) ? true : false;
+
+        if (fixedNamespace !== "") {
+            ctx.patchState({ selectedNamespace: fixedNamespace, readOnly });
+        }
     }
 
     @Action(CheckWriteAccess)

@@ -59,8 +59,6 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     editQueryId = '';
     selectAllToggle: String = 'none'; // none/all/some
     tplVariables: any = {};
-    appliedTplVariables: any[] = [];
-    applyTplControl: FormControl;
     hasCustomFilter = false;
     private subscription: Subscription = new Subscription();
 
@@ -76,27 +74,12 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
 
         this.subscription.add(this.interCom.responseGet().subscribe(message => {
             if (message.action === 'TplVariables') {
-                this.tplVariables = message.payload.tplVariables.editTplVariables;
-                this.appliedTplVariables = message.payload.mode === 'view' ?
-                    message.payload.tplVariables.viewTplVariables : message.payload.tplVariables.editTplVariables;
+                this.tplVariables = message.payload;
             }
         }));
         this.interCom.requestSend({
             action: 'GetTplVariables'
         });
-
-        if (!this.widget.settings.hasOwnProperty('useDBFilter') || this.widget.settings.useDBFilter) {
-            this.applyTplControl = new FormControl('apply');
-        } else {
-            this.applyTplControl = new FormControl('not_apply');
-        }
-        if (this.applyTplControl) {
-            this.applyTplControl.valueChanges.subscribe(val => {
-                const flag = (val === 'apply') ? true : false;
-                this.widgetChange.emit({ action: 'ToggleDBFilterUsage', payload: { apply: flag, reQuery: true }});
-            });
-        }
-        this.checkCustomFilter(this.widget);
     }
 
     initOptions() {
@@ -106,13 +89,6 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
             'enableMultipleQueries': false,
             'enableMultiMetricSelection': true };
         this.options = Object.assign(defaultOptions, this.options);
-    }
-
-    displayDBFilterOption(): boolean {
-        if (this.appliedTplVariables.length > 0) {
-                return true;
-            }
-        return false;
     }
 
     addNewQuery() {
@@ -203,25 +179,6 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
             cWidget.queries.push(query);
         } else {
             cWidget.queries[qIndx] = query;
-        }
-        this.checkCustomFilter(cWidget);
-        if (this.hasCustomFilter) {
-            // set useDBFilter to true anyway
-            this.applyTplControl.setValue('apply');
-            this.widgetChange.emit({ action: 'ToggleDBFilterUsage', payload: { apply: true, reQuery: true }});
-        }
-    }
-
-    // check if filters of a query have customFilter values
-    // check all queries of this widget, not just
-    checkCustomFilter(widget: any) {
-        this.hasCustomFilter = false;
-        for (let i = 0; i < widget.queries.length; i++) {
-            const idx = widget.queries[i].filters.findIndex(f => f.customFilter && f.customFilter.length > 0);
-            if (idx > -1) {
-                this.hasCustomFilter = true;
-                break;
-            }
         }
     }
 
