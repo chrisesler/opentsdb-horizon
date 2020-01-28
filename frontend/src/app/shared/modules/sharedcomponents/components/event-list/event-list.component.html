@@ -8,7 +8,7 @@
             <mat-expansion-panel class="event-panel" #eventPanel expanded="{{expandedBucketIndex === i}}" (opened)="openExpansion(i)" (closed)="collapseExpansion(i)">
                 <mat-expansion-panel-header collapsedHeight="32px" expandedHeight="32px" >
                     <mat-panel-title>
-                        <span class="event-time">{{util.buildDisplayTime(event.timestamp, startTime, endTime, true, timezone)}}</span>
+                        <span class="event-time">{{titles[i]}}</span>
                         <span class="event-title"> {{event.title}} </span> 
                     </mat-panel-title>
                 </mat-expansion-panel-header>

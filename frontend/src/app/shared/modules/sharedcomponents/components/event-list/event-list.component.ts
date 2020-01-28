@@ -1,4 +1,4 @@
-import { Component, OnInit, HostBinding, Input } from '@angular/core';
+import { Component, OnInit, HostBinding, Input, SimpleChanges, OnChanges } from '@angular/core';
 import { UtilsService } from '../../../../../core/services/utils.service';
 
 @Component({
@@ -7,7 +7,7 @@ import { UtilsService } from '../../../../../core/services/utils.service';
     templateUrl: './event-list.component.html',
     styleUrls: []
 })
-export class EventListComponent implements OnInit {
+export class EventListComponent implements OnInit, OnChanges {
     @HostBinding('class.event-list') private _componentClass = true;
 
     @Input() events: any[];
@@ -19,6 +19,8 @@ export class EventListComponent implements OnInit {
     @Input() error: string;
 
     expandedBucketIndex = -1;
+
+    titles = [];
 
     constructor(
         private util: UtilsService
@@ -40,12 +42,19 @@ export class EventListComponent implements OnInit {
         }
     }
 
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['events']) {
+          this.generateTitles();
+        }
+      }
+
     slicedList() {
+        this.generateTitles();
         if (Number.isInteger(this.previewLimit) && this.events.length - 1 > this.previewLimit && this.previewLimit > 0 ) {
             return this.events.slice(0, this.previewLimit);
         } else {
             return this.events;
-         }
+        }
       }
 
     openExpansion(index) {
@@ -72,5 +81,12 @@ export class EventListComponent implements OnInit {
             }
         });
         return sArr;
+    }
+
+    generateTitles() {
+        this.titles = [];
+        for (const e of this.events) {
+            this.titles.push(this.util.buildDisplayTime(e.timestamp, this.startTime, this.endTime, true, this.timezone));
+        }
     }
 }
