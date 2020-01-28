@@ -25,7 +25,8 @@
                             (keydown)="namespaceKeydown($event)"
                             (keydown.enter)="namespaceKeydown($event)"
                             (blur)="namespaceKeydown($event)"
-                            [matAutocomplete]="namespaceAuto">
+                            [matAutocomplete]="namespaceAuto"
+                            autocomplete="no-namespace-autocomplete">
                         <!-- auto complete-->
                     </mat-form-field>
                     <mat-error *ngIf="namespace.errors && namespace.errors.required">Namespace is required, if not for
