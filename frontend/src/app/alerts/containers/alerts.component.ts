@@ -65,9 +65,8 @@ import { IntercomService } from '../../core/services/intercom.service';
 import { LoggerService } from '../../core/services/logger.service';
 import { UtilsService } from '../../core/services/utils.service';
 import { SnoozeDetailsComponent } from '../components/snooze-details/snooze-details.component';
+
 const moment = _moment;
-
-
 
 @Component({
     selector: 'app-alerts',
@@ -97,6 +96,9 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.snoozesDataSource.sort = sortor;
       }
     }
+
+    @ViewChild('namespaceDropMenuTrigger', {read: ElementRef}) namespaceDropMenuTrigger: ElementRef;
+    namespaceDropMenuTriggerWidth: string = '0px';
 
     @ViewChild('confirmDeleteDialog', { read: TemplateRef }) confirmDeleteDialogRef: TemplateRef<any>;
 
@@ -688,6 +690,11 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     /* Utilities */
+    ensureNamespaceMenuWidth() {
+        const element = this.namespaceDropMenuTrigger.nativeElement;
+        this.namespaceDropMenuTriggerWidth = `${element.clientWidth}px`;
+    }
+
     ensureMenuWidth(element: any) {
         element = <ElementRef>element._elementRef;
         return `${element.nativeElement.clientWidth}px`;
