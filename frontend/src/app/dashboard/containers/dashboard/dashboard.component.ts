@@ -15,7 +15,7 @@ import { UtilsService } from '../../../core/services/utils.service';
 import { WidgetService } from '../../../core/services/widget.service';
 import { DateUtilsService } from '../../../core/services/dateutils.service';
 import { DBState, LoadDashboard, SaveDashboard, DeleteDashboardSuccess, DeleteDashboardFail, SetDashboardStatus } from '../../state/dashboard.state';
-import { LoadUserNamespaces, LoadUserFolderData, UserSettingsState } from '../../state/user.settings.state';
+//import { LoadUserNamespaces, LoadUserFolderData, UserSettingsState } from '../../state/user.settings.state';
 import { WidgetsState,
     UpdateWidgets, UpdateGridPos, UpdateWidget,
     DeleteWidget, WidgetModel } from '../../state/widgets.state';
@@ -40,7 +40,7 @@ import {
     UpdateDashboardTimeOnZoom,
     UpdateDashboardTimeOnZoomOut
 } from '../../state/settings.state';
-import { AppShellState, NavigatorState, DbfsLoadTopFolder, DbfsLoadSubfolder, DbfsDeleteDashboard, DbfsResourcesState } from '../../../app-shell/state';
+import { AppShellState, NavigatorState, DbfsState, DbfsLoadTopFolder, DbfsLoadSubfolder, DbfsDeleteDashboard, DbfsResourcesState } from '../../../app-shell/state';
 import { MatMenuTrigger, MenuPositionX, MatSnackBar } from '@angular/material';
 import { DashboardDeleteDialogComponent } from '../../components/dashboard-delete-dialog/dashboard-delete-dialog.component';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
@@ -53,6 +53,7 @@ import { EventsState, GetEvents } from '../../../dashboard/state/events.state';
 import { URLOverrideService } from '../../services/urlOverride.service';
 import * as deepEqual from 'fast-deep-equal';
 import { TemplateVariablePanelComponent } from '../../components/template-variable-panel/template-variable-panel.component';
+import { InternalDispatchedActionResults } from '@ngxs/store/src/internal/dispatcher';
 
 @Component({
     selector: 'app-dashboard',
@@ -65,9 +66,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     @Select(AuthState.getAuth) auth$: Observable<string>;
     @Select(DBSettingsState.getDashboardSettings) dbSettings$: Observable<any>;
-    @Select(UserSettingsState.GetUserNamespaces) userNamespaces$: Observable<string[]>;
-    @Select(UserSettingsState.GetPersonalFolders) userPersonalFolders$: Observable<any[]>;
-    @Select(UserSettingsState.GetNamespaceFolders) userNamespaceFolders$: Observable<any[]>;
+    //@Select(UserSettingsState.GetUserNamespaces) userNamespaces$: Observable<string[]>;
+    //@Select(UserSettingsState.GetPersonalFolders) userPersonalFolders$: Observable<any[]>;
+    //@Select(UserSettingsState.GetNamespaceFolders) userNamespaceFolders$: Observable<any[]>;
+
+
+    @Select(DbfsState.getUserFolderData()) userFolderData$: Observable<any>;
+
     @Select(DBState.getDashboardFriendlyPath) dbPath$: Observable<string>;
     @Select(DBState.getLoadedDB) loadedRawDB$: Observable<any>;
     @Select(DBState.getDashboardStatus) dbStatus$: Observable<string>;
@@ -227,7 +232,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         // load the namespaces user has access to
-        this.store.dispatch(new LoadUserNamespaces());
+        // this.store.dispatch(new LoadUserNamespaces());
 
         // handle route for dashboardModule
         this.subscription.add(this.activatedRoute.url.subscribe(url => {
@@ -445,7 +450,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         }
                     });
                     break;
-                case 'UpdateTagKeysByNamespaces': 
+                case 'UpdateTagKeysByNamespaces':
                     this.getTagkeysByNamespaces(message.payload);
                     break;
                 case 'UpdateCustomFiltersAppliedCount':
@@ -453,10 +458,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.updateTplVariablesAppliedCount(message.payload);
                     break;
                 case 'getUserNamespaces':
-                    this.store.dispatch(new LoadUserNamespaces());
+                    // this.store.dispatch(new LoadUserNamespaces());
                     break;
                 case 'getUserFolderData':
-                    this.store.dispatch(new LoadUserFolderData());
+                    // this.store.dispatch(new LoadUserFolderData());
                     break;
                 case 'SetZoomDateRange':
                     // while zooming in, update the local var
@@ -660,7 +665,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             if (tpl) {
                     this.tplVariables.editTplVariables = this.utilService.deepClone(tpl);
                     this.tplVariables.viewTplVariables = this.utilService.deepClone(tpl);
-                    this.tplVariables = {...this.tplVariables};                  
+                    this.tplVariables = {...this.tplVariables};
             }
         }));
         this.subscription.add(this.widgetGroupRawData$.subscribe(result => {
@@ -679,7 +684,43 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
         }));
 
-        this.subscription.add(this.userNamespaces$.subscribe(result => {
+
+        this.subscription.add(this.userFolderData$.subscribe( (result: any) => {
+
+            // this.logger.log('USER FOLDER DATA SUB', result);
+
+            if (result && result.loaded) {
+                this.userNamespaces = result.namespaces;
+
+                // ??? What does this intercom do??
+                this.interCom.responsePut({
+                    action: 'UserNamespaces',
+                    payload: result.namespaces
+                });
+
+                if (result.personalFolders && result.personalFolders[0] && result.personalFolders[0].fullPath) {
+                    this.user = this.getOwnerFromPath(result.personalFolders[0].fullPath);
+                }
+
+                this.interCom.responsePut({
+                    action: 'UserPersonalFolders',
+                    payload: result.personalFolders
+                });
+
+                if (result.namespaceFolders && result.namespaceFolders.length > 0) {
+                    // ??? What does this intercom do??
+                    this.interCom.responsePut({
+                        action: 'UserNamespaceFolders',
+                        payload: result.namespaceFolders
+                    });
+                }
+
+                this.setWriteSpaces();
+            }
+        }));
+
+
+        /*this.subscription.add(this.userNamespaces$.subscribe(result => {
             this.userNamespaces = result;
             this.setWriteSpaces();
             this.interCom.responsePut({
@@ -702,11 +743,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }));
 
         this.subscription.add(this.userNamespaceFolders$.subscribe(folders => {
+            // ??? DOES THIS ACTUALLY GET USED ???
             this.interCom.responsePut({
                 action: 'UserNamespaceFolders',
                 payload: folders
             });
-        }));
+        }));*/
 
         this.subscription.add(this.auth$.subscribe(auth => {
             // console.log('auth$ calling', auth);
@@ -741,7 +783,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.urlOverrideService.applyParamstoURL(p);
     }
     // apply when custom tag value is changed
-    // should only trigger widgets that are affected by this change.  
+    // should only trigger widgets that are affected by this change.
     applyTplVarValue(tvars: any[]) {
         // update url params
         const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables.tvars : this.tplVariables.editTplVariables.tvars;
@@ -771,14 +813,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
                             id: this.widgets[i].id,
                             payload: this.widgets[i]
                         });
-                        break;                     
+                        break;
                     }
                 }
 
             }
         }
     }
-    // when delete a dashboard custom tag, we need to remove them out of 
+    // when delete a dashboard custom tag, we need to remove them out of
     // widget if added before, and run query for widget that get affected.
     removeCustomTagFilter(payload: any) {
         const vartag = payload;
@@ -847,7 +889,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
     }
     // for new created widget
-    applyTplToNewWidget(widget: any, payload: any) {   
+    applyTplToNewWidget(widget: any, payload: any) {
         let _widget = this.utilService.deepClone(widget);
         // set to false to force get dashboard tags for all widgets nect time
         this.isDbTagsLoaded = false;
@@ -902,7 +944,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
         });
     }
-    // get all dashboard tags, use to check eligible for when apply db filter 
+    // get all dashboard tags, use to check eligible for when apply db filter
     // to widget.
     getDashboardTagKeys(reloadData: boolean = true) {
         this.isDbTagsLoaded = false;
@@ -917,7 +959,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             });
     }
 
-    // check if DBTags is loaded or not, 
+    // check if DBTags is loaded or not,
     checkDbTagsLoaded(): Observable<any> {
         if (this.tplVariables.editTplVariables.tvars.length > 0) {
             if (!this.isDbTagsLoaded) {
@@ -937,7 +979,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.getTagkeysByNamespaces(this.tplVariables.editTplVariables.namespaces);
             }
             this.tplVariables = {...this.tplVariables};
-        }     
+        }
         this.variablePanelMode = {...mode};
 
     }
@@ -1140,6 +1182,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
         writeSpaces.push(this.user);
         this.writeSpaces = writeSpaces;
+        // this.logger.log('WRITE SPACES', {writeSpaces});
     }
 
     doesUserHaveWriteAccess() {

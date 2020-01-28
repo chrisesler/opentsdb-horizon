@@ -12,7 +12,8 @@ import { Subscription, Observable } from 'rxjs';
 import { map, startWith, debounceTime } from 'rxjs/operators';
 
 import { Select, Store } from '@ngxs/store';
-import { DbfsResourcesState, DbfsLoadResources } from '../../../app-shell/state';
+
+import { DbfsState, DbfsResourcesState, DbfsLoadResources } from '../../../app-shell/state';
 
 
 @Component({
@@ -25,7 +26,7 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
 
     @Select(DbfsResourcesState.getResourcesLoaded) resourcesLoaded$: Observable<any>;
 
-    @Select(DbfsResourcesState.getUser()) user$: Observable<any>;
+    @Select(DbfsState.getUser()) user$: Observable<any>;
     user: any = {};
 
     @Select(DbfsResourcesState.getFolderResources) folders$: Observable<any>;
@@ -34,7 +35,7 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
     @Select(DbfsResourcesState.getFileResources) files$: Observable<any>;
     files: any = {};
 
-    @Select(DbfsResourcesState.getUserMemberNamespaceData()) namespacesData$: Observable<any[]>;
+    @Select(DbfsState.getUserMemberNamespaceData()) namespacesData$: Observable<any[]>;
     namespaceOptions: any[] = [];
 
 
@@ -76,6 +77,7 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.subscription.add(this.resourcesLoaded$.subscribe( loaded => {
             if (loaded === false) {
+                // resources should have been loaded already, but just in case
                 this.store.dispatch(new DbfsLoadResources());
             } else {
                 // we wait till resources have been loaded in order to set form validator
