@@ -942,6 +942,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             } else {
                 tpl.applied = tpl.applied - 1;
             }
+            this.IsAddClone = true;
             this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
         }
     }
