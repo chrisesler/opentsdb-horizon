@@ -59,17 +59,13 @@
                 }
 
                 fieldset {
-                    border: none;
                     border-radius: 5px;
-                    // padding-bottom: 5px;
-                    // padding-left: 5px;
                     padding: 5px;
                 }
 
                 legend {
                     padding-left: 2px;
                     padding-right: 2px;
-                    // margin-left: 5px;
                 }
 
                 .event-summary {
@@ -191,6 +187,7 @@
 
                 fieldset {
                     background: if($is-dark, $bg, white);
+                    border: if($is-dark, 1px solid black, 1px solid #e0e0e0);
                 }
 
                 .event-summary {

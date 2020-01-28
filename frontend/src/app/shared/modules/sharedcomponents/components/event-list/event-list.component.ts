@@ -21,6 +21,8 @@ export class EventListComponent implements OnInit, OnChanges {
     expandedBucketIndex = -1;
 
     titles = [];
+    tags = [];
+    slicedList = [];
 
     constructor(
         private util: UtilsService
@@ -44,12 +46,11 @@ export class EventListComponent implements OnInit, OnChanges {
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['events']) {
-          this.generateTitles();
+          this.generateTitlesTagsList();
         }
       }
 
-    slicedList() {
-        this.generateTitles();
+    getSlicedList() {
         if (Number.isInteger(this.previewLimit) && this.events.length - 1 > this.previewLimit && this.previewLimit > 0 ) {
             return this.events.slice(0, this.previewLimit);
         } else {
@@ -83,10 +84,13 @@ export class EventListComponent implements OnInit, OnChanges {
         return sArr;
     }
 
-    generateTitles() {
+    generateTitlesTagsList() {
+        this.slicedList = this.getSlicedList();
         this.titles = [];
+        this.tags = [];
         for (const e of this.events) {
             this.titles.push(this.util.buildDisplayTime(e.timestamp, this.startTime, this.endTime, true, this.timezone));
+            this.tags.push(this.getTags(e.tags));
         }
     }
 }

@@ -4,7 +4,7 @@
 
 <div class="event-stream-list" *ngIf="events">
     <mat-accordion class="event-accordion" displayMode="flat" multi="true" #eventAccordion>
-        <ng-container *ngFor="let event of slicedList(); let i = index">
+        <ng-container *ngFor="let event of slicedList; let i = index">
             <mat-expansion-panel class="event-panel" #eventPanel expanded="{{expandedBucketIndex === i}}" (opened)="openExpansion(i)" (closed)="collapseExpansion(i)">
                 <mat-expansion-panel-header collapsedHeight="32px" expandedHeight="32px" >
                     <mat-panel-title>
@@ -17,7 +17,7 @@
                     <div class="event-tags">
                         <fieldset *ngIf="event.tags" class="event-tags">
                             <legend>Tags</legend>
-                            <span class="event-tag" *ngFor="let tag of getTags(event.tags)">
+                            <span class="event-tag" *ngFor="let tag of tags[i]">
                                 <span class="tag-key">{{tag.key}}:</span> <span class="tag-value">{{tag.value}}</span>
                             </span>
                         </fieldset>
