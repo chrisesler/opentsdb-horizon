@@ -23,31 +23,41 @@
                             <div class="event-description">
                                 <span>{{event.title}}</span>
                             </div>
-                            <div class="event-namespace">
-                                <span>Namespace:</span> <strong>{{event.namespace}}</strong>
-                            </div>
+                            
                             <div class="event-optionals">
-                                <div class="event-priority" *ngIf="event.priority">
-                                    <span>Priority:</span> <strong>{{event.priority}}</strong>
-                                </div>
-            
-                                <div *ngIf="event.tags" class="event-tags">
-                                    <span class="event-tag" *ngFor="let tag of util.transformTagMapToArray(event.tags); let last = last">
-                                        <span class="tag-key">{{ tag.key }}:</span>
-                                        <strong class="tag-value">{{ tag.value }}{{last?'':','}}</strong>
-                                    </span>
+                                <div class="event-tags">
+                                    <fieldset *ngIf="event.tags">
+                                        <legend>Tags</legend>
+                                        <span class="event-tag" *ngFor="let tag of tags[i][j]">
+                                            <span class="tag-key">{{tag.key}}:</span> <span class="tag-value">{{tag.value}}</span>
+                                        </span>
+                                    </fieldset>
                                 </div>
                 
-                                <div *ngIf="event.additionalProps" class="event-tags">
-                                    <span class="event-tag" *ngFor="let tag of util.transformTagMapToArray(event.additionalProps); let last = last">
-                                        <span class="tag-key">{{ tag.key }}:</span>
-                                        <strong class="tag-value">{{ tag.value }}{{last?'':','}}</strong>
-                                    </span>
+                                <div class="event-properties">
+                                    <fieldset>
+                                        <legend> Properties </legend>
+                                        <span class="event-property">
+                                            <span class="tag-key">namespace:</span> <span class="tag-value">{{ event.namespace }}</span>
+                                        </span>
+                
+                                        <span class="event-property">
+                                            <span class="tag-key">source:</span> <span class="tag-value">{{ event.source }}</span>
+                                        </span>
+                
+                                        <span class="event-property" *ngIf="event.priority">
+                                            <span class="tag-key">priority:</span> <span class="tag-value">{{ event.priority }}</span>
+                                        </span>
+                
+                                        <span class="event-property" *ngFor="let tag of props[i][j]">
+                                            <span class="tag-key">{{tag.key}}: </span> <span class="tag-value">{{ tag.value }}</span>
+                                        </span>
+                                    </fieldset>
                                 </div>
     
                                 <div class="event-details-wrapper">
                                     <button mat-button color="primary" (click)="event.showDetails = !event.showDetails;">
-                                        <span>{{event.showDetails ? 'Hide' : 'Show'}} Details</span>
+                                        <span>{{event.showDetails ? 'Hide' : 'Show'}} Message</span>
                                         <mat-icon fontSet="denali" [fontIcon]="(event.showDetails) ? 'd-arrowhead-up' : 'd-arrowhead-down'"></mat-icon>
                                     </button>
                                     <div class="event-details" *ngIf="event.showDetails">

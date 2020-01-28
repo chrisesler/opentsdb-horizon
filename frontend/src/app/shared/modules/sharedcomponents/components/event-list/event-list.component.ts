@@ -23,6 +23,7 @@ export class EventListComponent implements OnInit, OnChanges {
     titles = [];
     tags = [];
     slicedList = [];
+    additionalProps = [];
 
     constructor(
         private util: UtilsService
@@ -47,6 +48,7 @@ export class EventListComponent implements OnInit, OnChanges {
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['events']) {
           this.generateTitlesTagsList();
+          this.collapseExpansion();
         }
       }
 
@@ -88,9 +90,11 @@ export class EventListComponent implements OnInit, OnChanges {
         this.slicedList = this.getSlicedList();
         this.titles = [];
         this.tags = [];
+        this.additionalProps = [];
         for (const e of this.events) {
             this.titles.push(this.util.buildDisplayTime(e.timestamp, this.startTime, this.endTime, true, this.timezone));
             this.tags.push(this.getTags(e.tags));
+            this.additionalProps.push(this.getTags(e.additionalProps));
         }
     }
 }

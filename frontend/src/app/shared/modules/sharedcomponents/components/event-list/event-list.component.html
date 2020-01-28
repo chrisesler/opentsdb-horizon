@@ -38,7 +38,7 @@
                                 <span class="tag-key">priority:</span> <span class="tag-value">{{ event.priority }}</span>
                             </span>
     
-                            <span class="event-property" *ngFor="let tag of getTags(event.additionalProps)">
+                            <span class="event-property" *ngFor="let tag of additionalProps[i]">
                                 <span class="tag-key">{{tag.key}}: </span> <span class="tag-value">{{ tag.value }}</span>
                             </span>
                         </fieldset>
