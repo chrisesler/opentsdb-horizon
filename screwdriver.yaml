@@ -1,28 +1,3 @@
-platform: nodejs_lib
-
-profiles:
-    pull-request:
-        build_containers: [node8]
-        publish_containers: [node8]
-    component:
-        build_containers: [node8]
-        publish_containers: [node8]
-shared:
-    steps:
-        update-version:
-            bump_method: dynamic
-        postinstall-deps: npm run install-subdirs
-    settings:
-        YNPM_THREE: 1
-jobs:
-    component:
-        steps:
-            postpublish:
-                description: dist
-                command: ynpm run postpublish        
-        triggers: [sd@311249]
-
----
 version: 4
 shared:
   environment:
