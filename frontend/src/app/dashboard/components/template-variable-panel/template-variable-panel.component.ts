@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl, FormArray, Validators, AbstractControl } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
-import { map, startWith, debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { map, startWith, debounceTime, distinctUntilChanged, takeLast } from 'rxjs/operators';
 import { IntercomService } from '../../../core/services/intercom.service';
 import { UtilsService } from '../../../core/services/utils.service';
 import { DashboardService } from '../../services/dashboard.service';
@@ -49,6 +49,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     dbNamespaces: string[] = [];
     originAlias: string[] = [];
     tagBlurTimeout: any;
+    valChangeSub: Subscription;
 
     // style object for drag placeholder
     placeholderStyles: any = { width: '100%', height: '49px', transform: 'translate3d(0px,0px,0px)'};
@@ -328,6 +329,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
 
     onInputFocus(cname: string, index: number) {
         const selControl = this.getSelectedControl(index);
+
         switch (cname) {
             case 'tagk':
                 this.filteredKeyOptions = selControl['controls'][cname].valueChanges
@@ -344,11 +346,13 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                     );
                 break;
             case 'alias':
-                // const startVal = selControl['controls'][cname].value;
+                if (this.valChangeSub) {
+                    this.valChangeSub.unsubscribe();
+                }
                 this.originAlias[index] = selControl['controls'][cname].value;
                 // if the tag_key is invalid, we should not move on here
                 if (selControl.get('tagk').value !== '') {
-                    selControl['controls'][cname].valueChanges.pipe(
+                    this.valChangeSub = selControl['controls'][cname].valueChanges.pipe(
                         debounceTime(1000)
                     ).subscribe(val => {
                         this.validateAlias(val.toString(), index, selControl, this.originAlias);
@@ -379,8 +383,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 rowControl.controls['alias'].setErrors(null);
                 if ( i === index ) { continue; }
                 if (val.trim() === rowControl.get('alias').value) {
-                    tplFormGroups[index].controls['alias'].setErrors({ 'unique': true });
-                    tplFormGroups[i].controls['alias'].setErrors({ 'unique': true });
+                    tplFormGroups[index].controls['alias'].setErrors({ 'unique': true, emitEvent: true, });
+                    tplFormGroups[i].controls['alias'].setErrors({ 'unique': true, emitEvent: true });
                     return;
                 }
             }
@@ -388,48 +392,47 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             // first update state of this form, call one fill will update all the list
             // const selControl = this.getSelectedControl(index);
             this.updateState(selControl, false);
-            // now update all of this tplVar
-            if (this.originAlias.length === 0) {
-                const rowControl = tplFormGroups[index];
-                if (rowControl.get('mode').value === 'auto') {
+            let aliasInfo: any = {};
+            // newly add db filter
+            if (selControl.get('isNew').value === 1 && selControl.get('mode').value === 'auto') {
+                setTimeout(() => {
+                    this.interCom.requestSend({
+                        action: 'UpdateTplAlias',
+                        payload: {
+                            vartag: selControl.getRawValue(),
+                            aliasInfo: null,
+                            insert: 1
+                        }
+                    });
+                });
+            } else {
+                for (let i = 0; i < this.originAlias.length; i++) {
+                    const rowControl = tplFormGroups[i];
+                    if (this.originAlias[i] !== undefined && this.originAlias[i] !== rowControl.get('alias').value) {
+                        let tmpObj = {
+                            oAlias: this.originAlias[i],
+                            nAlias: rowControl.get('alias').value
+                        };
+                        const tagk = rowControl.get('tagk').value;
+                        if (!aliasInfo[tagk]) {
+                            aliasInfo[tagk] = [];
+                        } 
+                        aliasInfo[tagk].push(tmpObj);
+                    }
+                }
+                if (Object.keys(aliasInfo).length > 0) {
                     setTimeout(() => {
                         this.interCom.requestSend({
                             action: 'UpdateTplAlias',
                             payload: {
-                                vartag: rowControl.getRawValue(),
-                                originAlias: originAlias,
-                                index: index,
-                                insert: rowControl.get('isNew').value
+                                vartag: null,
+                                aliasInfo: aliasInfo,
+                                insert: 0
                             }
                         });
                     });
-                } else {
-                    // it manual mode, we still need to reset the isNew
-                    rowControl.get('isNew').setValue(0);
-                    this.updateState(selControl, false);
-                }
-            } else {
-                // this code will be call if user change more than 2 alias and in case of invalid happen.
-                // we need to keep track with which on to update and what not.
-                for (let i = 0; i < this.originAlias.length; i++) {
-                    const rowControl = tplFormGroups[i];
-                    // only alias has been update, we update in widget if it is
-                    if (this.originAlias[i] !== undefined && this.originAlias[i] !== rowControl.get('alias').value) {
-                        setTimeout(() => {
-                            this.interCom.requestSend({
-                                action: 'UpdateTplAlias',
-                                payload: {
-                                    vartag: rowControl.getRawValue(),
-                                    originAlias: originAlias,
-                                    index: i,
-                                    insert: rowControl.get('isNew').value
-                                }
-                            });
-                        });
-                    }
                 }
             }
-            // reset originAlias list after completing validating
             this.originAlias = [];
         }
     }
@@ -440,13 +443,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         // set delay to avoid blur excute before onSelect
         if (cname === 'tagk' && val !== '') {
             this.tagBlurTimeout = setTimeout(() => {
-                /* if (this.tagKeysByNamespaces.indexOf(val) === -1) {
-                    selControl['controls'][cname].setValue('');
-                    selControl['controls']['filter'].setValue('', { onlySelf: true, emitEvent: false });
-                } else {*/
                     this.removeCustomTagFiler(index, val);
                     this.autoSetAlias(selControl, index);
-                /*}*/
             }, 100);
         }
         if (cname === 'filter') {
@@ -762,10 +760,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         moveItemInArray(this.formTplVariables['controls'], event.previousIndex, event.currentIndex);
 
         // extract variables values from form
-        const values = this.formTplVariables.getRawValue();
+        // const values = this.formTplVariables.getRawValue();
 
         // Copy values over to the view side of the variables
-        this.tplVariables.viewTplVariables.tvars = [...values];
+        // this.tplVariables.viewTplVariables.tvars = [...values];
 
         // need a control to pass to update state. Just going to grab the first one
         const selControl = this.getSelectedControl(0);
