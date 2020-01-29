@@ -175,6 +175,72 @@ export class DashboardService {
     }
   }
 
+  // apply new db filter alias to widget
+  insertTplAliasToWidget(widget: any, payload: any, rawDbTags: any) {
+    let isModify = false;
+    const wid = widget.id.indexOf('__EDIT__') !== -1 ? widget.id.replace('__EDIT__', '') : widget.id;
+    if (rawDbTags[wid]) {
+      for (let i = 0; i < widget.queries.length; i++) {
+        const query = widget.queries[i];
+        if (rawDbTags[wid].hasOwnProperty(query.id) && rawDbTags[wid][query.id].includes(payload.vartag.tagk)) {
+          const fIndx = query.filters.findIndex(f => f.tagk === payload.vartag.tagk);
+          if (fIndx > -1) { // query does has this tag defined
+            const currFilter = query.filters[fIndx];
+            if (!currFilter.customFilter) {
+              currFilter.customFilter = ['[' + payload.vartag.alias + ']'];
+              isModify = true;
+            } else {
+              // only insert if they are not there
+              if (!currFilter.customFilter.includes('[' + payload.vartag.alias + ']')) {
+                currFilter.customFilter.push('[' + payload.vartag.alias + ']');
+                isModify = true;
+              }
+            }
+          } else { // query does not has this tag define yet
+            const nFilter = {
+              tagk: payload.vartag.tagk,
+              customFilter: ['[' + payload.vartag.alias + ']'],
+              filter: [],
+              groupBy: false
+            };
+            query.filters.push(nFilter);
+            isModify = true;
+          }
+        }
+      }
+    }
+    return isModify;
+  }
+
+  // update db filter alias to widget
+  // here is when user modify existing alias
+  updateTplAliasToWidget(widget: any, payload: any) {
+    let isModify = false;
+    const wid = widget.id.indexOf('__EDIT__') !== -1 ? widget.id.replace('__EDIT__', '') : widget.id;
+    for (let i = 0; i < widget.queries.length; i++) {
+      const query = widget.queries[i];
+      for (let j = 0; j < query.filters.length; j++) {
+        const qfilter = query.filters[j];
+        // filter tagkey exist in aliasInfo
+        if (payload.aliasInfo[qfilter.tagk]) {
+          let updateCustomFilter = [];
+          for (let k = 0; k < qfilter.customFilter.length; k++) {
+            const custFilter = qfilter.customFilter[k];
+            const idx = payload.aliasInfo[qfilter.tagk].findIndex((item) => custFilter === '['+item.oAlias+']');
+            if (idx > -1) {
+              updateCustomFilter.push('[' + payload.aliasInfo[qfilter.tagk][idx].nAlias + ']');
+            }
+          }
+          if (updateCustomFilter.length > 0) {
+            qfilter.customFilter = [...updateCustomFilter];
+            isModify = true;
+          }
+        }
+      }
+    }
+    return isModify;   
+  }
+
   // apply the customFilter to widget queries if it's eligible
   // @widget: widget to modify
   // @tplVar: the current tplVar to apply
