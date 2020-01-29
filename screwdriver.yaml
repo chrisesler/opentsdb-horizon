@@ -3,6 +3,9 @@ shared:
   environment:
     SD_SETTING_YNPM_THREE: 1
     NODEJS_LIB_UPDATE_VERSION_BUMP_METHOD: dynamic
+  annotations:
+    screwdriver.cd/cpu: HIGH
+    screwdriver.cd/ram: HIGH
 
 jobs:
   component:
