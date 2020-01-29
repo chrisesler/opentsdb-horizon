@@ -391,18 +391,26 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             // now update all of this tplVar
             if (this.originAlias.length === 0) {
                 const rowControl = tplFormGroups[index];
-                setTimeout(() => {
-                    this.interCom.requestSend({
-                        action: 'UpdateTplAlias',
-                        payload: {
-                            vartag: rowControl.getRawValue(),
-                            originAlias: originAlias,
-                            index: index,
-                            insert: rowControl.get('isNew').value
-                        }
+                if (rowControl.get('mode').value === 'auto') {
+                    setTimeout(() => {
+                        this.interCom.requestSend({
+                            action: 'UpdateTplAlias',
+                            payload: {
+                                vartag: rowControl.getRawValue(),
+                                originAlias: originAlias,
+                                index: index,
+                                insert: rowControl.get('isNew').value
+                            }
+                        });
                     });
-                });
+                } else {
+                    // it manual mode, we still need to reset the isNew
+                    rowControl.get('isNew').setValue(0);
+                    this.updateState(selControl, false);
+                }
             } else {
+                // this code will be call if user change more than 2 alias and in case of invalid happen.
+                // we need to keep track with which on to update and what not.
                 for (let i = 0; i < this.originAlias.length; i++) {
                     const rowControl = tplFormGroups[i];
                     // only alias has been update, we update in widget if it is
