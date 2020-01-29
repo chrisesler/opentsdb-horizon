@@ -837,8 +837,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 let applied = 0;
                 for (let i = 0; i < this.widgets.length; i++) {
                     const widget = this.widgets[i];
-                    // we will insert or modify based on insert flag
-                    const isModify = this.dbService.applytDBFilterToWidget(widget, payload, this.dashboardTags.rawDbTags);
+                    // we try to insert tpl alias if eligible
+                    let isModify = false;
+                    if (payload.vartag && payload.insert === 1) {
+                        isModify = this.dbService.insertTplAliasToWidget(widget, payload, this.dashboardTags.rawDbTags);
+                    } else {
+                        isModify = this.dbService.updateTplAliasToWidget(widget, payload);
+                    }
                     if (isModify) {
                         if (payload.insert === 1) {
                             applied = applied + 1;
@@ -848,16 +853,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 }
                 // if isChanged mean some widgets get modified
                 if (affectedWidgets.length > 0) {
-                    for (let i = 0; i < this.tplVariables.editTplVariables.tvars.length; i++) {
-                        const tvar = this.tplVariables.editTplVariables.tvars[i];
-                        tvar.isNew = 0;
-                        if (tvar.alias === payload.vartag.alias) {
-                            tvar.applied += applied;
-                            break;
+                    if (payload.insert === 1) {
+                        for (let i = 0; i < this.tplVariables.editTplVariables.tvars.length; i++) {
+                            const tvar = this.tplVariables.editTplVariables.tvars[i];
+                            tvar.isNew = 0;
+                            if (tvar.alias === payload.vartag.alias) {
+                                tvar.applied += applied;
+                                break;
+                            }
                         }
+                        this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
                     }
-                    this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
-                    if (payload.vartag.filter.trim() !== '') {
+                    if (payload.vartag && payload.vartag.filter.trim() !== '') {
                         for (let i = 0; i < affectedWidgets.length; i++) {
                             const widget = affectedWidgets[i];
                             this.store.dispatch(new UpdateWidget({
