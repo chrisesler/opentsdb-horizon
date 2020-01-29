@@ -223,16 +223,16 @@ export class DashboardService {
         const qfilter = query.filters[j];
         // filter tagkey exist in aliasInfo
         if (payload.aliasInfo[qfilter.tagk]) {
-          let updateCustomFilter = [];
+          let anyModify = false;
           for (let k = 0; k < qfilter.customFilter.length; k++) {
             const custFilter = qfilter.customFilter[k];
             const idx = payload.aliasInfo[qfilter.tagk].findIndex((item) => custFilter === '['+item.oAlias+']');
             if (idx > -1) {
-              updateCustomFilter.push('[' + payload.aliasInfo[qfilter.tagk][idx].nAlias + ']');
+              anyModify = true;
+              qfilter.customFilter[k] = '[' + payload.aliasInfo[qfilter.tagk][idx].nAlias + ']';
             }
           }
-          if (updateCustomFilter.length > 0) {
-            qfilter.customFilter = [...updateCustomFilter];
+          if (anyModify) {
             isModify = true;
           }
         }
