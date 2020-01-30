@@ -651,14 +651,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.subscription.add(this.tplVariables$.subscribe(tpl => {
             // whenever tplVariables$ trigger, we save to view too.
             if (tpl) {
-                    this.tplVariables.editTplVariables = this.utilService.deepClone(tpl);
-                    if (this.variablePanelMode.view && this.IsAddClone) {
-                        this.tplVariables.viewTplVariables  = this.tplVariables.viewTplVariables;
-                        this.IsAddClone = false;
-                    } else {
-                        this.tplVariables.viewTplVariables = this.utilService.deepClone(tpl);
+                this.tplVariables.editTplVariables = this.utilService.deepClone(tpl);
+                this.tplVariables.viewTplVariables = this.utilService.deepClone(tpl);
+                // if there is override then do this, only at first apply
+                if (tpl.override) {
+                    this.tplVariables.viewTplVariables.tvars = [...tpl.override];
+                } else {
+                    // come from edit to view and there is urloverride, use those value
+                    const tagOverrides = this.urlOverrideService.getTagOverrides() || {};
+                    for (let alias in tagOverrides) {
+                        const idx = this.tplVariables.viewTplVariables.tvars.findIndex(t => t.alias === alias);
+                        if (idx > -1) {
+                            this.tplVariables.viewTplVariables.tvars[idx].filter = tagOverrides[alias];
+                        }
                     }
-                    this.tplVariables = {...this.tplVariables};                  
+                }
+                this.tplVariables = { ...this.tplVariables };
             }
         }));
         this.subscription.add(this.widgetGroupRawData$.subscribe(result => {
@@ -743,7 +751,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     applyTplVarValue(tvars: any[]) {
         // update url params
         const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables.tvars : this.tplVariables.editTplVariables.tvars;
-        this.updateURLParams(tplVars);
+        if (this.variablePanelMode.view) {
+            this.updateURLParams({tags: tplVars});
+        }
         for (let i = 0; i < this.widgets.length; i++) {
             const queries = this.widgets[i].queries;
             for (let j = 0; j < queries.length; j++) {
@@ -999,8 +1009,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             if (this.tagKeysByNamespaces.length === 0) {
                 this.getTagkeysByNamespaces(this.tplVariables.editTplVariables.namespaces);
             }
-            this.tplVariables = {...this.tplVariables};
-        }     
+        }
         this.variablePanelMode = {...mode};
 
     }
