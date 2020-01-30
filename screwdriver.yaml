@@ -7,9 +7,6 @@ shared:
   annotations:
     screwdriver.cd/cpu: HIGH
     screwdriver.cd/ram: HIGH
-cache:
-  event:
-    - $SD_SOURCE_DIR/node_modules
 jobs:
   component:
     template: nodejs/lib@stable
