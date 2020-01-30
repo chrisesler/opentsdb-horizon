@@ -373,7 +373,8 @@ export class DashboardService {
       var urlTags = this.urlOverride.getTagOverrides();
       if (!dbstate.content.settings.tplVariables)
         dbstate.content.settings.tplVariables = [];
-      var dbTags = dbstate.content.settings.tplVariables;
+      var dbTags = [...dbstate.content.settings.tplVariables.tvars];
+      let newTags = [];
       for (var k in urlTags) {
         var found = false;
 
@@ -403,11 +404,18 @@ export class DashboardService {
           var newTag = {
             tagk: k,
             alias: k,
-            filter: urlTags[k] 
+            filter: urlTags[k],
+            mode: 'manual',
+            applied: 0,
+            isNew: 0 
           };
+          newTags.push(newTag);
           dbTags.push(newTag);
         }
       }
+      // setting override and newTags is subset to apply to widgets
+      dbstate.content.settings.tplVariables['override'] = dbTags;
+      dbstate.content.Settings.tplVariables['newTags'] = newTags;
     }
   }
 
