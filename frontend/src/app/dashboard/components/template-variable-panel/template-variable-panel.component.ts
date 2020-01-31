@@ -9,15 +9,16 @@ import {
     OnDestroy,
     SimpleChanges,
     ViewChild,
-    ElementRef
+    ElementRef, ChangeDetectionStrategy, ViewEncapsulation
 } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl, FormArray, Validators, AbstractControl } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
-import { map, startWith, debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
-import { IntercomService, IMessage } from '../../../core/services/intercom.service';
+import { map, startWith, debounceTime, distinctUntilChanged, takeLast } from 'rxjs/operators';
+import { IntercomService } from '../../../core/services/intercom.service';
 import { UtilsService } from '../../../core/services/utils.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { HttpService } from '../../../core/http/http.service';
+import { moveItemInArray, CdkDragStart } from '@angular/cdk/drag-drop';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -48,10 +49,16 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     dbNamespaces: string[] = [];
     originAlias: string[] = [];
     tagBlurTimeout: any;
+    valChangeSub: Subscription;
+
+    // style object for drag placeholder
+    placeholderStyles: any = { width: '100%', height: '49px', transform: 'translate3d(0px,0px,0px)'};
+
     tagValueBlurTimeout: any;
     tagValueFocusTimeout: any;
     tagValueViewBlurTimeout: any;
     tagValueViewFocusTimeout: any;
+
     constructor(
         private fb: FormBuilder,
         private interCom: IntercomService,
@@ -76,28 +83,36 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        if (changes.tplVariables) {
-            if (this.mode.view) {
-                this.selectedNamespaces = changes.tplVariables.currentValue.viewTplVariables.namespaces;
-                this.initListFormGroup();
-            } else {
-                this.selectedNamespaces = changes.tplVariables.currentValue.editTplVariables.namespaces;
-                this.initEditFormGroup();
-            }
-        } else if (changes.mode && !changes.mode.firstChange && changes.mode.currentValue.view) {
-            // copy edit -> view list
-            this.tplVariables.viewTplVariables = this.utils.deepClone(this.tplVariables.editTplVariables);
-            this.initListFormGroup();
-        } else if (changes.widgets) {
+        if (changes.widgets) {
             // call to get dashboard namespaces
             this.dbNamespaces = this.dbService.getNamespacesFromWidgets(this.widgets);
             // update editTplVariables
             for (let i = 0; i < this.dbNamespaces.length; i++) {
                 if (!this.tplVariables.editTplVariables.namespaces.includes(this.dbNamespaces[i])) {
-                    this.tplVariables.editTplVariables.namespaces.push(this.dbNamespaces[i])
+                    this.tplVariables.editTplVariables.namespaces.push(this.dbNamespaces[i]);
                 }
             }
+            this.selectedNamespaces = this.tplVariables.editTplVariables.namespaces;
         }
+        if (changes.tplVariables) {
+            if (this.mode.view) {
+                // this.selectedNamespaces = changes.tplVariables.currentValue.viewTplVariables.namespaces;
+                this.initListFormGroup();
+            } else {
+                this.selectedNamespaces = changes.tplVariables.currentValue.editTplVariables.namespaces;
+                this.initEditFormGroup();
+            }
+        } else if (changes.mode && !changes.mode.firstChange) {
+            // else if (changes.mode && !changes.mode.firstChange && changes.mode.currentValue.view) {
+            // copy edit -> view list
+            // this.tplVariables.viewTplVariables = this.utils.deepClone(this.tplVariables.editTplVariables);
+            // this.initListFormGroup();
+            if (changes.mode.currentValue.view) {
+                this.initListFormGroup(true);
+            } else {
+                this.initEditFormGroup(true);
+            }
+        } 
     }
     doEdit() {
         this.modeChange.emit({ view: false });
@@ -111,6 +126,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             : this.editForm.get('formTplVariables') as FormArray;
         const name = this.mode.view ? 'view' : 'edit';
         const selControl = arrayControl.at(index);
+        if (selControl.invalid) { return; } // no go futher if no tagkey and alias defined.
         const conVal = selControl.get('filter').value;
         const res = conVal.match(/^regexp\((.*)\)$/);
         if (res) {
@@ -120,15 +136,16 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         if (this.trackingSub.hasOwnProperty(name + index)) {
             this.trackingSub[name + index].unsubscribe();
         }
-        // need to clear old list for new one
-        if (this.filteredValueOptions[index]) {
+        // only when it not there
+        if (!this.filteredValueOptions[index]) {
             this.filteredValueOptions[index] = [];
         }
-        this.trackingSub[name + index] = selControl.get('filter').valueChanges
+
+        this.trackingSub['v-' + name + index] = selControl.get('filter').valueChanges
             .pipe(
                 startWith(''),
                 distinctUntilChanged(),
-                debounceTime(300)
+                debounceTime(100)
             ).subscribe(val => {
                 val = val ? val.trim() : '';
                 const alias = '[' + selControl.get('alias').value + ']';
@@ -167,19 +184,32 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 if ( this.trackingSub[qid] ) {
                     this.trackingSub[qid].unsubscribe();
                 }
+                const regexStr = val === '' || val === 'regexp()' ? 'regexp(.*)' : /^regexp\(.*\)$/.test(val) ? val : 'regexp('+val.replace(/\s/g, ".*")+')';
+                // assign regexpStr to first element right away
+                if (this.filteredValueOptions[index]) {
+                    this.filteredValueOptions[index][0] = regexStr;
+                }
                 this.trackingSub[qid] = this.httpService.getTagValues(query).subscribe(
                     results => {
-                        const regexStr = val === '' || val === 'regexp()' ? 'regexp(.*)' : /^regexp\(.*\)$/.test(val) ? val : 'regexp('+val+')';
-                        results.unshift(regexStr);
-                        this.filteredValueOptions[index] = results;
-                    },
-                    error => {
-                        this.filteredValueOptions[index] = ['regexp('+val+')'];
+                        if (results && results.length > 0) {                     
+                            // this.filteredValueOptions[index] = this.filteredValueOptions[index].concat(results);
+                            this.filteredValueOptions[index] = Array.from(new Set(this.filteredValueOptions[index].concat(results))).splice(0, (results.length + 1));
+                        }
                     });
             });
     }
 
-    initListFormGroup() {
+    initListFormGroup(checkRun: boolean = false) {
+        this.editForm.reset({ emitEvent: false});
+        // when switching to edit mode, we use the edit form and value and requery of needed
+        if (checkRun) {
+            if (JSON.stringify(this.tplVariables.editTplVariables.tvars) !== JSON.stringify(this.tplVariables.viewTplVariables.tvars)) {
+                this.interCom.requestSend({
+                    action: 'ApplyTplVarValue',
+                    payload: this.tplVariables.viewTplVariables.tvars
+                });
+            }
+        }     
         this.filteredValueOptions = [];
         this.listForm.controls['listVariables'] = this.fb.array([]);
         if (this.tplVariables.viewTplVariables.tvars) {
@@ -198,21 +228,24 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         }
     }
 
-    initEditFormGroup() {
+    initEditFormGroup(checkRun: boolean = false) {
+        this.listForm.reset({ emitEvent: false});
         this.filteredValueOptions = [];
         this.editForm.controls['formTplVariables'] = this.fb.array([]);
         this.initializeTplVariables(this.tplVariables.editTplVariables.tvars);
 
         // when switching to edit mode, we use the edit form and value and requery of needed
-        if (JSON.stringify(this.tplVariables.editTplVariables.tvars) !== JSON.stringify(this.tplVariables.viewTplVariables.tvars)) {
-            this.interCom.requestSend({
-                action: 'ApplyTplVarValue',
-                payload: this.tplVariables.editTplVariables.tvars
-            });
+        if (checkRun) {
+            if (JSON.stringify(this.tplVariables.editTplVariables.tvars) !== JSON.stringify(this.tplVariables.viewTplVariables.tvars)) {
+                this.interCom.requestSend({
+                    action: 'ApplyTplVarValue',
+                    payload: this.tplVariables.editTplVariables.tvars
+                });
+            }
         }
 
-        // we sub to form status changes
-        this.editForm.statusChanges.subscribe(status => {
+        // comment this block for now since we not using it yet
+        /* this.editForm.statusChanges.subscribe(status => {
             this.disableDone = status === 'VALID' ? false : true;
             const len = this.formTplVariables.controls.length;
             if (status === 'INVALID') {
@@ -231,6 +264,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 }
             }
         });
+        */
     }
 
     get listVariables() {
@@ -281,7 +315,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     onVariableFocus(index: number) {
         this.tagValueViewFocusTimeout = setTimeout(() => {
             this.manageFilterControl(index);
-        }, 100);
+        }, 300);
 
     }
 
@@ -290,22 +324,23 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         const selControl = control.at(index);
         const val = selControl.get('filter').value;
         // no check and let user enter whatever
-        /* let idx = -1;
+        let idx = -1;
         if (this.filteredValueOptions[index]) {
             idx = this.filteredValueOptions[index].findIndex(item => item && item === val);
         }
         if (idx === -1) {
-            selControl.get('filter').setValue('');
+            if (val !== '') {
+                selControl.get('filter').setValue('regexp(' + val.replace(/\s/g, ".*") + ')', { emitEvent: false });
+            }
         } else {
             selControl.get('filter').setValue(this.filteredValueOptions[index][idx]);
         }
-        */
         // if it's a different value from viewlist
         this.tagValueViewBlurTimeout = setTimeout(()=> {
             if (this.tplVariables.viewTplVariables.tvars[index].filter !== val) {
                 const res = val.match(/^regexp\((.*)\)$/);
                 if (!res) {
-                    selControl.get('filter').setValue('regexp(' + val + ')', {emitEvent: false});
+                    selControl.get('filter').setValue('regexp(' + val.replace(/\s/g, ".*") + ')', {emitEvent: false});
                 }
                 this.tplVariables.viewTplVariables.tvars[index].filter = selControl.get('filter').value;
                 this.interCom.requestSend({
@@ -318,6 +353,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
 
     onInputFocus(cname: string, index: number) {
         const selControl = this.getSelectedControl(index);
+
         switch (cname) {
             case 'tagk':
                 this.filteredKeyOptions = selControl['controls'][cname].valueChanges
@@ -334,11 +370,13 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                     );
                 break;
             case 'alias':
-                // const startVal = selControl['controls'][cname].value;
+                if (this.valChangeSub) {
+                    this.valChangeSub.unsubscribe();
+                }
                 this.originAlias[index] = selControl['controls'][cname].value;
                 // if the tag_key is invalid, we should not move on here
                 if (selControl.get('tagk').value !== '') {
-                    selControl['controls'][cname].valueChanges.pipe(
+                    this.valChangeSub = selControl['controls'][cname].valueChanges.pipe(
                         debounceTime(1000)
                     ).subscribe(val => {
                         this.validateAlias(val.toString(), index, selControl, this.originAlias);
@@ -348,10 +386,11 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             case 'filter':
                 this.tagValueFocusTimeout = setTimeout(() => {
                     this.manageFilterControl(index);
-                }, 100);
+                }, 300);
                 break;
         }
     }
+
     private getSelectedControl(index: number, formArrayName = 'formTplVariables') {
         const control = <FormArray>this.editForm.controls[formArrayName];
         return control.at(index);
@@ -368,8 +407,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 rowControl.controls['alias'].setErrors(null);
                 if ( i === index ) { continue; }
                 if (val.trim() === rowControl.get('alias').value) {
-                    tplFormGroups[index].controls['alias'].setErrors({ 'unique': true });
-                    tplFormGroups[i].controls['alias'].setErrors({ 'unique': true });
+                    tplFormGroups[index].controls['alias'].setErrors({ 'unique': true, emitEvent: true, });
+                    tplFormGroups[i].controls['alias'].setErrors({ 'unique': true, emitEvent: true });
                     return;
                 }
             }
@@ -377,36 +416,47 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             // first update state of this form, call one fill will update all the list
             // const selControl = this.getSelectedControl(index);
             this.updateState(selControl, false);
-            // now update all of this tplVar
-            if (this.originAlias.length === 0) {
-                const rowControl = tplFormGroups[index];
-                this.interCom.requestSend({
-                    action: 'UpdateTplAlias',
-                    payload: {
-                        vartag: rowControl.getRawValue(),
-                        originAlias: originAlias,
-                        index: index,
-                        insert: rowControl.get('isNew').value
-                    }
+            let aliasInfo: any = {};
+            // newly add db filter
+            if (selControl.get('isNew').value === 1 && selControl.get('mode').value === 'auto') {
+                setTimeout(() => {
+                    this.interCom.requestSend({
+                        action: 'UpdateTplAlias',
+                        payload: {
+                            vartag: selControl.getRawValue(),
+                            aliasInfo: null,
+                            insert: 1
+                        }
+                    });
                 });
             } else {
                 for (let i = 0; i < this.originAlias.length; i++) {
                     const rowControl = tplFormGroups[i];
-                    // only alias has been update, we update in widget if it is
                     if (this.originAlias[i] !== undefined && this.originAlias[i] !== rowControl.get('alias').value) {
+                        let tmpObj = {
+                            oAlias: this.originAlias[i],
+                            nAlias: rowControl.get('alias').value
+                        };
+                        const tagk = rowControl.get('tagk').value;
+                        if (!aliasInfo[tagk]) {
+                            aliasInfo[tagk] = [];
+                        } 
+                        aliasInfo[tagk].push(tmpObj);
+                    }
+                }
+                if (Object.keys(aliasInfo).length > 0) {
+                    setTimeout(() => {
                         this.interCom.requestSend({
                             action: 'UpdateTplAlias',
                             payload: {
-                                vartag: rowControl.getRawValue(),
-                                originAlias: originAlias,
-                                index: i,
-                                insert: rowControl.get('isNew').value
+                                vartag: null,
+                                aliasInfo: aliasInfo,
+                                insert: 0
                             }
                         });
-                    }
+                    });
                 }
             }
-            // reset originAlias list after completing validating
             this.originAlias = [];
         }
     }
@@ -417,32 +467,30 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         // set delay to avoid blur excute before onSelect
         if (cname === 'tagk' && val !== '') {
             this.tagBlurTimeout = setTimeout(() => {
-                /* if (this.tagKeysByNamespaces.indexOf(val) === -1) {
-                    selControl['controls'][cname].setValue('');
-                    selControl['controls']['filter'].setValue('', { onlySelf: true, emitEvent: false });
-                } else {*/
                     this.removeCustomTagFiler(index, val);
                     this.autoSetAlias(selControl, index);
-                /*}*/
-            }, 200);
+            }, 300);
         }
         if (cname === 'filter') {
+            if (selControl.invalid) { return; }
             // to check filter again return list
-            /* let idx = -1;
+            let idx = -1;
             if (this.filteredValueOptions[index]) {
                 idx = this.filteredValueOptions[index].findIndex(item => item && item === val);
             }
+            // when they not on the list we add 'regexp' around it
             if (idx === -1) {
-                selControl.get('filter').setValue('', { emitEvent: false });
+                if (val !== '') {
+                    selControl.get('filter').setValue('regexp(' + val.replace(/\s/g, ".*") + ')', { emitEvent: false });
+                }
             } else {
                 selControl.get('filter').setValue(this.filteredValueOptions[index][idx], { emitEvent: false });
             }
-            */
             this.tagValueBlurTimeout = setTimeout(() => {
                 if (this.tplVariables.editTplVariables.tvars[index].filter !== selControl.get('filter').value) {
                     this.updateState(selControl);
                 }
-            }, 200);
+            }, 300);
         }
     }
 
@@ -524,9 +572,11 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         // the event is matAutocomplete event, we deal later to clear focus
         if (this.tplVariables.viewTplVariables.tvars[index].filter !== event.option.value) {
             this.tplVariables.viewTplVariables.tvars[index].filter = event.option.value;
-            this.interCom.requestSend({
-                action: 'ApplyTplVarValue',
-                payload: [this.tplVariables.viewTplVariables.tvars[index]]
+            setTimeout(() => {
+                this.interCom.requestSend({
+                    action: 'ApplyTplVarValue',
+                    payload: [this.tplVariables.viewTplVariables.tvars[index]]
+                });
             });
         }
     }
@@ -535,23 +585,28 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         const control = <FormArray>this.editForm.controls['formTplVariables'];
         const selControl = control.at(index);
         control.removeAt(index);
-        // check in case they delete the one that not in state yet 
+        // check in case they delete the one that not in state yet
         // then nothing need to do, just remove from form.
         if (this.tplVariables.editTplVariables.tvars[index]) {
             const removedItem = this.tplVariables.editTplVariables.tvars[index];
             // removing an item, then we should check the current editTplVariable
-            // to find item to remove and it's the index.     
-            this.interCom.requestSend({
-                action: 'RemoveCustomTagFilter',
-                payload: removedItem
+            // to find item to remove and it's the index.
+            // let it runs in next tick to unlock UI
+            setTimeout(() => {
+                this.interCom.requestSend({
+                    action: 'RemoveCustomTagFilter',
+                    payload: removedItem
+                });
             });
             // we already trigger all widget update to requery from RemoveCustomTagFilter
             this.updateState(selControl, false);
         }
     }
+
     done() {
         this.modeChange.emit({ view: true });
     }
+
     updateState(selControl: AbstractControl, reQuery: boolean = true) {
         if (selControl.valid) {
             const sublist = [];
@@ -564,9 +619,11 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             this.updateTplVariableState(this.utils.deepClone(this.selectedNamespaces), sublist);
             // we might need to run widgets which are affected by this tag
             if (reQuery) {
-                this.interCom.requestSend({
-                    action: 'ApplyTplVarValue',
-                    payload: [selControl.value]
+                setTimeout(() => {
+                    this.interCom.requestSend({
+                        action: 'ApplyTplVarValue',
+                        payload: [selControl.value]
+                    });
                 });
             }
         }
@@ -628,9 +685,11 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         const removeTvar = control.at(index);
         if (removeTvar.valid) {
             // remove this tag out of widget if there
-            this.interCom.requestSend({
-                action: 'RemoveCustomTagFilter',
-                payload: removeTvar.value
+            setTimeout(() => {
+                this.interCom.requestSend({
+                    action: 'RemoveCustomTagFilter',
+                    payload: removeTvar.value
+                });
             });
             // we already trigger all widget update to requery from RemoveCustomTagFilter
             removeTvar.get('applied').setValue(0);
@@ -707,7 +766,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         event.preventDefault();
         this.listVariables.controls[index].get('filter').setValue('');
         const control = <FormArray>this.listForm.controls['listVariables'];
-        const selControl = control.at(index);       
+        const selControl = control.at(index);
         // if it's a different value from viewlist
         if (this.tplVariables.viewTplVariables.tvars[index].filter !== selControl.get('filter').value) {
             this.tplVariables.viewTplVariables.tvars[index].filter = selControl.get('filter').value;
@@ -716,6 +775,31 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 payload: [selControl.value]
             });
         }
+    }
+
+    // DragDrop Table reorder event
+    dropTable(event: any) {
+        // console.log('DROP TABLE EVENT', event);
+        // move item within the controls array
+        moveItemInArray(this.formTplVariables['controls'], event.previousIndex, event.currentIndex);
+
+        // extract variables values from form
+        // const values = this.formTplVariables.getRawValue();
+
+        // Copy values over to the view side of the variables
+        // this.tplVariables.viewTplVariables.tvars = [...values];
+
+        // need a control to pass to update state. Just going to grab the first one
+        const selControl = this.getSelectedControl(0);
+        this.updateState(selControl, false);
+    }
+
+    dragStart(cdkEvent: CdkDragStart, index: number) {
+        // console.log('DRAG START', cdkEvent, index);
+        // get size of the element we are dragging
+        const sourceElCoords = cdkEvent.source.element.nativeElement.getBoundingClientRect();
+        // synchronize the width of the placeholder with the dragged element
+        this.placeholderStyles = { width: (sourceElCoords.width - 6) + 'px', height: '49px', transform: 'translate3d(0px,0px,0px)' };
     }
 
     ngOnDestroy() {

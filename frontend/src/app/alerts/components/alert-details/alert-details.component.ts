@@ -1277,6 +1277,11 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         if (e.value === 'singleMetric' || (e.value === 'periodOverPeriod' && Object.keys(this.periodOverPeriodConfig).length > 0)) {
             this.reloadData();
         }
+
+        if (e.value === 'periodOverPeriod') { // singleMetric thresholds can interfere with rendering of periodOverPeriod graph
+            this.alertForm['controls'].threshold['controls'].singleMetric.get('badThreshold').setValue(null);
+            this.alertForm['controls'].threshold['controls'].singleMetric.get('warnThreshold').setValue(null);
+        }
     }
 
     validate() {

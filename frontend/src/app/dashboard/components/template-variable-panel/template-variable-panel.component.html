@@ -71,11 +71,13 @@
                             <th>Applied</th>
                             <th>Actions</th>
                             <th><!--empty for trash--></th>
+                            <th>Reorder</th>
                             <!-- <th>empty for error messages</th> -->
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr *ngFor="let tpl of formTplVariables.controls; let i = index" [formGroupName]="i" class="variable-edit-controls">
+                    <tbody cdkDropList [cdkDropListData]="formTplVariables['controls']" [cdkDropListDisabled]="formTplVariables.controls.length < 2" (cdkDropListDropped)="dropTable($event)">
+                        <tr class="variable-edit-controls" *ngFor="let tpl of formTplVariables.controls; let i = index" [formGroupName]="i" cdkDrag [cdkDragData]="tpl"
+                            (cdkDragStarted)="dragStart($event, i)">
                             <!-- auto/manu toggle (TODO: still have to style) -->
                             <td>
                                 <div class="settings-control filter-mode-control">
@@ -167,20 +169,17 @@
                                     </div>
                                 </div>
                             </td>
-                            <!-- error messages
+                            <!-- drag handle for reordering -->
                             <td>
-                                <div class="settings-control error-control">
-                                    <div class="errors">
-
-                                        <span *ngIf="tpl.get('alias').hasError('unique'); else requiredMesg" class="error-msg">
-                                            Name must be unique.
-                                        </span>
-                                        <ng-template #requiredMesg>
-                                            <span *ngIf="tpl.invalid" class="error-msg">Name and Tag are required.</span>
-                                        </ng-template>
+                                <div class="settings-control actions-control">
+                                    <div class="actions" style="cursor: grab;">
+                                        <!-- icon is drag handle for the row -->
+                                        <mat-icon *ngIf="formTplVariables.controls && formTplVariables.controls.length > 1" fontSet="denali" fontIcon="d-drag-handle" cdkDragHandle></mat-icon>
                                     </div>
                                 </div>
-                            </td>-->
+                            </td>
+                            <!-- drag-drop placeholder -->
+                            <div [ngStyle]="placeholderStyles" class="custom-tr-drag-placeholder" *cdkDragPlaceholder></div>
                         </tr>
                     </tbody>
                 </table>
