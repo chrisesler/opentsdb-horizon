@@ -141,7 +141,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             this.filteredValueOptions[index] = [];
         }
 
-        this.trackingSub[name + index] = selControl.get('filter').valueChanges
+        this.trackingSub['v-' + name + index] = selControl.get('filter').valueChanges
             .pipe(
                 startWith(''),
                 distinctUntilChanged(),
@@ -191,7 +191,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 }
                 this.trackingSub[qid] = this.httpService.getTagValues(query).subscribe(
                     results => {
-                        if (results.length > 0) {                     
+                        if (results && results.length > 0) {                     
                             // this.filteredValueOptions[index] = this.filteredValueOptions[index].concat(results);
                             this.filteredValueOptions[index] = Array.from(new Set(this.filteredValueOptions[index].concat(results))).splice(0, (results.length + 1));
                         }
@@ -386,7 +386,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             case 'filter':
                 this.tagValueFocusTimeout = setTimeout(() => {
                     this.manageFilterControl(index);
-                }, 100);
+                }, 300);
                 break;
         }
     }
