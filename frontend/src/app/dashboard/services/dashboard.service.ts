@@ -373,8 +373,7 @@ export class DashboardService {
       var urlTags = this.urlOverride.getTagOverrides();
       if (!dbstate.content.settings.tplVariables)
         dbstate.content.settings.tplVariables = [];
-      var dbTags = [...dbstate.content.settings.tplVariables.tvars];
-      let newTags = [];
+      var dbTags = this.utils.deepClone(dbstate.content.settings.tplVariables.tvars);
       for (var k in urlTags) {
         var found = false;
 
@@ -397,6 +396,9 @@ export class DashboardService {
           }
         }
 
+        // as discuss, it's not there we don't add them in
+        // only support if defined in default (edit) mode.
+        /*
         if (!found) {
           // dashboard does not have any template
           // variables matching the url param.
@@ -409,13 +411,11 @@ export class DashboardService {
             applied: 0,
             isNew: 0 
           };
-          newTags.push(newTag);
           dbTags.push(newTag);
-        }
+        } */
       }
-      // setting override and newTags is subset to apply to widgets
+      // keep override for view mode to use
       dbstate.content.settings.tplVariables['override'] = dbTags;
-      dbstate.content.Settings.tplVariables['newTags'] = newTags;
     }
   }
 
