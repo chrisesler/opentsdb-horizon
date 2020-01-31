@@ -75,7 +75,7 @@
                             <!-- <th>empty for error messages</th> -->
                         </tr>
                     </thead>
-                    <tbody cdkDropList [cdkDropListData]="formTplVariables['controls']" (cdkDropListDropped)="dropTable($event)">
+                    <tbody cdkDropList [cdkDropListData]="formTplVariables['controls']" [cdkDropListDisabled]="formTplVariables.controls.length < 2" (cdkDropListDropped)="dropTable($event)">
                         <tr class="variable-edit-controls" *ngFor="let tpl of formTplVariables.controls; let i = index" [formGroupName]="i" cdkDrag [cdkDragData]="tpl"
                             (cdkDragStarted)="dragStart($event, i)">
                             <!-- auto/manu toggle (TODO: still have to style) -->
