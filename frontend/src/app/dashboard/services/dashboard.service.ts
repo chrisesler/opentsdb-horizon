@@ -371,8 +371,9 @@ export class DashboardService {
   updateTplVariablesFromURL(dbstate) {
     if (this.urlOverride.getTagOverrides()) {
       var urlTags = this.urlOverride.getTagOverrides();
-      if (!dbstate.content.settings.tplVariables)
+      if (!dbstate.content.settings.tplVariables) {
         dbstate.content.settings.tplVariables = [];
+      }
       var dbTags = this.utils.deepClone(dbstate.content.settings.tplVariables.tvars);
       for (var k in urlTags) {
         var found = false;

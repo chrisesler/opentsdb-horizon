@@ -232,7 +232,6 @@ export class DBState {
             fullPath: payload.fullPath,
             status: 'save-success'
         });
-        this.urlOverrideService.clearOverrides();
     }
 
     @Action(SaveDashboardFail)
