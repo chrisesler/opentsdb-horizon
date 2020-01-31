@@ -369,6 +369,7 @@ export class DashboardService {
   }
 
   updateTplVariablesFromURL(dbstate) {
+
     if (this.urlOverride.getTagOverrides()) {
       var urlTags = this.urlOverride.getTagOverrides();
       if (!dbstate.content.settings.tplVariables) {
@@ -434,9 +435,14 @@ export class DashboardService {
       delete widgets[i].gridPos.wSm;
       delete widgets[i].gridPos.hSm;
     }
+    // will remove later, if no need to check this.
+    const settings = this.utils.deepClone(dbstate.Settings);
+    if (settings.tplVariables.override) {
+      delete settings.tplVariables.override;
+    }
     const dashboard = {
       version: this.dbConverterService.getDBCurrentVersion(),
-      settings: dbstate.Settings,
+      settings: settings,
       widgets: widgets
     };
     return dashboard;

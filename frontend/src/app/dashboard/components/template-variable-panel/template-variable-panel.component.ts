@@ -134,10 +134,11 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         if (this.trackingSub.hasOwnProperty(name + index)) {
             this.trackingSub[name + index].unsubscribe();
         }
-        // need to clear old list for new one
-        if (this.filteredValueOptions[index]) {
+        // only when it not there
+        if (!this.filteredValueOptions[index]) {
             this.filteredValueOptions[index] = [];
         }
+
         this.trackingSub[name + index] = selControl.get('filter').valueChanges
             .pipe(
                 startWith(''),
@@ -182,11 +183,15 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                     this.trackingSub[qid].unsubscribe();
                 }
                 const regexStr = val === '' || val === 'regexp()' ? 'regexp(.*)' : /^regexp\(.*\)$/.test(val) ? val : 'regexp('+val.replace(/\s/g, ".*")+')';
-                this.filteredValueOptions[index] = [regexStr];
+                // assign regexpStr to first element right away
+                if (this.filteredValueOptions[index]) {
+                    this.filteredValueOptions[index][0] = regexStr;
+                }
                 this.trackingSub[qid] = this.httpService.getTagValues(query).subscribe(
                     results => {
                         if (results.length > 0) {                     
-                            this.filteredValueOptions[index] = this.filteredValueOptions[index].concat(results);
+                            // this.filteredValueOptions[index] = this.filteredValueOptions[index].concat(results);
+                            this.filteredValueOptions[index] = Array.from(new Set(this.filteredValueOptions[index].concat(results))).splice(0, (results.length + 1));
                         }
                     });
             });
