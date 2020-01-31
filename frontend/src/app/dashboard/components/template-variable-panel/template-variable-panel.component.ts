@@ -83,9 +83,20 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     ngOnChanges(changes: SimpleChanges) {
+        if (changes.widgets) {
+            // call to get dashboard namespaces
+            this.dbNamespaces = this.dbService.getNamespacesFromWidgets(this.widgets);
+            // update editTplVariables
+            for (let i = 0; i < this.dbNamespaces.length; i++) {
+                if (!this.tplVariables.editTplVariables.namespaces.includes(this.dbNamespaces[i])) {
+                    this.tplVariables.editTplVariables.namespaces.push(this.dbNamespaces[i]);
+                }
+            }
+            this.selectedNamespaces = this.tplVariables.editTplVariables.namespaces;
+        }
         if (changes.tplVariables) {
             if (this.mode.view) {
-                this.selectedNamespaces = changes.tplVariables.currentValue.viewTplVariables.namespaces;
+                // this.selectedNamespaces = changes.tplVariables.currentValue.viewTplVariables.namespaces;
                 this.initListFormGroup();
             } else {
                 this.selectedNamespaces = changes.tplVariables.currentValue.editTplVariables.namespaces;
@@ -101,16 +112,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             } else {
                 this.initEditFormGroup(true);
             }
-        } else if (changes.widgets) {
-            // call to get dashboard namespaces
-            this.dbNamespaces = this.dbService.getNamespacesFromWidgets(this.widgets);
-            // update editTplVariables
-            for (let i = 0; i < this.dbNamespaces.length; i++) {
-                if (!this.tplVariables.editTplVariables.namespaces.includes(this.dbNamespaces[i])) {
-                    this.tplVariables.editTplVariables.namespaces.push(this.dbNamespaces[i])
-                }
-            }
-        }
+        } 
     }
     doEdit() {
         this.modeChange.emit({ view: false });
