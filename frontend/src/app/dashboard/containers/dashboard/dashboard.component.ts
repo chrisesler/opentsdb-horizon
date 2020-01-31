@@ -239,7 +239,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.store.dispatch(new ClearWidgetsData());
             this.tplVariables = { editTplVariables: { tvars: []}, viewTplVariables: { tvars: []}};
             if (this.tplVariablePanel) { this.tplVariablePanel.reset(); }
-            // this.urlOverrideService.clearOverrides();
             if (url.length === 1 && url[0].path === '_new_') {
                 this.dbid = '_new_';
                 this.store.dispatch(new LoadDashboard(this.dbid));

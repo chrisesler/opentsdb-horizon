@@ -10,6 +10,7 @@ import { UtilsService} from '../../core/services/utils.service';
 })
 export class URLOverrideService {
     version = 1;
+    activeDashboardId = '';
 
     private subscription: Subscription = new Subscription();
     private overrides: any = {};

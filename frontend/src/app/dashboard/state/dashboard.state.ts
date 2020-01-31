@@ -149,6 +149,11 @@ export class DBState {
             return this.httpService.getDashboardById(id).pipe(
                 map(res => {
                     const dashboard: any = res.body;
+                    // reset the url override
+                    if (this.urlOverrideService.activeDashboardId !== id) {
+                        this.urlOverrideService.clearOverrides();
+                    }
+                    this.urlOverrideService.activeDashboardId = id;
                     // update grister info for UI only
                     this.dbService.addGridterInfo(dashboard.content.widgets);
                     this.dbService.updateTimeFromURL(dashboard);
