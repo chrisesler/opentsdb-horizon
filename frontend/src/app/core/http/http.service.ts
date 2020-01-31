@@ -123,7 +123,8 @@ export class HttpService {
             .pipe(
                 map((res: any) => {
                     let tagkeys = [];
-                    for (let i = 0, len = res.results.length; i < len; i++) {
+                    const len = res && res.results ? res.results.length : 0;
+                    for (let i = 0; i < len; i++) {
                         const keys = res.results[i].tagKeys.filter(item => tagkeys.indexOf(item.name) === -1);
                         tagkeys = tagkeys.concat(keys.map(d => d.name));
                     }
