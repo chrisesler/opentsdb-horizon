@@ -175,7 +175,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     widgets: any[] = [];
     tplVariables: any = { editTplVariables: {}, viewTplVariables: {}};
     variablePanelMode: any = { view : true };
-    IsAddClone = false;
     userNamespaces: any[] = [];
     viewEditMode = false;
     newWidget: any; // setup new widget based on type from top bar
@@ -912,11 +911,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     needRequery: idx > -1 ? true : false,
                     widget: _widget
                 }));
-            }
-            this.IsAddClone = true;          
+            }         
         });
     }
     // @action: 'clone' or 'delete'
+    // mainly tp update count for tplVariables
     updateTplVariableForCloneDelete(widget: any, action: string) {
         let isUpdated = false;
         for (let i = 0; i < this.tplVariables.editTplVariables.tvars.length; i++) {
@@ -942,7 +941,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
         }
         if (isUpdated) {
-            this.IsAddClone = true;
             this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
         }
     }
@@ -956,7 +954,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
             } else {
                 tpl.applied = tpl.applied - 1;
             }
-            this.IsAddClone = true;
             this.store.dispatch(new UpdateVariables(this.tplVariables.editTplVariables));
         }
     }
