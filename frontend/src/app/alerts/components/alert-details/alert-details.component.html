@@ -751,15 +751,13 @@
                             <div class="form-group alert-oc-severity">
                                 <div class="form-label vertical-center"><strong>Severity</strong></div>
                                 <div class="severity-type-options">
-                                    <div class="severity-type-options">
-                                        <mat-form-field>
-                                            <mat-select formControlName="ocSeverity">
-                                                <mat-option *ngFor="let option of ocSeverityOptions" [value]="option.value">
-                                                {{option.label}}
-                                                </mat-option>
-                                            </mat-select>
-                                        </mat-form-field>
-                                    </div>
+                                    <mat-form-field>
+                                        <mat-select formControlName="ocSeverity">
+                                            <mat-option *ngFor="let option of ocSeverityOptions" [value]="option.value">
+                                            {{option.label}}
+                                            </mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
                                 </div>
                             </div>
                             <div class="form-group alert-oc-tier">
