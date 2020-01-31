@@ -91,10 +91,16 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 this.selectedNamespaces = changes.tplVariables.currentValue.editTplVariables.namespaces;
                 this.initEditFormGroup();
             }
-        } else if (changes.mode && !changes.mode.firstChange && changes.mode.currentValue.view) {
+        } else if (changes.mode && !changes.mode.firstChange) {
+            // else if (changes.mode && !changes.mode.firstChange && changes.mode.currentValue.view) {
             // copy edit -> view list
-            this.tplVariables.viewTplVariables = this.utils.deepClone(this.tplVariables.editTplVariables);
-            this.initListFormGroup();
+            // this.tplVariables.viewTplVariables = this.utils.deepClone(this.tplVariables.editTplVariables);
+            // this.initListFormGroup();
+            if (changes.mode.currentValue.view) {
+                this.initListFormGroup(true);
+            } else {
+                this.initEditFormGroup(true);
+            }
         } else if (changes.widgets) {
             // call to get dashboard namespaces
             this.dbNamespaces = this.dbService.getNamespacesFromWidgets(this.widgets);
@@ -186,8 +192,17 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             });
     }
 
-    initListFormGroup() {
+    initListFormGroup(checkRun: boolean = false) {
         this.editForm.reset({ emitEvent: false});
+        // when switching to edit mode, we use the edit form and value and requery of needed
+        if (checkRun) {
+            if (JSON.stringify(this.tplVariables.editTplVariables.tvars) !== JSON.stringify(this.tplVariables.viewTplVariables.tvars)) {
+                this.interCom.requestSend({
+                    action: 'ApplyTplVarValue',
+                    payload: this.tplVariables.viewTplVariables.tvars
+                });
+            }
+        }     
         this.filteredValueOptions = [];
         this.listForm.controls['listVariables'] = this.fb.array([]);
         if (this.tplVariables.viewTplVariables.tvars) {
@@ -206,18 +221,20 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         }
     }
 
-    initEditFormGroup() {
+    initEditFormGroup(checkRun: boolean = false) {
         this.listForm.reset({ emitEvent: false});
         this.filteredValueOptions = [];
         this.editForm.controls['formTplVariables'] = this.fb.array([]);
         this.initializeTplVariables(this.tplVariables.editTplVariables.tvars);
 
         // when switching to edit mode, we use the edit form and value and requery of needed
-        if (JSON.stringify(this.tplVariables.editTplVariables.tvars) !== JSON.stringify(this.tplVariables.viewTplVariables.tvars)) {
-            this.interCom.requestSend({
-                action: 'ApplyTplVarValue',
-                payload: this.tplVariables.editTplVariables.tvars
-            });
+        if (checkRun) {
+            if (JSON.stringify(this.tplVariables.editTplVariables.tvars) !== JSON.stringify(this.tplVariables.viewTplVariables.tvars)) {
+                this.interCom.requestSend({
+                    action: 'ApplyTplVarValue',
+                    payload: this.tplVariables.editTplVariables.tvars
+                });
+            }
         }
 
         // comment this block for now since we not using it yet
@@ -291,7 +308,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     onVariableFocus(index: number) {
         this.tagValueViewFocusTimeout = setTimeout(() => {
             this.manageFilterControl(index);
-        }, 100);
+        }, 300);
 
     }
 
@@ -324,7 +341,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                     payload: [selControl.value]
                 });
             }
-        }, 100);
+        }, 300);
     }
 
     onInputFocus(cname: string, index: number) {
@@ -445,7 +462,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             this.tagBlurTimeout = setTimeout(() => {
                     this.removeCustomTagFiler(index, val);
                     this.autoSetAlias(selControl, index);
-            }, 100);
+            }, 300);
         }
         if (cname === 'filter') {
             if (selControl.invalid) { return; }
@@ -466,7 +483,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 if (this.tplVariables.editTplVariables.tvars[index].filter !== selControl.get('filter').value) {
                     this.updateState(selControl);
                 }
-            }, 100);
+            }, 300);
         }
     }
 
