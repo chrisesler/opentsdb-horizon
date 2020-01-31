@@ -339,6 +339,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.handleEventQueryPayload(message);
                     break;
                 case 'updateWidgetConfig':
+                    let applyTpl = false;
                     let mIndex = this.widgets.findIndex(w => w.id === message.id);
                     if (mIndex === -1) {
                         // do not save if no metrics added
@@ -347,27 +348,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         this.widgets = this.dbService.positionWidgetY(this.widgets, newWidgetY);
                         // change name to first metric if name is not changed
                         if (message.payload.widget.settings.component_type !== 'MarkdownWidgetComponent' &&
-                        message.payload.widget.settings.component_type !== 'EventsWidgetComponent') {
+                            message.payload.widget.settings.component_type !== 'EventsWidgetComponent') {
                             if (message.payload.widget.settings.title === 'my widget' && message.payload.widget.queries[0].metrics.length) {
                                 message.payload.widget.settings.title = message.payload.widget.queries[0].metrics[0].name;
                             }
                         }
-                        // this is the newly added widget
+                        this.widgets.unshift(message.payload.widget);
+
+                        // set it to run updates
+                        applyTpl = true;
+                    } else {
                         if (this.widgets.length === 1 && this.widgets[0].settings.component_type === 'PlaceholderWidgetComponent') {
                             this.widgets[0] = message.payload.widget;
-                        } else {
-                            this.widgets.unshift(message.payload.widget);
+                            applyTpl = true;
                         }
-                        mIndex = 0;
-                        const sub = this.store.dispatch(new UpdateWidgets(this.widgets)).subscribe(res => {
-                            const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables.tvars : this.tplVariables.editTplVariables.tvars;
-                            this.applyTplToNewWidget(message.payload.widget, tplVars);
-                        });
-                        sub.unsubscribe();
-                    } else {
                         // check the component type of updated widget config.
                         // it needs to be replaced with new component
-                        if (this.widgets[mIndex].settings.component_type !== message.payload.widget.settings.component_type ) {
+                        else if (this.widgets[mIndex].settings.component_type !== message.payload.widget.settings.component_type) {
                             this.widgets[mIndex] = message.payload.widget;
                             // change name to fist metric if name is not change
                             if (message.payload.widget.settings.component_type !== 'MarkdownWidgetComponent' &&
@@ -385,6 +382,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
                                 widget: message.payload.widget
                             }));
                         }
+                    }
+                    // update widgets and tplVariables
+                    if (applyTpl) {
+                        const sub = this.store.dispatch(new UpdateWidgets(this.widgets)).subscribe(res => {
+                            const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables.tvars : this.tplVariables.editTplVariables.tvars;
+                            this.applyTplToNewWidget(message.payload.widget, tplVars);
+                        });
+                        sub.unsubscribe();
                     }
                     // case that widget is updated we need to get new set of dashboard tags
                     this.isDbTagsLoaded = false;
