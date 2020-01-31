@@ -239,6 +239,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.store.dispatch(new ClearWidgetsData());
             this.tplVariables = { editTplVariables: { tvars: []}, viewTplVariables: { tvars: []}};
             if (this.tplVariablePanel) { this.tplVariablePanel.reset(); }
+            this.urlOverrideService.clearOverrides();
             if (url.length === 1 && url[0].path === '_new_') {
                 this.dbid = '_new_';
                 this.store.dispatch(new LoadDashboard(this.dbid));
@@ -655,6 +656,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 // if there is override then do this, only at first apply
                 if (tpl.override) {
                     this.tplVariables.viewTplVariables.tvars = [...tpl.override];
+                    delete this.tplVariables.editTplVariables.override;
+                    delete this.tplVariables.viewTplVariables.override;
                 } else {
                     // come from edit to view and there is urloverride, use those value
                     const tagOverrides = this.urlOverrideService.getTagOverrides() || {};
