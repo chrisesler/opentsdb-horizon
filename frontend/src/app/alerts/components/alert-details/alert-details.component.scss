@@ -401,6 +401,7 @@
                     }
                 }
 
+                .tier-info,
                 .severity-info {
                     margin-left: 10px;
                     font-size: 12px;
@@ -424,6 +425,7 @@
                 .message-subject-body > div,
                 .alert-oc-runbookid,
                 .alert-oc-severity,
+                .alert-oc-tier,
                 .alert-labels {
                     line-height: 32px;
                 }
@@ -573,6 +575,7 @@
             }
         }
 
+        .tier-type-options,
         .severity-type-options,
         .priority-type-options {
             height: 32px;
