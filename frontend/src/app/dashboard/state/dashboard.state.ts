@@ -149,8 +149,8 @@ export class DBState {
             return this.httpService.getDashboardById(id).pipe(
                 map(res => {
                     const dashboard: any = res.body;
-                    // reset the url override
-                    if (this.urlOverrideService.activeDashboardId !== id) {
+                    // reset the url override, when newly go with url then id id empty
+                    if (this.urlOverrideService.activeDashboardId !== '' && this.urlOverrideService.activeDashboardId !== id) {
                         this.urlOverrideService.clearOverrides();
                     }
                     this.urlOverrideService.activeDashboardId = id;
