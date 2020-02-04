@@ -361,7 +361,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                     //    message: this.multiLimitMessage
                                     // });
                                 } else {
-                                    limitGraphs = results;
+                                    limitGraphs = this.utilService.deepClone(results);
                                 }
                                 // we need to convert to dygraph for these multigraph
                                 for (const ykey in limitGraphs) {

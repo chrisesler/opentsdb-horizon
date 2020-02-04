@@ -16,8 +16,6 @@ import { ColorPickerModule } from '../color-picker/color-picker.module';
  // tslint:disable:max-line-length
 import { ThemePickerComponent } from './components/theme-picker/theme-picker.component';
 import { InlineEditableComponent } from './components/inline-editable/inline-editable.component';
-import { NavbarUserMenuComponent } from './components/navbar-user-menu/navbar-user-menu.component';
-import { NavbarInfoMenuComponent } from './components/navbar-info-menu/navbar-info-menu.component';
 
  // widget config components
 import { WidgetConfigAxesComponent } from './components/widget-config-axes/widget-config-axes.component';
@@ -53,6 +51,7 @@ import { TimeSelectorComponent } from './components/time-selector/time-selector.
 import { GraphTypeComponent } from './components/graph-type/graph-type.component';
 import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.component';
 import { InfoTooltipComponent } from './components/info-tooltip/info-tooltip.component';
+import { FormatAutoManualFilterPipe } from '../../../core/services/automanual.pipe';
 
 @NgModule({
     imports: [
@@ -78,8 +77,6 @@ import { InfoTooltipComponent } from './components/info-tooltip/info-tooltip.com
         DropdownLineWeightComponent,
         DropdownLineTypeComponent,
         DropdownVisualTypeComponent,
-        NavbarUserMenuComponent,
-        NavbarInfoMenuComponent,
         NavbarTimezoneToggleComponent,
         DropdownUnitTypeComponent,
         GenericMessageBarComponent,
@@ -102,7 +99,8 @@ import { InfoTooltipComponent } from './components/info-tooltip/info-tooltip.com
         TimeSelectorComponent,
         GraphTypeComponent,
         AuraDialogComponent,
-        InfoTooltipComponent
+        InfoTooltipComponent,
+        FormatAutoManualFilterPipe
     ],
     exports: [
         ThemePickerComponent,
@@ -119,8 +117,6 @@ import { InfoTooltipComponent } from './components/info-tooltip/info-tooltip.com
         NamespaceAutocompleteComponent,
         DropdownLineWeightComponent,
         DropdownUnitTypeComponent,
-        NavbarUserMenuComponent,
-        NavbarInfoMenuComponent,
         NavbarTimezoneToggleComponent,
         DropdownMetricTagsComponent,
         GenericMessageBarComponent,

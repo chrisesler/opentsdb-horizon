@@ -10,6 +10,7 @@ import { UtilsService} from '../../core/services/utils.service';
 })
 export class URLOverrideService {
     version = 1;
+    activeDashboardId = '';
 
     private subscription: Subscription = new Subscription();
     private overrides: any = {};
@@ -137,7 +138,8 @@ export class URLOverrideService {
     }
 
     applyParamstoURL(params) {
-        var url = this.getLocationURLandQueryParams();
+        let url = this.getLocationURLandQueryParams();
+        let tags: any = {};
         if (params.start) {
             url['queryParams']['__start'] = params.start;
         }
@@ -148,14 +150,22 @@ export class URLOverrideService {
             url['queryParams']['__tz'] = params.zone;
         }
         if (params.tags) {
-            for (var i in params.tags) {
-                var tk = params.tags[i].alias;
-                var tv = params.tags[i].filter;
+            for (let i in params.tags) {
+                const tk = params.tags[i].alias;
+                const tv = params.tags[i].filter;
                 if (tk && tv) {
                     url['queryParams'][tk] = tv;
+                    tags[tk] = tv;
+                } else {
+                    // if the value is set to empty, remove from queryParams
+                    if (url['queryParams'][tk]) {
+                        delete url['queryParams'][tk];
+                    }
                 }
             }
         }
+        // we need to get overrides['tags'] when apply to url
+        this.overrides['tags'] = tags;
         this.updateLocationURL(url);
     }
 }

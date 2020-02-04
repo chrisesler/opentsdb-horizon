@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { UtilsService } from './utils.service';
 import { HttpService } from '../http/http.service';
-import { of, Observable, Subscription } from 'rxjs';
+import { of, Observable, forkJoin } from 'rxjs';
 import { tap, map } from 'rxjs/operators';
 
 @Injectable({
@@ -16,16 +16,8 @@ export class DashboardConverterService {
 
   // call to convert dashboad to currentVersion
   convert(dashboard: any): Observable<any> {
-    return new Observable((obs) => {
-      for (let i = dashboard.content.version + 1; i <= this.currentVersion; i++) {
-        if (this['toDBVersion' + i] instanceof Function) {
-          this['toDBVersion' + i](dashboard).subscribe((db) => {
-            obs.next(db);  
-            obs.complete();
-          });
-          }
-      }
-    });
+      const i = dashboard.content.version + 1 || 2;
+      return this['toDBVersion' + i](dashboard);
   }
 
   // to return current max version of dashboard
@@ -162,7 +154,7 @@ export class DashboardConverterService {
         }
       }
     }
-    return of(dashboard);
+    return this.toDBVersion3(dashboard);
   }
   // update dashboard to version 3, we move tplVariables to top and remove
   // enable things
@@ -222,7 +214,7 @@ export class DashboardConverterService {
       }
     }
     dashboard.content.widgets = widgets;
-    return of(dashboard);
+    return this.toDBVersion4(dashboard);
   }
 
   // update dashboard to version 4, convert array to string
@@ -240,7 +232,7 @@ export class DashboardConverterService {
       }
     }
     dashboard.content.settings.tplVariables = tplVariables;
-    return of(dashboard);
+    return this.toDBVersion5(dashboard);
   }
 
   // update dashboard to version 5, make sure ids are unique within widget and replace expression references
@@ -269,7 +261,7 @@ export class DashboardConverterService {
       }
       // }
     }
-    return of(dashboard);
+    return this.toDBVersion6(dashboard);
   }
 
   // update dashboard to version 6: make sure summarizer is set for barchart, big number, donut, and topn
@@ -293,7 +285,7 @@ export class DashboardConverterService {
         }
       }
     }
-    return of(dashboard);
+    return this.toDBVersion7(dashboard);
   }
   // update dashboard to version 7: set eventQueries if not there
   toDBVersion7(dashboard: any): Observable<any> {
@@ -312,36 +304,46 @@ export class DashboardConverterService {
         }
       }
     }
-    return of(dashboard);
+    return this.toDBVersion8(dashboard);
   }
 
   // update dashboard to version 8
   // to deal with dashboard template v2
-  toDBVersion8(dashboard: any): Observable<any> {
+  toDBVersion8(dashboard: any) {
     return this.httpService.getTagKeysForQueries(dashboard.content.widgets).pipe(
         map ((res) => { 
           dashboard.content.version = 8;
           let settings = dashboard.content.settings;
           let widgets = dashboard.content.widgets;
-          const tvars = settings.tplVariables || [];
-          // get all namespace from widgets
-          const namespaces = {};
-          for (let i = 0; i < widgets.length; i++) {
-            const queries = widgets[i].queries;
-            for (let j = 0; j < queries.length; j++) {
-              namespaces[queries[j].namespace] = true;
+          let tplVariables: any = {};
+          // there was a bug that save v8 of db filter at v7
+          if (settings.tplVariables && settings.tplVariables.tvars && settings.tplVariables.namespaces) {
+            tplVariables = settings.tplVariables;
+          } else {
+            const tvars = settings.tplVariables || [];
+            // get all namespace from widgets
+            const namespaces = {};
+            for (let i = 0; i < widgets.length; i++) {
+              const queries = widgets[i].queries;
+              for (let j = 0; j < queries.length; j++) {
+                if (queries[j].namespace) {
+                  namespaces[queries[j].namespace] = true;
+                }
+              }
             }
+            // update tvars format
+  
+            for (let i = 0; i < tvars.length; i++) {
+              tvars[i].mode = 'auto';
+              tvars[i].applied = 0;
+              tvars[i].isNew = 0;
+            }
+            tplVariables = {
+              namespaces: Object.keys(namespaces),
+              tvars: tvars
+            };
           }
-          // update tvars format
-          for (let i = 0; i < tvars.length; i++) {
-            tvars[i].mode = 'auto';
-            tvars[i].applied = 0;
-            tvars[i].isNew = 0;
-          }
-          let tplVariables = {
-            namespaces: Object.keys(namespaces),
-            tvars: tvars
-          };
+
           let dbTags = this.formatDbTagKeysByWidgets(res);
           for (let i = 0; i < tplVariables.tvars.length; i++) {
             let tvar = tplVariables.tvars[i];
@@ -354,6 +356,8 @@ export class DashboardConverterService {
             // check to apply each widget with this db filter
             for (let j = 0; j < widgets.length; j++) {
               let widget = widgets[j];
+              // if they set not use DbFilter then we do not modify them at all.
+              if (!widget.settings.useDBFilter) continue;
               const isModify = this.applytDBFilterToWidget(widget, payload, dbTags.rawDbTags);
               if (isModify) {
                 tvar.applied = tvar.applied + 1;
@@ -364,7 +368,7 @@ export class DashboardConverterService {
           dashboard.content.settings.tplVariables = tplVariables;
           delete dashboard.content.widgets;
           dashboard.content.widgets = widgets;
-          return dashboard;          
+          return dashboard;
         })
       );
   }

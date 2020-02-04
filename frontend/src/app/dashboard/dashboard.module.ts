@@ -26,7 +26,6 @@ import { EventsState } from './state/events.state';
 import { DashboardComponent } from './containers/dashboard/dashboard.component';
 import { DboardContentComponent } from './components/dboard-content/dboard-content.component';
 import { WidgetLoaderComponent } from './components/widget-loader/widget-loader.component';
-import { ConfigTagsListComponent } from './components/config-tags-list/config-tags-list.component';
 
 // directives
 import { WidgetDirective } from './directives/widget.directive';
@@ -39,11 +38,6 @@ import {
     DbsVariableItemComponent
 } from './components/dashboard-settings-dialog';
 import { DashboardSettingsToggleComponent } from './components/dashboard-settings-toggle/dashboard-settings-toggle.component';
-import { DataExplorerComponent } from './components/data-explorer/data-explorer.component';
-import {
-    VariableTemplateBarComponent,
-    VariableSelectorComponent
-} from './components/variable-template-bar';
 import { NavbarDashboardActionsMenuComponent } from './components/navbar-dashboard-actions-menu/navbar-dashboard-actions-menu.component';
 import { DashboardSaveDialogComponent } from './components/dashboard-save-dialog/dashboard-save-dialog.component';
 import { DashboardDeleteDialogComponent } from './components/dashboard-delete-dialog/dashboard-delete-dialog.component';
@@ -77,18 +71,14 @@ import { TemplateVariablePanelComponent } from './components/template-variable-p
         WidgetLoaderComponent,
         WidgetDirective,
         WidgetViewDirective,
-        ConfigTagsListComponent,
         DashboardSettingsDialogComponent,
         DashboardSettingsToggleComponent,
-        DataExplorerComponent,
         DbsMetaComponent,
         DbsVariablesComponent,
         DbsJsonComponent,
-        VariableTemplateBarComponent,
         NavbarDashboardActionsMenuComponent,
         DashboardSaveDialogComponent,
         DashboardDeleteDialogComponent,
-        VariableSelectorComponent,
         DbsVariableItemComponent,
         WidgetDeleteDialogComponent,
         TemplateVariablePanelComponent

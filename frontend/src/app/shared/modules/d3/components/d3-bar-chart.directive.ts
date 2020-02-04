@@ -75,7 +75,7 @@ export class D3BarChartDirective implements OnInit, OnChanges {
       tooltip.html(tooltiphtml);
     };
     const mouseover = function (d) { tooltip.style("display", "inline-block"); }
-    const mouseout = function (d) {
+    const mouseleave = function (d) {
       tooltip.style("display", "none");
     };
 
@@ -147,7 +147,7 @@ export class D3BarChartDirective implements OnInit, OnChanges {
         .style("fill", (d: any) => d.color)
         .on("mouseover", mouseover)
         .on("mousemove", mousemove)
-        .on("mouseout", mouseout);
+        .on("mouseleave", mouseleave);
 
       bars.append("text")
         .attr("class", "label")
@@ -163,7 +163,7 @@ export class D3BarChartDirective implements OnInit, OnChanges {
         })
         .on("mouseover", mouseover)
         .on("mousemove", mousemove)
-        .on("mouseout", mouseout);
+        .on("mouseleave", mouseleave);
 
       bars.exit().remove();
     }, 200);
