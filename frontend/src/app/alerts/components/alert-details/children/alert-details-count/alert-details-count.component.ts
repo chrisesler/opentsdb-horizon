@@ -2,7 +2,6 @@ import { Component, OnInit, Input, HostBinding } from '@angular/core';
 import { MatDialogConfig, MatDialogRef, MatDialog } from '@angular/material';
 import { environment } from '../../../../../../environments/environment';
 import { AuraDialogComponent } from '../../../../../shared/modules/sharedcomponents/components/aura-dialog/aura-dialog.component';
-import { AlertsRoutingModule } from '../../../../alerts-routing.module';
 
 @Component({
   selector: 'alert-details-count',
@@ -24,11 +23,6 @@ export class AlertDetailsCountComponent implements OnInit {
 
   ngOnInit() {
   }
-
-  getCountArray() {
-    return [this.counts];
-  }
-
 
   showAuraDialog(filters) {
     const dialogConf: MatDialogConfig = new MatDialogConfig();
