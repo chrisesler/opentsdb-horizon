@@ -177,6 +177,9 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     defaultSlidingWindowSize = '300';
     defaultEventSlidingWindowSize = '600';
 
+    // disply aura status counts
+    counts = {};
+
     alertOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     recoverOptions: any[] = [
                                 { label: 'Never', value: null },
@@ -1133,6 +1136,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             this.options.labels = ['x'];
             this.chartData = { ts: [[0]] };
         }
+        this.getCount();
     }
 
     getTsdbQuery(mid) {
@@ -1184,6 +1188,24 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             err => {
                 this.nQueryDataLoading = 0;
                 this.error = err;
+            }
+        );
+    }
+
+    getCount() {
+        const countObserver = this.httpService.getAlertCount({namespace: this.queries[0].namespace, alertId: this.data.id});
+        this.sub = countObserver.subscribe(
+            result => {
+                for (const alert of result.results[0].data) {
+                    // TODO remove + 2
+                    if (alert.tags._alert_id === (this.data.id + 2).toString()) {
+                        this.counts = alert.summary;
+                        break;
+                    }
+                }
+            },
+            err => {
+                // this.error = err;
             }
         );
     }
