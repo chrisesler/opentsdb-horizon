@@ -57,6 +57,12 @@
                 flex: 1;
                 margin: auto 0;
                 justify-content: flex-start;
+
+                > span {
+                    padding-left: 2px;
+                    padding-right: 2px;
+                }
+
             }
 
             .option-cell.add-remove + .option-cell.label {
@@ -392,6 +398,8 @@
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
     $is-dark: map-get($theme-config, is-dark);
+    $dbfilter: map-get($theme-config, dashboard-filters);
+
     $chip-bg: rgba(map-get($primary, default), .1);
     $alias-bg: if($is-dark, rgba(255, 255, 255, .2), rgba(0, 0, 0, .2));
     $alias-text: if($is-dark, rgba(255, 255, 255, .5), rgba(0, 0, 0, .5));
@@ -407,11 +415,14 @@
     $query-block-selected-border: map-get($widgets, query-editor-selected-border);
 
     $cdk-menu-bg: map-get($background, menu);
-    $cdk-menu-border: $divider;
+    $cdk-menu-border: map-get($denali-grey, 50);
 
     $option-highlight-text: map-get($foreground, link);
     $option-highlight-bg: rgba($option-highlight-text, 0.5);
     $option-highlight-bg-hover: rgba($option-highlight-text, 0.65);
+
+    $dbf-automode-bg: map-get($dbfilter, auto-mode-bg);
+    $dbf-manualmode-bg: map-get($dbfilter, manual-mode-bg);
 
     .inline-filter-editor {
 
@@ -448,6 +459,22 @@
                     box-shadow: inset 0 -2px 0 rgba(255, 255, 255, .2);
                 }*/
             //}
+
+            .option-cell.label {
+                .automode {
+                    color: rgba(0,0,0,.8);
+
+                    &.auto-mode {
+                        background-color: $dbf-automode-bg;
+                        border: 1px solid darken($dbf-automode-bg, 15%);
+                    }
+
+                    &.manual-mode {
+                        background-color: $dbf-manualmode-bg;
+                        border: 1px solid darken($dbf-manualmode-bg, 15%);
+                    }
+                }
+            }
 
             // modifiers
             &.expression {
@@ -491,6 +518,20 @@
                 .tag-filter-options-column:last-child {
                     .mat-standard-chip {
                         background: $option-highlight-bg;
+
+                        &.automode {
+                            color: rgba(0,0,0,.8);
+
+                            &.auto-mode {
+                                background-color: $dbf-automode-bg;
+                                border: 1px solid darken($dbf-automode-bg, 15%);
+                            }
+
+                            &.manual-mode {
+                                background-color: $dbf-manualmode-bg;
+                                border: 1px solid darken($dbf-manualmode-bg, 15%);
+                            }
+                        }
                     }
 
                     .prefix.mat-icon{
@@ -556,5 +597,6 @@
 
     .mat-menu-panel.filter-action-cdk-menu {
         background-color: if($is-dark, lighten($cdk-menu-bg, 8%), darken($cdk-menu-border, 8%));
+        border: 1px solid $cdk-menu-border;
     }
 }

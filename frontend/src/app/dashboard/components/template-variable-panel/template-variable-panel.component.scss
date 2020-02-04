@@ -38,7 +38,7 @@
                 list-style-type: none;
                 padding-right: 10px;
 
-                
+
             }
         }
 
@@ -414,6 +414,7 @@
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
     $is-dark-theme: map-get($theme-config, is-dark);
+    $dbfilter: map-get($theme-config, dashboard-filters);
 
     $bg-color: lighten(map-get($background, navbar), 80%);
     $navbar-text: map-get($foreground, foreground);
@@ -423,6 +424,9 @@
     $divider: rgba(0, 0, 0, 0.08);
 
     $input-bg: rgba(map-get($primary, default), 0.08);
+
+    $dbf-automode-bg: map-get($dbfilter, auto-mode-bg);
+    $dbf-manualmode-bg: map-get($dbfilter, manual-mode-bg);
 
     .template-variable-panel-component {
         background-color: map-get($background, card);
@@ -482,6 +486,20 @@
         .dashboard-template-variable.mat-form-field {
             .mat-form-field-prefix {
                 background: rgba(map-get($primary, default), .1);
+
+                .automode {
+                    color: rgba(0,0,0,.8);
+
+                    &.auto-mode {
+                        background-color: $dbf-automode-bg;
+                        border: 1px solid darken($dbf-automode-bg, 15%);
+                    }
+
+                    &.manual-mode {
+                        background-color: $dbf-manualmode-bg;
+                        border: 1px solid darken($dbf-manualmode-bg, 15%);
+                    }
+                }
             }
 
             .mat-form-field-suffix {
@@ -516,6 +534,30 @@
                     .mat-ink-bar {
                         background-color: if($is-dark-theme, rgba(#ffffff, 0.12), #ffffff);
                         border: 1px solid map-get($foreground, link);
+                    }
+
+                    &.auto-mode {
+                        .mat-ink-bar {
+                            background-color: $dbf-automode-bg;
+                            border: 1px solid darken($dbf-automode-bg, 15%);
+                        }
+                    }
+
+                    &.manual-mode {
+                        .mat-ink-bar {
+                            background-color: $dbf-manualmode-bg;
+                            border: 1px solid darken($dbf-manualmode-bg, 15%);
+                        }
+                    }
+
+                    &.auto-mode,
+                    &.manual-mode {
+                        .mat-tab-link {
+                            &,
+                            &.mat-tab-label-active {
+                                color: rgba(0, 0, 0, .85);
+                            }
+                        }
                     }
                 }
             }
