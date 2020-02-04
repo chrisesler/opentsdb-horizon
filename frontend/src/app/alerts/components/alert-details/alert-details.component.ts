@@ -656,6 +656,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             enabled: data.enabled === undefined ? true : data.enabled,
             namespace: data.namespace || null,
             alertGroupingRules: [ data.alertGroupingRules || []],
+            labels: this.fb.array(data.labels || []),
             queries: this.fb.group({
                 eventdb: this.fb.array([
                         this.fb.group({
