@@ -315,8 +315,9 @@ export class DashboardService {
     return { ..._dashboardTags };
   }
 
-  // to resolve from variable to real filter value
-  resolveTplVar(query: any, tplVariables: any[]) {
+  // to resolve from variable to real filter value, this is for insert mode
+  // and combine with existing values
+  resolveTplVarCombine(query: any, tplVariables: any[]) {
     for (let i = 0; i < query.filters.length; i++) {
       const qFilter = query.filters[i];
       // they do have custom filter
@@ -336,6 +337,46 @@ export class DashboardService {
     // clean out empty filter, since they might have db filter but not set value yet.
     query.filters = query.filters.filter(f => f.filter.length > 0);
     return query;
+  }
+
+  // resolve with replace mode based on mode and default value 
+  resolveTplVarReplace(query: any, tplVariables: any[]) {
+    for (let i = 0; i < query.filters.length; i++) {
+      const qFilter = query.filters[i];
+      let replaceFilter = [];
+      let autoMode = false; // track of any of db filters have auto mode
+      if (qFilter.customFilter && qFilter.customFilter.length > 0) {
+        // they do have custom filter
+        if (qFilter.customFilter && qFilter.customFilter.length > 0) {
+          for (let j = 0; j < qFilter.customFilter.length; j++) {
+            const hasNot = qFilter.customFilter[j][0] === '!';
+            const alias = qFilter.customFilter[j].substring(hasNot ? 2 : 1, qFilter.customFilter[j].length - 1);
+            const tplIdx = tplVariables.findIndex(tpl => tpl.alias === alias);
+            if (tplIdx > -1) {
+              if (tplVariables[tplIdx].filter.trim() !== '' && qFilter.filter.indexOf(tplVariables[tplIdx].filter) === -1) {
+                // qFilter.filter.push(hasNot ? '!' + tplVariables[tplIdx].filter : tplVariables[tplIdx].filter);
+                replaceFilter.push(hasNot ? '!' + tplVariables[tplIdx].filter : tplVariables[tplIdx].filter);
+                if (tplVariables[tplIdx].mode === 'auto') {
+                  autoMode = true;
+                }
+              }
+            }
+          }
+        }
+      }
+      if (replaceFilter.length > 0) {
+        if (autoMode) {
+          // do replace
+          qFilter.filter = [...replaceFilter];
+        } else { 
+          // they are all manual mode and have value, do combine
+          qFilter.filter = qFilter.filter.concat(replaceFilter);
+        }
+      }
+    }
+    // clean out empty filter, since they might have db filter but not set value yet.
+    query.filters = query.filters.filter(f => f.filter.length > 0);
+    return query;    
   }
 
   addGridterInfo(widgets: any[]) {
@@ -369,7 +410,6 @@ export class DashboardService {
   }
 
   updateTplVariablesFromURL(dbstate) {
-
     if (this.urlOverride.getTagOverrides()) {
       var urlTags = this.urlOverride.getTagOverrides();
       if (!dbstate.content.settings.tplVariables) {
