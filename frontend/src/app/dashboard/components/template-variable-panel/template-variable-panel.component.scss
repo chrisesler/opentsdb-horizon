@@ -2,7 +2,6 @@
 
     $vtb-height: 44px;
 
-
     .isDisabled {
         color: currentColor;
         cursor: not-allowed;
@@ -38,6 +37,8 @@
                  display: inline;
                 list-style-type: none;
                 padding-right: 10px;
+
+                
             }
         }
 
@@ -146,6 +147,17 @@
                 display: flex;
                 align-items: center;
                 padding: 0 4px;
+            }
+
+            .mat-form-field-prefix {
+                padding: 0;
+
+                .automode {
+                    padding: 0 4px;
+                    align-items: center;
+                    align-self: stretch;
+                    display: flex;
+                }
             }
 
             .mat-form-field-infix {
