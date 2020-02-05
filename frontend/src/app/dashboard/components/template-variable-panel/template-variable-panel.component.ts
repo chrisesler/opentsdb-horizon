@@ -187,18 +187,18 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 const regexStr = val === '' || val === 'regexp()' ? 'regexp(.*)' : /^regexp\(.*\)$/.test(val) ? val : 'regexp('+val.replace(/\s/g, ".*")+')';
                 // assign regexpStr to first element right away
                 if (this.filteredValueOptions[index]) {
+                    this.filteredValueOptions[index] = []; // has to clear all previous result
                     this.filteredValueOptions[index][0] = regexStr;
                 }
                 this.trackingSub[qid] = this.httpService.getTagValues(query).subscribe(
                     results => {
-                        if (results && results.length > 0) {                     
-                            // this.filteredValueOptions[index] = this.filteredValueOptions[index].concat(results);
-                            this.filteredValueOptions[index] = Array.from(new Set(this.filteredValueOptions[index].concat(results))).splice(0, (results.length + 1));
+                        if (results && results.length > 0) {                    
+                            this.filteredValueOptions[index] = this.filteredValueOptions[index].concat(results);
+                            // this.filteredValueOptions[index] = Array.from(new Set(this.filteredValueOptions[index].concat(results))).splice(0, (results.length + 1));
                         }
                     });
             });
     }
-
     initListFormGroup(checkRun: boolean = false) {
         this.editForm.reset({ emitEvent: false});
         // when switching to edit mode, we use the edit form and value and requery of needed
