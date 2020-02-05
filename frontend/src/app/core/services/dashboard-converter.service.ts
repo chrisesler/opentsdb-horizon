@@ -357,7 +357,7 @@ export class DashboardConverterService {
             for (let j = 0; j < widgets.length; j++) {
               let widget = widgets[j];
               // if they set not use DbFilter then we do not modify them at all.
-              if (!widget.settings.useDBFilter) continue;
+              if (widget.settings.hasOwnProperty('useDBFilter') && !widget.settings.useDBFilter) continue;
               const isModify = this.applytDBFilterToWidget(widget, payload, dbTags.rawDbTags);
               if (isModify) {
                 tvar.applied = tvar.applied + 1;
