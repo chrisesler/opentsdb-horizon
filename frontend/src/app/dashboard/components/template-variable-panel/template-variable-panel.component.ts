@@ -495,6 +495,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 if (this.tplVariables.editTplVariables.tvars[index].filter !== selControl.get('filter').value) {
                     this.updateState(selControl);
                 }
+                this.filteredValueOptions[index] = [];
             }, 300);
         }
     }
@@ -561,6 +562,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         if (this.trackingSub.hasOwnProperty(name + index)) {
             this.trackingSub[name + index].unsubscribe();
         }
+        this.filteredValueOptions[index] = [];
         if ( this.tagValueBlurTimeout ) {
             clearTimeout(this.tagValueBlurTimeout);
         }
@@ -577,6 +579,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         if (this.trackingSub.hasOwnProperty(name + index)) {
             this.trackingSub[name + index].unsubscribe();
         }
+        this.filteredValueOptions[index] = [];
         if ( this.tagValueViewBlurTimeout ) {
             clearTimeout(this.tagValueViewBlurTimeout);
         }
