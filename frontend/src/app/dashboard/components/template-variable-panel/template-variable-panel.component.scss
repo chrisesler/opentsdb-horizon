@@ -164,6 +164,11 @@
                 min-width: 50px;
                 width: 100%;
             }
+            &.mat-focused {
+                .mat-form-field-suffix {
+                    display: none;
+                }
+            }
         }
 
         /* Some button overrides */
