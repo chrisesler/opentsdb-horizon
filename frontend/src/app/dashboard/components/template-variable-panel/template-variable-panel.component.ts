@@ -50,6 +50,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     originAlias: string[] = [];
     tagBlurTimeout: any;
     valChangeSub: Subscription;
+    isSecondBlur = false; // when we manually call focus to some element, the blur happened to auto-complete.
 
     // style object for drag placeholder
     placeholderStyles: any = { width: '100%', height: '49px', transform: 'translate3d(0px,0px,0px)'};
@@ -129,21 +130,19 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         if (selControl.invalid) { return; } // no go futher if no tagkey and alias defined.
         const conVal = selControl.get('filter').value;
         const res = conVal.match(/^regexp\((.*)\)$/);
+        let initRegVal = '';
         if (res) {
             selControl.get('filter').setValue(res[1]);
-        }
-        // unsubscribe if exists to keep list as new
-        if (this.trackingSub.hasOwnProperty(name + index)) {
-            this.trackingSub[name + index].unsubscribe();
+            initRegVal = res[1];
         }
         // only when it not there
         if (!this.filteredValueOptions[index]) {
             this.filteredValueOptions[index] = [];
-        }
+        } 
 
         this.trackingSub[name + index] = selControl.get('filter').valueChanges
             .pipe(
-                startWith(''),
+                startWith(initRegVal),
                 distinctUntilChanged(),
                 debounceTime(500)
             ).subscribe(val => {
@@ -187,7 +186,9 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 const regexStr = val === '' || val === 'regexp()' ? 'regexp(.*)' : /^regexp\(.*\)$/.test(val) ? val : 'regexp('+val.replace(/\s/g, ".*")+')';
                 // assign regexpStr to first element right away
                 if (this.filteredValueOptions[index]) {
-                    this.filteredValueOptions[index] = []; // has to clear all previous result
+                    if (this.filteredValueOptions[index].length > 1) {
+                        this.filteredValueOptions[index].splice(1, this.filteredValueOptions[index].length - 1);
+                    }
                     this.filteredValueOptions[index][0] = regexStr;
                 }
                 this.trackingSub[qid] = this.httpService.getTagValues(query).subscribe(
@@ -316,10 +317,13 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         this.tagValueViewFocusTimeout = setTimeout(() => {
             this.manageFilterControl(index);
         }, 300);
-
     }
 
     onVariableBlur(event: any, index: number) {
+        if (this.isSecondBlur) { 
+            this.isSecondBlur = false;
+            return;
+        }
         const control = <FormArray>this.listForm.controls['listVariables'];
         const selControl = control.at(index);
         const val = selControl.get('filter').value;
@@ -348,12 +352,12 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                     payload: [selControl.value]
                 });
             }
+            this.filteredValueOptions[index] = [];
         }, 300);
     }
 
     onInputFocus(cname: string, index: number) {
         const selControl = this.getSelectedControl(index);
-
         switch (cname) {
             case 'tagk':
                 this.filteredKeyOptions = selControl['controls'][cname].valueChanges
@@ -384,6 +388,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 }
                 break;
             case 'filter':
+
                 this.tagValueFocusTimeout = setTimeout(() => {
                     this.manageFilterControl(index);
                 }, 300);
@@ -490,6 +495,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 if (this.tplVariables.editTplVariables.tvars[index].filter !== selControl.get('filter').value) {
                     this.updateState(selControl);
                 }
+                this.filteredValueOptions[index] = [];
             }, 300);
         }
     }
@@ -551,6 +557,12 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
     // update state if it's is valid
     selectFilterValueOption(event: any, index: number) {
+        // unsubscribe if exists to keep list as new
+        const name = this.mode.view ? 'view' : 'edit';
+        if (this.trackingSub.hasOwnProperty(name + index)) {
+            this.trackingSub[name + index].unsubscribe();
+        }
+        this.filteredValueOptions[index] = [];
         if ( this.tagValueBlurTimeout ) {
             clearTimeout(this.tagValueBlurTimeout);
         }
@@ -558,16 +570,23 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             clearTimeout(this.tagValueFocusTimeout);
         }
         const selControl = this.getSelectedControl(index);
-        this.updateState(selControl);;
+        this.updateState(selControl);
     }
 
     selectVarValueOption(event: any, index: number) {
+        // unsubscribe if exists to keep list as new
+        const name = this.mode.view ? 'view' : 'edit';
+        if (this.trackingSub.hasOwnProperty(name + index)) {
+            this.trackingSub[name + index].unsubscribe();
+        }
+        this.filteredValueOptions[index] = [];
         if ( this.tagValueViewBlurTimeout ) {
             clearTimeout(this.tagValueViewBlurTimeout);
         }
         if ( this.tagValueViewFocusTimeout ) {
             clearTimeout(this.tagValueViewFocusTimeout);
         }
+        this.isSecondBlur = true;
         this.focusEl.nativeElement.focus();
         // the event is matAutocomplete event, we deal later to clear focus
         if (this.tplVariables.viewTplVariables.tvars[index].filter !== event.option.value) {
