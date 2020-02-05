@@ -140,6 +140,16 @@
                         strong {
                             margin-right: 6px;
                         }
+
+                        .tagkey-item {
+                            display: flex;
+                            align-items: stretch;
+
+                            span {
+                                padding:  2px 4px;
+                            }
+
+                        }
                     }
                 }
             }
@@ -630,6 +640,7 @@
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
     $is-dark: map-get($theme-config, is-dark);
+    $dbfilter: map-get($theme-config, dashboard-filters);
 
     $chip-bg: rgba(map-get($primary, default), .1);
     $alias-bg: if($is-dark, rgba(255, 255, 255, .2), rgba(0, 0, 0, .2));
@@ -651,6 +662,9 @@
     $brand-color-inverse: find-color-invert($brand-color);
 
     $lighter-divider: rgba(0,0,0,0.04);
+
+    $dbf-automode-bg: map-get($dbfilter, auto-mode-bg);
+    $dbf-manualmode-bg: map-get($dbfilter, manual-mode-bg);
 
     .query-editor-proto {
 
@@ -687,6 +701,24 @@
 
             .tags-selected-header {
                 border-bottom: 1px solid $divider
+            }
+
+            .tag-filter-detail {
+                .tagkey-item {
+                    .automode {
+                        color: rgba(0,0,0,.8);
+
+                        &.auto-mode {
+                            background-color: $dbf-automode-bg;
+                            border: 1px solid darken($dbf-automode-bg, 15%);
+                        }
+
+                        &.manual-mode {
+                            background-color: $dbf-manualmode-bg;
+                            border: 1px solid darken($dbf-manualmode-bg, 15%);
+                        }
+                    }
+                }
             }
         }
 

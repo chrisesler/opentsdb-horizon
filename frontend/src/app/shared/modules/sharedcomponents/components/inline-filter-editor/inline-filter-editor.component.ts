@@ -64,9 +64,9 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
         private matIconRegistry: MatIconRegistry,
         private domSanitizer: DomSanitizer,
         private interCom: IntercomService,
-        private cdRef: ChangeDetectorRef) {
-            matIconRegistry.addSvgIcon('exclamation_point', domSanitizer.bypassSecurityTrustResourceUrl('assets/exclamation-point.svg')
-        );
+        private cdRef: ChangeDetectorRef
+    ) {
+        matIconRegistry.addSvgIcon('exclamation_point', domSanitizer.bypassSecurityTrustResourceUrl('assets/exclamation-point.svg'));
     }
 
     ngOnInit() {
@@ -287,7 +287,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
                         operator: 'add',
                         alias: v
                     }
-                });                
+                });
             } else {
                 this.filters[tagIndex].filter.push(v);
             }
@@ -352,6 +352,17 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
             keys.push(this.filters[i].tagk);
         }
         return keys.indexOf(key);
+    }
+
+    getAutoManualClass(alias: string) {
+
+      const idx = this.tplVariables.tvars.findIndex(item => item.mode === 'auto' && '[' + item.alias + ']' === alias);
+
+      if (idx > -1) {
+        return true;
+      } else {
+        return false;
+      }
     }
 
 

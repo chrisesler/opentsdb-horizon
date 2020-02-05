@@ -12,12 +12,12 @@ export class FormatAutoManualFilterPipe implements PipeTransform {
             if (regexVars.test(val)) {
                 const idx = tplVars.findIndex(f => f.mode === 'auto' && '[' + f.alias + ']' === val)
                 if (idx > -1) {
-                    retVals.push('<span style="background: green;padding: 4px; color: green;">' + val + '</span>');
+                    retVals.push('<span class="automode auto-mode">' + val + '</span>');
                 } else {
-                    retVals.push('<span style="background: gray; padding: 4px; color: red;">' + val + '</span>');
+                    retVals.push('<span class="automode manual-mode">' + val + '</span>');
                 }
             } else {
-                retVals.push(val);
+                retVals.push('<span>' + val + '</span>');
             }
         }
         const htmlStr = retVals.join(', ');
