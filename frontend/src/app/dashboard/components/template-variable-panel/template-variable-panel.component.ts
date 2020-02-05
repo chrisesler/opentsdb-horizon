@@ -129,8 +129,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         if (selControl.invalid) { return; } // no go futher if no tagkey and alias defined.
         const conVal = selControl.get('filter').value;
         const res = conVal.match(/^regexp\((.*)\)$/);
+        let initRegVal = '';
         if (res) {
             selControl.get('filter').setValue(res[1]);
+            initRegVal = res[1];
         }
         // unsubscribe if exists to keep list as new
         if (this.trackingSub.hasOwnProperty(name + index)) {
@@ -143,7 +145,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
 
         this.trackingSub[name + index] = selControl.get('filter').valueChanges
             .pipe(
-                startWith(''),
+                startWith(initRegVal),
                 distinctUntilChanged(),
                 debounceTime(500)
             ).subscribe(val => {
