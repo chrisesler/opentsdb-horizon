@@ -355,14 +355,15 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
     }
 
     getAutoManualClass(alias: string) {
+        // take out !not if there for checking
+        alias = alias.replace('!', '');
+        const idx = this.tplVariables.tvars.findIndex(item => item.mode === 'auto' && '[' + item.alias + ']' === alias);
 
-      const idx = this.tplVariables.tvars.findIndex(item => item.mode === 'auto' && '[' + item.alias + ']' === alias);
-
-      if (idx > -1) {
-        return true;
-      } else {
-        return false;
-      }
+        if (idx > -1) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 

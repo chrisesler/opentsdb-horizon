@@ -10,7 +10,8 @@ export class FormatAutoManualFilterPipe implements PipeTransform {
         for (let i = 0; i < values.length; i++) {
             let val = values[i];
             if (regexVars.test(val)) {
-                const idx = tplVars.findIndex(f => f.mode === 'auto' && '[' + f.alias + ']' === val)
+                const valToCheck = val.replace('!','');
+                const idx = tplVars.findIndex(f => f.mode === 'auto' && '[' + f.alias + ']' === valToCheck)
                 if (idx > -1) {
                     retVals.push('<span class="automode auto-mode">' + val + '</span>');
                 } else {
