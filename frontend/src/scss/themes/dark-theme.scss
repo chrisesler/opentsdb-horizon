@@ -81,5 +81,11 @@ $dark-theme: (
        size: 8px,
        track-bg: black,
        thumb-bg: #8ACFED
+    ),
+    dashboard-filters: (
+        auto-mode-bg: #33FF74,
+        auto-mode-border-color: darken(#33FF74, 15%),
+        manual-mode-bg: #d8e9fb,
+        manual-mode-border-color: darken(#d8e9fb, 15%)
     )
 );

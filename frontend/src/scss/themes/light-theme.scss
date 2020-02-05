@@ -76,5 +76,11 @@ $light-theme: (
        size: 8px,
        track-bg: map_get($mat-grey, 300),
        thumb-bg: map_get($denali-brand-6, 500)
+    ),
+    dashboard-filters: (
+        auto-mode-bg: #33FF74,
+        auto-mode-border-color: darken(#33FF74, 15%),
+        manual-mode-bg: #d8e9fb,
+        manual-mode-border-color: darken(#d8e9fb, 15%)
     )
 );

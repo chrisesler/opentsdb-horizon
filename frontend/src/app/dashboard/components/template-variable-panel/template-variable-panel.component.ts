@@ -141,11 +141,11 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             this.filteredValueOptions[index] = [];
         }
 
-        this.trackingSub['v-' + name + index] = selControl.get('filter').valueChanges
+        this.trackingSub[name + index] = selControl.get('filter').valueChanges
             .pipe(
                 startWith(''),
                 distinctUntilChanged(),
-                debounceTime(100)
+                debounceTime(500)
             ).subscribe(val => {
                 val = val ? val.trim() : '';
                 const alias = '[' + selControl.get('alias').value + ']';
