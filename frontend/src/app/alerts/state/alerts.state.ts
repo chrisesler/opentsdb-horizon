@@ -235,19 +235,14 @@ export class AlertsState {
                 });
             } else {
                 // they have NOT been loaded already
-                this.store.dispatch(new DbfsLoadNamespacesList({})).pipe(
-                    map((payload: any) => {
-                        // return snapshot of formatted/sorted namespacelist
-                        return this.store.selectSnapshot(DbfsResourcesState.getNamespacesList);
-                    })
-                ).subscribe( (data: any) => {
+                this.store.dispatch(new DbfsLoadNamespacesList({})).subscribe( (data: any) => {
 
                     req1 = this.store.selectSnapshot(DbfsState.getUserMemberNamespaceData());
-                    req2 = data;
+                    req2 = this.store.selectSnapshot(DbfsResourcesState.getNamespacesList);
 
                     ctx.patchState({
                         userNamespaces: req1,
-                        allNamespaces: data,
+                        allNamespaces: req2,
                         loading: false,
                         loaded: { userNamespaces: true, allNamespaces: true}
                     });
@@ -286,7 +281,7 @@ export class AlertsState {
         const userNamespaces = state.userNamespaces;
         let fixedNamespace: string = "";
 
-        state.allNamespaces.forEach(d => { 
+        state.allNamespaces.forEach(d => {
             if (d.name.toLowerCase() === namespace.toLowerCase()) { fixedNamespace = d.name; }
         });
 
