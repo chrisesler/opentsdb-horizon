@@ -10,7 +10,7 @@
                     <mat-form-field appearance="fill" color="primary" floatLabel="never" class="dashboard-template-variable" [ngStyle]="{width: calculateVariableDisplayWidth(vartpl)}" [attr.id]="'filter-tpl-'+i">
                         <input matInput formControlName="filter" placeholder="" [matAutocomplete]="filterVarValues"
                             (blur)="onVariableBlur($event, i)" (keydown.enter)="onVariableBlur($event, i)" (focus)="onVariableFocus(i)">
-                        <span matPrefix>{{vartpl.get('alias').value}}</span>
+                        <span matPrefix class="automode {{vartpl.get('mode').value === 'auto' ? 'auto-mode' : 'manual-mode'}}">{{vartpl.get('alias').value}}</span>
                         <span matSuffix *ngIf="vartpl.get('filter').value.length > 0" (click)="resetFilterValue($event, i)">
                             <mat-icon fontSet="denali" fontIcon="d-close-circle-solid"></mat-icon>
                         </span>
@@ -75,13 +75,13 @@
                             <!-- <th>empty for error messages</th> -->
                         </tr>
                     </thead>
-                    <tbody cdkDropList [cdkDropListData]="formTplVariables['controls']" (cdkDropListDropped)="dropTable($event)">
+                    <tbody cdkDropList [cdkDropListData]="formTplVariables['controls']" [cdkDropListDisabled]="formTplVariables.controls.length < 2" (cdkDropListDropped)="dropTable($event)">
                         <tr class="variable-edit-controls" *ngFor="let tpl of formTplVariables.controls; let i = index" [formGroupName]="i" cdkDrag [cdkDragData]="tpl"
                             (cdkDragStarted)="dragStart($event, i)">
                             <!-- auto/manu toggle (TODO: still have to style) -->
                             <td>
                                 <div class="settings-control filter-mode-control">
-                                    <nav mat-tab-nav-bar class="sliding-toggle-group">
+                                    <nav mat-tab-nav-bar class="sliding-toggle-group" [ngClass]="{'auto-mode': tpl.get('mode').value === 'auto', 'manual-mode': tpl.get('mode').value !== 'auto'}">
                                         <a mat-tab-link
                                             [active]="tpl.get('mode').value === 'auto'"
                                             (click)="switchFilterMode('auto', i)">

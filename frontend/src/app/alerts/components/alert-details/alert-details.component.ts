@@ -156,6 +156,13 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         { label: '5', value: '5' }
     ];
 
+    ocTierOptions: any[] = [
+        { label: 'Tier 1 - OC', value: '1' },
+        { label: 'Tier 2 - SRE', value: '2' },
+        { label: 'Tier 3 - PE', value: '3' },
+        { label: 'Tier 4 - Dev', value: '4' }
+    ];
+
     opsGeniePriorityOptions: any[] = [
         { label: 'P1', value: 'P1' },
         { label: 'P2', value: 'P2' },
@@ -166,6 +173,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
 
     defaultOpsGeniePriority = 'P5';
     defaultOCSeverity = '5';
+    defaultOCTier = '1';
     defaultSlidingWindowSize = '300';
     defaultEventSlidingWindowSize = '600';
 
@@ -432,7 +440,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 // opsgenieTags: data.notification.opsgenieTags || '',
                 // OC conditional values
                 runbookId: data.notification.runbookId || '',
-                ocSeverity: data.notification.ocSeverity || this.defaultOCSeverity
+                ocSeverity: data.notification.ocSeverity || this.defaultOCSeverity,
+                ocTier: data.notification.ocTier || this.defaultOCTier
             })
         });
         this.setTags();
@@ -594,7 +603,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 // opsgenieTags: data.notification.opsgenieTags || '',
                 // OC conditional values
                 runbookId: data.notification.runbookId || '',
-                ocSeverity: data.notification.ocSeverity || this.defaultOCSeverity
+                ocSeverity: data.notification.ocSeverity || this.defaultOCSeverity,
+                ocTier: data.notification.ocTier || this.defaultOCTier
             })
         });
         this.setTags();
@@ -670,7 +680,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 body: data.notification.body || '',
                 opsgeniePriority:  data.notification.opsgeniePriority || this.defaultOpsGeniePriority,
                 runbookId: data.notification.runbookId || '',
-                ocSeverity: data.notification.ocSeverity || this.defaultOCSeverity
+                ocSeverity: data.notification.ocSeverity || this.defaultOCSeverity,
+                ocTier: data.notification.ocTier || this.defaultOCTier
             })
         });
         this.options.axes.y.valueRange[0] = 0;
@@ -1277,6 +1288,11 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         if (e.value === 'singleMetric' || (e.value === 'periodOverPeriod' && Object.keys(this.periodOverPeriodConfig).length > 0)) {
             this.reloadData();
         }
+
+        if (e.value === 'periodOverPeriod') { // singleMetric thresholds can interfere with rendering of periodOverPeriod graph
+            this.alertForm['controls'].threshold['controls'].singleMetric.get('badThreshold').setValue(null);
+            this.alertForm['controls'].threshold['controls'].singleMetric.get('warnThreshold').setValue(null);
+        }
     }
 
     validate() {
@@ -1468,6 +1484,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         if ( this.notificationRecipients.value.oc &&  !event.oc) {
             this.alertForm['controls'].notification.get('runbookId').setValue('');
             this.alertForm['controls'].notification.get('ocSeverity').setValue('');
+            this.alertForm['controls'].notification.get('ocTier').setValue('');
         }
 
         if ( this.notificationRecipients.value.opsgenie && !event.opsgenie) {

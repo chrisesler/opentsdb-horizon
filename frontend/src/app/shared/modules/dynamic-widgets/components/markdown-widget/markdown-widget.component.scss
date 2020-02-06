@@ -30,7 +30,6 @@
                 // editor for users to type
                 min-width: 100%;
                 height: calc(100% - 20px);
-                // margin-top: 20px;
 
                 .mat-form-field-wrapper {
                     height: 100%;
@@ -48,6 +47,7 @@
 
                             textarea {
                                 height: 100%;
+                                font-size: 12px;
                             }
                         }
                     }
@@ -1067,7 +1067,7 @@
                 .mat-tab-body-wrapper {
                     mat-tab-body {
                         &.mat-tab-body {
-                            border: none;
+                            // border: none;
 
                             .mat-tab-body-content {
                                 display: block;
@@ -1101,16 +1101,24 @@
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
 
-    .inputArea {
-        // editor for users to type
-        background: white;
-        border-left: 1px solid rgba(0, 0, 0, 0.12);
-        border-right: 1px solid rgba(0, 0, 0, 0.12);
+    $is-dark: map-get($theme-config, is-dark);
+
+    $bg: map-get($background, background);
+    $fg: map-get($foreground, foreground);
+
+    textarea {
+        background: if($is-dark, $fg, white);
+        color: if($is-dark, white, $fg);
     }
 
     .markdown-note {
-        // background:  map-get($background, navbar);
-        background: #EFF1F2;
+        background: $bg;
+        color: if($is-dark, white, black);
+        border: none;
+
+        a:visited {
+            color: if($is-dark, white, black);
+          }
     }
 
 }

@@ -149,11 +149,16 @@ export class DBState {
             return this.httpService.getDashboardById(id).pipe(
                 map(res => {
                     const dashboard: any = res.body;
+                    // reset the url override, when newly go with url then id id empty
+                    if (this.urlOverrideService.activeDashboardId !== '' && this.urlOverrideService.activeDashboardId !== id) {
+                        this.urlOverrideService.clearOverrides();
+                    }
+                    this.urlOverrideService.activeDashboardId = id;
                     // update grister info for UI only
                     this.dbService.addGridterInfo(dashboard.content.widgets);
                     this.dbService.updateTimeFromURL(dashboard);
-                    this.dbService.updateTplVariablesFromURL(dashboard);
                     if (dashboard.content.version && dashboard.content.version === this.dbConverterService.currentVersion) {
+                        this.dbService.updateTplVariablesFromURL(dashboard);
                         ctx.dispatch(new LoadDashboardSuccess(dashboard));
                     } else {
                         ctx.dispatch(new MigrateAndLoadDashboard(id, dashboard));
@@ -177,6 +182,7 @@ export class DBState {
     migrateAndLoadDashboard(ctx: StateContext<DBStateModel>, { id: id, payload: payload }: MigrateAndLoadDashboard) {
             this.logger.action('State :: Migrate and Load Dashboard', { id, payload });
             this.dbConverterService.convert(payload).subscribe((res) => {
+                this.dbService.updateTplVariablesFromURL(res);
                 ctx.dispatch(new LoadDashboardSuccess(res));
             });
             // we dont want to save after conversion but return the conversion version
@@ -232,7 +238,6 @@ export class DBState {
             fullPath: payload.fullPath,
             status: 'save-success'
         });
-        this.urlOverrideService.clearOverrides();
     }
 
     @Action(SaveDashboardFail)

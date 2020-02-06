@@ -315,27 +315,35 @@ export class DashboardConverterService {
           dashboard.content.version = 8;
           let settings = dashboard.content.settings;
           let widgets = dashboard.content.widgets;
-          const tvars = settings.tplVariables || [];
-          // get all namespace from widgets
-          const namespaces = {};
-          for (let i = 0; i < widgets.length; i++) {
-            const queries = widgets[i].queries;
-            for (let j = 0; j < queries.length; j++) {
-              if (queries[j].namespace) {
-                namespaces[queries[j].namespace] = true;
+          let tplVariables: any = {};
+          // there was a bug that save v8 of db filter at v7
+          if (settings.tplVariables && settings.tplVariables.tvars && settings.tplVariables.namespaces) {
+            tplVariables = settings.tplVariables;
+          } else {
+            const tvars = settings.tplVariables || [];
+            // get all namespace from widgets
+            const namespaces = {};
+            for (let i = 0; i < widgets.length; i++) {
+              const queries = widgets[i].queries;
+              for (let j = 0; j < queries.length; j++) {
+                if (queries[j].namespace) {
+                  namespaces[queries[j].namespace] = true;
+                }
               }
             }
+            // update tvars format
+  
+            for (let i = 0; i < tvars.length; i++) {
+              tvars[i].mode = 'auto';
+              tvars[i].applied = 0;
+              tvars[i].isNew = 0;
+            }
+            tplVariables = {
+              namespaces: Object.keys(namespaces),
+              tvars: tvars
+            };
           }
-          // update tvars format
-          for (let i = 0; i < tvars.length; i++) {
-            tvars[i].mode = 'auto';
-            tvars[i].applied = 0;
-            tvars[i].isNew = 0;
-          }
-          let tplVariables = {
-            namespaces: Object.keys(namespaces),
-            tvars: tvars
-          };
+
           let dbTags = this.formatDbTagKeysByWidgets(res);
           for (let i = 0; i < tplVariables.tvars.length; i++) {
             let tvar = tplVariables.tvars[i];
@@ -348,6 +356,8 @@ export class DashboardConverterService {
             // check to apply each widget with this db filter
             for (let j = 0; j < widgets.length; j++) {
               let widget = widgets[j];
+              // if they set not use DbFilter then we do not modify them at all.
+              if (widget.settings.hasOwnProperty('useDBFilter') && !widget.settings.useDBFilter) continue;
               const isModify = this.applytDBFilterToWidget(widget, payload, dbTags.rawDbTags);
               if (isModify) {
                 tvar.applied = tvar.applied + 1;
