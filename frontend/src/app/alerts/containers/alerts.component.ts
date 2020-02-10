@@ -704,7 +704,7 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
 
         this.alertsFilterInputVal = dataFilter;
         this.alertsDataSource.filter = dataFilter;
-        this.alertsFilterRegexp = new RegExp(dataFilter.replace(/\s/gi, ".*"));
+        this.alertsFilterRegexp = new RegExp(dataFilter.toLocaleLowerCase().replace(/\s/g, ".*"));
     }
 
     applyAllNamespaceDataFilter(dataFilter: string, event: any) {
