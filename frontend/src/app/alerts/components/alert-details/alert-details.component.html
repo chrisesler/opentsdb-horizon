@@ -1187,6 +1187,13 @@
                                     {{data.alertGroupingRules.join(', ')}}
                                 </div>
                             </div>
+
+                            <div class="form-group alert-grouping-rules" *ngIf="data.alertGroupingRules.length === 0">
+                                <div class="form-label vertical-center"><strong>Send one notification per</strong></div>
+                                <div class="alert-metric-tag-dropdown-wrapper-empty">
+                                    Alert Id
+                                </div>
+                            </div>
                             <div class="form-group alert-recipients">
                                 <div class="form-label vertical-center"><strong>Alert recipients</strong></div>
                                 <div class="form-control-wrap">
