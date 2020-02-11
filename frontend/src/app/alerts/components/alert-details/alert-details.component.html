@@ -706,7 +706,7 @@
                             <div class="alert-metric-tag-dropdown-wrapper">
                                 <dropdown-metric-tags
                                     [selected]="alertForm.get('alertGroupingRules').value"
-                                    [tags]="tags"
+                                    [tags]="alertForm.get('queries').get('eventdb')['controls'][0].get('groupBy').value"
                                     [all]="false"
                                     (change)="setQueryGroupRules($event)"></dropdown-metric-tags>
                             </div>
