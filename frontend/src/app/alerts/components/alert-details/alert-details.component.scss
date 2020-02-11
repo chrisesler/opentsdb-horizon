@@ -377,6 +377,10 @@
 
                 &.alert-grouping-rules {
                     margin-top: 24px;
+                    .alert-metric-tag-dropdown-wrapper-empty {
+                        line-height: 32px;
+                    }
+
                     .alert-metric-tag-dropdown-wrapper {
                         display: flex;
                         align-items: stretch;
