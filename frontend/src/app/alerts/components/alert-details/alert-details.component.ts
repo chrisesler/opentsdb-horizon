@@ -1193,8 +1193,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     }
 
     getCount() {
-        if (this.queries && this.queries[0] && this.queries[0].namespace && this.data && this.data.id) {
-            const countObserver = this.httpService.getAlertCount({namespace: this.queries[0].namespace, alertId: this.data.id});
+        if (this.queries && this.queries[0] && this.data.namespace && this.data && this.data.id) {
+            const countObserver = this.httpService.getAlertCount({namespace: this.data.namespace, alertId: this.data.id});
             this.sub = countObserver.subscribe(
                 result => {
                     for (const alert of result.results[0].data) {
