@@ -184,7 +184,10 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
                         this.tagValueSub.unsubscribe();
                     }
                     // any var template match with selected tag
-                    const tplVars = this.tplVariables.tvars.filter(v => v.tagk === this.selectedTag);
+                    let tplVars: any = [];
+                    if (this.tplVariables.tvars) {
+                        tplVars = this.tplVariables.tvars.filter(v => v.tagk === this.selectedTag);
+                    }
                     this.tagValueSub = this.httpService.getTagValuesByNamespace(query, this.options.metaSource)
                         .subscribe(res => {
                             // append tpl vars to the top of the list of value
