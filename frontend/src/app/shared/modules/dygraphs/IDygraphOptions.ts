@@ -29,6 +29,7 @@ export interface IDygraphOptions {
     connectSeparatedPoints?: boolean;
     drawPoints?: boolean;
     dateWindow?: any[];
+    fillAlpha?: number;
     hideOverlayOnMouseOut?: boolean;
     isCustomZoomed?: boolean;
     file?: any;

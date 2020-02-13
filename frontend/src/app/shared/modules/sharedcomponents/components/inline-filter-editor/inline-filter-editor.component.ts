@@ -64,9 +64,9 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
         private matIconRegistry: MatIconRegistry,
         private domSanitizer: DomSanitizer,
         private interCom: IntercomService,
-        private cdRef: ChangeDetectorRef) {
-            matIconRegistry.addSvgIcon('exclamation_point', domSanitizer.bypassSecurityTrustResourceUrl('assets/exclamation-point.svg')
-        );
+        private cdRef: ChangeDetectorRef
+    ) {
+        matIconRegistry.addSvgIcon('exclamation_point', domSanitizer.bypassSecurityTrustResourceUrl('assets/exclamation-point.svg'));
     }
 
     ngOnInit() {
@@ -184,7 +184,10 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
                         this.tagValueSub.unsubscribe();
                     }
                     // any var template match with selected tag
-                    const tplVars = this.tplVariables.tvars.filter(v => v.tagk === this.selectedTag);
+                    let tplVars: any = [];
+                    if (this.tplVariables.tvars) {
+                        tplVars = this.tplVariables.tvars.filter(v => v.tagk === this.selectedTag);
+                    }
                     this.tagValueSub = this.httpService.getTagValuesByNamespace(query, this.options.metaSource)
                         .subscribe(res => {
                             // append tpl vars to the top of the list of value
@@ -287,7 +290,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
                         operator: 'add',
                         alias: v
                     }
-                });                
+                });
             } else {
                 this.filters[tagIndex].filter.push(v);
             }
@@ -352,6 +355,18 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
             keys.push(this.filters[i].tagk);
         }
         return keys.indexOf(key);
+    }
+
+    getAutoManualClass(alias: string) {
+        // take out !not if there for checking
+        alias = alias.replace('!', '');
+        const idx = this.tplVariables.tvars.findIndex(item => item.mode === 'auto' && '[' + item.alias + ']' === alias);
+
+        if (idx > -1) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 

@@ -1,17 +1,20 @@
 @mixin time-selector-component-base() {
     .time-selector-component {
-        width: 200px;
        
+        .view-mode { }
 
-        .time-button {
-            width: 100%;
-
-            .mat-button-wrapper {
-                display: flex;
-                justify-content: space-between;
-
-                .mat-select-arrow-wrapper {
-                    align-self: center;
+        .edit-mode {
+            width: 200px;
+            .time-button {
+                width: 100%;
+    
+                .mat-button-wrapper {
+                    display: flex;
+                    justify-content: space-between;
+    
+                    .mat-select-arrow-wrapper {
+                        align-self: center;
+                    }
                 }
             }
         }

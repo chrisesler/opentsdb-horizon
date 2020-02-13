@@ -334,6 +334,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     break;
                 case 'getQueryData':
                     this.handleQueryPayload(message);
+                    this.rerender = { 'reload': true };
                     break;
                 case 'getEventData':
                     this.handleEventQueryPayload(message);
@@ -1047,7 +1048,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     // here we need to resolve template variables
                     if (tplVars.length > 0) {
                         if (query.filters.findIndex(f => f.customFilter !== undefined) > -1) {
-                            query = this.dbService.resolveTplVar(query, tplVars);
+                            // query = this.dbService.resolveTplVarCombine(query, tplVars);
+                            query = this.dbService.resolveTplVarReplace(query, tplVars);
                         }
                     }
                     // override the multigraph groupby config

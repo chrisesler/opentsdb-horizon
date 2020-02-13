@@ -706,7 +706,7 @@
                             <div class="alert-metric-tag-dropdown-wrapper">
                                 <dropdown-metric-tags
                                     [selected]="alertForm.get('alertGroupingRules').value"
-                                    [tags]="tags"
+                                    [tags]="alertForm.get('queries').get('eventdb')['controls'][0].get('groupBy').value"
                                     [all]="false"
                                     (change)="setQueryGroupRules($event)"></dropdown-metric-tags>
                             </div>
@@ -1206,6 +1206,13 @@
                                 <div class="form-label vertical-center"><strong>Send one notification per</strong></div>
                                 <div class="alert-metric-tag-dropdown-wrapper">
                                     {{data.alertGroupingRules.join(', ')}}
+                                </div>
+                            </div>
+
+                            <div class="form-group alert-grouping-rules" *ngIf="data.alertGroupingRules.length === 0">
+                                <div class="form-label vertical-center"><strong>Send one notification per</strong></div>
+                                <div class="alert-metric-tag-dropdown-wrapper-empty">
+                                    Alert Id
                                 </div>
                             </div>
                             <div class="form-group alert-recipients">

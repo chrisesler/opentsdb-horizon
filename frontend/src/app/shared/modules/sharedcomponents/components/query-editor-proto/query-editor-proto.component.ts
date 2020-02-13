@@ -10,7 +10,9 @@ import {
     ViewChildren,
     TemplateRef,
     QueryList,
-    OnDestroy
+    OnDestroy,
+    OnChanges,
+    SimpleChanges
 } from '@angular/core';
 import { UtilsService } from '../../../../../core/services/utils.service';
 import { Subscription, BehaviorSubject } from 'rxjs';
@@ -58,7 +60,7 @@ interface IQueryEditorOptions {
     ]
 })
 
-export class QueryEditorProtoComponent implements OnInit, OnDestroy {
+export class QueryEditorProtoComponent implements OnInit, OnChanges, OnDestroy {
 
     // tslint:disable-next-line:no-inferrable-types
     @HostBinding('class.query-editor-proto') private _hostClass: boolean = true;
@@ -98,6 +100,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     idRegex = /(q[0-9]+\.)*(m|e)[0-9]+/gi;
     handleBarsRegex = /\{\{(.+?)\}\}/;
     tagFilters = [];
+    tplVars = []; // a wrapper object for tplVariables.tvars for pipe since alert component using it.
 
     timeAggregatorOptions: Array<any> = [
         {
@@ -379,6 +382,13 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
             domSanitizer.bypassSecurityTrustResourceUrl('assets/function-icon.svg')
         );
 
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+        // @Input tplVariables only for widget not alert
+        if (changes.tplVariables && changes.tplVariables.currentValue.tvars) {
+            this.tplVars = changes.tplVariables.currentValue.tvars;
+        }
     }
 
     ngOnInit() {
