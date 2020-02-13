@@ -6,6 +6,8 @@
     $action-bar-height: map-get($widgets-common-config, action-bar-height);
     
     .widget-panel-content.placeholder-widget {
+        overflow-y: auto;
+
         // selector icons for the base
         .widget-types {
             margin-top: 20px;
