@@ -1279,7 +1279,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     }
 
     setAlertName(name) {
-        this.alertForm.get('name').setValue(name);
+        this.alertForm.controls.name.setValue(name);
+        this.data.name = name;
         this.utils.setTabTitle(name);
     }
 
