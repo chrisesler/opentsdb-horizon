@@ -16,6 +16,7 @@ export interface DygraphOptionsAxis {
     independentTicks?: true;
     digitsAfterDecimal?: number;
     axisLabelWidth?: number;
+    pixelsPerLabel?: number;
 }
 
 export interface IDygraphOptions {
