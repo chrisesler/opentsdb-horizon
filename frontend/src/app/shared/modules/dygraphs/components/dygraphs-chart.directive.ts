@@ -369,7 +369,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                     const axis = this.options.axes[k];
                     // handles the no. of axis labels
                     if ( k === 'y' || k === 'y2' ) {
-                        axis.pixelsPerLabel = this.size.height <= 250 ? 10 * Math.ceil(this.size.height / 100) : 50;
+                        axis.pixelsPerLabel = this.size.height <= 250 ? 6 * Math.ceil(this.size.height / 50) : 50;
                     }
                     if (axis.tickFormat) {
                         axis.axisLabelFormatter = tickFormatter;
