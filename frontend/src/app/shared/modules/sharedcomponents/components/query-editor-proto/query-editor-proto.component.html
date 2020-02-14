@@ -32,7 +32,7 @@
 </mat-toolbar>
 <div class="metric-wrapper" [formGroup]="fg" *ngIf="query.namespace || query.metrics.length || query.filters.length">
     <!-- CONTAINER FOR THE METRICS-->
-    
+
     <div class="metric-list-wrapper">
         <!-- CONTAINER FOR THE COMMON TAGS-->
         <div class="common-tags">
@@ -48,13 +48,8 @@
                         <mat-list-item class="tag" role="listitem" *ngFor="let filter of query.filters; let index=index">
                             <div class="tag-filter-detail" *ngIf="filter.filter.length || (filter.customFilter && filter.customFilter.length)">
                                 <strong>{{ filter.tagk }}:</strong>
-                                <span>{{ filter.customFilter ? filter.filter.concat(filter.customFilter).join(', ') : filter.filter.join(', ')}}</span>
+                                    <div class="tagkey-item" [innerHTML]="filter.filter.concat(filter.customFilter || []) | formatAutoManualFilter: tplVars"></div>
                             </div>
-                            <!-- 
-                            <div class="tag-filter-detail" *ngIf="!filter.filter">
-                                    <strong>{{ filter.tagk }}</strong>
-                            </div>
-                            -->
                         </mat-list-item>
                     </mat-list>
                 </div>
@@ -63,7 +58,7 @@
                 </div>
             </div>
         </div>
-        <!-- LOOP THROUGH METRICS 
+        <!-- LOOP THROUGH METRICS
              SECOND COLUMN IS EMPTY TO BE ABLE TO TAKE THE ABSOLUTE POSITIONED COMMON TAGS BOX -->
         <table mat-table #metricTable [dataSource]="metricTableDataSource" class="query-metric-table mat-elevation-z0">
 
@@ -92,7 +87,7 @@
                     <!-- if metric -->
                     <ng-template [ngIf]="data.type === 'metric'">
                         <div class="metric-row-data metric-name">
-                            <div class="display-name" 
+                            <div class="display-name"
                                 *ngIf="editMetricId !== data.metric.id"
                                 (click)="editMetricId = data.metric.id;"
                                 matTooltip="{{data.metric.name}}"
@@ -100,11 +95,11 @@
                                 <span>{{data.metric.name}}</span>
                                 <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
                             </div>
-                            <metric-autocomplete 
+                            <metric-autocomplete
                                 *ngIf="editMetricId === data.metric.id"
                                 [namespace]="query.namespace"
                                 [metrics]="[data.metric.name]"
-                                [filters]="tagFilters" 
+                                [filters]="tagFilters"
                                 (metricOutput)="updateMetric($event, data.metric.id);"
                                 (blur)="editMetricId = -1"></metric-autocomplete>
                         </div>
@@ -112,7 +107,7 @@
                     <!-- if expression -->
                     <ng-template [ngIf]="data.type === 'expression'">
                         <div class="metric-row-data expression">
-                            <div class="display-name" 
+                            <div class="display-name"
                                 *ngIf="editExpressionId !== data.metric.id"
                                 (click)="editExpression(data.metric.id);"
                                 matTooltip="{{ getExpressionUserInput(data.metric.expression) }}"
@@ -141,7 +136,7 @@
                                 [value]="data.metric.tagAggregator"
                             (change)="setMetricTagAggregator(data.metric.id, $event)"></tag-aggregator>
                             <span class="by-spacer">{{ data.type === 'expression' ? 'JOIN ON' : 'By' }}</span>
-                    
+
                             <dropdown-metric-tags
                                 [namespace]="query.namespace"
                                 [metric]="data.metric.name"
@@ -172,12 +167,12 @@
                     <!-- custom function loop -->
                     <div class="metric-row-data custom-function" *ngFor="let fx of data.metric.functions">
                         <div class="custom-function-wrapper">
-                            <metric-function 
-                                [metricId]="data.metric.id" 
-                                [fx]="fx" 
-                                (fxOut)="functionUpdate($event)" 
+                            <metric-function
+                                [metricId]="data.metric.id"
+                                [fx]="fx"
+                                (fxOut)="functionUpdate($event)"
                                 (fxDel)="functionDelete($event)"
-                                [regexValidator]="FunctionOptions[fx.fxCall] ? FunctionOptions[fx.fxCall].regexValidator : null" 
+                                [regexValidator]="FunctionOptions[fx.fxCall] ? FunctionOptions[fx.fxCall].regexValidator : null"
                                 [errorMessage]="FunctionOptions[fx.fxCall] ? FunctionOptions[fx.fxCall].errorMessage: null"
                                 [options]="FunctionOptions[fx.fxCall] ? FunctionOptions[fx.fxCall] : {}">
                             </metric-function>
@@ -195,7 +190,7 @@
                             <div class="mat-select-arrow-wrapper">
                                 <div class="mat-select-arrow"></div>
                             </div>
-                        </button> 
+                        </button>
                     </div>
                     <!--<div class="metric-row-data expression-options"
                         *ngIf="data.type === 'expression'">
@@ -256,7 +251,7 @@
                     </div>
                 </td>
             </ng-container>
-            
+
             <!-- main headers [hidden by css] -->
             <tr mat-header-row *matHeaderRowDef="metricTableDisplayColumns"></tr>
 
@@ -284,7 +279,7 @@
 
         <!-- ADD EXPRESSION - ENDS -->
     </div>
-    
+
 </div>
 <div class="metric-action-buttons" *ngIf="options.enableMetric && (query.namespace || query.metrics.length || query.filters.length)">
     <button mat-button color="primary" *ngIf="!isAddMetricProgress || !query.metrics.length " (click)="addQueryItemProgress('metric')">
@@ -328,7 +323,7 @@
         <div class="function-selection-wrapper" style="height: 200px;">
             <div class="function-categories">
                 <mat-nav-list>
-                    <a mat-list-item 
+                    <a mat-list-item
                         [ngClass]="{'is-active': i === selectedFunctionCategoryIndex}"
                         *ngFor="let category of functionCategories; let i = index;"
                         (click)="$event.stopPropagation(); selectFunctionCategory($event, i)">

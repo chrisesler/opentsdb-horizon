@@ -78,6 +78,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         // legend: 'follow',
         logscale: false,
         digitsAfterDecimal: 2,
+        fillAlpha: 0.55,
         stackedGraph: this.isStackedGraph,
         stackedGraphNaNFill: 'none', // default to all will reserve gap
         strokeWidth: 1,

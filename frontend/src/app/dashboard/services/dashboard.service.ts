@@ -175,6 +175,72 @@ export class DashboardService {
     }
   }
 
+  // apply new db filter alias to widget
+  insertTplAliasToWidget(widget: any, payload: any, rawDbTags: any) {
+    let isModify = false;
+    const wid = widget.id.indexOf('__EDIT__') !== -1 ? widget.id.replace('__EDIT__', '') : widget.id;
+    if (rawDbTags[wid]) {
+      for (let i = 0; i < widget.queries.length; i++) {
+        const query = widget.queries[i];
+        if (rawDbTags[wid].hasOwnProperty(query.id) && rawDbTags[wid][query.id].includes(payload.vartag.tagk)) {
+          const fIndx = query.filters.findIndex(f => f.tagk === payload.vartag.tagk);
+          if (fIndx > -1) { // query does has this tag defined
+            const currFilter = query.filters[fIndx];
+            if (!currFilter.customFilter) {
+              currFilter.customFilter = ['[' + payload.vartag.alias + ']'];
+              isModify = true;
+            } else {
+              // only insert if they are not there
+              if (!currFilter.customFilter.includes('[' + payload.vartag.alias + ']')) {
+                currFilter.customFilter.push('[' + payload.vartag.alias + ']');
+                isModify = true;
+              }
+            }
+          } else { // query does not has this tag define yet
+            const nFilter = {
+              tagk: payload.vartag.tagk,
+              customFilter: ['[' + payload.vartag.alias + ']'],
+              filter: [],
+              groupBy: false
+            };
+            query.filters.push(nFilter);
+            isModify = true;
+          }
+        }
+      }
+    }
+    return isModify;
+  }
+
+  // update db filter alias to widget
+  // here is when user modify existing alias
+  updateTplAliasToWidget(widget: any, payload: any) {
+    let isModify = false;
+    const wid = widget.id.indexOf('__EDIT__') !== -1 ? widget.id.replace('__EDIT__', '') : widget.id;
+    for (let i = 0; i < widget.queries.length; i++) {
+      const query = widget.queries[i];
+      for (let j = 0; j < query.filters.length; j++) {
+        const qfilter = query.filters[j];
+        // filter tagkey exist in aliasInfo
+        if (payload.aliasInfo[qfilter.tagk]) {
+          let anyModify = false;
+          for (let k = 0; k < qfilter.customFilter.length; k++) {
+            const custFilter = qfilter.customFilter[k];
+            const idx = payload.aliasInfo[qfilter.tagk].findIndex((item) => custFilter === '['+item.oAlias+']');
+            if (idx > -1) {
+              anyModify = true;
+              qfilter.customFilter[k] = '[' + payload.aliasInfo[qfilter.tagk][idx].nAlias + ']';
+            }
+          }
+          if (anyModify) {
+            isModify = true;
+          }
+        }
+      }
+    }
+    return isModify;   
+  }
+
   // apply the customFilter to widget queries if it's eligible
   // @widget: widget to modify
   // @tplVar: the current tplVar to apply
@@ -249,8 +315,9 @@ export class DashboardService {
     return { ..._dashboardTags };
   }
 
-  // to resolve from variable to real filter value
-  resolveTplVar(query: any, tplVariables: any[]) {
+  // to resolve from variable to real filter value, this is for insert mode
+  // and combine with existing values
+  resolveTplVarCombine(query: any, tplVariables: any[]) {
     for (let i = 0; i < query.filters.length; i++) {
       const qFilter = query.filters[i];
       // they do have custom filter
@@ -270,6 +337,46 @@ export class DashboardService {
     // clean out empty filter, since they might have db filter but not set value yet.
     query.filters = query.filters.filter(f => f.filter.length > 0);
     return query;
+  }
+
+  // resolve with replace mode based on mode and default value 
+  resolveTplVarReplace(query: any, tplVariables: any[]) {
+    for (let i = 0; i < query.filters.length; i++) {
+      const qFilter = query.filters[i];
+      let replaceFilter = [];
+      let autoMode = false; // track of any of db filters have auto mode
+      if (qFilter.customFilter && qFilter.customFilter.length > 0) {
+        // they do have custom filter
+        if (qFilter.customFilter && qFilter.customFilter.length > 0) {
+          for (let j = 0; j < qFilter.customFilter.length; j++) {
+            const hasNot = qFilter.customFilter[j][0] === '!';
+            const alias = qFilter.customFilter[j].substring(hasNot ? 2 : 1, qFilter.customFilter[j].length - 1);
+            const tplIdx = tplVariables.findIndex(tpl => tpl.alias === alias);
+            if (tplIdx > -1) {
+              if (tplVariables[tplIdx].filter.trim() !== '' && qFilter.filter.indexOf(tplVariables[tplIdx].filter) === -1) {
+                // qFilter.filter.push(hasNot ? '!' + tplVariables[tplIdx].filter : tplVariables[tplIdx].filter);
+                replaceFilter.push(hasNot ? '!' + tplVariables[tplIdx].filter : tplVariables[tplIdx].filter);
+                if (tplVariables[tplIdx].mode === 'auto') {
+                  autoMode = true;
+                }
+              }
+            }
+          }
+        }
+      }
+      if (replaceFilter.length > 0) {
+        if (autoMode) {
+          // do replace
+          qFilter.filter = [...replaceFilter];
+        } else { 
+          // they are all manual mode and have value, do combine
+          qFilter.filter = qFilter.filter.concat(replaceFilter);
+        }
+      }
+    }
+    // clean out empty filter, since they might have db filter but not set value yet.
+    query.filters = query.filters.filter(f => f.filter.length > 0);
+    return query;    
   }
 
   addGridterInfo(widgets: any[]) {
@@ -305,9 +412,10 @@ export class DashboardService {
   updateTplVariablesFromURL(dbstate) {
     if (this.urlOverride.getTagOverrides()) {
       var urlTags = this.urlOverride.getTagOverrides();
-      if (!dbstate.content.settings.tplVariables)
+      if (!dbstate.content.settings.tplVariables) {
         dbstate.content.settings.tplVariables = [];
-      var dbTags = dbstate.content.settings.tplVariables;
+      }
+      var dbTags = this.utils.deepClone(dbstate.content.settings.tplVariables.tvars);
       for (var k in urlTags) {
         var found = false;
 
@@ -330,6 +438,9 @@ export class DashboardService {
           }
         }
 
+        // as discuss, it's not there we don't add them in
+        // only support if defined in default (edit) mode.
+        /*
         if (!found) {
           // dashboard does not have any template
           // variables matching the url param.
@@ -337,11 +448,16 @@ export class DashboardService {
           var newTag = {
             tagk: k,
             alias: k,
-            filter: urlTags[k] 
+            filter: urlTags[k],
+            mode: 'manual',
+            applied: 0,
+            isNew: 0 
           };
           dbTags.push(newTag);
-        }
+        } */
       }
+      // keep override for view mode to use
+      dbstate.content.settings.tplVariables['override'] = dbTags;
     }
   }
 
@@ -359,9 +475,14 @@ export class DashboardService {
       delete widgets[i].gridPos.wSm;
       delete widgets[i].gridPos.hSm;
     }
+    // will remove later, if no need to check this.
+    const settings = this.utils.deepClone(dbstate.Settings);
+    if (settings.tplVariables.override) {
+      delete settings.tplVariables.override;
+    }
     const dashboard = {
       version: this.dbConverterService.getDBCurrentVersion(),
-      settings: dbstate.Settings,
+      settings: settings,
       widgets: widgets
     };
     return dashboard;

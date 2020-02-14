@@ -51,6 +51,7 @@ import { TimeSelectorComponent } from './components/time-selector/time-selector.
 import { GraphTypeComponent } from './components/graph-type/graph-type.component';
 import { AuraDialogComponent } from './components/aura-dialog/aura-dialog.component';
 import { InfoTooltipComponent } from './components/info-tooltip/info-tooltip.component';
+import { FormatAutoManualFilterPipe } from '../../../core/services/automanual.pipe';
 
 @NgModule({
     imports: [
@@ -98,7 +99,8 @@ import { InfoTooltipComponent } from './components/info-tooltip/info-tooltip.com
         TimeSelectorComponent,
         GraphTypeComponent,
         AuraDialogComponent,
-        InfoTooltipComponent
+        InfoTooltipComponent,
+        FormatAutoManualFilterPipe
     ],
     exports: [
         ThemePickerComponent,
