@@ -127,9 +127,17 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
             value = event.value ? [event.value] : [];
         } else if (event.option.value === 'all' && event.option.selected) {
             value = [];
+        } else if (this.filterTagInput) { // been searching
+            value = this.selected ? [...this.selected] : [];
+            for (const s of selected.map(d => d.value)) {
+                if (s !== 'all') {
+                    value.push(s);
+                }
+            }
         } else {
             value = selected.map(d => d.value);
 
+            // remove 'all' tag if in array
             if (value.length > 1) {
                 const allIndex = value.findIndex(d => d === 'all');
                 if (allIndex !== -1) {
@@ -138,6 +146,10 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
             }
         }
         this.change.emit(value);
+    }
+
+    tagSelectionPanelClosed(event) {
+        this.clearFilterTagInput();
     }
 
     optionIsSelected(val: string) {

@@ -339,6 +339,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     break;
                 case 'getQueryData':
                     this.handleQueryPayload(message);
+                    this.rerender = { 'reload': true };
                     break;
                 case 'getEventData':
                     this.handleEventQueryPayload(message);

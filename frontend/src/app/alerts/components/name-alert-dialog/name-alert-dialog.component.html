@@ -1,7 +1,7 @@
 <h2 mat-dialog-title>Name your alert</h2>
 <mat-dialog-content>
     <mat-form-field appearance="fill" floatLabel="never" hideRequiredMarker>
-        <input matInput placeholder="Enter name for your alert" [formControl]="alertName" required>
+        <input matInput placeholder="Enter name for your alert" [formControl]="alertName" required (keyup.enter)="saveAlertName()">
         <mat-error *ngIf="alertName.invalid">{{getErrorMessage()}}</mat-error>
     </mat-form-field>
 </mat-dialog-content>

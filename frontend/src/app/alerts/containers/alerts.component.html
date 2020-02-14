@@ -22,15 +22,11 @@
                 <input matInput placeholder="Filter alerts"
                     *ngIf="list === 'alerts'"
                     autocomplete="off"
-                    (keyup)="applyAlertDataFilter($event.target.value)"
-                    [value]="alertsFilterInputVal"
-                    #alertFilterInput>
+                    [formControl] = "alertSearch">
                 <input matInput placeholder="Filter snooze"
                     *ngIf="list === 'snooze'"
                     autocomplete="off"
-                    (keyup)="applySnoozeDataFilter($event.target.value)"
-                    [value]="snoozeFilterInputVal"
-                    #snoozeFilterInput>
+                    [formControl] = "snoozeSearch">
                 <mat-icon matSuffix fontSet="denali" fontIcon="d-search"></mat-icon>
             </mat-form-field>
         </div>
@@ -148,13 +144,18 @@
                             </td>
                         </ng-container>
 
-                        <ng-container matColumnDef="modified">
+                        <ng-container matColumnDef="updatedTime">
                             <th mat-header-cell *matHeaderCellDef mat-sort-header>
                                 <span>Last Modified</span>
                             </th>
                             <td mat-cell *matCellDef="let element"> {{formatAlertTimeModified(element)}} </td>
                         </ng-container>
-
+                        <ng-container matColumnDef="updatedBy">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                                <span>Modified By</span>
+                            </th>
+                            <td mat-cell *matCellDef="let element"> {{element.updatedBy.replace('user.', '')}} </td>
+                        </ng-container>
                         <ng-container matColumnDef="bad">
                             <th mat-header-cell *matHeaderCellDef mat-sort-header>
                                 <span class="header-chip is-error">Bad</span>
