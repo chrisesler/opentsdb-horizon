@@ -662,6 +662,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             enabled: data.enabled === undefined ? true : data.enabled,
             namespace: data.namespace || null,
             alertGroupingRules: [ data.alertGroupingRules || []],
+            labels: this.fb.array(data.labels || []),
             queries: this.fb.group({
                 eventdb: this.fb.array([
                         this.fb.group({
@@ -1310,7 +1311,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     }
 
     setAlertName(name) {
-        this.alertForm.get('name').setValue(name);
+        this.alertForm.controls.name.setValue(name);
+        this.data.name = name;
         this.utils.setTabTitle(name);
     }
 

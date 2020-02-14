@@ -364,6 +364,22 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
             return;
         } else {
             let needsResize = changes.size ? true : false;
+            if (this.options.axes) {
+                for (const k of Object.keys(this.options.axes)) {
+                    const axis = this.options.axes[k];
+                    // handles the no. of axis labels
+                    if ( k === 'y' || k === 'y2' ) {
+                        axis.pixelsPerLabel = this.size.height <= 250 ? 6 * Math.ceil(this.size.height / 50) : 50;
+                    }
+                    if (axis.tickFormat) {
+                        axis.axisLabelFormatter = tickFormatter;
+                        axis.valueFormatter = valueFormatter;
+                    } else {
+                        delete axis.axisLabelFormatter;
+                        delete axis.valueFormatter;
+                    }
+                }
+            }
             // if new data
             if (( changes.data && changes.data.currentValue || changes.options && changes.options.currentValue) ) {
                 this.options.plugins = [ThresholdsPlugin];
@@ -533,18 +549,6 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                     };
                 }
 
-                if (this.options.axes) {
-                    for (const k of Object.keys(this.options.axes)) {
-                        const axis = this.options.axes[k];
-                        if (axis.tickFormat) {
-                            axis.axisLabelFormatter = tickFormatter;
-                            axis.valueFormatter = valueFormatter;
-                        } else {
-                            delete axis.axisLabelFormatter;
-                            delete axis.valueFormatter;
-                        }
-                    }
-                }
                 if ( this._g ) {
                     this._g.destroy();
                 } else {
@@ -559,6 +563,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
             }
 
             if ( this._g && needsResize ) {
+                this._g.updateOptions(this.options, true);
                 const nsize = this.size;
                 this._g.resize(nsize.width, nsize.height);
             }

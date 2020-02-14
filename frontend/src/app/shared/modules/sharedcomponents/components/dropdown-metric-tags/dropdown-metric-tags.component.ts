@@ -128,7 +128,7 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
         } else if (event.option.value === 'all' && event.option.selected) {
             value = [];
         } else if (this.filterTagInput) { // been searching
-            value = [...this.selected];
+            value = this.selected ? [...this.selected] : [];
             for (const s of selected.map(d => d.value)) {
                 if (s !== 'all') {
                     value.push(s);
