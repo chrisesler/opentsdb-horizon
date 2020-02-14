@@ -69,6 +69,16 @@ export class HttpService {
         }
         return this.http.post(this.assigned_tsdb_host, payload.query, { headers, withCredentials: true });
     }
+
+    getAlertCount(options: any): Observable<any> {
+        const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+        const statusApiUrl = environment.tsdb_hosts[Math.floor(Math.random() * (environment.tsdb_hosts.length - 1))] + '/api/query/graph';
+        const statusQuery = this.yamasService.buildStatusQuery(options);
+
+        return this.http.post(statusApiUrl, statusQuery, { headers, withCredentials: true })
+            .pipe(catchError(error => of( { error : error } ) ));
+    }
+
     /* post to search for metric */
     searchMetrics(queryObj: any): Observable<any> {
         const headers = new HttpHeaders({

@@ -29,6 +29,7 @@ import { AlertDetailsMetricPeriodOverPeriodComponent } from './components/alert-
 import { AlertDetailsMetricPeriodOverPeriodPreviewComponent } from './components/alert-details/children/alert-details-metric-period-over-period-preview/alert-details-metric-period-over-period-preview.component';
 import { AlertDetailsTransitionsComponent } from './components/alert-details/children/alert-details-transitions/alert-details-transitions.component';
 import { InfoIslandModule } from '../shared/modules/info-island/info-island.module';
+import { AlertDetailsCountComponent } from './components/alert-details/children/alert-details-count/alert-details-count.component';
 
 // directives
 
@@ -57,7 +58,8 @@ import { InfoIslandModule } from '../shared/modules/info-island/info-island.modu
         AlertConfigurationContactsComponent,
         AlertDetailsMetricPeriodOverPeriodComponent,
         AlertDetailsMetricPeriodOverPeriodPreviewComponent,
-        AlertDetailsTransitionsComponent
+        AlertDetailsTransitionsComponent,
+        AlertDetailsCountComponent
     ],
     providers: [
         AlertsService

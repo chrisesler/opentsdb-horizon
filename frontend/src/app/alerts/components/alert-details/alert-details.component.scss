@@ -193,6 +193,18 @@
                         width: 500px;
                     }
                 }
+
+                .edit-link {
+                    font-size: 12px;
+                    line-height: 12px;
+                    padding-left: 5px;
+                    padding-right: 5px;
+                    padding-top: 0px;
+                    padding-bottom: 0px;
+                    text-decoration: underline;
+                    margin-left: 5px;
+                }
+
                 .splunk-link {
                     padding-top: 8px;
                     font-size: 12px;
@@ -670,6 +682,11 @@
 
                 //.graph-output { }
             }
+        }
+
+        .edit-link {
+            color:#448aff;
+            background: none;
         }
 
         .config-toolbar.mat-toolbar {

@@ -62,6 +62,7 @@
                 <!--<div class="toolbar-item" *ngIf="hasWriteAccess">
                      <button mat-button color="primary" (click)="viewMode = 'view'">view mode</button>
                 </div>-->
+                <alert-details-count *ngIf="counts.length" [counts]="counts" [namespace]="data.namespace" [alertId]="data.id"></alert-details-count>
             </mat-toolbar>
             <div class="alert-control-steps has-scroller">
                 <div class="is-scroller">
@@ -835,14 +836,18 @@
                             {{data.name}}
                         </div>
                     </div>
-                    <div class="splunk-link" *ngIf="data.id">
-                        <a [href]="alertEvaluationLink" target="_blank">View Alert History</a>
+
+                    <div>
+                        <span class="splunk-link" *ngIf="data.id">
+                            <a [href]="alertEvaluationLink" target="_blank">View Alert History</a>
+                        </span>
+                        <span *ngIf="hasWriteAccess" >
+                            <button class="edit-link" mat-button color="primary" (click)="viewMode = 'edit'">Edit Alert</button>
+                        </span>
                     </div>
                 </div>
                 <span class="flex-spacer"></span>
-                <div class="toolbar-item" *ngIf="hasWriteAccess" >
-                     <button mat-button color="primary" (click)="viewMode = 'edit'">edit alert</button>
-                </div>
+                <alert-details-count *ngIf="counts.length" [counts]="counts" [namespace]="data.namespace" [alertId]="data.id"></alert-details-count>
             </mat-toolbar>
             <div class="alert-control-steps has-scroller">
                 <div class="is-scroller">
