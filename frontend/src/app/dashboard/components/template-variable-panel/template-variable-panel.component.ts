@@ -9,7 +9,7 @@ import {
     OnDestroy,
     SimpleChanges,
     ViewChild,
-    ElementRef, ChangeDetectionStrategy, ViewEncapsulation
+    ElementRef, ChangeDetectionStrategy, ChangeDetectorRef
 } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl, FormArray, Validators, AbstractControl } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
@@ -24,7 +24,8 @@ import { moveItemInArray, CdkDragStart } from '@angular/cdk/drag-drop';
     // tslint:disable-next-line:component-selector
     selector: 'template-variable-panel',
     templateUrl: './template-variable-panel.component.html',
-    styleUrls: []
+    styleUrls: [],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDestroy {
 
@@ -65,15 +66,16 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         private interCom: IntercomService,
         private dbService: DashboardService,
         private utils: UtilsService,
+        private cdRef: ChangeDetectorRef,
         private httpService: HttpService) {
         // predefine there
-        this.listForm = this.fb.group({
+         this.listForm = this.fb.group({
             listVariables: this.fb.array([])
         });
         this.editForm = this.fb.group({
             formTplVariables: this.fb.array([])
         });
-    }
+        }
 
     ngOnInit() {}
 
@@ -190,14 +192,16 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                         this.filteredValueOptions[index].splice(1, this.filteredValueOptions[index].length - 1);
                     }
                     this.filteredValueOptions[index][0] = regexStr;
+                    this.cdRef.markForCheck();
                 }
                 this.trackingSub[qid] = this.httpService.getTagValues(query).subscribe(
                     results => {
                         if (results && results.length > 0) {                    
                             this.filteredValueOptions[index] = this.filteredValueOptions[index].concat(results);
-                            // this.filteredValueOptions[index] = Array.from(new Set(this.filteredValueOptions[index].concat(results))).splice(0, (results.length + 1));
+                            this.cdRef.markForCheck();
                         }
                     });
+                
             });
     }
     initListFormGroup(checkRun: boolean = false) {
@@ -268,13 +272,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         */
     }
 
-    get listVariables() {
-        return this.listForm.get('listVariables') as FormArray;
-    }
-    get formTplVariables() {
-        return this.editForm.get('formTplVariables') as FormArray;
-    }
-
+   
+ 
     initializeTplVariables(values: any[]) {
         if (values.length === 0) {
             // add an empty one if there are no values
@@ -381,11 +380,11 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 // if the tag_key is invalid, we should not move on here
                 if (selControl.get('tagk').value !== '') {
                     this.valChangeSub = selControl['controls'][cname].valueChanges.pipe(
-                        debounceTime(1000)
+                        debounceTime(100)
                     ).subscribe(val => {
-                        this.validateAlias(val.toString(), index, selControl, this.originAlias);
+                        this.justValidateForm(val.toString(), index);
                     });
-                }
+                } 
                 break;
             case 'filter':
 
@@ -401,6 +400,27 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         return control.at(index);
     }
 
+    private justValidateForm (val: string, index: number) {
+        if (val.trim() !== '') {
+            const tplFormGroups = this.editForm.controls['formTplVariables']['controls'];
+            // first let do the validation of the form to make sure we have unique alias
+            for (let i = 0; i < tplFormGroups.length; i++) {
+                const rowControl = tplFormGroups[i];
+                // we need to reset error from prev round if any
+                rowControl.controls['alias'].setErrors(null);
+                this.cdRef.markForCheck();
+                if ( i === index ) { continue; }
+                if (val.trim() === rowControl.get('alias').value) {
+                    tplFormGroups[index].controls['alias'].setErrors({ 'unique': true, emitEvent: true, });
+                    tplFormGroups[index].controls['alias'].markAsTouched({ self: true});
+                    tplFormGroups[i].controls['alias'].setErrors({ 'unique': true, emitEvent: true });
+                    tplFormGroups[i].controls['alias'].markAsTouched({self: true});
+                    this.cdRef.markForCheck();
+                    return;
+                }
+            } 
+        }       
+    }
     // since alias/name has to be unique with db filters
     private validateAlias(val: string, index: number, selControl: any, originAlias: string[]) {
         if (val.trim() !== '') {
@@ -410,10 +430,14 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 const rowControl = tplFormGroups[i];
                 // we need to reset error from prev round if any
                 rowControl.controls['alias'].setErrors(null);
+                this.cdRef.markForCheck();
                 if ( i === index ) { continue; }
                 if (val.trim() === rowControl.get('alias').value) {
                     tplFormGroups[index].controls['alias'].setErrors({ 'unique': true, emitEvent: true, });
+                    tplFormGroups[index].controls['alias'].markAsTouched({ self: true});
                     tplFormGroups[i].controls['alias'].setErrors({ 'unique': true, emitEvent: true });
+                    tplFormGroups[i].controls['alias'].markAsTouched({self: true});
+                    this.cdRef.markForCheck();
                     return;
                 }
             }
@@ -497,6 +521,17 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 }
                 this.filteredValueOptions[index] = [];
             }, 300);
+        }
+        if (cname === 'alias') {
+            this.handleAliasChanges(selControl, index);
+        }
+    }
+
+    handleAliasChanges(selControl: AbstractControl, index: number) {
+        if (selControl.get('tagk').value !== '') {
+            if (this.originAlias[index] && this.originAlias[index] !== selControl.get('alias').value) {
+                this.validateAlias(selControl.get('alias').value, index, selControl, this.originAlias);
+            }
         }
     }
 
@@ -623,7 +658,9 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     done() {
-        this.modeChange.emit({ view: true });
+        setTimeout(() => {
+            this.modeChange.emit({ view: true });
+        });
     }
 
     updateState(selControl: AbstractControl, reQuery: boolean = true) {
@@ -741,6 +778,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         } else { // set to manual mode
             selControl.get('isNew').setValue(0);
         }
+        // this.cdRef.detectChanges();
     }
 
     addNamespace(namespace) {
@@ -827,5 +865,11 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 this.trackingSub[sub].unsubscribe();
             }
         }
+    }
+    get listVariables(): FormArray {
+        return this.listForm.get('listVariables') as FormArray;
+    }
+    get formTplVariables(): FormArray {
+        return this.editForm ? this.editForm.get('formTplVariables') as FormArray : new FormArray([]);
     }
 }
