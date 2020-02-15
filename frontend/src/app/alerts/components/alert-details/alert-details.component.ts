@@ -177,6 +177,10 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     defaultSlidingWindowSize = '300';
     defaultEventSlidingWindowSize = '600';
 
+    // disply aura status counts
+    counts = [];
+    countSub: Subscription;
+
     alertOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     recoverOptions: any[] = [
                                 { label: 'Never', value: null },
@@ -327,6 +331,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
 
     ngOnDestroy() {
         this.subscription.unsubscribe();
+        this.sub.unsubscribe();
+        this.countSub.unsubscribe();
         this.utils.setTabTitle();
     }
 
@@ -656,6 +662,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             enabled: data.enabled === undefined ? true : data.enabled,
             namespace: data.namespace || null,
             alertGroupingRules: [ data.alertGroupingRules || []],
+            labels: this.fb.array(data.labels || []),
             queries: this.fb.group({
                 eventdb: this.fb.array([
                         this.fb.group({
@@ -1133,6 +1140,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             this.options.labels = ['x'];
             this.chartData = { ts: [[0]] };
         }
+        this.getCount();
     }
 
     getTsdbQuery(mid) {
@@ -1186,6 +1194,30 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 this.error = err;
             }
         );
+    }
+
+    getCount() {
+        if (this.queries && this.queries[0] && this.data.namespace && this.data && this.data.id) {
+            const countObserver = this.httpService.getAlertCount({namespace: this.data.namespace, alertId: this.data.id});
+
+            if (this.countSub) {
+                this.countSub.unsubscribe();
+            }
+
+            this.countSub = countObserver.subscribe(
+                result => {
+                    for (const alert of result.results[0].data) {
+                        if (alert.tags._alert_id === this.data.id.toString()) {
+                            this.counts = [alert.summary];
+                            break;
+                        }
+                    }
+                },
+                err => {
+                    // this.error = err;
+                }
+            );
+        }
     }
 
     refreshChart() {
@@ -1279,7 +1311,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     }
 
     setAlertName(name) {
-        this.alertForm.get('name').setValue(name);
+        this.alertForm.controls.name.setValue(name);
+        this.data.name = name;
         this.utils.setTabTitle(name);
     }
 
