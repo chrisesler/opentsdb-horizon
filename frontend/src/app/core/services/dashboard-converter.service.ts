@@ -9,7 +9,7 @@ import { tap, map } from 'rxjs/operators';
 })
 export class DashboardConverterService {
 
-  currentVersion = 8;
+  currentVersion = 9;
 
   constructor ( private utils: UtilsService,
     private httpService: HttpService ) { }
@@ -94,6 +94,22 @@ export class DashboardConverterService {
     _dashboardTags.tags.sort(this.utils.sortAlphaNum);
     return { ..._dashboardTags };
   }
+
+    // helper
+    private checkCount(tvar: any, widget: any): boolean {
+      let inWidget = false;
+      // check to apply each widget with this db filter
+      // check id this fb filter in there to update the count
+      for (let k = 0; k < widget.queries.length; k++) {
+        const query = widget.queries[k];
+        for (let c = 0; c < query.filters.length; c++) {
+          if (query.filters[c].customFilter && query.filters[c].customFilter.includes('[' + tvar.alias + ']')) {
+            inWidget = true;
+          }
+        }
+      }
+      return inWidget;
+    }
   // - end of helper private, put your helper/private functions in above block of code
 
   // update dashboard to version 2
@@ -368,9 +384,26 @@ export class DashboardConverterService {
           dashboard.content.settings.tplVariables = tplVariables;
           delete dashboard.content.widgets;
           dashboard.content.widgets = widgets;
-          return dashboard;
+          return this.toDBVersion9(dashboard);
         })
       );
   }
 
+  // fix the count of db filters when convert at version 8
+  toDBVersion9(dashboard: any): Observable<any> {
+    dashboard.content.version = 9;
+    let widgets = dashboard.content.widgets;
+    let tplVariables = dashboard.content.settings.tplVariables;
+    for (let i = 0; i < tplVariables.tvars.length; i++) {
+      let tvar = tplVariables.tvars[i];
+      tvar.applied = 0;
+      for (let j = 0; j < widgets.length; j++) {
+        const isInWidget = this.checkCount(tvar, widgets[j]);
+        if (isInWidget) {
+          tvar.applied += 1;
+        }
+      }
+    }
+    return of(dashboard);   
+  }
 }
