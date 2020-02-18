@@ -404,6 +404,6 @@ export class DashboardConverterService {
         }
       }
     }
-    return of(dashboard);   
+    return dashboard;
   }
 }
