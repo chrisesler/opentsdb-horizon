@@ -7,7 +7,6 @@
     $mono-fontface: map-get($app-fontface-config, mono);
 
     .event-list .event-stream-list { 
-        // overflow: scroll;
 
         .event-panel.mat-expansion-panel {
             @include mat-elevation(0);
@@ -18,7 +17,6 @@
                 cursor: pointer;
                 border-radius: 0;
                 line-height: 16px;
-                padding-bottom: 2px;
                 padding-left: 12px;
 
                 .mat-expansion-indicator {
@@ -44,44 +42,70 @@
                     white-space: nowrap;
                 }
 
-                //.event-count {}
             }
 
             .mat-expansion-panel-body {
                 padding: 0;
+                font-size: 12px;
+
+                .tag-key {
+                    font-weight: bold;
+                }
+
+                .tag-value {
+                    padding-left: 4px;
+                    font-family: mat-font-family($mono-fontface);
+                    word-break: break-all;
+                }
+
+                fieldset {
+                    border-radius: 5px;
+                    padding: 5px;
+                }
+
+                legend {
+                    padding-left: 2px;
+                    padding-right: 2px;
+                }
 
                 .event-summary {
-                    padding: 8px 24px 8px 46px;
-                }
+                    padding: 0px 24px 8px 30px;
 
-                .event-header {
-                    :not(:last-child) {
-                        margin-right: 6px;
+                    .event-tags {
+                        .event-tag {
+                            float: left;
+                            margin-left: 5px;
+                            margin-bottom: 6px;
+                            padding-left: 5px;
+                            padding-right: 5px;
+                            // padding-bottom: 5px;
+                        }
                     }
-                    .event-time {
-                        font-family: mat-font-family($mono-fontface);
-                        font-size: mat-font-size($mono-fontface, caption);  
+
+                    .event-properties {
+                        
+                        .event-property {
+                            float: left;
+                            margin-left: 5px;
+                            margin-bottom: 6px;
+                            padding-left: 5px;
+                            padding-right: 5px;
+                            // padding-bottom: 5px;
+                        }
+                    }              
+
+                    .event-message {
+                        margin-top: 5px;
                     }
                 }
 
-                .event-header,
-                .event-description,
-                .event-namespace,
-                .event-source,
-                .event-priority,
-                .event-property,
-                .event-tag {
-                    span:not(:last-child),
-                    strong:not(:last-child) {
-                        margin-right: 6px;
+                .event-details-text-wrapper {
+
+                    .event-details-text {
+                        margin-left: 10px;
+                        padding-bottom: 5px;
                     }
-                }
 
-                .event-tag {
-                    margin-right: 12px;
-                }
-
-                .event-details-wrapper {
                     .mat-button {
                         min-width: initial;
                         padding: 0 4px;
@@ -96,11 +120,13 @@
                         }
                     }
 
-                    .event-details {
-                        padding: 6px;
+                    .event-details-text {
+                        // padding: 6px;
                         border-radius: 4px;
                         font-family: mat-font-family($mono-fontface);
-                        font-size: mat-font-size($mono-fontface, caption);
+                        font-size: 12px;
+                        line-height: 12px;
+                        margin-top: 2px;
                     }
                 }
             }
@@ -108,39 +134,13 @@
             // when event-panel (accordion item) is open
             &.mat-expanded {
                 .mat-expansion-panel-header {
-                    font-weight: bold;
+                    // font-weight: bold;
                     .mat-expansion-indicator {
                         margin-top: 2px;
                     }
                 }
             }
         }
-
-        /*.event {
-            padding-bottom: 5px;
-
-            .event-source {
-                font-weight: bold;
-                padding-left: 5px;
-            }
-
-            .event-title {
-                // font-style: italic;
-                padding-left: 5px;
-            }
-
-            .event-time {
-                font-family: monospace;
-                color: darkgray
-                // font-style: italic;
-            }
-
-            .details {
-                div {
-                    margin-top: 3px;
-                }
-            }
-        }*/
     }
 
     .event-list {
@@ -164,14 +164,16 @@
     $divider: map-get($foreground, divider);
 
     $header-bg: lighten($divider, 50%);
+    $is-dark: map-get($theme-config, is-dark);
+
+    $bg: map-get($background, background);
+    $fg: map-get($foreground, foreground);
 
     .event-list { 
 
         .event-panel.mat-expansion-panel {
 
             .mat-expansion-panel-header {
-                // border-bottom: 1px solid $divider;
-                // background: rgba(228, 209, 209, 0.12);
 
                 &:hover {
                     background: darken($divider, 5%);
@@ -182,35 +184,39 @@
             }
 
             .mat-expansion-panel-body {
+
+                fieldset {
+                    background: if($is-dark, $bg, white);
+                    border: if($is-dark, 1px solid black, 1px solid #e0e0e0);
+                }
+
                 .event-summary {
+                    background: $header-bg;
+
                     &:not(:last-child) {
                         border-bottom: 1px solid $header-bg;
                     }
+                }
 
-                    &:hover {
-                        background: rgba(map-get($primary, default), .10);
-                    }
+                .event-tag {
+                    background: $header-bg;
+                    border-radius: 5px;
+                }
 
-                    .event-details {
-                        border: 1px solid $divider;
-                        background: $header-bg;
-                    }
+                .event-property {
+                    background: $header-bg;
+                    border-radius: 5px;
                 }
             }
 
             // when event-panel (accordion item) is open
             &.mat-expanded {
                 .mat-expansion-panel-header {
-                //    .mat-expansion-indicator { }   
                     background: $header-bg;
                 }
 
                 .mat-expansion-panel-body {
                     border-bottom: 1px solid $divider;
-
-                    .event-summary {
-                        
-                    }
                 }
             }
         }

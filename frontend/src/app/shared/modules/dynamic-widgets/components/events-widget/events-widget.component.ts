@@ -34,6 +34,7 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
     previewEventsCount = 100;
     eventsCount = 100;
     loading: boolean = false;
+    error: string = '';
 
     // state control
     isDataRefreshRequired = false;
@@ -60,8 +61,14 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
                         this.getEvents();
                         break;
                     case 'updatedEvents':
+                        if (message.payload.error) {
+                            this.events = [];
+                            this.error = message.payload.error;
+                        } else {
+                            this.events = message.payload.events;
+                            this.error = '';
+                        }
                         this.loading = false;
-                        this.events = message.payload.events;
                         this.timezone = message.payload.time.zone;
                         this.startTime = this.dateUtil.timeToMoment(message.payload.time.start, this.timezone).unix() * 1000;
                         this.endTime = this.dateUtil.timeToMoment(message.payload.time.end, this.timezone).unix() * 1000;

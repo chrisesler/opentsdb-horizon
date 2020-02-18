@@ -47,6 +47,14 @@ export class GetEventsSuccess {
     ) {}
 }
 
+export class GetEventsFailed {
+    public static type = '[Events] Get Events Failed';
+    constructor(
+        public readonly response: any,
+        public readonly wid: string
+    ) {}
+}
+
 export class SetEventBuckets {
     public static type = '[Events] Set Event Buckets';
     constructor (
@@ -163,7 +171,7 @@ export class EventsState {
             map( (response: any) => {
                 return ctx.dispatch(new GetEventsSuccess(response, { time, eventQueries, wid, limit } ));
             }),
-            catchError( error => ctx.dispatch(new EventsGenericError(error, 'Get Events Error')) )
+            catchError( error => ctx.dispatch(new GetEventsFailed(error, wid)) )
         );
     }
 
@@ -180,8 +188,17 @@ export class EventsState {
             buckets: [],
             selectedBucketIndex: -1,
             time: origParams.time,
-            loading: false
+            loading: false,
+            error: null
         });
+    }
+
+    @Action(GetEventsFailed)
+    getEventsFailed(ctx: StateContext<EventsStateModel>, { response, wid }: GetEventsFailed) {
+        this.logger.error(GetEventsFailed.type, { response });
+        const state = ctx.getState();
+        const events: any = { events: [], wid, error: response.error.error.message};
+        ctx.setState({ ...state, loading: false, error: response.error.error.message, events});
     }
 
     // @Action(LoadEventsSuccess)
