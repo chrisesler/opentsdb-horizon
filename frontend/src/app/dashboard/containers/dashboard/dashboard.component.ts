@@ -738,12 +738,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.subscription.add(this.events$.subscribe(result => {
             const time = this.dbTime;
             let error = null;
-            let grawdata = {};
+            let grawdata: any = {};
             if (result !== undefined) {
-                if (result.events !== undefined && !result.events.error) {
+                if (result && result.error) {
+                    error = result.error;
+                } else {
                     grawdata = result.events;
-                } else if (result.events !== undefined) {
-                    error = result.events.error;
                 }
                 this.updateEvents(result.wid, grawdata, time, error);
             }
