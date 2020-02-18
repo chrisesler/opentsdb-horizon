@@ -3,6 +3,7 @@ import { UtilsService } from './utils.service';
 import { HttpService } from '../http/http.service';
 import { of, Observable, forkJoin } from 'rxjs';
 import { tap, map } from 'rxjs/operators';
+import { ObserversModule } from '@angular/cdk/observers';
 
 @Injectable({
   providedIn: 'root'
@@ -326,8 +327,8 @@ export class DashboardConverterService {
   // update dashboard to version 8
   // to deal with dashboard template v2
   toDBVersion8(dashboard: any) {
-    return this.httpService.getTagKeysForQueries(dashboard.content.widgets).pipe(
-        map ((res) => { 
+    return new Observable((observer) => {
+        this.httpService.getTagKeysForQueries(dashboard.content.widgets).subscribe(res => {
           dashboard.content.version = 8;
           let settings = dashboard.content.settings;
           let widgets = dashboard.content.widgets;
@@ -384,26 +385,32 @@ export class DashboardConverterService {
           dashboard.content.settings.tplVariables = tplVariables;
           delete dashboard.content.widgets;
           dashboard.content.widgets = widgets;
-          return this.toDBVersion9(dashboard);
-        })
-      );
+          this.toDBVersion9(dashboard).subscribe(res1 => {
+            observer.next(res1);
+            observer.complete();
+          });
+        });
+      });
   }
 
   // fix the count of db filters when convert at version 8
   toDBVersion9(dashboard: any): Observable<any> {
-    dashboard.content.version = 9;
-    let widgets = dashboard.content.widgets;
-    let tplVariables = dashboard.content.settings.tplVariables;
-    for (let i = 0; i < tplVariables.tvars.length; i++) {
-      let tvar = tplVariables.tvars[i];
-      tvar.applied = 0;
-      for (let j = 0; j < widgets.length; j++) {
-        const isInWidget = this.checkCount(tvar, widgets[j]);
-        if (isInWidget) {
-          tvar.applied += 1;
+    return new Observable((observer) => {
+      dashboard.content.version = 9;
+      let widgets = dashboard.content.widgets;
+      let tplVariables = dashboard.content.settings.tplVariables;
+      for (let i = 0; i < tplVariables.tvars.length; i++) {
+        let tvar = tplVariables.tvars[i];
+        tvar.applied = 0;
+        for (let j = 0; j < widgets.length; j++) {
+          const isInWidget = this.checkCount(tvar, widgets[j]);
+          if (isInWidget) {
+            tvar.applied += 1;
+          }
         }
       }
-    }
-    return dashboard;
+      observer.next(dashboard);
+      observer.complete();
+    });
   }
 }
