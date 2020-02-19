@@ -94,18 +94,28 @@ export class DashboardConverterService {
     return { ..._dashboardTags };
   }
 
-    // helper
-    private checkCount(tvar: any, widget: any): boolean {
+    // helper and clean up un-used db filters
+    private checkCount(tvar: any, widget: any, tvars: any[]): boolean {
       let inWidget = false;
       // check to apply each widget with this db filter
       // check id this fb filter in there to update the count
       for (let k = 0; k < widget.queries.length; k++) {
         const query = widget.queries[k];
         for (let c = 0; c < query.filters.length; c++) {
+          // clean up db fitler in wiget queries that not there anymore, bug from previous conversion if there
+          if (query.filters[c].customFilter && query.filters[c].customFilter.length > 0) {
+            query.filters[c].customFilter = query.filters[c].customFilter.filter(alias => {
+              const idx = tvars.findIndex(t => alias === '[' + t.alias + ']');
+              return idx > -1 ? true : false;
+            });
+          }
+          // update count
           if (query.filters[c].customFilter && query.filters[c].customFilter.includes('[' + tvar.alias + ']')) {
             inWidget = true;
           }
         }
+        // remove if these fitler is empty value
+        query.filters = query.filters.filter(f => f.filter.length > 0 || (f.customFilter && f.customFilter.length > 0));
       }
       return inWidget;
     }
@@ -401,7 +411,7 @@ export class DashboardConverterService {
         let tvar = tplVariables.tvars[i];
         tvar.applied = 0;
         for (let j = 0; j < widgets.length; j++) {
-          const isInWidget = this.checkCount(tvar, widgets[j]);
+          const isInWidget = this.checkCount(tvar, widgets[j], tplVariables.tvars);
           if (isInWidget) {
             tvar.applied += 1;
           }
