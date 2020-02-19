@@ -17,7 +17,7 @@ export class AlertDetailsCountComponent implements OnInit {
   @Input() namespace;
   @Input() alertId;
 
-  displayedColumns: string[] = ['bad', 'good', 'warn' , 'unknown', 'missing'];
+  displayedColumns: string[] = ['bad', 'warn', 'good', 'unknown', 'missing'];
   auraUrl = environment.auraUI + '/#/aura/newquery';
   auraDialog: MatDialogRef<AuraDialogComponent> | null;
 
