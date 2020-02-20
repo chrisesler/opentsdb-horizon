@@ -66,10 +66,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     @Select(AuthState.getAuth) auth$: Observable<string>;
     @Select(DBSettingsState.getDashboardSettings) dbSettings$: Observable<any>;
-    //@Select(UserSettingsState.GetUserNamespaces) userNamespaces$: Observable<string[]>;
-    //@Select(UserSettingsState.GetPersonalFolders) userPersonalFolders$: Observable<any[]>;
-    //@Select(UserSettingsState.GetNamespaceFolders) userNamespaceFolders$: Observable<any[]>;
-
 
     @Select(DbfsState.getUserFolderData()) userFolderData$: Observable<any>;
 
@@ -671,6 +667,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 } else {
                     // come from edit to view and there is urloverride, use those value
                     const tagOverrides = this.urlOverrideService.getTagOverrides() || {};
+                    // tslint:disable-next-line: forin
                     for (let alias in tagOverrides) {
                         const idx = this.tplVariables.viewTplVariables.tvars.findIndex(t => t.alias === alias);
                         if (idx > -1) {
@@ -700,68 +697,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.subscription.add(this.userFolderData$.subscribe( (result: any) => {
 
-            // this.logger.log('USER FOLDER DATA SUB', result);
-
             if (result && result.loaded) {
                 this.userNamespaces = result.namespaces;
-
-                // ??? What does this intercom do??
-                this.interCom.responsePut({
-                    action: 'UserNamespaces',
-                    payload: result.namespaces
-                });
 
                 if (result.personalFolders && result.personalFolders[0] && result.personalFolders[0].fullPath) {
                     this.user = this.getOwnerFromPath(result.personalFolders[0].fullPath);
                 }
 
-                this.interCom.responsePut({
-                    action: 'UserPersonalFolders',
-                    payload: result.personalFolders
-                });
-
-                if (result.namespaceFolders && result.namespaceFolders.length > 0) {
-                    // ??? What does this intercom do??
-                    this.interCom.responsePut({
-                        action: 'UserNamespaceFolders',
-                        payload: result.namespaceFolders
-                    });
-                }
-
                 this.setWriteSpaces();
             }
         }));
-
-
-        /*this.subscription.add(this.userNamespaces$.subscribe(result => {
-            this.userNamespaces = result;
-            this.setWriteSpaces();
-            this.interCom.responsePut({
-                action: 'UserNamespaces',
-                payload: result
-            });
-        }));
-
-        this.subscription.add(this.userPersonalFolders$.subscribe(folders => {
-
-            if (folders && folders[0] && folders[0].fullPath) {
-                this.user = this.getOwnerFromPath(folders[0].fullPath);
-                this.setWriteSpaces();
-            }
-
-            this.interCom.responsePut({
-                action: 'UserPersonalFolders',
-                payload: folders
-            });
-        }));
-
-        this.subscription.add(this.userNamespaceFolders$.subscribe(folders => {
-            // ??? DOES THIS ACTUALLY GET USED ???
-            this.interCom.responsePut({
-                action: 'UserNamespaceFolders',
-                payload: folders
-            });
-        }));*/
 
         this.subscription.add(this.auth$.subscribe(auth => {
             // console.log('auth$ calling', auth);
@@ -947,7 +892,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         applied = applied + 1;
                         const tplIndex = this.tplVariables.editTplVariables.tvars.findIndex((v) => v.alias === tvar.alias);
                         if (tplIndex > -1) {
-                            this.tplVariables.editTplVariables.tvars[tplIndex].applied += applied
+                            this.tplVariables.editTplVariables.tvars[tplIndex].applied += applied;
                         }
                     }
                 }
@@ -1262,7 +1207,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
         writeSpaces.push(this.user);
         this.writeSpaces = writeSpaces;
-        // this.logger.log('WRITE SPACES', {writeSpaces});
     }
 
     doesUserHaveWriteAccess() {
