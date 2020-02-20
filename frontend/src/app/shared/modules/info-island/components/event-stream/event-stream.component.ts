@@ -28,6 +28,9 @@ export class EventStreamComponent implements OnInit, OnChanges, OnDestroy, After
     maxEventsShown = 30;
     title = '';
 
+    tags = [];
+    props = [];
+
     private subscription: Subscription = new Subscription();
 
     displayReady = false;
@@ -90,6 +93,7 @@ export class EventStreamComponent implements OnInit, OnChanges, OnDestroy, After
 
                 return bucket;
             });
+            this.generateTagsAndProps();
         }));
     }
 
@@ -131,6 +135,22 @@ export class EventStreamComponent implements OnInit, OnChanges, OnDestroy, After
         this.show = false;
         this.updatedShowing.emit(this.show);
     }*/
+
+    generateTagsAndProps() {
+        this.tags = [];
+        this.props = [];
+        let i = 0;
+
+        for (const b of this.buckets) {
+            this.tags[i] = [];
+            this.props[i] = [];
+            for (const e of b.events) {
+                this.tags[i].push(this.util.transformTagMapToArray(e.tags));
+                this.props[i].push(this.util.transformTagMapToArray(e.additionalProps));
+            }
+            i++;
+        }
+    }
 
     // Accordion opens
     openExpansion(index) {

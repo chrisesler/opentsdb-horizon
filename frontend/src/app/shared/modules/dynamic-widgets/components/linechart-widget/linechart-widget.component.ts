@@ -168,6 +168,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     eventsCount = 10000;
     eventsLoading: boolean = false;
     axisLabelsWidth = 55;
+    eventsError: string = '';
 
     // behaviors that get passed to island legend
     private _buckets: BehaviorSubject<any[]> = new BehaviorSubject([]);
@@ -440,8 +441,15 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         this.cdRef.detectChanges();
                         break;
                     case 'updatedEvents':
+                        if (message.payload.error) {
+                            this.events = [];
+                            this.eventsError = message.payload.error;
+                        } else {
+                            this.events = message.payload.events;
+                            this.eventsError = '';
+                        }
                         this.eventsLoading = false;
-                        this.events = message.payload.events;
+                        // this.events = message.payload.events;
                         this.cdRef.detectChanges();
                         break;
                 }

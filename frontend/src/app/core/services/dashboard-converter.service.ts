@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { UtilsService } from './utils.service';
 import { HttpService } from '../http/http.service';
-import { of, Observable, forkJoin } from 'rxjs';
-import { tap, map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -95,18 +94,28 @@ export class DashboardConverterService {
     return { ..._dashboardTags };
   }
 
-    // helper
-    private checkCount(tvar: any, widget: any): boolean {
+    // helper and clean up un-used db filters
+    private checkCount(tvar: any, widget: any, tvars: any[]): boolean {
       let inWidget = false;
       // check to apply each widget with this db filter
       // check id this fb filter in there to update the count
       for (let k = 0; k < widget.queries.length; k++) {
         const query = widget.queries[k];
         for (let c = 0; c < query.filters.length; c++) {
+          // clean up db fitler in wiget queries that not there anymore, bug from previous conversion if there
+          if (query.filters[c].customFilter && query.filters[c].customFilter.length > 0) {
+            query.filters[c].customFilter = query.filters[c].customFilter.filter(alias => {
+              const idx = tvars.findIndex(t => alias === '[' + t.alias + ']');
+              return idx > -1 ? true : false;
+            });
+          }
+          // update count
           if (query.filters[c].customFilter && query.filters[c].customFilter.includes('[' + tvar.alias + ']')) {
             inWidget = true;
           }
         }
+        // remove if these fitler is empty value
+        query.filters = query.filters.filter(f => f.filter.length > 0 || (f.customFilter && f.customFilter.length > 0));
       }
       return inWidget;
     }
@@ -326,8 +335,8 @@ export class DashboardConverterService {
   // update dashboard to version 8
   // to deal with dashboard template v2
   toDBVersion8(dashboard: any) {
-    return this.httpService.getTagKeysForQueries(dashboard.content.widgets).pipe(
-        map ((res) => { 
+    return new Observable((observer) => {
+        this.httpService.getTagKeysForQueries(dashboard.content.widgets).subscribe(res => {
           dashboard.content.version = 8;
           let settings = dashboard.content.settings;
           let widgets = dashboard.content.widgets;
@@ -384,26 +393,32 @@ export class DashboardConverterService {
           dashboard.content.settings.tplVariables = tplVariables;
           delete dashboard.content.widgets;
           dashboard.content.widgets = widgets;
-          return this.toDBVersion9(dashboard);
-        })
-      );
+          this.toDBVersion9(dashboard).subscribe(res1 => {
+            observer.next(res1);
+            observer.complete();
+          });
+        });
+      });
   }
 
   // fix the count of db filters when convert at version 8
   toDBVersion9(dashboard: any): Observable<any> {
-    dashboard.content.version = 9;
-    let widgets = dashboard.content.widgets;
-    let tplVariables = dashboard.content.settings.tplVariables;
-    for (let i = 0; i < tplVariables.tvars.length; i++) {
-      let tvar = tplVariables.tvars[i];
-      tvar.applied = 0;
-      for (let j = 0; j < widgets.length; j++) {
-        const isInWidget = this.checkCount(tvar, widgets[j]);
-        if (isInWidget) {
-          tvar.applied += 1;
+    return new Observable((observer) => {
+      dashboard.content.version = 9;
+      let widgets = dashboard.content.widgets;
+      let tplVariables = dashboard.content.settings.tplVariables;
+      for (let i = 0; i < tplVariables.tvars.length; i++) {
+        let tvar = tplVariables.tvars[i];
+        tvar.applied = 0;
+        for (let j = 0; j < widgets.length; j++) {
+          const isInWidget = this.checkCount(tvar, widgets[j], tplVariables.tvars);
+          if (isInWidget) {
+            tvar.applied += 1;
+          }
         }
       }
-    }
-    return of(dashboard);   
+      observer.next(dashboard);
+      observer.complete();
+    });
   }
 }
