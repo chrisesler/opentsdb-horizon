@@ -146,7 +146,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             .pipe(
                 startWith(initRegVal),
                 distinctUntilChanged(),
-                debounceTime(500)
+                // debounceTime(500)
             ).subscribe(val => {
                 val = val ? val.trim() : '';
                 const alias = '[' + selControl.get('alias').value + ']';
@@ -387,10 +387,9 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 } 
                 break;
             case 'filter':
-
                 this.tagValueFocusTimeout = setTimeout(() => {
                     this.manageFilterControl(index);
-                }, 300);
+                });
                 break;
         }
     }
@@ -818,6 +817,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         });
     }
 
+    /* disable from html and here for now
     resetFilterValue(event: any, index: number) {
         event.stopPropagation();
         event.preventDefault();
@@ -833,7 +833,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             });
         }
     }
-
+    */
     // DragDrop Table reorder event
     dropTable(event: any) {
         // console.log('DROP TABLE EVENT', event);
