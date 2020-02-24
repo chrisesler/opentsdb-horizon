@@ -11,9 +11,9 @@
                         <input matInput formControlName="filter" placeholder="" [matAutocomplete]="filterVarValues"
                             (blur)="onVariableBlur($event, i)" (keydown.enter)="onVariableBlur($event, i)" (focus)="onVariableFocus(i)">
                         <span matPrefix class="automode {{vartpl.get('mode').value === 'auto' ? 'auto-mode' : 'manual-mode'}}">{{vartpl.get('alias').value}}</span>
-                        <span matSuffix *ngIf="vartpl.get('filter').value.length > 0" (click)="resetFilterValue($event, i)">
+                        <!--<span matSuffix *ngIf="vartpl.get('filter').value.length > 0" (click)="resetFilterValue($event, i)">
                             <mat-icon fontSet="denali" fontIcon="d-close-circle-solid"></mat-icon>
-                        </span>
+                        </span>-->
                         <mat-autocomplete #filterVarValues="matAutocomplete" (optionSelected)="selectVarValueOption($event, i)" panelWidth="auto">
                             <mat-option *ngFor="let option of filteredValueOptions[i]" [value]="option">
                                 {{option}}
