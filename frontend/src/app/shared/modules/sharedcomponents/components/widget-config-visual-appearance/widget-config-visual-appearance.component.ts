@@ -36,7 +36,7 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
 
     gSubscriptions: Subscription[] = [];
 
-    stackOrderOptions: Array<object> = [
+    stackOrderOptions: Array<any> = [
         {
             label: 'Metric',
             value: 'metric'
