@@ -56,14 +56,11 @@
     <div class="tag-values-search-results has-scroller" *ngIf="tagValueTypeControl.value==='literalor'">
         <div class="is-scroller">
             <div class="option-item" *ngFor="let option of filteredTagValues"
-                [ngClass]="{'added': filters[selectedTagIndex] && (filters[selectedTagIndex].filter.indexOf(option.name) >= 0 || (filters[selectedTagIndex].customFilter && filters[selectedTagIndex].customFilter.indexOf(option.name) >= 0))}">
+                [ngClass]="{'added': filters[selectedTagIndex] && (filters[selectedTagIndex].filter.indexOf(option.name) >= 0 || (filters[selectedTagIndex].customFilter && filters[selectedTagIndex].customFilter.indexOf(option.name) >= 0))}"
+                (click)="updateTagValueSelection(selectedTag, option.name, (getTagValueIndex(selectedTag, option.name) === -1 ? 'add' : 'remove'))">
                 <div class="option-cell add-remove">
-                    <mat-icon *ngIf="getTagValueIndex(selectedTag, option.name) === -1"
-                        (click)="updateTagValueSelection(selectedTag, option.name, 'add');">add_circle_outline
-                    </mat-icon>
-                    <mat-icon *ngIf="getTagValueIndex(selectedTag, option.name) !== -1"
-                        (click)="updateTagValueSelection(selectedTag, option.name, 'remove')">remove_circle_outline
-                    </mat-icon>
+                    <mat-icon *ngIf="getTagValueIndex(selectedTag, option.name) === -1">add_circle_outline</mat-icon>
+                    <mat-icon *ngIf="getTagValueIndex(selectedTag, option.name) !== -1">remove_circle_outline</mat-icon>
                 </div>
                 <div class="option-cell label" [innerHTML]="[option.name] | formatAutoManualFilter: tplVariables.tvars">
                 </div>
