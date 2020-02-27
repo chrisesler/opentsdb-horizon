@@ -37,6 +37,7 @@
             align-items: stretch;
             justify-content: stretch;
             cursor: pointer;
+            word-break: break-all; // break the word no matter what, to avoid x-scroll
 
             .mat-icon {
                 font-size: 15px;
@@ -219,11 +220,15 @@
                     flex-direction: column;
                     align-items: stretch;
                     justify-content: stretch;
-                    max-width: 200px;
+                    max-width: 300px;
+
+                    &.tag-values {
+                        min-width: 300px;
+                    }
                 }
 
                 .tag-filter-options-column:last-child {
-                    min-width: calc(100% - 400px);
+                    min-width: calc(100% - 500px);
 
                     .tag-value-list-item {
                         margin: 4px 8px;
@@ -271,6 +276,24 @@
                         font-size: 15px;
                     }
 
+                }
+
+                .column-output {
+                    display: flex;
+                    flex-direction: column;
+                    flex: 1;
+
+                    .gif-spinner {
+                        width: 100%;
+                        text-align: center;
+                        margin-top: 20px;
+                        background-color: transparent;
+                    }
+
+                    &.error-info-messaging {
+                        word-break: break-all;
+                        padding: 8px;
+                    }
                 }
 
                 .tag-search-input-field {
