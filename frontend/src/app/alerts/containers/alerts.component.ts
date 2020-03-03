@@ -186,7 +186,7 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
     // ALL namespaces are retrieved from somewhere else
     namespaces: any[] = [];
     alertFilterTypes = ['all', 'alerting', 'snoozed', 'disabled'];
-    alertsFilterRegexp = new RegExp(".*");
+    alertsFilterRegexp = new RegExp('.*');
 
     @ViewChild(AlertDetailsComponent) createAlertDialog: AlertDetailsComponent;
     @ViewChild(SnoozeDetailsComponent) snoozeDetailsComp: SnoozeDetailsComponent;
@@ -242,6 +242,7 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
     // portal placeholders
     alertspageNavbarPortal: TemplatePortal;
     auraDialog: MatDialogRef<AuraDialogComponent> | null;
+    snoozeDialog: MatDialogRef<SnoozeDetailsComponent> | null;
 
     // for alert search
     whitelistKeys: string[] = ['name', 'type', 'labels', 'recipients', 'updatedTime', 'updatedBy'];
@@ -287,7 +288,7 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
             debounceTime(500)
         ).subscribe(val => {
             val = val ? val : '';
-            this.alertsFilterRegexp = new RegExp(val.toLocaleLowerCase().replace(/\s/g, ".*"));
+            this.alertsFilterRegexp = new RegExp(val.toLocaleLowerCase().replace(/\s/g, '.*'));
             if (this.alertsDataSource) {
                 this.alertsDataSource.filter = val;
                 this.alertsDataSource.filterPredicate = (data: AlertModel, filter: string) => {
@@ -818,6 +819,28 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.configurationEditData = data;
         this.detailsView = true;
         this.location.go('a/snooze/' + this.selectedNamespace + '/_new_');
+    }
+
+    createInlineSnooze(alertId: number) {
+        const dialogConf: MatDialogConfig = new MatDialogConfig();
+        // dialogConf.width = '50%';
+        dialogConf.minWidth = '1200px';
+        dialogConf.minHeight = '510px';
+        dialogConf.backdropClass = 'aura-dialog-backdrop';
+        dialogConf.panelClass = 'aura-dialog-panel';
+
+        dialogConf.data = {
+            alertId: alertId,
+            namespace: this.selectedNamespace,
+            alertListMeta: this.alertListMeta
+        };
+
+        if (!this.snoozeDialog) {
+            this.snoozeDialog = this.dialog.open(SnoozeDetailsComponent, dialogConf);
+            this.snoozeDialog.afterClosed().subscribe(() => {
+                this.snoozeDialog = undefined;
+            });
+        }
     }
 
     editSnooze(element: any) {

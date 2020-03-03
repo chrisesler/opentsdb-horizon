@@ -64,7 +64,8 @@ import { AlertDetailsCountComponent } from './components/alert-details/children/
         AlertsService
     ],
     entryComponents: [
-        NameAlertDialogComponent
+        NameAlertDialogComponent,
+        SnoozeDetailsComponent
     ]
 })
 export class AlertsModule { }

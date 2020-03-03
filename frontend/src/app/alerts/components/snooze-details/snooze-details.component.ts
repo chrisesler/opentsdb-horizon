@@ -4,10 +4,10 @@ import {
     OnInit, OnChanges, Input, Output, EventEmitter,
     SimpleChanges,
     HostBinding,
-    ViewChild, ElementRef, HostListener
+    ViewChild, ElementRef, HostListener, Inject
 } from '@angular/core';
 
-import { MatChipInputEvent, MatMenuTrigger, MatInput } from '@angular/material';
+import { MatChipInputEvent, MatMenuTrigger, MatInput, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
 
 
@@ -26,6 +26,8 @@ import { IntercomService } from '../../../core/services/intercom.service';
 import { DatepickerComponent } from '../../../shared/modules/date-time-picker/components/date-picker-2/datepicker.component';
 
 import * as moment from 'moment';
+import { Store } from '@ngxs/store';
+import { SaveSnoozes } from '../../state';
 
 
 @Component({
@@ -54,6 +56,8 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
 
     @Input() hasWriteAccess: boolean = false;
     @Input() alertListMeta = [];
+
+    dialogMode: boolean = false;
 
     get readOnly(): boolean {
         if (!this.hasWriteAccess) { return true; }
@@ -94,11 +98,30 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
         private fb: FormBuilder,
         private utils: UtilsService,
         private interCom: IntercomService,
-        private metaService: MetaService
-    ) { }
+        private store: Store,
+        private metaService: MetaService,
+        private dialogRef: MatDialogRef<SnoozeDetailsComponent>,
+        @Inject(MAT_DIALOG_DATA) data
+    ) {
+        if (data) {
+            // this.dialogMode = data.dialogMode;
+            this.dialogMode = true;
+            this.data.alertIds = [data.alertId];
+            this.data.namespace = data.namespace;
+            this.alertListMeta = data.alertListMeta;
+
+            for (let i = 0; this.data.alertIds && i < this.data.alertIds.length; i++ ) {
+                const option = this.alertListMeta.find(d => d.id === this.data.alertIds[i]);
+                if ( option ) {
+                    this.alertLabels.push(option);
+                }
+            }
+        }
+    }
 
     ngOnInit() {
-        this.pickerOptions = {  startFutureTimesDisabled: false, 
+        this.dialogRef.updatePosition({ top: '300px', left: '60px' });
+        this.pickerOptions = {  startFutureTimesDisabled: false,
                                 endFutureTimesDisabled: true,
                                 defaultStartText: '',
                                 defaultEndText: '',
@@ -127,10 +150,11 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges( changes: SimpleChanges ) {
+        console.log(changes);
         if (changes.alertListMeta && changes.alertListMeta.currentValue) {
             const alertListMeta = changes.alertListMeta.currentValue;
             for ( let i = 0; this.data.alertIds && i < this.data.alertIds.length; i++ ) {
-                const option = alertListMeta.find(d => d.id === this.data.alertIds[i]); 
+                const option = alertListMeta.find(d => d.id === this.data.alertIds[i]);
                 if ( option ) {
                     this.alertLabels.push(option);
                 }
@@ -249,6 +273,7 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
         }
 
         if ( this.snoozeForm.valid ) {
+            console.log('clearing message bar');
             // clear system message bar
             this.interCom.requestSend({
                 action: 'clearSystemMessage',
@@ -285,13 +310,25 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
         }
         data.filter = this.queries[0].filters.length ? this.getMetaFilter() : {};
         // emit to save the snooze
-        this.configChange.emit({ action: 'SaveSnooze', namespace: this.data.namespace, payload: { data: this.utils.deepClone([data]) }} );
+
+        if (this.dialogMode) {
+            this.store.dispatch(new SaveSnoozes(this.data.namespace, { data: this.utils.deepClone([data]) }));
+            this.dialogRef.close();
+        } else {
+            this.configChange.emit({ action: 'SaveSnooze', namespace: this.data.namespace,
+                                     payload: { data: this.utils.deepClone([data]) }} );
+        }
+
     }
 
     cancelEdit() {
         this.configChange.emit({
             action: 'CancelSnoozeEdit'
         });
+
+        if (this.dialogMode) {
+            this.dialogRef.close();
+        }
     }
 
     @HostListener('document:click', ['$event'])
