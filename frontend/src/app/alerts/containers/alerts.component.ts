@@ -20,10 +20,8 @@ import {
     MatDialog,
     MatDialogRef,
     MatDialogConfig,
-    MatSnackBar,
-    MatInput
+    MatSnackBar
 } from '@angular/material';
-
 
 import { Observable, Subscription, Subject } from 'rxjs';
 import { delayWhen, filter, skip, distinctUntilChanged, debounce, debounceTime } from 'rxjs/operators';
@@ -242,7 +240,6 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
     // portal placeholders
     alertspageNavbarPortal: TemplatePortal;
     auraDialog: MatDialogRef<AuraDialogComponent> | null;
-    snoozeDialog: MatDialogRef<SnoozeDetailsComponent> | null;
 
     // for alert search
     whitelistKeys: string[] = ['name', 'type', 'labels', 'recipients', 'updatedTime', 'updatedBy'];
@@ -822,25 +819,18 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     createInlineSnooze(alertId: number) {
-        const dialogConf: MatDialogConfig = new MatDialogConfig();
-        // dialogConf.width = '50%';
-        dialogConf.minWidth = '1200px';
-        dialogConf.minHeight = '510px';
-        dialogConf.backdropClass = 'aura-dialog-backdrop';
-        dialogConf.panelClass = 'aura-dialog-panel';
-
-        dialogConf.data = {
-            alertId: alertId,
-            namespace: this.selectedNamespace,
-            alertListMeta: this.alertListMeta
-        };
-
-        if (!this.snoozeDialog) {
-            this.snoozeDialog = this.dialog.open(SnoozeDetailsComponent, dialogConf);
-            this.snoozeDialog.afterClosed().subscribe(() => {
-                this.snoozeDialog = undefined;
-            });
+        if (!this.stateLoaded.alerts) {
+            this.store.dispatch(new LoadAlerts({ namespace: this.selectedNamespace }));
         }
+        const data = {
+            id: '_new_',
+            namespace: this.selectedNamespace,
+            alertIds: [alertId]
+        };
+        this.configurationEditData = data;
+        this.detailsView = true;
+        this.switchType('snooze');
+        this.location.go('a/snooze/' + this.selectedNamespace + '/_new_');
     }
 
     editSnooze(element: any) {
