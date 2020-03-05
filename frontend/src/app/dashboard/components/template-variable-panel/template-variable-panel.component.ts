@@ -484,20 +484,27 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         }
         if (cname === 'filter') {
             if (selControl.invalid) { return; }
-            // to check filter again return list
-            let idx = -1;
-            if (this.filteredValueOptions[index]) {
-                idx = this.filteredValueOptions[index].findIndex(item => item && item === val);
-            }
-            // when they not on the list we add 'regexp' around it
-            if (idx === -1) {
-                if (val !== '') {
-                    selControl.get('filter').setValue('regexp(' + val.replace(/\s/g, ".*") + ')', { emitEvent: false });
+            // to check filter again return list       
+            this.tagValueBlurTimeout = setTimeout(() => {              
+                let idx = -1;
+                if (val === '') {
+                    selControl.get('filter').setValue('', { eventEmit: false});
+                } else {
+                    const res = this.tplVariables.editTplVariables.tvars[index].filter.match(/^regexp\((.*)\)$/);
+                    if ((res && res[1] === val) || (!res && this.tplVariables.editTplVariables.tvars[index].filter === val)) {
+                        // no changes
+                        selControl.get('filter').setValue(this.tplVariables.editTplVariables.tvars[index].filter, { emitEvent: false});
+                    } else {
+                        if (this.filteredValueOptions[index]) {
+                            idx = this.filteredValueOptions[index].findIndex(item => item && item === val);
+                        }
+                        if (idx === -1) {
+                            selControl.get('filter').setValue('regexp(' + val.replace(/\s/g, ".*") + ')', { emitEvent: false });
+                        } else {
+                            selControl.get('filter').setValue(this.filteredValueOptions[index][idx], { emitEvent: false });
+                        }
+                    }
                 }
-            } else {
-                selControl.get('filter').setValue(this.filteredValueOptions[index][idx], { emitEvent: false });
-            }
-            this.tagValueBlurTimeout = setTimeout(() => {
                 if (this.tplVariables.editTplVariables.tvars[index].filter !== selControl.get('filter').value) {
                     this.updateState(selControl);
                 }
