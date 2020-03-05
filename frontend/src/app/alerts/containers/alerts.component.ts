@@ -818,14 +818,15 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.location.go('a/snooze/' + this.selectedNamespace + '/_new_');
     }
 
-    createInlineSnooze(alertId: number) {
+    createAlertSnooze(alertId: number) {
         if (!this.stateLoaded.alerts) {
             this.store.dispatch(new LoadAlerts({ namespace: this.selectedNamespace }));
         }
         const data = {
             id: '_new_',
             namespace: this.selectedNamespace,
-            alertIds: [alertId]
+            alertIds: [alertId],
+            cancelToAlerts: true
         };
         this.configurationEditData = data;
         this.detailsView = true;
@@ -875,6 +876,11 @@ export class AlertsComponent implements OnInit, OnDestroy, AfterViewChecked {
                 this.detailsView = false;
                 this.location.go('a/snooze/' + this.selectedNamespace);
                 this.setSnoozeTableDataSource();
+                break;
+           case 'CancelToAlerts':
+                this.switchType('alerts');
+                this.detailsView = false;
+                this.location.go('a/' + this.selectedNamespace);
                 break;
             default:
                 // this is when dialog is closed to return to summary page
